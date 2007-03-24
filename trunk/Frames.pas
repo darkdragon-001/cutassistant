@@ -27,8 +27,8 @@ type
     property BorderVisible: boolean read FBorderVisible write SetBorderVisible;
     property index: integer read FIndex;
     property position: double read FPosition write setPosition;
-    constructor create(AParent: TWinControl); 
-    destructor destroy; 
+    constructor Create(AParent: TWinControl);
+    destructor Destroy; 
     procedure init(image_height, image_width: INteger);
     procedure Adjust_position(pos_top, pos_left: Integer);
     procedure BStartClick(Sender: TObject);

@@ -10,7 +10,7 @@ uses
   ActnMan, ActnCtrls, ActnMenus, ActnList, XPStyleActnCtrls, ImgList,
   StdStyleActnCtrls, ExtActns,
 
-  XMLDoc, xmldom, XMLIntf, msxmldom, Provider, Xmlxform, DB, DBClient, MidasLib,
+  XMLDoc, xmldom, XMLIntf, msxmldom, Provider, DB, DBClient, MidasLib,
 
   IdBaseComponent, IdComponent,IdTCPConnection, IdTCPClient,IdHTTP,
   IdMultipartFormData, IdException,
@@ -18,9 +18,9 @@ uses
   DSPack, DSUtil, DirectShow9, wmf9, ActiveX,
 
   Settings_dialog, ManageFilters, UploadList, CutlistInfo_dialog, UCutlist,
-  Movie, trackBarEx,
+  Movie, Unit_DSTrackBarEx, trackBarEx,
 
-  CodecSettings, JvComponentBase, JvCreateProcess, Unit_DSTrackBarEx;
+  CodecSettings, JvComponentBase, JvCreateProcess;
 
 const  
   //Registry Keys

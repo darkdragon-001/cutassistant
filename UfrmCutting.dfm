@@ -1,36 +1,40 @@
 object frmCutting: TfrmCutting
   Left = 286
   Top = 124
-  AutoScroll = False
-  BorderIcons = [biMinimize, biMaximize]
-  Caption = 'Cutting...'
-  ClientHeight = 503
-  ClientWidth = 618
+  BorderIcons = [biMaximize]
+  Caption = 'Cutting ...'
+  ClientHeight = 344
+  ClientWidth = 492
   Color = clBtnFace
+  Constraints.MinHeight = 260
+  Constraints.MinWidth = 500
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -10
   Font.Name = 'MS Sans Serif'
   Font.Style = []
+  Padding.Left = 3
+  Padding.Top = 3
+  Padding.Right = 3
+  Padding.Bottom = 3
   OldCreateOrder = False
   Position = poOwnerFormCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (
-    618
-    503)
-  PixelsPerInch = 120
-  TextHeight = 16
+    492
+    344)
+  PixelsPerInch = 96
+  TextHeight = 13
   object memOutput: TMemo
-    Left = 0
-    Top = 0
-    Width = 618
-    Height = 462
-    Align = alTop
+    Left = 6
+    Top = 6
+    Width = 480
+    Height = 301
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -13
+    Font.Height = -11
     Font.Name = 'System'
     Font.Pitch = fpFixed
     Font.Style = []
@@ -38,51 +42,61 @@ object frmCutting: TfrmCutting
     ReadOnly = True
     ScrollBars = ssBoth
     TabOrder = 0
+    ExplicitWidth = 490
+    ExplicitHeight = 366
   end
   object btnClose: TButton
-    Left = 536
-    Top = 469
-    Width = 75
+    Left = 381
+    Top = 313
+    Width = 105
     Height = 25
     Anchors = [akRight, akBottom]
-    Caption = 'Close'
+    Caption = '&Close'
     Enabled = False
     TabOrder = 1
+    ExplicitLeft = 391
+    ExplicitTop = 378
   end
   object btnAbort: TButton
-    Left = 456
-    Top = 469
-    Width = 75
+    Left = 270
+    Top = 313
+    Width = 105
     Height = 25
     Anchors = [akRight, akBottom]
-    Caption = 'Abort'
+    Cancel = True
+    Caption = '&Abort'
     TabOrder = 2
     OnClick = btnAbortClick
+    ExplicitLeft = 280
+    ExplicitTop = 378
   end
   object btnCopyClipbrd: TButton
-    Left = 8
-    Top = 469
-    Width = 129
+    Left = 6
+    Top = 313
+    Width = 105
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Copy to Clipboard'
     TabOrder = 3
     OnClick = btnCopyClipbrdClick
+    ExplicitTop = 378
   end
   object btnEmergencyExit: TButton
-    Left = 336
-    Top = 469
-    Width = 113
+    Left = 159
+    Top = 313
+    Width = 105
     Height = 25
     Anchors = [akRight, akBottom]
-    Caption = 'Terminate Now!'
+    Caption = '&Terminate Now!'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clRed
-    Font.Height = -13
+    Font.Height = -11
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
     TabOrder = 4
     OnClick = btnEmergencyExitClick
+    ExplicitLeft = 169
+    ExplicitTop = 378
   end
 end

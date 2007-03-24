@@ -7,7 +7,7 @@ uses
   Dialogs, FileCtrl, StdCtrls, ComCtrls, ExtCtrls, IniFiles, Utils, CodecSettings, MMSystem,
   Movie, UCutApplicationBase,
 
-  DirectShow9, DSPack, DSUtil;
+  DirectShow9, DSPack, DSUtil, CheckLst;
 
 const
   //Settings Save...Mode
@@ -23,8 +23,8 @@ type
   TFSettings = class(TForm)
     Cancel: TButton;
     OK: TButton;
-    PageControl1: TPageControl;
-    TabSheet2: TTabSheet;
+    pgSettings: TPageControl;
+    tabUserData: TTabSheet;
     Label8: TLabel;
     Label9: TLabel;
     EUserName: TEdit;
@@ -43,7 +43,7 @@ type
     CutListSaveDir: TEdit;
     CutlistAutoSaveBeforeCutting: TCheckBox;
     BCUtlistSaveDir: TButton;
-    TabSheet1: TTabSheet;
+    tabURLs: TTabSheet;
     Label4: TLabel;
     Label5: TLabel;
     Label6: TLabel;
@@ -92,6 +92,9 @@ type
     Label25: TLabel;
     cbxSourceFilterListWMV: TComboBox;
     pnlPleaseWait: TPanel;
+    pnlButtons: TPanel;
+    lbchkBlackList: TCheckListBox;
+    Label15: TLabel;
     procedure BCutMovieSaveDirClick(Sender: TObject);
     procedure BCutlistSaveDirClick(Sender: TObject);
     procedure EProxyPortKeyPress(Sender: TObject; var Key: Char);
@@ -102,6 +105,7 @@ type
     procedure FormShow(Sender: TObject);
     procedure tsSourceFilterShow(Sender: TObject);
     procedure btnRefreshFilterListClick(Sender: TObject);
+    procedure lbchkBlackListClickCheck(Sender: TObject);
   private
     { Private declarations }
     CodecState: String;
@@ -119,10 +123,11 @@ type
     procedure ClearFilterList;
     function Add: PFilCatNode;
     function GetFilter(Index: Integer): TFilCatNode;
+    function CheckFilter(EnumFilters: TSysDevEnum; index: integer): Boolean;
   public
-    constructor create;
-    destructor destroy; override;
-    function Fill: Integer;
+    constructor Create;
+    destructor Destroy; override;
+    function Fill(progressLabel: TPanel): Integer;
     function count: Integer;
     property GetFilterInfo[Index: Integer]: TFilCatNode read GetFilter;
     function GetFilterIndexByCLSID(CLSID: TGUID): Integer;
@@ -175,8 +180,8 @@ type
 
     function CheckInfos: boolean;
 
-    constructor create;
-    destructor destroy; override;
+    constructor Create;
+    destructor Destroy; override;
 
     function GetCutAppName(MovieType: TMovieType): String;
     function GetCutAppNameByCutAppType(CAType: TCutApp): String; //deprecated
@@ -203,6 +208,7 @@ var
 implementation
 
 uses
+  Math,
   main, UCutApplicationAsfbin, UCutApplicationVirtualDub, UCutApplicationAviDemux, UCutApplicationMP4Box;
 
 
@@ -283,11 +289,11 @@ var
   TabSheet: TTabSheet;
   FrameClass: TCutApplicationFrameClass;
 begin
-  for iTabSheet := 0 to FSettings.PageControl1.PageCount -1 do begin
-    TabSheet := FSettings.PageControl1.Pages[iTabSheet];
+  for iTabSheet := 0 to FSettings.pgSettings.PageCount -1 do begin
+    TabSheet := FSettings.pgSettings.Pages[iTabSheet];
     if TabSheet.Tag <> 0 then begin
       FrameClass := TCutApplicationFrameClass(TabSheet.Tag);
-      (FSettings.PageControl1.Pages[iTabSheet].Controls[0] as FrameClass).Init;
+      (FSettings.pgSettings.Pages[iTabSheet].Controls[0] as FrameClass).Init;
     end;
   end;
 
@@ -338,7 +344,7 @@ begin
         Data_Valid := forceDirectories(FSettings.CutMovieSaveDir.Text);
       end else begin
         Data_Valid := false;
-        FSettings.PageControl1.ActivePage := Fsettings.TabSaveMovie;
+        FSettings.pgSettings.ActivePage := Fsettings.TabSaveMovie;
         FSettings.ActiveControl := FSettings.CutMovieSaveDir;
       end;
     end;
@@ -348,7 +354,7 @@ begin
         Data_Valid := forceDirectories(FSettings.CutlistSaveDir.Text);
       end else begin
         Data_Valid := false;
-        FSettings.PageControl1.ActivePage := Fsettings.TabSaveCutlist;
+        FSettings.pgSettings.ActivePage := Fsettings.TabSaveCutlist;
         FSettings.ActiveControl := FSettings.CutlistSaveDir;
       end;
     end;
@@ -406,11 +412,11 @@ begin
         self.InfoCheckInterval := -1;
       end;
 
-      for iTabSheet := 0 to FSettings.PageControl1.PageCount -1 do begin
-        TabSheet := FSettings.PageControl1.Pages[iTabSheet];
+      for iTabSheet := 0 to FSettings.pgSettings.PageCount -1 do begin
+        TabSheet := FSettings.pgSettings.Pages[iTabSheet];
         if TabSheet.Tag <> 0 then begin
           FrameClass := TCutApplicationFrameClass(TabSheet.Tag);
-          (FSettings.PageControl1.Pages[iTabSheet].Controls[0] as FrameClass).Apply;
+          (FSettings.pgSettings.Pages[iTabSheet].Controls[0] as FrameClass).Apply;
         end;
       end;
 
@@ -690,12 +696,15 @@ var
   newTabsheet: TTabsheet;
   iCutApplication: integer;
   CutApplication: TCutApplicationBase;
+  MinSize: TSizeConstraints;
 begin
   CBOtherApp.Items.Clear;
+  MinSize := tabURLs.Constraints;
+
   for iCutApplication := 0 to Settings.CutApplicationList.Count - 1 do begin
     CutApplication := (Settings.CutApplicationList[iCutApplication] as TCutApplicationBase);
-    newTabsheet := TTabsheet.Create(PageControl1);
-    newTabsheet.PageControl := PageControl1;
+    newTabsheet := TTabsheet.Create(pgSettings);
+    newTabsheet.PageControl := pgSettings;
     newTabsheet.Caption := CutApplication.Name;
     newTabsheet.Tag := Integer(CutApplication.FrameClass);
     frame := CutApplication.FrameClass.Create(newTabsheet);
@@ -703,8 +712,18 @@ begin
     frame.Align := alClient;
     frame.CutApplication := CutApplication;
     frame.Init;
+
+    newTabsheet.Constraints := frame.Constraints;
+    MinSize.MinWidth := Max(MinSize.MinWidth, frame.Constraints.MinWidth);
+    MinSize.MinHeight := Max(MinSize.MinHeight, frame.Constraints.MinHeight);
+
     CBOtherApp.Items.Add(CutApplication.Name);
   end;
+
+  if tabUserData.Height < MinSize.MinHeight then
+    self.Constraints.MinHeight := self.Height - ( tabUserData.Height - MinSize.MinHeight);
+  if tabUserData.Width < MinSize.MinWidth then
+    self.Constraints.MinWidth := self.Width - ( tabUserData.Width - MinSize.MinWidth);
 
   CBWmvApp.Items.Assign(CBOtherApp.Items);
   CBAviApp.Items.Assign(CBOtherApp.Items);
@@ -728,8 +747,26 @@ begin
   CBInfoCheckEnabledClick(sender);
 end;
 
-{ TSourceFilterList }
+procedure TFSettings.lbchkBlackListClickCheck(Sender: TObject);
+var
+  FilterInfo: TFilCatNode;
+  idx: integer;
+begin
+  idx := lbchkBlackList.ItemIndex;
+  if idx = -1 then
+    exit;
+  FilterInfo := Settings.SourceFilterList.GetFilter(idx);
+  if lbchkBlackList.Checked[idx] then
+  begin
+    Settings.FilterBlackList.Add(FilterInfo.CLSID);
+  end
+  else
+  begin
+    Settings.FilterBlackList.Delete(FilterInfo.CLSID);
+  end;
+end;
 
+{ TSourceFilterList }
 
 procedure TSourceFilterList.ClearFilterList;
 var
@@ -772,6 +809,28 @@ end;
 
 { TSourceFilterList }
 
+procedure UpdateControlCaption(cntrl: TControl; s: string);
+begin
+  if cntrl = nil then exit;
+
+  if cntrl is TPanel then
+  begin
+    with cntrl as TPanel do
+    begin
+      Caption := s;
+      Refresh;
+    end;
+  end
+  else if cntrl is TLabel then
+  begin
+    with cntrl as TLabel do
+    begin
+      Caption := s;
+      Refresh;
+    end;
+  end
+end;
+
 function TSourceFilterList.count: Integer;
 begin
   result := FFilters.Count;
@@ -789,14 +848,38 @@ begin
   inherited;
 end;
 
-function TSourceFilterList.Fill: Integer;
+function TSourceFilterList.CheckFilter(EnumFilters: TSysDevEnum; index: integer): Boolean;
 const
   CLS_ID_WMT_LOG_FILTER: TGUID = '{92883667-E95C-443D-AC96-4CACA27BEB6E}';
 var
-  EnumFilters: TSysDevEnum;
-  i: Integer;
   Filter: IBaseFilter;
   newFilterInfo: PFilCatNode;
+  filterInfo: TFilCatNode;
+begin
+  Result := false;
+  filterInfo := EnumFilters.Filters[index];
+  //Skip Wmt Log Filter -> causing strange exception
+  if not (IsEqualGUID(filterInfo.CLSID, CLS_ID_WMT_LOG_FILTER)
+    or Settings.FilterIsInBlackList(filterInfo.CLSID))  then
+  begin
+    Filter := EnumFilters.GetBaseFilter(index);
+    if supports(Filter, IFileSourceFilter) then
+    begin
+      newFilterInfo := self.Add;
+      newFilterINfo^  := filterInfo;
+      Result := true;
+    end;
+    Filter:=nil;
+  end;
+end;
+
+function TSourceFilterList.Fill(progressLabel: TPanel): Integer;
+var
+  EnumFilters: TSysDevEnum;
+  i, filterCount: Integer;
+  Filter: IBaseFilter;
+  newFilterInfo: PFilCatNode;
+  ParentForm: TWinControl;
 begin
   self.ClearFilterList;
   newFilterInfo := self.Add;
@@ -806,28 +889,32 @@ begin
 
   EnumFilters := TSysDevEnum.Create(CLSID_LegacyAmFilterCategory); //DirectShow Filters
   if not assigned(EnumFilters) then exit;
+
+  ParentForm := progressLabel;
+  while (ParentForm <> nil) and not (ParentForm is TCustomForm) do
+    ParentForm := ParentForm.Parent;
+
+  UpdateControlCaption(progressLabel, 'Checking Filters. Please wait ...');
+  filterCount := EnumFilters.CountFilters;
   try
-    try
-      For i := 0 to EnumFilters.CountFilters -1 do begin
-        //Skip Wmt Log Filter -> causing strange exception
-        if not (isEqualGUID(EnumFilters.Filters[i].CLSID, CLS_ID_WMT_LOG_FILTER)
-                or settings.FilterIsInBlackList(EnumFilters.Filters[i].CLSID))  then begin
-          Filter := EnumFilters.GetBaseFilter(i);
-          if supports(Filter, IFileSourceFilter) then begin
-            newFilterInfo := self.Add;
-            newFilterINfo^  := EnumFilters.Filters[i];
-          end;
-          Filter:=nil;
-        end;
-      end;
-    except
-      on E: exception do begin
+    For i := 0 to filterCount - 1 do
+    begin
+      try
+        UpdateControlCaption(progressLabel, SysUtils.Format('Checking Filter (%3d/%3d)', [i+1, filterCount]));
+        CheckFilter(EnumFilters, i);
+      except
+      on E: exception do
+        begin
         showmessage('Error while checking Filter '+EnumFilters.Filters[i].FriendlyName +#13#10
-                   +'ClassID: ' + GUIDTOString(EnumFilters.Filters[i].CLSID));
-        raise;
+                   +'ClassID: ' + GUIDTOString(EnumFilters.Filters[i].CLSID)+#13#10
+                   +'Error: ' + E.Message);
+        if ParentForm <> nil then ParentForm.Refresh;
+        //raise;
+        end;
       end;
     end;
   finally
+    UpdateControlCaption(progressLabel, 'Checking Filters. Done.');
     EnumFilters.free;
     result := self.FFilters.Count;
   end;
@@ -884,7 +971,7 @@ begin
     cbxSourceFilterListMP4.Clear;
     cbxSourceFilterListOther.Clear;
 
-    Settings.SourceFilterList.Fill;
+    Settings.SourceFilterList.Fill(pnlPleaseWait);
 
     tsSourceFilterShow(sender);
   finally

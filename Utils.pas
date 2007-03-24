@@ -26,7 +26,8 @@ type
     procedure Clear;
     function Add(aGUID: TGUID): Integer;
     function AddFromString(aGUIDString: string): Integer;
-    procedure Delete(Index: Integer);
+    procedure Delete(Index: Integer); overload;
+    procedure Delete(Item: TGUID); overload;
     function IndexOf(aGUID: TGUID): Integer; overload;
     function IndexOf(aGUIDString: string): Integer; overload;
     function IsInList(aGUID: TGUID): boolean; overload;
@@ -471,6 +472,15 @@ constructor TGUIDList.Create;
 begin
   inherited;
   Clear;
+end;
+
+procedure TGUIDList.Delete(Item: TGUID);
+var
+  idx: integer;
+begin
+  idx := IndexOf(Item);
+  if idx > -1 then
+    Delete(idx);
 end;
 
 procedure TGUIDList.Delete(Index: Integer);

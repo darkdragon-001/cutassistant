@@ -1,16 +1,18 @@
 inherited frmCutApplicationMP4Box: TfrmCutApplicationMP4Box
+  Constraints.MinHeight = 160
+  Constraints.MinWidth = 385
   object lblCommandLineOptions: TLabel [2]
     Left = 8
     Top = 184
-    Width = 139
-    Height = 16
+    Width = 109
+    Height = 13
     Caption = 'Command Line Options'
   end
   object edtCommandLineOptions: TEdit [3]
     Left = 8
     Top = 200
     Width = 329
-    Height = 24
+    Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 1
   end

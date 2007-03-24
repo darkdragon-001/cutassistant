@@ -37,6 +37,8 @@ var
 
 implementation
 
+uses Clipbrd;
+
 {$R *.dfm}
 
 function TfrmCutting.ExecuteCutApp: Integer;
@@ -53,7 +55,7 @@ begin
   self.ShowModal;
   if CutApplication.CleanUp then begin
     if not CutApplication.CleanUpAfterCutting then
-      showmessage('Error while cleaning up after cutting.');
+      Showmessage('Error while cleaning up after cutting.');
   end;
 end;
 
@@ -68,7 +70,7 @@ begin
   btnAbort.Enabled := false;
   btnEmergencyExit.Enabled := false;
   btnClose.Enabled := true;
-  beep;
+  Beep;
 end;
 
 procedure TfrmCutting.btnAbortClick(Sender: TObject);
@@ -78,8 +80,7 @@ end;
 
 procedure TfrmCutting.btnCopyClipbrdClick(Sender: TObject);
 begin
-  memOutput.SelectAll;
-  memOutput.CopyToClipboard;
+  Clipboard.AsText := memOutput.Text;
 end;
 
 procedure TfrmCutting.FormCreate(Sender: TObject);
@@ -109,9 +110,10 @@ var
   message_string: string;
 begin
   message_string := 'The Cut Application will be terminated immediately!'+#13#10
-                  + 'This may result in unexpected behaviour of the Cut Application.'+#13#10
+                  + 'This may result in unexpected behaviour of the Cut Application.'+#13#10#13#10
                   + 'Do you really want to terminate the Application?';
-  if (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONQUESTION) = IDYES) then begin
+  if (application.messagebox(PChar(message_string), 'Application warning.', MB_YESNO + MB_ICONQUESTION + MB_DEFBUTTON2) = IDYES) then
+  begin
     CutApplication.EmergencyTerminateProcess;
     self.CutAppTerminate(self, Cardinal(-1));
   end;

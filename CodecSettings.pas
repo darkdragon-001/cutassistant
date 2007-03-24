@@ -32,7 +32,7 @@ type
     function GetCodecInfoObject(i: Integer): TICInfoObject;
   public
     constructor create;
-    destructor destroy;
+    destructor Destroy; override;
     procedure ClearAndFreeObjects;
     procedure InsertDummy;
     function Fill: Integer;

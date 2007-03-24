@@ -23,6 +23,7 @@ type
     cbRedirectOutput: TCheckBox;
     cbShowAppWindow: TCheckBox;
     cbCleanUp: TCheckBox;
+    selectFileDlg: TOpenDialog;
     procedure btnBrowsePathClick(Sender: TObject);
     procedure btnBrowseTempDirClick(Sender: TObject);
   private
@@ -97,7 +98,7 @@ type
     property VersionWords[Index: Integer]: word read GetVersionWords;
 
     constructor create; virtual;
-    destructor destroy; override;
+    destructor Destroy; override;
     function LoadSettings(IniFile: TIniFile): boolean; virtual;
     function SaveSettings(IniFile: TIniFile): boolean; virtual;
     function InfoString: string; virtual;
@@ -364,29 +365,21 @@ end;
 
 procedure TfrmCutApplicationBase.btnBrowsePathClick(Sender: TObject);
 var
-  selectFileDlg: TOpenDialog;
   i: Integer;
 begin
-  selectFileDlg := TOpenDialog.Create(self);
-  try
-    selectFileDlg.Filter := '';
     for i := 0 to CutApplication.DefaultExeNames.Count-1 do begin
-      selectFileDlg.Filter := selectFileDlg.Filter + CutApplication.DefaultExeNames.Strings[i] + '|'
-                                                   + CutApplication.DefaultExeNames.Strings[i] + '|';
+      selectFileDlg.Filter := CutApplication.DefaultExeNames.Strings[i] + '|'
+                            + CutApplication.DefaultExeNames.Strings[i] + '|'
+                            + selectFileDlg.Filter;
     end;
-    selectFileDlg.Filter := selectFileDlg.Filter + 'Executables (*.exe)|*.exe|All files|*.*';
-    selectFileDlg.Options := selectFileDlg.Options + [ofPathMustExist, ofFileMustExist, ofNoChangeDir];
     selectFileDlg.Title := 'Select '+CutApplication.Name+' Application:';
-    selectFileDlg.InitialDir := extractfilepath(self.edtPath.Text);
-    selectFileDlg.FileName := extractfilename(self.edtPath.Text);
+    selectFileDlg.InitialDir := ExtractFilePath(self.edtPath.Text);
+    selectFileDlg.FileName := ExtractFileName(self.edtPath.Text);
     if selectFileDlg.Execute then begin
       edtPath.Text := selectFileDlg.FileName;
     end else begin
       exit;
     end;
-  finally
-    selectFileDlg.Free;
-  end;
 end;
 
 procedure TfrmCutApplicationBase.Init;
@@ -459,7 +452,7 @@ var
   newDir: String;
 begin
   newDir := self.edtTempDir.Text;
-  if selectdirectory('Destination directory for temporary files:', '', newDir) then
+  if SelectDirectory('Destination directory for temporary files:', '', newDir) then
     self.edtTempDir.Text := newDir;
 end;
 

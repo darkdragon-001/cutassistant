@@ -106,10 +106,13 @@ type
     procedure tsSourceFilterShow(Sender: TObject);
     procedure btnRefreshFilterListClick(Sender: TObject);
     procedure lbchkBlackListClickCheck(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
     CodecState: String;
     CodecStateSize: Integer;
+    EnumFilters: TSysDevEnum;
+    procedure FillBlackList;
   public
     { Public declarations }
   end;
@@ -214,6 +217,25 @@ uses
 
 {$R *.dfm}
 
+function FilterInfoToString(const filterInfo: TFilCatNode): string;
+begin
+  Result := filterInfo.FriendlyName + '  (' + GUIDToString(filterInfo.CLSID) + ')';
+end;
+
+function StringToFilterGUID(const s: string): TGUID;
+var
+  idx, len: integer;
+begin
+  idx := LastDelimiter('(', s);
+  len := LastDelimiter(')', s);
+  if idx < 0 then Result := GUID_NULL
+  else
+  begin
+    if len <= idx then len := MaxInt;
+    Result := StringToGUID(Copy(s, idx, len - idx))
+  end;
+end;
+
 procedure TFSettings.BCutMovieSaveDirClick(Sender: TObject);
 var
   newDir: String;
@@ -284,8 +306,7 @@ procedure TSettings.edit;
 var
   message_string: string;
   Data_Valid: boolean;
-  iTabSheet,
-  i: Integer;
+  iTabSheet: Integer;
   TabSheet: TTabSheet;
   FrameClass: TCutApplicationFrameClass;
 begin
@@ -426,8 +447,6 @@ begin
 end;
 
 function TSettings.FilterIsInBlackList(ClassID: TGUID): boolean;
-var
-  i: integer;
 begin
   result := FilterBlackList.IsInList(ClassID);
 end;
@@ -490,15 +509,15 @@ procedure TSettings.load;
 var
   ini: TIniFile;
   FileName: String;
-  section, default, StrValue: string;
-  fccHandler: FOURCC;
-  CodecVersion: DWORD;
-  CodecSettingsBuffer: PChar;
-  CodecSettings: String;
-  CodecSettingsSize, CodecSettingsSizeRead, BufferSize: Integer;
+  section, StrValue: string;
+  //fccHandler: FOURCC;
+  //CodecVersion: DWORD;
+  //CodecSettingsBuffer: PChar;
+  //CodecSettings: String;
+  //CodecSettingsSize, CodecSettingsSizeRead, BufferSize: Integer;
   iFilter, iCutApplication: integer;
-  CutAppAsfbin: TCutApplicationAsfbin;
-  CutAppAviDemux : TCutApplicationAviDemux;
+  //CutAppAsfbin: TCutApplicationAsfbin;
+  //CutAppAviDemux : TCutApplicationAviDemux;
 begin
   FileName := ChangeFileExt( Application.ExeName, '.ini' );
   ini := TIniFile.Create(FileName);
@@ -603,6 +622,7 @@ var
   ini: TIniFile;
   section: String;
   iCutApplication: integer;
+  iFilter: integer;
 begin
   ini := TIniFile.Create(ChangeFileExt( Application.ExeName, '.ini' ));
   try
@@ -638,6 +658,12 @@ begin
     ini.WriteString(section, 'CodecVersion', '0x' + IntToHex(self.VDCodecVersion, 8));
     ini.WriteString(section, 'CodecSettings', VDCodecSettings);
     ini.WriteInteger(section, 'CodecSettingsSize', self.VDCodecSettingsSize); }
+
+    section := 'Filter Blacklist';
+    ini.WriteInteger(section, 'Count', self.FilterBlackList.Count);
+    for iFilter := 0 to self.FilterBlackList.Count - 1 do begin
+      ini.WriteString(section, 'Filter_'+IntToStr(iFilter), GUIDToString(self.FilterBlackList.Item[iFilter]));
+    end;
 
     section := 'Files';
     ini.WriteInteger(section, 'SaveCutlistMode', _SaveCutlistMode);
@@ -700,6 +726,7 @@ var
 begin
   CBOtherApp.Items.Clear;
   MinSize := tabURLs.Constraints;
+  EnumFilters := TSysDevEnum.Create(CLSID_LegacyAmFilterCategory); //DirectShow Filters
 
   for iCutApplication := 0 to Settings.CutApplicationList.Count - 1 do begin
     CutApplication := (Settings.CutApplicationList[iCutApplication] as TCutApplicationBase);
@@ -731,6 +758,12 @@ begin
 end;
 
 
+procedure TFSettings.FormDestroy(Sender: TObject);
+begin
+  if EnumFilters <> nil then
+    FreeAndNil(EnumFilters);
+end;
+
 procedure TFSettings.EChceckInfoIntervalKeyPress(Sender: TObject;
   var Key: Char);
 begin
@@ -749,20 +782,64 @@ end;
 
 procedure TFSettings.lbchkBlackListClickCheck(Sender: TObject);
 var
-  FilterInfo: TFilCatNode;
+  FilterGuid: TGUID;
   idx: integer;
 begin
+  if not assigned(EnumFilters) then exit;
+
   idx := lbchkBlackList.ItemIndex;
   if idx = -1 then
     exit;
-  FilterInfo := Settings.SourceFilterList.GetFilter(idx);
+  if idx < EnumFilters.CountFilters then
+    FilterGuid := StringToFilterGUID(lbchkBlackList.Items[idx])
+  else
+    FilterGuid := EnumFilters.Filters[idx].CLSID;
   if lbchkBlackList.Checked[idx] then
   begin
-    Settings.FilterBlackList.Add(FilterInfo.CLSID);
+    Settings.FilterBlackList.Add(FilterGuid);
   end
   else
   begin
-    Settings.FilterBlackList.Delete(FilterInfo.CLSID);
+    Settings.FilterBlackList.Delete(FilterGuid);
+  end;
+end;
+
+procedure TFSettings.FillBlackList;
+var
+  i, filterCount: Integer;
+  filterInfo: TFilCatNode;
+  blackList: TGUIDList;
+begin
+  blackList := TGUIDList.Create;
+  for I := 0 to Settings.FilterBlackList.Count - 1 do
+    blackList.Add(Settings.FilterBlackList.Item[i]);
+  try
+    lbchkBlackList.Clear;
+    if EnumFilters <> nil then
+      FreeAndNil(EnumFilters);
+    EnumFilters := TSysDevEnum.Create(CLSID_LegacyAmFilterCategory); //DirectShow Filters
+    if not assigned(EnumFilters) then exit;
+
+    filterCount := EnumFilters.CountFilters;
+    For i := 0 to filterCount - 1 do
+    begin
+      filterInfo := EnumFilters.Filters[i];
+      if blackList.IsInList(filterInfo.CLSID) then
+        blackList.Delete(filterInfo.CLSID);
+      lbchkBlackList.AddItem(FilterInfoToString(filterInfo), nil);
+      lbchkBlackList.Checked[lbchkBlackList.Count - 1] := Settings.FilterIsInBlackList(filterInfo.CLSID);
+      lbchkBlackList.ItemEnabled[lbchkBlackList.Count - 1] := not IsEqualGUID(GUID_NULL, filterInfo.CLSID);
+    end;
+    filterInfo.FriendlyName := '???';
+    for I := 0 to blackList.Count - 1 do
+    begin
+      filterInfo.CLSID := blackList.Item[i];
+      lbchkBlackList.AddItem(FilterInfoToString(filterInfo), nil);
+      lbchkBlackList.Checked[lbchkBlackList.Count - 1] := true;
+      lbchkBlackList.ItemEnabled[lbchkBlackList.Count - 1] := not IsEqualGUID(GUID_NULL, filterInfo.CLSID);
+    end;
+  finally
+    FreeAndNil(blackList);
   end;
 end;
 
@@ -877,7 +954,6 @@ function TSourceFilterList.Fill(progressLabel: TPanel): Integer;
 var
   EnumFilters: TSysDevEnum;
   i, filterCount: Integer;
-  Filter: IBaseFilter;
   newFilterInfo: PFilCatNode;
   ParentForm: TWinControl;
 begin
@@ -920,11 +996,15 @@ begin
   end;
 end;
 
-
 procedure TFSettings.tsSourceFilterShow(Sender: TObject);
 var
   i: Integer;
+  filterInfo: TFilCatNode;
 begin
+  if lbchkBlackList.Count = 0 then
+  begin
+    FillBlackList;
+  end;
   if Settings.SourceFilterList.count = 0 then begin
     cbxSourceFilterListWMV.Enabled := false;
     cbxSourceFilterListAVI.Enabled := false;
@@ -937,7 +1017,8 @@ begin
     cbxSourceFilterListOther.ItemIndex := -1;
   end else begin
     for i := 0 to Settings.SourceFilterList.count-1 do begin
-      self.cbxSourceFilterListOther.AddItem(GUIDToString(Settings.SourceFilterList.GetFilterInfo[i].CLSID)+ '  ' + Settings.SourceFilterList.GetFilterInfo[i].FriendlyName, nil);
+      filterInfo := Settings.SourceFilterList.GetFilterInfo[i];
+      self.cbxSourceFilterListOther.AddItem(FilterInfoToString(filterInfo), nil);
     end;
     cbxSourceFilterListWMV.Items.Assign(cbxSourceFilterListOther.Items);
     cbxSourceFilterListAVI.Items.Assign(cbxSourceFilterListOther.Items);
@@ -957,7 +1038,6 @@ end;
 
 procedure TFSettings.btnRefreshFilterListClick(Sender: TObject);
 var
-  i: Integer;
   cur: TCursor;
 begin
   cur := self.Cursor;
@@ -971,6 +1051,7 @@ begin
     cbxSourceFilterListMP4.Clear;
     cbxSourceFilterListOther.Clear;
 
+    FillBlackList;
     Settings.SourceFilterList.Fill(pnlPleaseWait);
 
     tsSourceFilterShow(sender);

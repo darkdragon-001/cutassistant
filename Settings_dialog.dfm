@@ -20,6 +20,7 @@ object FSettings: TFSettings
   OldCreateOrder = False
   Position = poOwnerFormCenter
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -35,10 +36,6 @@ object FSettings: TFSettings
     object tabUserData: TTabSheet
       Caption = 'User Data'
       ImageIndex = 4
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 234
       DesignSize = (
         548
         221)
@@ -78,10 +75,6 @@ object FSettings: TFSettings
     object TabSaveMovie: TTabSheet
       Caption = 'Save movie'
       ImageIndex = 1
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 212
       DesignSize = (
         548
         221)
@@ -153,10 +146,6 @@ object FSettings: TFSettings
     object TabSaveCutlist: TTabSheet
       Caption = 'Save cutlist'
       ImageIndex = 2
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 212
       DesignSize = (
         548
         221)
@@ -211,10 +200,6 @@ object FSettings: TFSettings
       Caption = 'URLs'
       ImageIndex = 3
       Constraints.MinHeight = 210
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 234
       DesignSize = (
         548
         221)
@@ -381,10 +366,6 @@ object FSettings: TFSettings
     object TabSheet3: TTabSheet
       Caption = 'Info Check'
       ImageIndex = 9
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 212
       object GBInfoCheck: TGroupBox
         Left = 3
         Top = 23
@@ -445,10 +426,6 @@ object FSettings: TFSettings
     end
     object TabExternalCutApplication: TTabSheet
       Caption = 'External cut application'
-      ExplicitLeft = 0
-      ExplicitTop = 0
-      ExplicitWidth = 0
-      ExplicitHeight = 212
       object Label18: TLabel
         Left = 3
         Top = 22
@@ -494,7 +471,7 @@ object FSettings: TFSettings
         Width = 200
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Items.Strings = (
           '')
@@ -505,7 +482,7 @@ object FSettings: TFSettings
         Width = 200
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 1
         Items.Strings = (
           '')
@@ -516,7 +493,7 @@ object FSettings: TFSettings
         Width = 200
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 2
         Items.Strings = (
           '')
@@ -527,7 +504,7 @@ object FSettings: TFSettings
         Width = 200
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 3
         Items.Strings = (
           '')

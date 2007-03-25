@@ -1,0 +1,194 @@
+    Cut_assistant.exe V.0.9.9.5 
+
+    _________________________________________________________________________
+
+    This is a graphical user interface (GUI) for the command line utility asfbin.exe
+    as well as for VirtualDub and AviDemux. Asfbin.exe is available at
+    
+    http://www.radioactivepages.com/english/asfbin.html
+
+    The author of Cut_assistant.exe is in no way responsible for these 3rd party applications.
+
+    _________________________________________________________________________
+
+    DISCLAIMER
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    THIS PROGRAM IS INTENDED TO HELP YOU EDITING FILES WHICH ARE NOT
+    COPYRIGHTED. YOU ARE NOT ALLOWED TO VIOLATE THE COPYRIGHT OF ANY
+    THIRD PARTY. THE AUTHOR OF THIS PROGRAM IS IN NO WAY RESPONSIBLE FOR ANY
+    COPYRIGHT VIOLATIONS WHICH A USER OF THIS PROGRAM MAY COMMIT.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+
+    _________________________________________________________________________
+
+    REQUIREMENTS: 
+    DirectShow installed (uses InfinitePinTee, VideoRenderer, SampleGrabber, 
+    NullRenderer).
+    Codecs for the movie files to edit.
+
+    For wmv-Files: asfbin.exe or asfcut.exe
+    For Avi-Files: vdub.exe or virtualdub.exe V.1.6.16. or Avidemux2.exe
+
+    _________________________________________________________________________
+
+    Command Line Options:
+
+    cut_assistant.exe [-open:<moviefile> [-cutlist:<cutlistfile>]]
+
+    loads <moviefile> as movie and cutlistfile as cutlist on startup
+
+    For further options see online help.
+    
+   _________________________________________________________________________
+
+New in 0.9.9.5
+- minor bugfixes
+New in 0.9.9.4
+- "prev. / next 12 frames" commands can now be called from context menu for frame samples
+- misc. minor bugfixes
+New in 0.9.9.3 beta
+- fixed bug concerning path names with mp3box
+- New Settings: User can chose preferred source filters for each file type
+- Experimental: Filters can be blacklisted in ini file. Blacklisted Filters are 
+  never used in filtergraphs.
+  To black list filters add a section like the following to the cut_assistant.ini file:
+  
+  [Filter Blacklist]
+  Count=2                                          //number of blacklisted filters
+  Filter_0={78766964-0000-0010-8000-00AA00389B71}  //GUID of Filter
+  Filter_1= ...
+
+New in 0.9.9.2 beta
+- fixed bug in 0.9.9.1 beta: Settings for VirtualDub were not read properly
+New in 0.9.9.1 beta
+- Integration of CutApplications completely new (so don't be surprised if there are a few bugs now ;-))
+- Support for MP4 Iso Files and MP4Box
+- Output of Console Applications is redirected in own window
+
+New in 0.9.8.2
+- Support for new download method from cutlist.de
+- Improved calling and scripting for AviDemux
+- Can check for new Versions of Application on cutlist.de
+- Bugfix: Umlaute in VirtualDub Scripts could not be handled by VD
+
+New in 0.9.7 beta
+- Support for Avidemux
+- Settings for Codec in VD when using "Smart Rendering"
+
+New in 0.9.6.10.beta
+- Supports "Smart Rendering" with VirtualDub 1.7. DivX encoder must be installed for this feature.
+- Full Screen Mode (Double click on video window or Alt+Return)
+
+New in 0.9.6.6
+- Bug fixed: OLE Error when opening movie on some configurations.
+
+New in 0.9.6.5
+- Bug fixed: Wrong cut mode after saving cutlist. This bug is only present in some of the versions 0.9.6.0 to 0.9.6.3
+
+New in 0.9.6.3
+- Bug "Invalid File Name" fixed
+
+New in 0.9.6.0
+- Only one instance of the application will be opened.
+- Application can be associated with .cutlist files. 
+- Frame numbers will only be removed from cutlists if cuts are changed
+- Can change playing speed (depends on movie type)
+- New Buttons: Next / Previous cut.
+
+New in 0.9.5.1
+- included midasLib, so midas.dll is no longer necessary
+- cleaned up source code (I hope this did not produce new bugs :))
+- minor improvements
+- fixed bug in 0.9.5.0
+
+New in 0.9.4.0
+- Upload History, can delete cutlists from server
+- Can read cutlists with frame numbers (but does not write them), will use frame numbers in VirtualDub script if possible
+- Suggested filenames in cutlists
+- Settings: Dir for VirtualDubScripts, checkbox to leave VirtualDub open after cutting
+- cuts are displayed in timeline
+- total cut time and remaining movie duratien calculated
+- double click on cutlist entry = edit entry
+- minor bugs fixed
+
+New in 0.9.0.0
+- Added support for avi files and virtualdub (vdub.exe)
+- renamed from asfbin_assistant to cut_assistant.
+
+New in 0.8.3.0
+- New cutlist search on Server
+- Send Rating to Server
+- Improved Checking of cut movies
+
+New in 0.8.2.0
+- Support for Proxy Server (->Settings)
+
+New in 0.8.1.0
+- Menu rearranged
+- UserName (will be saved with cutlist) and UserID (for later use)
+- Calculate resulting times: Calculate the beginning and ending times of the resulting parts after cutting. After Cutting, click on this menu entry, load cut movie and use the table to check your cuts. Double click on a table entry to view the movie at cut time -2 seconds.
+- Search Cutlist by File Size (experimental)
+
+New in 0.7.5.5
+- drag'n drop bug fixed
+- cutlist name bug fixed
+
+New in 0.7.5.2
+- Choose between Cutlist Save or Save as
+- new command line options (experimental):
+  -batchmode             No GUI, programm terminates automatically, cutlists will be overwritten without asking
+  -trycutlistdownload    Try to download matching cutlist from server
+  -trycutting            Try to cut movie
+    
+
+New in V.0.7.5.0
+- CutApplication -> Repair files    
+- Save Movie Infos with cutlist
+- URLs can be changed
+- Show Filtergraph CLSIDs
+- misc...
+
+    New in V. 0.7.4.4
+    - Automatic search for matching cutlist on cutlist-server 
+    - Keyboard Shortcuts for Framestep back (= left arrow or "j") and framestep 
+      forward (right arrow or "l")
+    
+    New in V. 0.7.4.1
+    - Bug in upload procedure fixed
+
+    New in V. 0.7.4
+    - Link to OTR Wiki Help
+    - Link to Cutlist download
+    - Upload of Culists to Cutlist Server (experimental)
+    - Cleaned code, removed minor bugs, 
+      changed range of fine tuning to +/- 50 frames
+
+    New in V. 0.7
+    - Drag & Drop for movie files and cutlists     
+    - Scan selected interval and extract frames
+    - Improved user interface 
+
+    New in V. 0.6.0.2 beta
+    - bugfix: frames window correctly displayed
+
+    New in V. 0.6 beta
+    - Replaced WindowsMediaPlayer Object by DirectShow Filtergraph.
+    - Frames are displayed in dedicated window.
+    - bugfix: filenames with spaces are now handled correctly 
+
+    New in V. 0.5 beta
+    - Settings are now saved in ini-file.
+    - cutlists can be loaded and saved.

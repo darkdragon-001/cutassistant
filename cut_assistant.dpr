@@ -18,17 +18,18 @@ uses
   Movie in 'Movie.pas',
   CodecSettings in 'CodecSettings.pas',
   Base64 in 'lib\Base64.pas',
-  VFW in 'lib\VfW.pas',
+  VfW in 'lib\VfW.pas',
   UCutlist in 'UCutlist.pas',
   UCutApplicationBase in 'UCutApplicationBase.pas' {frmCutApplicationBase: TFrame},
   UCutApplicationMP4Box in 'UCutApplicationMP4Box.pas' {frmCutApplicationMP4Box: TFrame},
   UfrmCutting in 'UfrmCutting.pas' {frmCutting},
-  UCutApplicationAsfBin in 'UCutApplicationAsfbin.pas' {frmCutApplicationAsfbin: TFrame},
+  UCutApplicationAsfbin in 'UCutApplicationAsfbin.pas' {frmCutApplicationAsfbin: TFrame},
   UCutApplicationAviDemux in 'UCutApplicationAviDemux.pas' {frmCutApplicationAviDemux: TFrame},
   UFilterBank in 'UFilterBank.pas',
   UCutApplicationVirtualDub in 'UCutApplicationVirtualDub.pas' {frmCutApplicationVirtualDub: TFrame},
   trackBarEx in 'VCL\TrackBarEx\trackBarEx.pas',
-  Unit_DSTrackBarEx in 'VCL\DSTrackBarEx\Unit_DSTrackBarEx.pas';
+  Unit_DSTrackBarEx in 'VCL\DSTrackBarEx\Unit_DSTrackBarEx.pas',
+  DateTools in 'DateTools.pas';
 
 {$R *.res}
 const

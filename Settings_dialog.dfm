@@ -29,47 +29,132 @@ object FSettings: TFSettings
     Top = 3
     Width = 556
     Height = 252
-    ActivePage = tsSourceFilter
+    ActivePage = tabUserData
     Align = alClient
     Style = tsFlatButtons
     TabOrder = 0
     object tabUserData: TTabSheet
-      Caption = 'User Data'
+      Caption = 'General'
       ImageIndex = 4
       DesignSize = (
         548
         221)
       object Label8: TLabel
-        Left = 0
+        Left = 12
         Top = 6
-        Width = 99
+        Width = 102
         Height = 13
-        Caption = 'User Name (optional)'
+        Alignment = taRightJustify
+        Caption = 'User Name (optional):'
       end
       object Label9: TLabel
-        Left = 19
+        Left = 31
         Top = 33
-        Width = 80
+        Width = 83
         Height = 13
-        Caption = 'User ID (random)'
+        Alignment = taRightJustify
+        Caption = 'User ID (random):'
+      end
+      object Label16: TLabel
+        Left = 21
+        Top = 60
+        Width = 93
+        Height = 13
+        Alignment = taRightJustify
+        Anchors = [akTop, akRight]
+        Caption = 'Frame preview size:'
+      end
+      object Label17: TLabel
+        Left = 156
+        Top = 59
+        Width = 15
+        Height = 14
+        Alignment = taCenter
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        Caption = 'x'
+      end
+      object Label22: TLabel
+        Left = 12
+        Top = 87
+        Width = 102
+        Height = 13
+        Alignment = taRightJustify
+        Anchors = [akTop, akRight]
+        Caption = 'Frame preview count:'
+      end
+      object Label27: TLabel
+        Left = 232
+        Top = 60
+        Width = 114
+        Height = 13
+        Anchors = [akTop, akRight]
+        Caption = '(change requires restart)'
+      end
+      object Label28: TLabel
+        Left = 232
+        Top = 87
+        Width = 114
+        Height = 13
+        Anchors = [akTop, akRight]
+        Caption = '(change requires restart)'
       end
       object EUserName: TEdit
-        Left = 105
+        Left = 120
         Top = 3
-        Width = 440
+        Width = 425
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
       end
       object EUserID: TEdit
-        Left = 105
+        Left = 120
         Top = 30
-        Width = 440
+        Width = 425
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         Color = clBtnFace
         ReadOnly = True
         TabOrder = 1
+      end
+      object EFrameWidth: TEdit
+        Left = 120
+        Top = 57
+        Width = 30
+        Height = 21
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        MaxLength = 3
+        TabOrder = 2
+        Text = '280'
+        OnExit = EFrameWidthExit
+        OnKeyPress = EProxyPortKeyPress
+      end
+      object EFrameHeight: TEdit
+        Left = 177
+        Top = 57
+        Width = 31
+        Height = 21
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        MaxLength = 3
+        TabOrder = 3
+        Text = '210'
+        OnExit = EFrameWidthExit
+        OnKeyPress = EProxyPortKeyPress
+      end
+      object EFrameCount: TEdit
+        Left = 120
+        Top = 84
+        Width = 30
+        Height = 21
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        MaxLength = 2
+        TabOrder = 4
+        Text = '12'
+        OnExit = EFrameWidthExit
+        OnKeyPress = EProxyPortKeyPress
       end
     end
     object TabSaveMovie: TTabSheet

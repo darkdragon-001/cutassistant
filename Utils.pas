@@ -44,7 +44,7 @@ type
   function Application_version: string;
   function Application_Dir: string;
   function Application_Friendly_Name: string;
-  function UploadData_Path: string;
+  function UploadData_Path(useCSV: boolean): string;
   function cleanURL(aURL: String): String;
   function cleanFileName(const filename: string): string;
   procedure ListBoxToClipboard(ListBox: TListBox; BufferSizePerLine: Integer; CopyAll: Boolean);
@@ -187,9 +187,9 @@ begin
   result := 'Cut Assistant V.' + Application_version;
 end;
 
-function UploadData_Path: string;
+function UploadData_Path(useCSV: boolean): string;
 begin
-  result := Application_Dir + 'Upload.xml';
+  result := Application_Dir + 'Upload' + IfThen(useCSV, '.CSV', '.XML');
 end;
 
 function cleanURL(aURL: String): String;

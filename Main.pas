@@ -4,13 +4,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, DateUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ComCtrls, OleCtrls, StdCtrls, contnrs, shellapi, Buttons, GIFImage,
+  Dialogs, ComCtrls, OleCtrls, StdCtrls, contnrs, shellapi, Buttons,
+  GIFImage,
   ExtCtrls, strutils, iniFiles, Registry, ComObj, Menus, math, ToolWin, Clipbrd,
 
   ActnMan, ActnCtrls, ActnMenus, ActnList, XPStyleActnCtrls, ImgList,
   StdStyleActnCtrls, ExtActns,
-
-  XMLDoc, xmldom, XMLIntf, msxmldom, Provider, DB, DBClient, MidasLib,
 
   IdBaseComponent, IdComponent,IdTCPConnection, IdTCPClient,IdHTTP,
   IdMultipartFormData, IdException,
@@ -20,9 +19,10 @@ uses
   Settings_dialog, ManageFilters, UploadList, CutlistInfo_dialog, UCutlist,
   Movie, Unit_DSTrackBarEx, trackBarEx,
 
-  CodecSettings, JvComponentBase, JvCreateProcess;
+  CodecSettings, JvComponentBase, JvSimpleXml, JclSimpleXML, IdAntiFreezeBase,
+  IdAntiFreeze;
 
-const  
+const
   //Registry Keys
   CutlistID = 'CutAssistant.Cutlist';
   CUTLIST_CONTENT_TYPE = 'text/plain';
@@ -116,20 +116,10 @@ type
     PAuthor: TPanel;
     LAuthor: TLabel;
     ASearchCutlistByFileSize: TAction;
-    XMLDocument1: TXMLDocument;
     ASendRating: TAction;
     ADeleteCutlistFromServer: TAction;
-    UploadData: TClientDataSet;
-    UploadDataid: TStringField;
-    UploadDataname: TStringField;
-    UploadDataDateTime: TDateTimeField;
     LTotalCutoff: TLabel;
     LResultingDuration: TLabel;
-    DownloadData: TClientDataSet;
-    DownloadDataid: TStringField;
-    DownloadDataname: TStringField;
-    DownloadDataDateTime: TDateTimeField;
-    DownloadDataMD5: TStringField;
     TBRate: TtrackBarEx;
     Label4: TLabel;
     LRate: TLabel;
@@ -151,6 +141,8 @@ type
     FramePopUpNext12Frames: TMenuItem;
     FramePopUpPrevious12Frames: TMenuItem;
     N1: TMenuItem;
+    XMLResponse: TJvSimpleXML;
+    IdAntiFreeze1: TIdAntiFreeze;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -246,8 +238,10 @@ type
     function FilterGraphSelectedFilter(Moniker: IMoniker; FilterName: WideString; ClassID: TGUID): Boolean;
     procedure FramePopUpNext12FramesClick(Sender: TObject);
     procedure FramePopUpPrevious12FramesClick(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
+    UploadDataEntries: TStringList;
     StepComplete: boolean;
     SampleTarget: TObject; //TCutFrame
     procedure ResetForm;
@@ -266,7 +260,9 @@ type
     procedure HandleParameter(const param: string);
     function CalcTrueRate(Interval: double): double;
     procedure FF_Start;
-    procedure FF_Stop; 
+    procedure FF_Stop;
+    function ConvertUploadData: boolean;
+    procedure AddUploadDataEntry(CutlistDate: TDateTime; CutlistName: string; CutlistID: Integer);
   public
     { Public declarations }
     procedure ProcessFileList(FileList: TStringList; IsMyOwnCommandLine: boolean);
@@ -331,14 +327,16 @@ var
   MediaEvent: IMediaEvent;
   Framestep: IVideoFrameStep;
   VMRWindowlessControl: IVMRWindowlessControl;
-  VMRWindowlessControl9: IVMRWindowlessControl9;    
+  VMRWindowlessControl9: IVMRWindowlessControl9;
 
 implementation
   uses Utils, Frames,  CutlistRate_Dialog, ResultingTimes, CutlistSearchResults, 
-    PBOnceOnly, UfrmCutting, UCutApplicationBase, UCutApplicationAsfbin, UCutApplicationMP4Box, UMemoDialog;
+    PBOnceOnly, UfrmCutting, UCutApplicationBase, UCutApplicationAsfbin, UCutApplicationMP4Box, UMemoDialog,
+    DateTools;
 
 {$R *.dfm}
-
+{$WARN SYMBOL_PLATFORM OFF}
+ 
 procedure TFMain.BPlayPauseClick(Sender: TObject);
 begin
   GraphPlayPause;
@@ -399,8 +397,14 @@ begin
   VideoWindow.FilterGraph := FilterGraph;
   DSTrackBar1.FilterGraph := FilterGraph;   }
 
-  if fileexists(UploadData_Path) then
-    UploadData.LoadFromFile(UploadData_Path);
+  UploadDataEntries := TStringList.Create;
+  UploadDataEntries := TStringList.Create;
+  if fileexists(UploadData_Path(true)) then
+    UploadDataEntries.LoadFromFile(UploadData_Path(true));
+
+  if fileexists(UploadData_Path(false)) then begin
+    ConvertUploadData;
+  end;
 
   self.IdHTTP1.ProxyParams.ProxyServer := settings.proxyServerName;
   self.IdHTTP1.ProxyParams.ProxyPort := settings.proxyPort;
@@ -418,6 +422,11 @@ begin
   self.DownloadInfo(settings);
 
   //self.WindowState := wsMaximized;
+end;
+
+procedure TFMain.FormDestroy(Sender: TObject);
+begin
+  FreeAndNIL(UploadDataEntries);
 end;
 
 procedure TFMain.BFromStartClick(Sender: TObject);
@@ -573,13 +582,17 @@ end;
 procedure TFMain.showframes(startframe, endframe: Integer);
 //startframe, endframe relative to current frame
 var
-  iImage : integer;
+  iImage, count : integer;
   pos, temp_pos: double;
   Target: TCutFrame;
 begin
+  count := FFrames.Count;
   if endframe < startframe then exit;
-  while endframe - startframe + 1 >12 do begin
-    if -startframe > endframe then startframe := startframe+1 else endframe := endframe-1;
+  while endframe - startframe + 1 > count do begin
+    if -startframe > endframe then
+      startframe := startframe+1
+    else
+      endframe := endframe-1;
   end;
 
   FFrames.Show;
@@ -1167,7 +1180,7 @@ begin
   startframe := ensureRange(startframe, 0, MovieInfo.current_file_duration);
   endframe := ensureRange(endframe, 0, MovieInfo.current_file_duration-MovieInfo.frame_duration);
 
-  numberOfFrames := 12;                     // not to change so far
+  numberOfFrames := FFrames.Count;
   distance := (endframe - startframe) / (numberofFrames-1);
 
   filtergraph.Pause;
@@ -1576,7 +1589,7 @@ begin
   //  self.Next12.Enabled := false;
     self.Cursor := crHourGlass;
     application.ProcessMessages;
-    showframes(1, 12);
+    showframes(1, FFrames.Count);
   finally
     EnableMovieControls(true);
     //self.Next12.Enabled := true;;
@@ -1594,7 +1607,7 @@ begin
     //self.Prev12.Enabled := false;
     self.Cursor := crHourGlass;
     application.ProcessMessages;
-    showframes(-12, -1);
+    showframes(-1*FFrames.Count, -1);
   finally
     EnableMovieControls(true);
     //self.Prev12.Enabled := true;
@@ -1630,7 +1643,7 @@ begin
   self.Cursor := crHourGlass;
   application.ProcessMessages;
 
-  showframesabs(pos1, pos2, 12);
+  showframesabs(pos1, pos2, FFrames.Count);
 
   self.ScanInterval.Enabled := true;
   self.Cursor := c;
@@ -2032,7 +2045,8 @@ const
 var
   error_message: string;
   Response: TMemoryStream;
-  CutlistNode: IXMLNode;
+  Node, CutNode: TJCLSimpleXMLElems;
+  idx: integer;
 begin
   result := false;
   if (MovieInfo.current_filesize = 0) or (MovieInfo.current_filename = '') then exit;
@@ -2059,26 +2073,27 @@ begin
       end;
     end;
 
-    if result then begin
-      if response.Size > 5 then begin
-        XMLDocument1.LoadFromStream(Response);
-        FCutlistSearchResults.LLinklist.Clear;
+    if result and (response.Size > 5) then begin
+          Response.Position := 0;
+          XMLResponse.LoadFromStream(Response);
+          FCutlistSearchResults.LLinklist.Clear;
 
-        if XMLDocument1.DocumentElement.ChildNodes.Count > 0 then begin
-          CutlistNode := XMLDocument1.DocumentElement.ChildNodes.First;
-          repeat
-            with FCutlistSearchResults.LLinklist.Items.Add do begin
-              Caption := CutlistNode.ChildNodes['id'].Text;
-              SubItems.Add(CutlistNode.ChildNodes['name'].Text);
-              SubItems.Add(CutlistNode.ChildNodes['rating'].Text);
-              SubItems.Add(CutlistNode.ChildNodes['ratingcount'].Text);
-              SubItems.Add(CutlistNode.ChildNodes['ratingbyauthor'].Text);
-              SubItems.Add(CutlistNode.ChildNodes['author'].Text);
-              SubItems.Add(CutlistNode.ChildNodes['usercomment'].Text);
-              SubItems.Add(CutlistNode.ChildNodes['actualcontent'].Text);
+          if XMLResponse.Root.ChildsCount > 0 then begin
+            Node := XMLResponse.Root.Items;
+            for idx := 0 to node.Count - 1 do begin
+              CutNode := node.Item[idx].Items;
+              with FCutlistSearchResults.LLinklist.Items.Add do begin
+                Caption := CutNode.ItemNamed['id'].Value;
+                SubItems.Add(CutNode.ItemNamed['name'].Value);
+                SubItems.Add(CutNode.ItemNamed['rating'].Value);
+                SubItems.Add(CutNode.ItemNamed['ratingcount'].Value);
+                SubItems.Add(CutNode.ItemNamed['ratingbyauthor'].Value);
+                SubItems.Add(CutNode.ItemNamed['author'].Value);
+                SubItems.Add(CutNode.ItemNamed['usercomment'].Value);
+                SubItems.Add(CutNode.ItemNamed['actualcontent'].Value);
+              end;
             end;
-            CutlistNode := CutlistNode.NextSibling;
-          until CutlistNode = nil;
+          end;
 
           if FCutlistSearchResults.ShowModal = mrOK then begin
             //result := self.DownloadCutlist(FCutlistSearchResults.Llinklist.Selected.SubItems[0]);
@@ -2090,13 +2105,9 @@ begin
               self.ASendRating.Enabled := true;
             end;
           end;
-        end else begin
-          showmessage('Search Cutlist by File Size: No Cutlist found.');
-        end;
       end else begin
         showmessage('Search Cutlist by File Size: No Cutlist found.');
       end;
-    end;
   finally
     response.Free;
   end;
@@ -2379,12 +2390,8 @@ begin
       lines.NameValueSeparator := '=';
       lines.DelimitedText := response;
       if trystrtoInt(lines.values['id'], Cutlist_id) then begin
-        self.UploadData.Append;
-        self.UploadDataid.Value := inttostr(Cutlist_id);
-        self.UploadDataname.Value := extractFileName(filename);
-        self.UploadDataDateTime.Value := now();
-        self.UploadData.Post;
-        self.UploadData.SaveToFile(UploadData_Path, dfXMLUTF8);
+        AddUploadDataEntry(Now, extractFileName(filename), Cutlist_id);
+        UploadDataEntries.SaveToFile(UploadData_Path(true));
       end;
       begin_answer := LastDelimiter(#10, response)+1;
       Answer := midstr(response, begin_answer, length(response)-begin_answer+1); //Last Line
@@ -2401,27 +2408,39 @@ end;
 procedure TFMain.ADeleteCutlistFromServerExecute(Sender: TObject);
 var
   datestring: string;
+  idx: integer;
+  entry: string;
+  function NextField(var s:string; const d: Char):string;
+  begin
+    Result := '';
+    while (s <> '') do begin
+      if s[1] = d then begin
+        Delete(s, 1, 1);
+        Break;
+      end;
+      Result := Result + s[1];
+      Delete(s, 1, 1);
+    end;
+  end;
 begin
   //Fill ListView
   FUploadList.LLinklist.Clear;
-  UploadData.First;
-  while not uploadData.Eof do begin
+  for idx := 0 to UploadDataEntries.Count - 1 do begin
+    entry := Copy(UploadDataEntries.Strings[idx],1,MaxInt);
     with FUploadList.LLinklist.Items.Add do begin
-      Caption := self.UploadDataid.Value;
-      SubItems.Add(self.UploadDataname.Value);
-      dateTimeToString(DateString, 'ddddd tt', self.UploadDataDateTime.Value);
+      Caption := NextField(entry, '=');
+      SubItems.Add(NextField(entry, ';'));
+      dateTimeToString(DateString, 'ddddd tt', StrToFloat(NextField(entry, ';')));
       SubItems.Add(DateString);
     end;
-    UploadData.Next
   end;
 
   //Show Dialog and delete cutlist
   if (FUploadList.ShowModal = mrOK) and (FUploadList.LLinklist.SelCount = 1) then begin
     if self.DeleteCutlistFromServer(FUploadList.LLinklist.Selected.Caption) then begin
       //Success, so delete Record in upload list
-      UploadData.RecNo := FUploadList.LLinklist.ItemIndex + 1;
-      UploadData.Delete;
-//      UploadData.ApplyUpdates(-1);
+      UploadDataEntries.Delete(FUploadList.LLinklist.ItemIndex);
+      UploadDataEntries.SaveToFile(UploadData_Path(true));
     end;
   end;
 end;
@@ -2535,6 +2554,11 @@ end;
 procedure TFMain.WMCopyData(var msg: TWMCopyData);
 begin
   HandleSendCommandline(msg.CopyDataStruct^, HandleParameter);
+end;
+
+procedure TFMain.AddUploadDataEntry(CutlistDate: TDateTime; CutlistName: string; CutlistID: Integer);
+begin
+  UploadDataEntries.Add(Format('%d=%s;%f', [ CutlistID, CutlistName, CutlistDate ]));
 end;
 
 procedure TFMain.HandleParameter(const param: string);
@@ -2814,12 +2838,94 @@ begin
   end;
 end;
 
+function TFMain.ConvertUploadData: boolean;
+var
+  RowDataNode, RowNode: TJCLSimpleXMLElem;
+  idx, cntNew: integer;
+  CutlistID: integer;
+  CutlistDate: TDateTime;
+  CutlistIDStr, CutlistName, CutlistDateStr: string;
+begin
+  Result := false;
+  if not FileExists(UploadData_Path(false)) then
+    Exit;
+
+  cntNew := 0;
+
+  XMLResponse.LoadFromFile(UploadData_Path(false));
+  RowDataNode := XMLResponse.Root.Items.ItemNamed['ROWDATA'];
+  if RowDataNode <> nil then begin
+    for idx := 0 to RowDataNode.Items.Count - 1 do begin
+      RowNode := RowDataNode.Items.Item[idx];
+      if RowNode <> nil then begin
+        CutlistIDStr := RowNode.Properties.Value('id', '0');
+        CutlistID := StrToIntDef(CutlistIDStr, 0);
+        CutlistName := RowNode.Properties.Value('name', '');
+        CutlistDateStr := RowNode.Properties.Value('DateTime', '');
+        if Length(CutlistDateStr) > 9 then begin
+          CutlistDate := DateTimeStrEval('YYYYMMDDTHH:NN:SSZZZ', CutlistDateStr);
+        end
+        else begin
+          CutlistDate := DateTimeStrEval('YYYYMMDD', CutlistDateStr);
+        end;
+        if (CutlistID > 0) and (UploadDataEntries.IndexOfName(CutlistIDStr) < 0) then begin
+          AddUploadDataEntry(CutlistDate, CutlistName, CutlistID);
+          Inc(cntNew);
+        end;
+      end;
+    end;
+  end;
+  if cntNew > 0 then begin
+    UploadDataEntries.SaveToFile(UploadData_Path(true));
+  end;
+  if FileExists(UploadData_Path(false)) then begin
+    RenameFile(UploadData_Path(false), UploadData_Path(false) + '.BAK');
+  end;
+end;
+
+function GetXMLMessage(const Node: TJCLSimpleXMLElem; const LastChecked: TDateTime) : string;
+var
+  Msg: TJCLSimpleXMLElems;
+  idx:integer;
+  datum: TDateTime;
+  xmltext: string;
+begin
+  Result := '';
+  if not TryEncodeDate(
+    StrToInt(Node.Items.ItemNamed['date_year'].Value),
+    StrToInt(Node.Items.ItemNamed['date_month'].Value),
+    StrToInt(Node.Items.ItemNamed['date_day'].Value), Datum
+  ) then exit;
+  if LastChecked <= Datum then begin
+    Result := '[' + DateToStr(Datum) + '] ' +Msg.ItemNamed['text'].Value;
+  end;
+end;
+
+function GetXMLMessages(const Node: TJCLSimpleXMLElem; const LastChecked: TDateTime; const name: string) : string;
+var
+  MsgList, Msg: TJCLSimpleXMLElems;
+  s: string;
+  idx:integer;
+  datum: TDateTime;
+begin
+  Result := '';
+  MsgList := Node.Items.ItemNamed[name].Items;
+  if MsgList.Count > 0 then begin
+    for idx := 0 to MsgList.Count - 1 do begin
+      s := GetXMLMessage(MsgList.Item[idx], LastChecked);
+      if Length(s) > 0 then begin
+        Result := Result + #13#10#13#10 + s;
+      end;
+    end;
+  end;
+end;
+
 function TFMain.DownloadInfo(settings: TSettings): boolean;
 var
   error_message, url, AText: string;
-  Response: TMemoryStream;
-  Messages, AMessage, Stable, Beta: IXMLNode;
-  Datum: TDate;
+  Response: TStringStream;
+  XmlText: string;
+  f: textFile;
 begin
   result := false;
   if not settings.CheckInfos then exit;
@@ -2828,7 +2934,7 @@ begin
   self.IdHTTP1.HandleRedirects := false;
   Error_message := 'Unknown error.';
 
-  response := TMemoryStream.Create;
+  response := TStringStream.Create('');
 
   url := settings.url_info_file;
   try
@@ -2856,51 +2962,28 @@ begin
 
     if result then begin
       if response.Size > 5 then begin
-        XMLDocument1.LoadFromStream(Response);
+        Response.Position := 0;
+        XMLResponse.LoadFromStream(Response);
+//        AssignFile(F, 'debug.xml');
+//        Rewrite(f);
+//        Write(f, Response.DataString);
+//        Closefile(f);
 
-        if XMLDocument1.DocumentElement.ChildNodes.Count > 0 then begin
+        if XMLResponse.Root.ChildsCount > 0 then begin
           if settings.InfoShowMessages then begin
-            Messages := XMLDocument1.DocumentElement.ChildNodes.FindNode('messages');
-            if Messages.ChildNodes.Count > 0 then begin
-              AMessage := Messages.ChildNodes.First;
-              repeat
-                //AMessage.ChildNodes['id'].Text;
-                Datum := EncodeDate((StrToInt(AMessage.ChildNodes['date_year'].Text)),
-                                    (StrToInt(AMessage.ChildNodes['date_month'].Text)),
-                                    (StrToInt(AMessage.ChildNodes['date_day'].Text)));
-                if settings.InfoLastChecked <= Datum then begin
-                  AText := AMessage.ChildNodes['text'].Text;
-                  Showmessage('Information:' + #13#10 + '[' + DateToStr(Datum) + '] ' +  AText);
-                end;
-                AMessage := AMessage.NextSibling;
-              until AMessage = nil;
-            end;
+            AText := GetXMLMessages(XMLResponse.Root, settings.InfoLastChecked, 'messages');
+            if Length(AText) > 0 then
+              ShowMessage('Information: ' + AText);
           end;
           if settings.InfoShowBeta then begin
-            Beta := XMLDocument1.DocumentElement.ChildNodes.FindNode('beta');
-            if Beta.ChildNodes.Count > 0 then begin
-              Datum := EncodeDate((StrToInt(Beta.ChildNodes['date_year'].Text)),
-                                  (StrToInt(Beta.ChildNodes['date_month'].Text)),
-                                  (StrToInt(Beta.ChildNodes['date_day'].Text)));
-              if settings.InfoLastChecked <= Datum then begin
-                //Beta.ChildNodes['version'].Text;
-                AText := Beta.ChildNodes['version_text'].Text;
-                Showmessage('Information:' + #13#10 + '[' + DateToStr(Datum) + '] '+ AText);
-              end;
-            end;
+            AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['beta'], settings.InfoLastChecked);
+            if Length(AText) > 0 then
+              ShowMessage('Beta-Information: ' + AText);
           end;
           if settings.InfoShowStable then begin
-            Stable := XMLDocument1.DocumentElement.ChildNodes.FindNode('stable');
-            if Stable.ChildNodes.Count > 0 then begin
-              Datum := EncodeDate((StrToInt(Stable.ChildNodes['date_year'].Text)),
-                                  (StrToInt(Stable.ChildNodes['date_month'].Text)),
-                                  (StrToInt(Stable.ChildNodes['date_day'].Text)));
-              if settings.InfoLastChecked <= Datum then begin
-                //Stable.ChildNodes['version'].Text;
-                AText := Stable.ChildNodes['version_text'].Text;
-                Showmessage('Information:' + #13#10 + '[' + DateToStr(Datum) + '] '+ AText);
-              end;
-            end;
+            AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['stable'], settings.InfoLastChecked);
+            if Length(AText) > 0 then
+              ShowMessage('Stable-Information: ' + AText);
           end;
           result := true;
         end;
@@ -3221,8 +3304,6 @@ end;
 
 function TFMain.FilterGraphSelectedFilter(Moniker: IMoniker;
   FilterName: WideString; ClassID: TGUID): Boolean;
-var
-  i : integer;
 begin
   result := not settings.FilterIsInBlackList(ClassID);
 end;

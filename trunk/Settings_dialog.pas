@@ -18,7 +18,6 @@ const
 
 
 type
-  TSettings = class;
 
   TFSettings = class(TForm)
     Cancel: TButton;
@@ -95,6 +94,14 @@ type
     pnlButtons: TPanel;
     lbchkBlackList: TCheckListBox;
     Label15: TLabel;
+    Label16: TLabel;
+    EFrameWidth: TEdit;
+    Label17: TLabel;
+    EFrameHeight: TEdit;
+    Label22: TLabel;
+    EFrameCount: TEdit;
+    Label27: TLabel;
+    Label28: TLabel;
     procedure BCutMovieSaveDirClick(Sender: TObject);
     procedure BCutlistSaveDirClick(Sender: TObject);
     procedure EProxyPortKeyPress(Sender: TObject; var Key: Char);
@@ -107,6 +114,7 @@ type
     procedure btnRefreshFilterListClick(Sender: TObject);
     procedure lbchkBlackListClickCheck(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure EFrameWidthExit(Sender: TObject);
   private
     { Private declarations }
     CodecState: String;
@@ -147,6 +155,9 @@ type
 
     //User
     UserName, UserID: string;
+
+    // Preview frame window
+    FramesWidth, FramesHeight, FramesCount: integer;
 
     //General
     CutlistSaveDir, CutMovieSaveDir, CutMovieExtension, CurrentMovieDir: string;
@@ -346,6 +357,10 @@ begin
   Fsettings.EUserName.Text                         := self.UserName;
   Fsettings.EUserID.Text                           := self.UserID;
 
+  FSettings.EFrameWidth.Text                       := IntToStr(self.FramesWidth);
+  FSettings.EFrameHeight.Text                      := IntToStr(self.FramesHeight);
+  FSettings.EFrameCount.Text                      := IntToStr(self.FramesCount);
+
   FSettings.CBInfoCheckMessages.Checked   := self.InfoShowMessages            ;
   FSettings.CBInfoCheckStable.Checked     := self.InfoShowStable              ;
   FSettings.CBInfoCheckBeta.Checked       := self.InfoShowBeta                ;
@@ -423,6 +438,10 @@ begin
       self.proxyPassword               := FSettings.EProxyPassword.Text              ;
 
       self.UserName                    := Fsettings.EUserName.Text;
+
+      self.FramesWidth                 := StrToInt(FSettings.EFrameWidth.Text);
+      self.FramesHeight                := StrToInt(FSettings.EFrameHeight.Text);
+      self.FramesCount                 := StrToInt(FSettings.EFrameCount.Text);
 
       self.InfoShowMessages            :=  FSettings.CBInfoCheckMessages.Checked  ;
       self.InfoShowStable              :=  FSettings.CBInfoCheckStable.Checked    ;
@@ -525,6 +544,11 @@ begin
     section := 'General';
     UserName :=  ini.ReadString(section, 'UserName', '');
     UserID :=  ini.ReadString(section, 'UserID', '');
+
+    section := 'FrameWindow';
+    FramesWidth := ini.ReadInteger(section, 'Width', 280);
+    FramesHeight := ini.ReadInteger(section, 'Height', 210);
+    FramesCount := ini.ReadInteger(section, 'Count', 12);
 
     section := 'External Cut Application';
     //old ini Files (for Compatibility with versions below 0.9.9):
@@ -631,6 +655,11 @@ begin
     ini.WriteString(section, 'UserName', UserName);
     ini.WriteString(section, 'UserID', UserID);
 
+    section := 'FrameWindow';
+    ini.WriteInteger(section, 'Width', FramesWidth);
+    ini.WriteInteger(section, 'Height', FramesHeight);
+    ini.WriteInteger(section, 'Count', FramesCount);
+
     section := 'External Cut Application';
 
     {ini.WriteString(section, 'VirtualDubPath', VDub_path);
@@ -638,7 +667,7 @@ begin
     ini.WriteBool(section, 'VirtualDubUseSmartRendering', self.FVDUseSmartRendering);
     ini.WriteString(section, 'VirtualDubScriptsPath', self.VDScriptSaveDir);
     //ini.WriteBool(section, 'VirtualDubScriptsDelete', self.VDScriptDelete);  }
-    
+
     ini.WriteString(section, 'CutAppNameWmv', self.CutAppNameWmv);
     ini.WriteString(section, 'CutAppNameAvi', self.CutAppNameAvi);
     ini.WriteString(section, 'CutAppNameMP4', self.CutAppNameMP4);
@@ -768,6 +797,20 @@ procedure TFSettings.EChceckInfoIntervalKeyPress(Sender: TObject;
   var Key: Char);
 begin
   if not (key in [#0 .. #31, '0'..'9']) then key := chr(0);
+end;
+
+procedure TFSettings.EFrameWidthExit(Sender: TObject);
+var
+  val: integer;
+  Edit: TEdit;
+begin
+  Edit := Sender as TEdit;
+  if Edit = nil then exit;
+  val := StrToIntDef(Edit.Text, -1);
+  if val < 1 then begin
+    ActiveControl := Edit;
+    raise EConvertError.Create('Invalid value: ' + Edit.Text);
+  end
 end;
 
 procedure TFSettings.CBInfoCheckEnabledClick(Sender: TObject);

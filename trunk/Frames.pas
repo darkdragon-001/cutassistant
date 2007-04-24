@@ -27,8 +27,8 @@ type
     property BorderVisible: boolean read FBorderVisible write SetBorderVisible;
     property index: integer read FIndex;
     property position: double read FPosition write setPosition;
-    constructor Create(AParent: TWinControl);
-    destructor Destroy; 
+    constructor Create(AParent: TWinControl); reintroduce;
+    destructor Destroy; override;
     procedure init(image_height, image_width: INteger);
     procedure Adjust_position(pos_top, pos_left: Integer);
     procedure BStartClick(Sender: TObject);
@@ -45,6 +45,7 @@ type
     { Private declarations }
     FrameList: TObjectList;
     function getCutFrame(Index: integer): TCUtFrame;
+    function getCount: integer;
     procedure adjust_frame_position;
   public
     { Public declarations }
@@ -52,6 +53,7 @@ type
     scan_1, scan_2: integer; //index of CutFrame
     procedure Init(IFrames: Integer; FrameHeight, FrameWidth: Integer);
     property Frame[Index: Integer]: TCutFrame read getCutFrame;
+    property Count: Integer read getCount;
   end;
 
   const bdistance = 0.03; //distance between buttons as % of image_width
@@ -67,6 +69,10 @@ implementation
 {$R *.dfm}
 
 { TFFrames }
+function TFFrames.getCount: integer;
+begin
+  Result := FrameList.Count;
+end;
 
 procedure TFFrames.init(IFrames: Integer; FrameHeight, FrameWidth: Integer);
 var
@@ -126,7 +132,7 @@ end;
 
 { TCutFrame }
 
-constructor TCutFrame.create(AParent: TWinControl);
+constructor TCutFrame.Create(AParent: TWinControl);
 begin
   inherited create(AParent);
   BStart := TButton.Create(self);
@@ -145,20 +151,20 @@ begin
   IsKeyFrame := false;
 end;
 
-destructor TCutFrame.destroy;
+destructor TCutFrame.Destroy;
 begin
-  Bstart.Free;
-  Bstop.Free;
-  LTime.Free;
-  LIndex.free;
-  Image.Free;
-  FBorder.Free;
+  //Bstart.Free;
+  //Bstop.Free;
+  //LTime.Free;
+  //LIndex.free;
+  //FImage.Free;
+  //FBorder.Free;
   inherited;
 end;
 
 procedure TCutFrame.Adjust_position(pos_top, pos_left: integer);
 const
-  Index_width = 1;  //in width_units
+  Index_width = 2.0/3.0;  //in width_units
   Time_width = 3;
   Button_width = 2;
   border_distance = 2;
@@ -184,20 +190,20 @@ begin
   LIndex.Left := pos_Left;
 
   LTime.Top := top2;
-  LTime.Left := pos_left + Index_width*width_unit + button_distance;
+  LTime.Left := pos_left + round(Index_width*width_unit) + button_distance;
 
   BStart.Top := top2;
-  BStart.Left := pos_left + (Index_width+TIme_width)*width_unit + 2*button_distance;
+  BStart.Left := pos_left + round((Index_width+TIme_width)*width_unit) + 2*button_distance;
 
   BStop.Top := top2;
-  BStop.Left := pos_left + (Index_width+TIme_width+Button_width)*width_unit + 3*button_distance;
+  BStop.Left := pos_left + round((Index_width+TIme_width+Button_width)*width_unit) + 3*button_distance;
 
 end;
 
 procedure TFFrames.FormCreate(Sender: TObject);
 begin
   FrameList := TObjectlist.Create;
-  Init(12,210,280);
+  Init(Settings.FramesCount, Settings.FramesHeight, Settings.FramesWidth);
 end;
 
 procedure TCutFrame.init(image_height, image_width: INteger);
@@ -218,6 +224,7 @@ begin
   Image.Height := image_height;
   Image.Width := Image_width;
   Image.Proportional := true;
+  Image.Stretch := true;
   image.Picture.Bitmap.Canvas.Brush.Color := clBlack;
   image.Picture.Bitmap.Canvas.Brush.Style := bsSolid;
   image.Picture.Bitmap.Canvas.FillRect(image.ClientRect);
@@ -231,6 +238,9 @@ begin
   Lindex.Caption := inttostr(self.index);
   LIndex.Height := Button_height;
 
+  //LTime.ParentFont := false;
+  //LTime.Font.Assign(FFrames.Font);
+  //LTime.Font.Size := Round(image_width / 40);
   LTIme.Caption := '0:00:00.000';
   LTime.Height := Button_height;
 

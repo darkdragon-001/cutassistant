@@ -249,6 +249,9 @@ object FMain: TFMain
     BevelOuter = bvNone
     TabOrder = 1
     OnResize = PanelVideoWindowResize
+    DesignSize = (
+      346
+      353)
     object VideoWindow: TVideoWindow
       Left = 0
       Top = 0
@@ -258,8 +261,8 @@ object FMain: TFMain
       VMROptions.Mode = vmrWindowless
       VMROptions.Streams = 1
       Color = clBlack
+      Anchors = [akLeft, akTop, akRight, akBottom]
       PopupMenu = MenuVideo
-      Align = alClient
       OnKeyDown = VideoWindowKeyDown
       OnClick = VideoWindowClick
       OnDblClick = VideoWindowDblClick

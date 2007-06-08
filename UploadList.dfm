@@ -1,5 +1,5 @@
 object FUploadList: TFUploadList
-  Left = 1334
+  Left = 334
   Top = 396
   Caption = 'Uploaded Cutlists'
   ClientHeight = 288
@@ -26,9 +26,6 @@ object FUploadList: TFUploadList
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitLeft = 0
-    ExplicitTop = 254
-    ExplicitWidth = 805
     DesignSize = (
       799
       34)
@@ -42,7 +39,6 @@ object FUploadList: TFUploadList
       Caption = '&Cancel'
       ModalResult = 2
       TabOrder = 0
-      ExplicitLeft = 705
     end
     object BDelete: TButton
       Left = 598
@@ -53,7 +49,6 @@ object FUploadList: TFUploadList
       Caption = '&Delete'
       ModalResult = 1
       TabOrder = 1
-      ExplicitLeft = 604
     end
   end
   object LLinklist: TListView
@@ -82,9 +77,5 @@ object FUploadList: TFUploadList
     SortType = stText
     TabOrder = 1
     ViewStyle = vsReport
-    ExplicitLeft = 0
-    ExplicitTop = 0
-    ExplicitWidth = 805
-    ExplicitHeight = 254
   end
 end

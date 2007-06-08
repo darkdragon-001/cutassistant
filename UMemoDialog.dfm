@@ -34,7 +34,6 @@ object frmMemoDialog: TfrmMemoDialog
     ModalResult = 1
     TabOrder = 1
     OnClick = BCloseClick
-    ExplicitTop = 391
   end
   object memInfo: TMemo
     Left = 3
@@ -46,6 +45,5 @@ object frmMemoDialog: TfrmMemoDialog
     ReadOnly = True
     ScrollBars = ssBoth
     TabOrder = 0
-    ExplicitHeight = 382
   end
 end

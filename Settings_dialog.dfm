@@ -1,5 +1,5 @@
 object FSettings: TFSettings
-  Left = 1414
+  Left = 414
   Top = 101
   BorderIcons = []
   Caption = 'Settings'
@@ -13,10 +13,6 @@ object FSettings: TFSettings
   Font.Height = -10
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  Padding.Left = 3
-  Padding.Top = 3
-  Padding.Right = 3
-  Padding.Bottom = 3
   OldCreateOrder = False
   Position = poOwnerFormCenter
   OnCreate = FormCreate
@@ -379,7 +375,6 @@ object FSettings: TFSettings
           Alignment = taRightJustify
           Anchors = [akTop, akRight]
           Caption = 'Port'
-          ExplicitLeft = 378
         end
         object Label13: TLabel
           Left = 329
@@ -389,7 +384,6 @@ object FSettings: TFSettings
           Alignment = taRightJustify
           Anchors = [akTop, akRight]
           Caption = 'Password'
-          ExplicitLeft = 249
         end
         object Label11: TLabel
           Left = 12
@@ -407,7 +401,6 @@ object FSettings: TFSettings
           Alignment = taRightJustify
           Anchors = [akTop, akRight]
           Caption = 'Warning: Password will be saved in settings in clear text!'
-          ExplicitLeft = 183
         end
         object EProxyServerName: TEdit
           Left = 71
@@ -762,10 +755,6 @@ object FSettings: TFSettings
     Align = alBottom
     AutoSize = True
     BevelOuter = bvNone
-    Padding.Left = 3
-    Padding.Top = 3
-    Padding.Right = 3
-    Padding.Bottom = 3
     TabOrder = 1
     DesignSize = (
       556

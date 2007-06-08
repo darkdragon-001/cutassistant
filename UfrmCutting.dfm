@@ -42,8 +42,6 @@ object frmCutting: TfrmCutting
     ReadOnly = True
     ScrollBars = ssBoth
     TabOrder = 0
-    ExplicitWidth = 490
-    ExplicitHeight = 366
   end
   object btnClose: TButton
     Left = 381
@@ -54,8 +52,6 @@ object frmCutting: TfrmCutting
     Caption = '&Close'
     Enabled = False
     TabOrder = 1
-    ExplicitLeft = 391
-    ExplicitTop = 378
   end
   object btnAbort: TButton
     Left = 270
@@ -67,8 +63,6 @@ object frmCutting: TfrmCutting
     Caption = '&Abort'
     TabOrder = 2
     OnClick = btnAbortClick
-    ExplicitLeft = 280
-    ExplicitTop = 378
   end
   object btnCopyClipbrd: TButton
     Left = 6
@@ -79,7 +73,6 @@ object frmCutting: TfrmCutting
     Caption = 'Copy to Clipboard'
     TabOrder = 3
     OnClick = btnCopyClipbrdClick
-    ExplicitTop = 378
   end
   object btnEmergencyExit: TButton
     Left = 159
@@ -96,7 +89,5 @@ object frmCutting: TfrmCutting
     ParentFont = False
     TabOrder = 4
     OnClick = btnEmergencyExitClick
-    ExplicitLeft = 169
-    ExplicitTop = 378
   end
 end

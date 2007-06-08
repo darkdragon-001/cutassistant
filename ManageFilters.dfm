@@ -1,15 +1,15 @@
 object FManageFilters: TFManageFilters
   Left = 471
   Top = 363
-  Width = 582
-  Height = 282
+  Width = 450
+  Height = 255
   Caption = 'Filters'
   Color = clBtnFace
   Constraints.MinHeight = 200
   Constraints.MinWidth = 250
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -10
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
@@ -18,23 +18,24 @@ object FManageFilters: TFManageFilters
   OnDestroy = FormDestroy
   OnShow = FormShow
   DesignSize = (
-    574
-    250)
-  PixelsPerInch = 120
-  TextHeight = 16
+    442
+    221)
+  PixelsPerInch = 96
+  TextHeight = 13
   object Label1: TLabel
-    Left = 200
-    Top = 216
-    Width = 137
-    Height = 33
+    Left = 148
+    Top = 187
+    Width = 103
+    Height = 26
+    Anchors = [akLeft, akBottom]
     Caption = 'Double Click on Filter to show properties'
     WordWrap = True
   end
   object BRemove: TButton
-    Left = 0
-    Top = 220
-    Width = 161
-    Height = 25
+    Left = 4
+    Top = 185
+    Width = 131
+    Height = 20
     Anchors = [akLeft, akBottom]
     Caption = 'Remove from FilterGraph'
     Enabled = False
@@ -43,10 +44,10 @@ object FManageFilters: TFManageFilters
     OnClick = BRemoveClick
   end
   object BClose: TButton
-    Left = 499
-    Top = 220
-    Width = 75
-    Height = 25
+    Left = 377
+    Top = 185
+    Width = 61
+    Height = 20
     Anchors = [akRight, akBottom]
     Cancel = True
     Caption = 'Close'
@@ -57,16 +58,16 @@ object FManageFilters: TFManageFilters
   object LFilters: TListBox
     Left = 0
     Top = 0
-    Width = 574
-    Height = 213
+    Width = 442
+    Height = 179
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -17
+    Font.Height = -15
     Font.Name = 'Courier New'
     Font.Style = []
-    ItemHeight = 20
+    ItemHeight = 17
     MultiSelect = True
     ParentFont = False
     TabOrder = 2
@@ -74,10 +75,10 @@ object FManageFilters: TFManageFilters
     OnDblClick = LFiltersDblClick
   end
   object BCopy: TButton
-    Left = 360
-    Top = 220
-    Width = 126
-    Height = 25
+    Left = 269
+    Top = 185
+    Width = 102
+    Height = 20
     Anchors = [akRight, akBottom]
     Cancel = True
     Caption = 'Copy to clipboard'

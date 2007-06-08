@@ -1,5 +1,5 @@
 object FCutlistRate: TFCutlistRate
-  Left = -841
+  Left = 841
   Top = 114
   Width = 615
   Height = 303
@@ -7,34 +7,34 @@ object FCutlistRate: TFCutlistRate
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -13
+  Font.Height = -10
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
   DesignSize = (
     607
-    271)
-  PixelsPerInch = 120
-  TextHeight = 16
+    269)
+  PixelsPerInch = 96
+  TextHeight = 13
   object Label1: TLabel
-    Left = 8
-    Top = 8
-    Width = 218
-    Height = 20
+    Left = 7
+    Top = 7
+    Width = 172
+    Height = 16
     Caption = 'Send Cutlist Rating to Server:'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -17
+    Font.Height = -15
     Font.Name = 'MS Sans Serif'
     Font.Style = []
     ParentFont = False
   end
   object RGRatingByAuthor: TRadioGroup
-    Left = 8
-    Top = 40
-    Width = 593
-    Height = 193
+    Left = 7
+    Top = 33
+    Width = 481
+    Height = 156
     Anchors = [akLeft, akTop, akRight]
     Caption = 'How do you rate this cutlist?'
     Items.Strings = (
@@ -56,20 +56,20 @@ object FCutlistRate: TFCutlistRate
     OnClick = RGRatingByAuthorClick
   end
   object Button1: TButton
-    Left = 528
-    Top = 239
-    Width = 75
-    Height = 25
+    Left = 429
+    Top = 194
+    Width = 61
+    Height = 21
     Anchors = [akRight, akBottom]
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 1
   end
   object ButtonOK: TButton
-    Left = 448
-    Top = 239
-    Width = 75
-    Height = 25
+    Left = 364
+    Top = 194
+    Width = 61
+    Height = 21
     Anchors = [akRight, akBottom]
     Caption = 'OK'
     Enabled = False

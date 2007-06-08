@@ -1,9 +1,8 @@
 object FFrames: TFFrames
-  Left = 1500
+  Left = 500
   Top = 74
   Width = 815
   Height = 761
-  AutoScroll = True
   Caption = 'Frames'
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET

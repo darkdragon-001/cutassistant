@@ -22,6 +22,7 @@ type
   private
     FMovieType: TMovieType;
     procedure SetMovieType(const Value: TMovieType);
+    function GetFrameCount: Int64;
     //movie params
   public
     MovieLoaded: boolean;
@@ -35,8 +36,10 @@ type
     current_filesize: Longint;
     {current_position_seconds: double;
     function current_position_string: string;}
+    property FrameCount: Int64 read GetFrameCount;
     property MovieType: TMovieType read FMovieType write SetMovieType;
-    function FormatPosition(Position: double): String;
+    function FormatPosition(Position: double): String; overload;
+    function FormatPosition(Position: double; TimeFormat: TGUID): String; overload;
     function MovieTypeString: string;
     function GetStringFromMovieType(aMovieType: TMovieType): string;
     function InitMovie(FileName: String): boolean;
@@ -55,6 +58,11 @@ uses
 begin
   result := secondsToTimeString(self.current_position_seconds);
 end;     }
+
+function TMovieInfo.GetFrameCount: Int64;
+begin
+  Result := Trunc(current_file_duration / frame_duration);
+end;
 
 function TMovieInfo.InitMovie(FileName: String): boolean;
 var
@@ -120,6 +128,16 @@ begin
     result := secondsToTimeString(Position)
   else
     result := format('%.0n', [Position]);
+end;
+
+function TMovieInfo.FormatPosition(Position: double; TimeFormat: TGUID): String;
+begin
+  if isEqualGUID(TimeFormat, TIME_FORMAT_MEDIA_TIME) then
+    result := secondsToTimeString(Position)
+  else if IsEqualGUID(TimeFormat, TIME_FORMAT_FRAME) then
+    result := format('%.0n', [Position])
+  else
+    result := format('%n', [Position]);
 end;
 
 function TMovieInfo.GetStringFromMovieType(aMovieType: TMovieType): string;

@@ -5,11 +5,9 @@ interface
 uses
   Windows, Messages, SysUtils, DateUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ComCtrls, OleCtrls, StdCtrls, contnrs, shellapi, Buttons,
-  GIFImage,
   ExtCtrls, strutils, iniFiles, Registry, ComObj, Menus, math, ToolWin, Clipbrd,
 
-  ActnMan, ActnCtrls, ActnMenus, ActnList, XPStyleActnCtrls, ImgList,
-  StdStyleActnCtrls, ExtActns,
+  ImgList,
 
   IdBaseComponent, IdComponent,IdTCPConnection, IdTCPClient,IdHTTP,
   IdMultipartFormData, IdException,
@@ -20,7 +18,8 @@ uses
   Movie, Unit_DSTrackBarEx, trackBarEx,
 
   CodecSettings, JvComponentBase, JvSimpleXml, JclSimpleXML, IdAntiFreezeBase,
-  IdAntiFreeze;
+  IdAntiFreeze, JvGIF, JvSpeedbar, JvExExtCtrls, JvExtComponent, JvExControls,
+  JvXPCore, JvXPBar, ActnList;
 
 const
   //Registry Keys
@@ -77,7 +76,6 @@ type
     PanelVideoWindow: TPanel;
     B12FromTo: TButton;
     BConvert: TButton;
-    ActionManager1: TActionManager;
     OpenMovie: TAction;
     OpenCutlist: TAction;
     File_Exit: TAction;
@@ -96,8 +94,6 @@ type
     MovieMetaData: TAction;
     About: TAction;
     UsedFilters: TAction;
-    ActionMainMenuBar1: TActionMainMenuBar;
-    ActionToolBar1: TActionToolBar;
     WriteToRegisty: TAction;
     RemoveRegistryEntries: TAction;
     CutlistUpload: TAction;
@@ -143,6 +139,70 @@ type
     N1: TMenuItem;
     XMLResponse: TJvSimpleXML;
     IdAntiFreeze1: TIdAntiFreeze;
+    ActionList1: TActionList;
+    SpeedBar: TJvSpeedBar;
+    MainMenu: TMainMenu;
+    File1: TMenuItem;
+    Cutlist1: TMenuItem;
+    Edit1: TMenuItem;
+    Frames1: TMenuItem;
+    Info1: TMenuItem;
+    Options1: TMenuItem;
+    Help1: TMenuItem;
+    OpenMovie1: TMenuItem;
+    StartCutting1: TMenuItem;
+    PlayMovieinMPlayer1: TMenuItem;
+    RepairMovie1: TMenuItem;
+    CloseMovie1: TMenuItem;
+    N2: TMenuItem;
+    Exit1: TMenuItem;
+    OpenCutlist1: TMenuItem;
+    SearchCutlistsonServer1: TMenuItem;
+    N3: TMenuItem;
+    SaveCutlistAs1: TMenuItem;
+    SaveCutlist1: TMenuItem;
+    UploadCutlisttoServer1: TMenuItem;
+    DeleteCutlistfromServer1: TMenuItem;
+    N4: TMenuItem;
+    CutlistInfo1: TMenuItem;
+    CheckcutMovie1: TMenuItem;
+    SendRating1: TMenuItem;
+    Addnewcut1: TMenuItem;
+    Replaceselectedcut1: TMenuItem;
+    Editselectedcut1: TMenuItem;
+    Deleteselectedcut1: TMenuItem;
+    ShowForm1: TMenuItem;
+    N5: TMenuItem;
+    ScanInterval1: TMenuItem;
+    Previous12Frames1: TMenuItem;
+    Next12Frames1: TMenuItem;
+    MovieMetaData1: TMenuItem;
+    UsedFilters1: TMenuItem;
+    CutApplications1: TMenuItem;
+    Settings1: TMenuItem;
+    N6: TMenuItem;
+    Associatewithfileextensions1: TMenuItem;
+    Removeregistryentries1: TMenuItem;
+    CutlistHomepage1: TMenuItem;
+    InternetHelpPages1: TMenuItem;
+    N7: TMenuItem;
+    About1: TMenuItem;
+    JvSpeedBarSection1: TJvSpeedBarSection;
+    JvSpeedItem1: TJvSpeedItem;
+    JvSpeedItem2: TJvSpeedItem;
+    JvSpeedItem3: TJvSpeedItem;
+    JvSpeedItem4: TJvSpeedItem;
+    JvSpeedItem5: TJvSpeedItem;
+    JvSpeedItem6: TJvSpeedItem;
+    JvSpeedItem7: TJvSpeedItem;
+    JvSpeedItem8: TJvSpeedItem;
+    JvSpeedItem9: TJvSpeedItem;
+    JvSpeedItem10: TJvSpeedItem;
+    JvSpeedItem11: TJvSpeedItem;
+    JvSpeedItem12: TJvSpeedItem;
+    JvSpeedItem13: TJvSpeedItem;
+    JvSpeedItem14: TJvSpeedItem;
+    JvSpeedItem15: TJvSpeedItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -996,7 +1056,8 @@ begin
 
     self.OpenCutlist.Enabled := true;
     self.ASearchCutlistByFileSize.Enabled := true;
-    self.LDuration.Caption := MovieInfo.FormatPosition(MovieInfo.current_file_duration);
+    self.LDuration.Caption := IntToStr(MovieInfo.FrameCount) + ' / '
+                            + MovieInfo.FormatPosition(MovieInfo.current_file_duration);
 
     MovieInfo.CanStepForward := false;
     if succeeded(FilterGraph.QueryInterface(IVideoFrameStep, FrameStep)) then begin
@@ -1048,20 +1109,23 @@ begin
     self.LTrueRate.Caption := '['+floattostrF(TrueRate, ffFixed, 15, 3) + 'x]'
   else
     self.LTrueRate.Caption := '[ ? x]';
-  self.LPos.Caption := MovieInfo.FormatPosition(currentPosition);
+  self.LPos.Caption := IntToStr(Trunc(currentPosition / MovieInfo.frame_duration)) + ' / '
+                     + MovieInfo.FormatPosition(currentPosition);
 end;
 
 procedure TFMain.DSTrackBar1Change(Sender: TObject);
 begin
   if self.DSTrackBar1.IsMouseDown then begin
-      self.LPos.Caption := MovieInfo.FormatPosition(self.DSTrackBar1.position);
+      self.LPos.Caption := IntToStr(Trunc(self.DSTrackBar1.position / MovieInfo.frame_duration)) + ' / '
+                         + MovieInfo.FormatPosition(self.DSTrackBar1.position);
   end;
 //  else self.LPos.Caption := FormatPosition(currentPosition);
 end;
 
 procedure TFMain.FilterGraphGraphStepComplete(Sender: TObject);
 begin
-  self.LPos.Caption := MovieInfo.FormatPosition(currentPosition);
+  self.LPos.Caption := IntToStr(Trunc(currentPosition / MovieInfo.frame_duration)) + ' / '
+                     + MovieInfo.FormatPosition(currentPosition);
   self.StepComplete := true;
 end;
 
@@ -1070,7 +1134,8 @@ var
   event: integer;
 begin
   MEdiaEvent.WaitForCompletion(500, event);
-  self.LPos.Caption := MovieInfo.FormatPosition(currentPosition);
+  self.LPos.Caption := IntToStr(Trunc(currentPosition / MovieInfo.frame_duration)) + ' / '
+                     + MovieInfo.FormatPosition(currentPosition);
 end;
 
 procedure TFMain.TFinePosChange(Sender: TObject);

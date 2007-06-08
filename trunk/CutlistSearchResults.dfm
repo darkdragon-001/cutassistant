@@ -1,33 +1,29 @@
 object FCutlistSearchResults: TFCutlistSearchResults
-  Left = 1360
+  Left = 360
   Top = 312
+  Width = 1060
+  Height = 322
   Caption = 'Cutlist Search Results'
-  ClientHeight = 288
-  ClientWidth = 1052
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -10
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  Padding.Left = 3
-  Padding.Top = 3
-  Padding.Right = 3
-  Padding.Bottom = 3
   OldCreateOrder = False
   Position = poMainFormCenter
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
-    Left = 3
-    Top = 251
-    Width = 1046
+    Left = 0
+    Top = 254
+    Width = 1052
     Height = 34
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
     DesignSize = (
-      1046
+      1052
       34)
     object BCancel: TButton
       Left = 948
@@ -42,10 +38,10 @@ object FCutlistSearchResults: TFCutlistSearchResults
     end
   end
   object LLinklist: TListView
-    Left = 3
-    Top = 3
-    Width = 1046
-    Height = 248
+    Left = 0
+    Top = 0
+    Width = 1052
+    Height = 254
     Align = alClient
     Columns = <
       item

@@ -1,10 +1,10 @@
 object FSettings: TFSettings
   Left = 414
   Top = 101
+  Width = 570
+  Height = 326
   BorderIcons = []
   Caption = 'Settings'
-  ClientHeight = 285
-  ClientWidth = 562
   Color = clBtnFace
   Constraints.MinHeight = 310
   Constraints.MinWidth = 570
@@ -21,10 +21,10 @@ object FSettings: TFSettings
   PixelsPerInch = 96
   TextHeight = 13
   object pgSettings: TPageControl
-    Left = 3
-    Top = 3
-    Width = 556
-    Height = 252
+    Left = 0
+    Top = 0
+    Width = 562
+    Height = 266
     ActivePage = tabUserData
     Align = alClient
     Style = tsFlatButtons
@@ -33,8 +33,8 @@ object FSettings: TFSettings
       Caption = 'General'
       ImageIndex = 4
       DesignSize = (
-        548
-        221)
+        554
+        235)
       object Label8: TLabel
         Left = 12
         Top = 6
@@ -157,8 +157,8 @@ object FSettings: TFSettings
       Caption = 'Save movie'
       ImageIndex = 1
       DesignSize = (
-        548
-        221)
+        554
+        235)
       object Label3: TLabel
         Left = 3
         Top = 68
@@ -228,8 +228,8 @@ object FSettings: TFSettings
       Caption = 'Save cutlist'
       ImageIndex = 2
       DesignSize = (
-        548
-        221)
+        554
+        235)
       object SaveCutlistMode: TRadioGroup
         Left = 3
         Top = 3
@@ -282,8 +282,8 @@ object FSettings: TFSettings
       ImageIndex = 3
       Constraints.MinHeight = 210
       DesignSize = (
-        548
-        221)
+        554
+        235)
       object Label4: TLabel
         Left = 66
         Top = 6
@@ -595,8 +595,8 @@ object FSettings: TFSettings
       Constraints.MinWidth = 548
       OnShow = tsSourceFilterShow
       DesignSize = (
-        548
-        221)
+        554
+        235)
       object lblSourceFilter: TLabel
         Left = 3
         Top = 9
@@ -672,7 +672,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 0
         Text = '(none)'
@@ -688,7 +688,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 1
         Text = '(none)'
@@ -704,7 +704,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
@@ -730,7 +730,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 4
         Text = '(none)'
@@ -739,7 +739,7 @@ object FSettings: TFSettings
         Left = 122
         Top = 147
         Width = 423
-        Height = 71
+        Height = 66
         OnClickCheck = lbchkBlackListClickCheck
         Anchors = [akLeft, akTop, akRight, akBottom]
         ItemHeight = 13
@@ -748,23 +748,22 @@ object FSettings: TFSettings
     end
   end
   object pnlButtons: TPanel
-    Left = 3
-    Top = 255
-    Width = 556
-    Height = 27
+    Left = 0
+    Top = 266
+    Width = 562
+    Height = 26
     Align = alBottom
-    AutoSize = True
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      556
-      27)
+      562
+      26)
     object Cancel: TButton
       Left = 376
-      Top = 3
+      Top = 0
       Width = 85
       Height = 21
-      Anchors = [akRight, akBottom]
+      Anchors = [akTop, akRight]
       Cancel = True
       Caption = '&Cancel'
       ModalResult = 2
@@ -772,10 +771,10 @@ object FSettings: TFSettings
     end
     object OK: TButton
       Left = 467
-      Top = 3
+      Top = 0
       Width = 85
       Height = 21
-      Anchors = [akRight, akBottom]
+      Anchors = [akTop, akRight]
       Caption = '&OK'
       Default = True
       ModalResult = 1

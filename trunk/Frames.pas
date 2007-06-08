@@ -341,11 +341,11 @@ begin
           scan_2 := self.index;
         end;
         if frame[scan_1].position < frame[scan_2].position then begin
-          (self.Owner as TFFrames).MainForm.DSTrackBar1.SelStart := round(frame[scan_1].position);
-          (self.Owner as TFFrames).MainForm.DSTrackBar1.SelEnd := round(frame[scan_2].position);
+          (self.Owner as TFFrames).MainForm.TBFilePos.SelStart := round(frame[scan_1].position);
+          (self.Owner as TFFrames).MainForm.TBFilePos.SelEnd := round(frame[scan_2].position);
         end else begin
-          (self.Owner as TFFrames).MainForm.DSTrackBar1.SelStart := round(frame[scan_2].position);
-          (self.Owner as TFFrames).MainForm.DSTrackBar1.SelEnd := round(frame[scan_1].position);
+          (self.Owner as TFFrames).MainForm.TBFilePos.SelStart := round(frame[scan_2].position);
+          (self.Owner as TFFrames).MainForm.TBFilePos.SelEnd := round(frame[scan_1].position);
         end;
         (self.Owner as TFFrames).MainForm.ScanInterval.Enabled := true;
       end;

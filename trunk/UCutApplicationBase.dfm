@@ -2,14 +2,14 @@ object frmCutApplicationBase: TfrmCutApplicationBase
   Left = 0
   Top = 0
   Width = 385
-  Height = 161
+  Height = 160
   Constraints.MinHeight = 160
   Constraints.MinWidth = 385
   TabOrder = 0
   TabStop = True
   DesignSize = (
     385
-    161)
+    160)
   object lblAppPath: TLabel
     Left = 6
     Top = 3

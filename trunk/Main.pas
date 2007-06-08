@@ -68,7 +68,7 @@ type
     CutListOpenDialog: TOpenDialog;
     VideoWindow: TVideoWindow;
     LFinePos: TLabel;
-    DSTrackBar1: TDSTrackBarEx;
+    TBFilePos: TDSTrackBarEx;
     SampleGrabber1: TSampleGrabber;
     TeeFilter: TFilter;
     NullRenderer1: TFilter;
@@ -228,12 +228,12 @@ type
     procedure TVolumeChange(Sender: TObject);
     procedure CBMuteClick(Sender: TObject);
 
-    procedure DSTrackBar1Timer(sender: TObject; CurrentPos,
+    procedure TBFilePosTimer(sender: TObject; CurrentPos,
       StopPos: Cardinal);
-    procedure DSTrackBar1PositionChangedByMouse(Sender: TObject);
-    procedure DSTrackBar1Change(Sender: TObject);
-    procedure DSTrackBar1SelChanged(Sender: TObject);
-    procedure DSTrackBar1ChannelPostPaint(Sender: TDSTrackBarEx;
+    procedure TBFilePosPositionChangedByMouse(Sender: TObject);
+    procedure TBFilePosChange(Sender: TObject);
+    procedure TBFilePosSelChanged(Sender: TObject);
+    procedure TBFilePosChannelPostPaint(Sender: TDSTrackBarEx;
       const ARect: TRect);
     procedure TFinePosMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
@@ -455,7 +455,7 @@ begin
   FilterGraph.OnGraphStepComplete := FilterGraphGraphStepComplete;
   //SampleGrabber1.FilterGraph := FilterGraph;
   VideoWindow.FilterGraph := FilterGraph;
-  DSTrackBar1.FilterGraph := FilterGraph;   }
+  TBFilePos.FilterGraph := FilterGraph;   }
 
   UploadDataEntries := TStringList.Create;
   UploadDataEntries := TStringList.Create;
@@ -758,7 +758,7 @@ begin
   self.LResultingDuration.Caption := 'Resulting movie duration: ' + secondsToTimeString(resulting_duration);
 
   //Cuts in Trackbar are taken from global var "cutlist"!
-  self.DSTrackBar1.Perform(CM_RECREATEWND, 0, 0);    //Show Cuts in Trackbar
+  self.TBFilePos.Perform(CM_RECREATEWND, 0, 0);    //Show Cuts in Trackbar
 
   case cutlist.Mode of
     clmCutOut: self.RCutMode.ItemIndex := 0;
@@ -888,7 +888,7 @@ begin
 
         //SampleGrabber1.SampleGrabber.SetCallback(self, 0);
 
-        DSTrackBar1.TriggerTimer;
+        TBFilePos.TriggerTimer;
         self.PanelVideoWindowResize(self);
       end;
 
@@ -1081,7 +1081,7 @@ begin
                        _pos, AM_SEEKING_NoPositioning);
   //filtergraph.State
   MediaEvent.WaitForCompletion(500, event);
-  DSTrackBar1.TriggerTimer;
+  TBFilePos.TriggerTimer;
 end;
 
 function TFMain.CurrentPosition: double;
@@ -1099,12 +1099,12 @@ begin
   end;
 end;
 
-procedure TFMain.DSTrackBar1Timer(sender: TObject; CurrentPos,
+procedure TFMain.TBFilePosTimer(sender: TObject; CurrentPos,
   StopPos: Cardinal);
 var
   TrueRate: double;
 begin
-  TrueRate := CalcTrueRate(self.DSTrackBar1.TimerInterval / 1000);
+  TrueRate := CalcTrueRate(self.TBFilePos.TimerInterval / 1000);
   if TrueRate > 0 then
     self.LTrueRate.Caption := '['+floattostrF(TrueRate, ffFixed, 15, 3) + 'x]'
   else
@@ -1113,11 +1113,11 @@ begin
                      + MovieInfo.FormatPosition(currentPosition);
 end;
 
-procedure TFMain.DSTrackBar1Change(Sender: TObject);
+procedure TFMain.TBFilePosChange(Sender: TObject);
 begin
-  if self.DSTrackBar1.IsMouseDown then begin
-      self.LPos.Caption := IntToStr(Trunc(self.DSTrackBar1.position / MovieInfo.frame_duration)) + ' / '
-                         + MovieInfo.FormatPosition(self.DSTrackBar1.position);
+  if self.TBFilePos.IsMouseDown then begin
+      self.LPos.Caption := IntToStr(Trunc(self.TBFilePos.position / MovieInfo.frame_duration)) + ' / '
+                         + MovieInfo.FormatPosition(self.TBFilePos.position);
   end;
 //  else self.LPos.Caption := FormatPosition(currentPosition);
 end;
@@ -1129,7 +1129,7 @@ begin
   self.StepComplete := true;
 end;
 
-procedure TFMain.DSTrackBar1PositionChangedByMouse(Sender: TObject);
+procedure TFMain.TBFilePosPositionChangedByMouse(Sender: TObject);
 var
   event: integer;
 begin
@@ -1391,7 +1391,7 @@ begin
   frmMemoDialog.ShowModal;
 end;
 
-procedure TFMain.DSTrackBar1SelChanged(Sender: TObject);
+procedure TFMain.TBFilePosSelChanged(Sender: TObject);
 begin
   with FFrames do begin
     if scan_1 <> -1 then begin
@@ -1403,7 +1403,7 @@ begin
       scan_2 := -1;
     end;
   end;
-  if self.DSTrackBar1.SelEnd-self.DSTrackBar1.SelStart > 0 then
+  if self.TBFilePos.SelEnd-self.TBFilePos.SelStart > 0 then
     ScanInterval.Enabled := true
   else
     ScanInterval.Enabled := false;
@@ -1690,8 +1690,8 @@ begin
   i2 := FFrames.scan_2;
 
   if (i1 = -1) or (i2 =-1) then begin
-    pos1 := self.DSTrackBar1.SelStart;
-    pos2 := self.DSTrackBar1.SelEnd;
+    pos1 := self.TBFilePos.SelStart;
+    pos2 := self.TBFilePos.SelEnd;
   end else begin
     if i1>i2 then begin
       i1 := i2;
@@ -1868,7 +1868,7 @@ begin
   if assigned(FrameStep) then begin
     FrameStep.Step(1, nil);
     MediaEvent.WaitForCompletion(500, event);
-    DSTrackBar1.TriggerTimer;
+    TBFilePos.TriggerTimer;
   end else
     self.StepForward.Enabled := false;
 end;
@@ -2576,7 +2576,7 @@ begin
   end;
 end;
 
-procedure TFMain.DSTrackBar1ChannelPostPaint(Sender: TDSTrackBarEx;
+procedure TFMain.TBFilePosChannelPostPaint(Sender: TDSTrackBarEx;
   const ARect: TRect);
 var
   scale: double;
@@ -2585,16 +2585,16 @@ var
 begin
   if MovieInfo.current_file_duration = 0 then exit;
   if cutlist.Mode = clmCrop then
-    DSTrackbar1.ChannelCanvas.Brush.Color := clgreen
+    TBFilePos.ChannelCanvas.Brush.Color := clgreen
   else
-    DSTrackbar1.ChannelCanvas.Brush.Color := clred;
+    TBFilePos.ChannelCanvas.Brush.Color := clred;
   scale := (ARect.Right - ARect.Left) / MovieInfo.current_file_duration; //pixel per second
   CutRect := ARect;
   for iCut := 0 to cutlist.Count-1 do begin
     CutRect.Left := ARect.Left + round(Cutlist[iCut].pos_from * scale);
     CutRect.Right := ARect.Left + round(Cutlist[iCut].pos_to * scale);
     if CutRect.right >= CutRect.Left then
-      DSTrackBar1.ChannelCanvas.FillRect(CutRect);
+      TBFilePos.ChannelCanvas.FillRect(CutRect);
   end;
 end;
 
@@ -2664,7 +2664,7 @@ begin
   self.BPlayPause.Caption := CaptionPlay;
   self.BPlayPause.Hint := HintPlay;
   self.BFF.Enabled := false;
-  DSTrackBar1.TriggerTimer;
+  TBFilePos.TriggerTimer;
 end;
 
 function TFMain.GraphPlay: boolean;
@@ -3251,7 +3251,7 @@ procedure TFMain.EnableMovieControls(value: boolean);
 begin
     self.Next12.Enabled := value;
     self.Prev12.Enabled := value;
-    self.DSTrackBar1.Enabled := value;
+    self.TBFilePos.Enabled := value;
     self.TFinePos.Enabled := value;
     self.StepBackward.Enabled := value;
     self.BPlayPause.Enabled := value;

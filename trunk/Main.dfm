@@ -1,12 +1,12 @@
 object FMain: TFMain
   Left = 203
   Top = 150
-  Width = 861
-  Height = 631
+  Width = 750
+  Height = 519
   Caption = 'Cut Assistant'
   Color = clBtnFace
-  Constraints.MinHeight = 512
-  Constraints.MinWidth = 650
+  Constraints.MinHeight = 519
+  Constraints.MinWidth = 750
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -10
@@ -22,13 +22,13 @@ object FMain: TFMain
   OnDestroy = FormDestroy
   OnKeyDown = FormKeyDown
   DesignSize = (
-    853
-    577)
+    742
+    465)
   PixelsPerInch = 96
   TextHeight = 13
   object Bevel3: TBevel
-    Left = 461
-    Top = 293
+    Left = 364
+    Top = 273
     Width = 241
     Height = 111
     Anchors = [akTop, akRight]
@@ -36,45 +36,45 @@ object FMain: TFMain
     ShowHint = True
   end
   object Label1: TLabel
-    Left = 487
-    Top = 208
+    Left = 390
+    Top = 188
     Width = 23
     Height = 13
     Anchors = [akTop, akRight]
     Caption = 'From'
   end
   object Label2: TLabel
-    Left = 474
-    Top = 260
+    Left = 377
+    Top = 240
     Width = 40
     Height = 13
     Anchors = [akTop, akRight]
     Caption = 'Duration'
   end
   object Label3: TLabel
-    Left = 500
-    Top = 234
+    Left = 403
+    Top = 214
     Width = 13
     Height = 13
     Anchors = [akTop, akRight]
     Caption = 'To'
   end
   object Label8: TLabel
-    Left = 467
-    Top = 333
+    Left = 370
+    Top = 313
     Width = 35
     Height = 13
     Anchors = [akTop, akRight]
     Caption = 'Volume'
   end
   object LPos: TLabel
-    Left = 767
-    Top = 480
-    Width = 65
+    Left = 649
+    Top = 368
+    Width = 82
     Height = 16
     Alignment = taRightJustify
     Anchors = [akRight, akBottom]
-    Caption = '0:00:00.000'
+    Caption = '0 / 0:00:00.000'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -15
@@ -84,39 +84,39 @@ object FMain: TFMain
   end
   object Label11: TLabel
     Left = 13
-    Top = 552
+    Top = 440
     Width = 15
     Height = 13
     Anchors = [akLeft, akBottom]
     Caption = '-50'
   end
   object Label12: TLabel
-    Left = 481
-    Top = 558
+    Left = 380
+    Top = 446
     Width = 18
     Height = 13
     Anchors = [akRight, akBottom]
     Caption = '+50'
   end
   object LDuration: TLabel
-    Left = 775
-    Top = 532
-    Width = 57
+    Left = 657
+    Top = 420
+    Width = 74
     Height = 13
     Alignment = taRightJustify
     Anchors = [akRight, akBottom]
-    Caption = '0:00:00.000'
+    Caption = '0 / 0:00:00.000'
   end
   object Bevel2: TBevel
-    Left = 461
-    Top = 52
+    Left = 364
+    Top = 32
     Width = 371
     Height = 228
     Anchors = [akTop, akRight]
   end
   object LFinePos: TLabel
-    Left = 484
-    Top = 532
+    Left = 383
+    Top = 420
     Width = 43
     Height = 13
     Alignment = taRightJustify
@@ -125,15 +125,15 @@ object FMain: TFMain
   end
   object Label7: TLabel
     Left = 13
-    Top = 526
+    Top = 414
     Width = 6
     Height = 13
     Anchors = [akLeft, akBottom]
     Caption = '0'
   end
   object ICutlistWarning: TImage
-    Left = 795
-    Top = 166
+    Left = 698
+    Top = 146
     Width = 30
     Height = 28
     Anchors = [akTop, akRight]
@@ -176,8 +176,8 @@ object FMain: TFMain
     Transparent = True
   end
   object LTotalCutoff: TLabel
-    Left = 583
-    Top = 166
+    Left = 486
+    Top = 146
     Width = 117
     Height = 13
     Alignment = taRightJustify
@@ -191,8 +191,8 @@ object FMain: TFMain
     ParentFont = False
   end
   object LResultingDuration: TLabel
-    Left = 521
-    Top = 179
+    Left = 424
+    Top = 159
     Width = 179
     Height = 13
     Alignment = taRightJustify
@@ -206,16 +206,16 @@ object FMain: TFMain
     ParentFont = False
   end
   object Label4: TLabel
-    Left = 480
-    Top = 366
+    Left = 383
+    Top = 346
     Width = 23
     Height = 13
     Anchors = [akTop, akRight]
     Caption = 'Rate'
   end
   object LRate: TLabel
-    Left = 636
-    Top = 366
+    Left = 539
+    Top = 346
     Width = 47
     Height = 20
     Hint = 'Frame Rate (Double click to set to 1.0)'
@@ -231,8 +231,8 @@ object FMain: TFMain
     OnDblClick = LRateDblClick
   end
   object LTrueRate: TLabel
-    Left = 660
-    Top = 385
+    Left = 563
+    Top = 365
     Width = 23
     Height = 13
     Hint = 'Actual Frame Rate'
@@ -241,32 +241,33 @@ object FMain: TFMain
     Caption = '[ ? x]'
   end
   object PanelVideoWindow: TPanel
-    Left = 7
-    Top = 52
-    Width = 447
-    Height = 443
+    Left = 11
+    Top = 32
+    Width = 346
+    Height = 353
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
-    TabOrder = 25
+    TabOrder = 1
     OnResize = PanelVideoWindowResize
     object VideoWindow: TVideoWindow
       Left = 0
       Top = 0
-      Width = 488
-      Height = 366
+      Width = 346
+      Height = 353
       FilterGraph = FilterGraph
       VMROptions.Mode = vmrWindowless
       VMROptions.Streams = 1
       Color = clBlack
       PopupMenu = MenuVideo
+      Align = alClient
       OnKeyDown = VideoWindowKeyDown
       OnClick = VideoWindowClick
       OnDblClick = VideoWindowDblClick
     end
   end
   object BStop: TButton
-    Left = 597
-    Top = 299
+    Left = 500
+    Top = 279
     Width = 27
     Height = 27
     Hint = 'Stop'
@@ -275,12 +276,12 @@ object FMain: TFMain
     Enabled = False
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 0
+    TabOrder = 22
     OnClick = BStopClick
   end
   object BPlayPause: TButton
-    Left = 500
-    Top = 299
+    Left = 403
+    Top = 279
     Width = 27
     Height = 27
     Hint = 'Play'
@@ -289,12 +290,12 @@ object FMain: TFMain
     Enabled = False
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 1
+    TabOrder = 19
     OnClick = BPlayPauseClick
   end
   object Lcutlist: TListView
-    Left = 467
-    Top = 65
+    Left = 370
+    Top = 45
     Width = 235
     Height = 98
     Anchors = [akTop, akRight]
@@ -326,8 +327,8 @@ object FMain: TFMain
     OnSelectItem = LcutlistSelectItem
   end
   object BAddCut: TButton
-    Left = 708
-    Top = 65
+    Left = 611
+    Top = 45
     Width = 111
     Height = 20
     Action = AddCut
@@ -337,58 +338,46 @@ object FMain: TFMain
     TabOrder = 3
   end
   object BDeleteCut: TButton
-    Left = 708
-    Top = 143
+    Left = 611
+    Top = 123
     Width = 111
     Height = 20
     Action = DeleteCut
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 4
-  end
-  object EFrom: TEdit
-    Left = 519
-    Top = 202
-    Width = 99
-    Height = 21
-    Anchors = [akTop, akRight]
-    ReadOnly = True
-    TabOrder = 5
-  end
-  object EDuration: TEdit
-    Left = 519
-    Top = 254
-    Width = 99
-    Height = 21
-    Anchors = [akTop, akRight]
-    ReadOnly = True
     TabOrder = 6
   end
-  object ETo: TEdit
-    Left = 519
-    Top = 228
+  object EFrom: TEdit
+    Left = 422
+    Top = 182
     Width = 99
     Height = 21
     Anchors = [akTop, akRight]
     ReadOnly = True
-    TabOrder = 7
+    TabOrder = 8
+  end
+  object EDuration: TEdit
+    Left = 422
+    Top = 234
+    Width = 99
+    Height = 21
+    Anchors = [akTop, akRight]
+    ReadOnly = True
+    TabOrder = 16
+  end
+  object ETo: TEdit
+    Left = 422
+    Top = 208
+    Width = 99
+    Height = 21
+    Anchors = [akTop, akRight]
+    ReadOnly = True
+    TabOrder = 12
   end
   object BSetFrom: TButton
-    Left = 630
-    Top = 202
-    Width = 61
-    Height = 20
-    Anchors = [akTop, akRight]
-    Caption = 'Set Current'
-    ParentShowHint = False
-    ShowHint = True
-    TabOrder = 8
-    OnClick = BSetFromClick
-  end
-  object BSetTo: TButton
-    Left = 630
-    Top = 228
+    Left = 533
+    Top = 182
     Width = 61
     Height = 20
     Anchors = [akTop, akRight]
@@ -396,11 +385,23 @@ object FMain: TFMain
     ParentShowHint = False
     ShowHint = True
     TabOrder = 9
+    OnClick = BSetFromClick
+  end
+  object BSetTo: TButton
+    Left = 533
+    Top = 208
+    Width = 61
+    Height = 20
+    Anchors = [akTop, akRight]
+    Caption = 'Set Current'
+    ParentShowHint = False
+    ShowHint = True
+    TabOrder = 13
     OnClick = BSetToClick
   end
   object BFromStart: TButton
-    Left = 695
-    Top = 202
+    Left = 598
+    Top = 182
     Width = 61
     Height = 20
     Anchors = [akTop, akRight]
@@ -411,66 +412,66 @@ object FMain: TFMain
     OnClick = BFromStartClick
   end
   object BToEnd: TButton
-    Left = 695
-    Top = 228
+    Left = 598
+    Top = 208
     Width = 61
     Height = 20
     Anchors = [akTop, akRight]
     Caption = 'Set End'
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 11
+    TabOrder = 14
     OnClick = BToEndClick
   end
   object BJumpFrom: TButton
-    Left = 760
-    Top = 202
+    Left = 663
+    Top = 182
     Width = 61
     Height = 20
     Anchors = [akTop, akRight]
     Caption = 'Jump to'
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 12
+    TabOrder = 11
     OnClick = BJumpFromClick
   end
   object BJumpTo: TButton
-    Left = 760
-    Top = 228
+    Left = 663
+    Top = 208
     Width = 61
     Height = 20
     Anchors = [akTop, akRight]
     Caption = 'Jump to'
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 13
+    TabOrder = 15
     OnClick = BJumpToClick
   end
   object BReplaceCut: TButton
-    Left = 708
-    Top = 91
+    Left = 611
+    Top = 71
     Width = 111
     Height = 20
     Action = ReplaceCut
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 14
+    TabOrder = 4
   end
   object BEditCut: TButton
-    Left = 708
-    Top = 117
+    Left = 611
+    Top = 97
     Width = 111
     Height = 20
     Action = EditCut
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 15
+    TabOrder = 5
   end
   object RCutMode: TRadioGroup
-    Left = 710
-    Top = 286
+    Left = 613
+    Top = 266
     Width = 122
     Height = 59
     Hint = 
@@ -484,23 +485,23 @@ object FMain: TFMain
       'Crop')
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 16
+    TabOrder = 28
     OnClick = RCutModeClick
   end
   object BPrev12: TButton
-    Left = 605
-    Top = 552
+    Left = 504
+    Top = 440
     Width = 111
     Height = 20
     Action = Prev12
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 17
+    TabOrder = 33
   end
   object BStepBack: TButton
-    Left = 467
-    Top = 299
+    Left = 370
+    Top = 279
     Width = 27
     Height = 27
     Hint = 'Previous Frame'
@@ -511,8 +512,8 @@ object FMain: TFMain
     TabOrder = 18
   end
   object BStepForwards: TButton
-    Left = 532
-    Top = 299
+    Left = 435
+    Top = 279
     Width = 27
     Height = 27
     Hint = 'Next Frame'
@@ -520,45 +521,45 @@ object FMain: TFMain
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 19
+    TabOrder = 20
   end
   object TVolume: TTrackBar
-    Left = 506
-    Top = 333
+    Left = 409
+    Top = 313
     Width = 122
     Height = 37
     Anchors = [akTop, akRight]
     Max = 10000
     Frequency = 1000
     Position = 5000
-    TabOrder = 20
+    TabOrder = 25
     OnChange = TVolumeChange
   end
   object CBMute: TCheckBox
-    Left = 636
-    Top = 333
+    Left = 539
+    Top = 313
     Width = 47
     Height = 14
     Anchors = [akTop, akRight]
     Caption = 'Mute'
-    TabOrder = 21
+    TabOrder = 26
     OnClick = CBMuteClick
   end
   object BNext12: TButton
-    Left = 722
-    Top = 552
+    Left = 621
+    Top = 440
     Width = 111
     Height = 20
     Action = Next12
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 22
+    TabOrder = 34
   end
   object TFinePos: TtrackBarEx
     Left = 33
-    Top = 539
-    Width = 449
+    Top = 427
+    Width = 348
     Height = 36
     Hint = 'Fine Positioning (in Frames)'
     Anchors = [akLeft, akRight, akBottom]
@@ -568,14 +569,14 @@ object FMain: TFMain
     ParentShowHint = False
     PageSize = 5
     ShowHint = True
-    TabOrder = 23
+    TabOrder = 31
     OnChange = TFinePosChange
     OnMOuseUp = TFinePosMOuseUp
   end
-  object DSTrackBar1: TDSTrackBarEx
+  object TBFilePos: TDSTrackBarEx
     Left = 7
-    Top = 500
-    Width = 826
+    Top = 388
+    Width = 725
     Height = 27
     Hint = 'Position (Timeline)'
     Anchors = [akLeft, akRight, akBottom]
@@ -584,62 +585,61 @@ object FMain: TFMain
     PageSize = 4
     Frequency = 300
     ShowHint = True
-    TabOrder = 24
-    OnChange = DSTrackBar1Change
+    TabOrder = 30
+    OnChange = TBFilePosChange
     FilterGraph = FilterGraph
-    OnTimer = DSTrackBar1Timer
-    OnPositionChangedByMouse = DSTrackBar1PositionChangedByMouse
-    OnSelChanged = DSTrackBar1SelChanged
-    OnChannelPostPaint = DSTrackBar1ChannelPostPaint
+    OnTimer = TBFilePosTimer
+    OnPositionChangedByMouse = TBFilePosPositionChangedByMouse
+    OnSelChanged = TBFilePosSelChanged
+    OnChannelPostPaint = TBFilePosChannelPostPaint
   end
   object B12FromTo: TButton
-    Left = 511
-    Top = 552
+    Left = 410
+    Top = 440
     Width = 88
     Height = 20
     Action = ScanInterval
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 26
+    TabOrder = 32
   end
   object BConvert: TButton
-    Left = 779
-    Top = 306
+    Left = 682
+    Top = 286
     Width = 47
     Height = 26
     Anchors = [akTop, akRight]
     Caption = 'Convert'
-    TabOrder = 27
+    TabOrder = 29
     OnClick = BConvertClick
   end
   object BCutlistInfo: TBitBtn
-    Left = 734
-    Top = 169
+    Left = 637
+    Top = 149
     Width = 59
     Height = 20
     Action = ACutlistInfo
     Anchors = [akTop, akRight]
     Caption = 'Cutlist &Info'
-    TabOrder = 28
+    TabOrder = 7
   end
   object PAuthor: TPanel
-    Left = 630
-    Top = 254
+    Left = 533
+    Top = 234
     Width = 189
     Height = 20
     Anchors = [akTop, akRight]
     BevelInner = bvLowered
-    TabOrder = 29
+    TabOrder = 17
     Visible = False
     object LAuthor: TLabel
       Left = 2
-      Top = -1
+      Top = 2
       Width = 185
-      Height = 19
-      Align = alBottom
+      Height = 16
+      Align = alClient
       Alignment = taCenter
-      Anchors = [akTop, akRight]
       AutoSize = False
       Caption = 'Cutlist Author unknown'
       Color = clNone
@@ -654,8 +654,8 @@ object FMain: TFMain
     end
   end
   object TBRate: TtrackBarEx
-    Left = 506
-    Top = 364
+    Left = 409
+    Top = 344
     Width = 122
     Height = 27
     Anchors = [akTop, akRight]
@@ -663,34 +663,34 @@ object FMain: TFMain
     Min = -24
     PageSize = 8
     Frequency = 8
-    TabOrder = 30
+    TabOrder = 27
     OnChange = TBRateChange
   end
   object BNextCut: TButton
-    Left = 669
-    Top = 299
+    Left = 572
+    Top = 279
     Width = 27
     Height = 27
     Action = ANextCut
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 31
+    TabOrder = 24
   end
   object BPrevCut: TButton
-    Left = 636
-    Top = 299
+    Left = 539
+    Top = 279
     Width = 27
     Height = 27
     Action = APrevCut
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 32
+    TabOrder = 23
   end
   object BFF: TButton
-    Left = 565
-    Top = 299
+    Left = 468
+    Top = 279
     Width = 27
     Height = 27
     Hint = 'Fast Forward (Click and Hold)'
@@ -699,14 +699,14 @@ object FMain: TFMain
     Enabled = False
     ParentShowHint = False
     ShowHint = True
-    TabOrder = 33
+    TabOrder = 21
     OnMouseDown = BFFMouseDown
     OnMouseUp = BFFMouseUp
   end
   object SpeedBar: TJvSpeedBar
     Left = 0
     Top = 0
-    Width = 853
+    Width = 742
     Height = 29
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -720,7 +720,7 @@ object FMain: TFMain
     BtnHeight = 23
     Images = ImageList1
     BevelOuter = bvNone
-    TabOrder = 34
+    TabOrder = 0
     InternalVer = 1
     object JvSpeedBarSection1: TJvSpeedBarSection
       Caption = 'Main'
@@ -1435,16 +1435,16 @@ object FMain: TFMain
     Filter = 'Cut Lists|*.cutlist|All FIles|*.*'
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
     Title = 'Load Cut List'
-    Left = 224
-    Top = 288
+    Left = 128
+    Top = 88
   end
   object FilterGraph: TFilterGraph
     GraphEdit = True
     LinearVolume = True
     OnGraphStepComplete = FilterGraphGraphStepComplete
     OnSelectedFilter = FilterGraphSelectedFilter
-    Left = 184
-    Top = 328
+    Left = 48
+    Top = 140
   end
   object SampleGrabber1: TSampleGrabber
     OnBuffer = SampleGrabber1Buffer
@@ -1453,8 +1453,8 @@ object FMain: TFMain
       7669647300001000800000AA00389B717DEB36E44F52CE119F530020AF0BA770
       000000000000000001000000809F580556C3CE11BF0100AA0055595A00000000
       0000000000000000}
-    Left = 264
-    Top = 328
+    Left = 208
+    Top = 140
   end
   object TeeFilter: TFilter
     BaseFilter.data = {
@@ -1465,8 +1465,8 @@ object FMain: TFMain
       38003300380038004100340030002D0044003500420042002D00310031004400
       30002D0042004500350041002D00300030003800300043003700300036003500
       3600380045007D000000}
-    Left = 224
-    Top = 328
+    Left = 128
+    Top = 140
   end
   object NullRenderer1: TFilter
     BaseFilter.data = {
@@ -1477,13 +1477,13 @@ object FMain: TFMain
       31004600340030003000410034002D0033004600300038002D00310031004400
       33002D0039004600300042002D00300030003600300030003800300033003900
       4500330037007D000000}
-    Left = 304
-    Top = 328
+    Left = 296
+    Top = 140
   end
   object ImageList1: TImageList
     DrawingStyle = dsTransparent
-    Left = 224
-    Top = 368
+    Left = 128
+    Top = 192
     Bitmap = {
       494C010115001800040010001000FFFFFFFFFF10FFFFFFFFFFFFFFFF424D3600
       0000000000003600000028000000400000006000000001002000000000000060
@@ -2298,12 +2298,12 @@ object FMain: TFMain
     Request.BasicAuthentication = False
     Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
     HTTPOptions = [hoForceEncodeParams]
-    Left = 264
-    Top = 288
+    Left = 208
+    Top = 88
   end
   object MenuVideo: TPopupMenu
-    Left = 184
-    Top = 288
+    Left = 48
+    Top = 88
     object FramePopUpNext12Frames: TMenuItem
       Caption = 'Next 12 Frames'
       OnClick = FramePopUpNext12FramesClick
@@ -2324,17 +2324,17 @@ object FMain: TFMain
   end
   object XMLResponse: TJvSimpleXML
     IndentString = '  '
-    Left = 304
-    Top = 288
+    Left = 296
+    Top = 88
   end
   object IdAntiFreeze1: TIdAntiFreeze
-    Left = 264
-    Top = 368
+    Left = 208
+    Top = 192
   end
   object ActionList1: TActionList
     Images = ImageList1
-    Left = 304
-    Top = 368
+    Left = 296
+    Top = 192
     object OpenMovie: TAction
       Tag = 2
       Category = 'File'
@@ -2633,8 +2633,8 @@ object FMain: TFMain
   end
   object MainMenu: TMainMenu
     Images = ImageList1
-    Left = 184
-    Top = 368
+    Left = 48
+    Top = 192
     object File1: TMenuItem
       Caption = '&File'
       object OpenMovie1: TMenuItem

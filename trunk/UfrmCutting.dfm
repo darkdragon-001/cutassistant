@@ -1,10 +1,10 @@
 object frmCutting: TfrmCutting
   Left = 286
   Top = 124
+  Width = 500
+  Height = 378
   BorderIcons = [biMaximize]
   Caption = 'Cutting ...'
-  ClientHeight = 344
-  ClientWidth = 492
   Color = clBtnFace
   Constraints.MinHeight = 260
   Constraints.MinWidth = 500
@@ -13,10 +13,6 @@ object frmCutting: TfrmCutting
   Font.Height = -10
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  Padding.Left = 3
-  Padding.Top = 3
-  Padding.Right = 3
-  Padding.Bottom = 3
   OldCreateOrder = False
   Position = poOwnerFormCenter
   OnCreate = FormCreate

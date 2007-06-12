@@ -1,6 +1,6 @@
 object FSettings: TFSettings
-  Left = 414
-  Top = 101
+  Left = 378
+  Top = 243
   Width = 570
   Height = 326
   BorderIcons = []
@@ -25,7 +25,7 @@ object FSettings: TFSettings
     Top = 0
     Width = 562
     Height = 266
-    ActivePage = tabUserData
+    ActivePage = TabExternalCutApplication
     Align = alClient
     Style = tsFlatButtons
     TabOrder = 0
@@ -562,6 +562,21 @@ object FSettings: TFSettings
         Alignment = taRightJustify
         Caption = 'Cut MP4 Iso Files with:'
       end
+      object Label29: TLabel
+        Left = 4
+        Top = 132
+        Width = 272
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Automatically close Cutting window after (use 0 to disable)'
+      end
+      object Label30: TLabel
+        Left = 360
+        Top = 132
+        Width = 5
+        Height = 13
+        Caption = 's'
+      end
       object CBWmvApp: TComboBox
         Left = 153
         Top = 19
@@ -605,6 +620,18 @@ object FSettings: TFSettings
         TabOrder = 3
         Items.Strings = (
           '')
+      end
+      object spnWaitTimeout: TJvSpinEdit
+        Left = 288
+        Top = 128
+        Width = 65
+        Height = 21
+        CheckMinValue = True
+        Alignment = taRightJustify
+        ButtonKind = bkStandard
+        Decimal = 0
+        Value = 20.000000000000000000
+        TabOrder = 4
       end
     end
     object tsSourceFilter: TTabSheet

@@ -7,7 +7,7 @@ uses
   Dialogs, FileCtrl, StdCtrls, ComCtrls, ExtCtrls, IniFiles, Utils, CodecSettings, MMSystem,
   Movie, UCutApplicationBase,
 
-  DirectShow9, DSPack, DSUtil, CheckLst;
+  DirectShow9, DSPack, DSUtil, CheckLst, Mask, JvExMask, JvSpin;
 
 const
   //Settings Save...Mode
@@ -103,6 +103,9 @@ type
     Label27: TLabel;
     Label28: TLabel;
     RCutMode: TRadioGroup;
+    Label29: TLabel;
+    spnWaitTimeout: TJvSpinEdit;
+    Label30: TLabel;
     procedure BCutMovieSaveDirClick(Sender: TObject);
     procedure BCutlistSaveDirClick(Sender: TObject);
     procedure EProxyPortKeyPress(Sender: TObject; var Key: Char);
@@ -173,6 +176,7 @@ type
 
     //CutApps
     CutAppNameAvi, CutAppNameWmv, CutAppNameMP4, CutAppNameOther: string;
+    CuttingWaitTimeout: integer;
 
     //SourceFilter
     SourceFilterWMV, SourceFilterAVI, SourceFilterMP4, SourceFilterOther: TGUID;
@@ -337,6 +341,7 @@ begin
   FSettings.CBMP4App.ItemIndex      := FSettings.CBMP4App.Items.IndexOf(self.CutAppNameMP4);
   FSettings.CBOtherApp.ItemIndex    := FSettings.CBOtherApp.Items.IndexOf(self.CutAppNameOther);
 
+  FSettings.spnWaitTimeout.AsInteger               := CuttingWaitTimeout;
   FSettings.SaveCutMovieMode.ItemIndex             := SaveCutMovieMode;
   FSettings.CutMovieSaveDir.Text                   := CutMovieSaveDir;
   FSettings.CutMovieExtension.Text                 := CutMovieExtension;
@@ -404,6 +409,8 @@ begin
       self.CutAppNameAvi := FSettings.CBAviApp.Text;
       self.CutAppNameMP4 := FSettings.CBMP4App.Text;
       self.CutAppNameOther := FSettings.CBOtherApp.Text;
+
+      self.CuttingWaitTimeout := FSettings.spnWaitTimeout.AsInteger;
 
       if FSettings.cbxSourceFilterListWMV.ItemIndex >= 0 then
         self.SourceFilterWMV := self.SourceFilterList.GetFilterInfo[FSettings.cbxSourceFilterListWMV.ItemIndex].CLSID;
@@ -575,6 +582,8 @@ begin
     self.CutAppNameMP4 := ini.ReadString(section, 'CutAppNameMP4', CutAppNameMP4);
     self.CutAppNameOther := ini.ReadString(section, 'CutAppNameOther', CutAppNameOther);
 
+    self.CuttingWaitTimeout := ini.ReadInteger(section, 'CuttingWaitTimeout', 20);
+
     section := 'WMV Files';
     StrValue := ini.ReadString(section, 'PreferredSourceFilter', GUIDToString(GUID_NULL));
     SourceFilterWMV := StringToGUID(StrValue);
@@ -679,6 +688,7 @@ begin
     ini.WriteString(section, 'CutAppNameAvi', self.CutAppNameAvi);
     ini.WriteString(section, 'CutAppNameMP4', self.CutAppNameMP4);
     ini.WriteString(section, 'CutAppNameOther', self.CutAppNameOther);
+    ini.WriteInteger(section, 'CuttingWaitTimeout', self.CuttingWaitTimeout);
 
     section := 'WMV Files';
     ini.WriteString(section, 'PreferredSourceFilter', GUIDToString(self.SourceFilterWMV));

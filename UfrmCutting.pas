@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, JvComponentBase, JvCreateProcess, StdCtrls,
-  UCutApplicationBase;
+  UCutApplicationBase, ExtCtrls;
 
 type
   TfrmCutting = class(TForm)
@@ -14,14 +14,18 @@ type
     btnAbort: TButton;
     btnCopyClipbrd: TButton;
     btnEmergencyExit: TButton;
+    timAutoClose: TTimer;
     procedure CutAppTerminate(Sender: TObject; ExitCode: Cardinal);
     procedure btnAbortClick(Sender: TObject);
     procedure btnCopyClipbrdClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnEmergencyExitClick(Sender: TObject);
+    procedure timAutoCloseTimer(Sender: TObject);
+    procedure memOutputClick(Sender: TObject);
   private
     { Private declarations }
+    FTerminateTime: TDateTime;
     FCommandLineCounter: Integer;
     FCutApplication: TCutApplicationBase;
     procedure SetCutApplication(const Value: TCutApplicationBase);
@@ -37,7 +41,7 @@ var
 
 implementation
 
-uses Clipbrd;
+uses Clipbrd, DateTools, DateUtils, Main;
 
 {$R *.dfm}
 
@@ -50,6 +54,7 @@ begin
   btnAbort.Enabled := true;
   btnEmergencyExit.Enabled := true;
   btnClose.Enabled := false;
+  timAutoClose.Enabled := false;
 
   CutApplication.StartCutting;
   self.ShowModal;
@@ -70,6 +75,9 @@ begin
   btnAbort.Enabled := false;
   btnEmergencyExit.Enabled := false;
   btnClose.Enabled := true;
+  FTerminateTime := NowUTC;
+  if Settings.CuttingWaitTimeout > 0 then
+    timAutoClose.Enabled := true;
   Beep;
 end;
 
@@ -116,6 +124,31 @@ begin
   begin
     CutApplication.EmergencyTerminateProcess;
     self.CutAppTerminate(self, Cardinal(-1));
+  end;
+end;
+
+procedure TfrmCutting.timAutoCloseTimer(Sender: TObject);
+var
+  secsToWait: integer;
+begin
+  secsToWait := Settings.CuttingWaitTimeout - SecondsBetween(FTerminateTime, NowUTC);
+  if secsToWait <= 0 then
+  begin
+    timAutoClose.Enabled := false;
+    btnClose.Click;
+  end
+  else
+  begin
+    btnClose.Caption := '&Close (' + IntToStr(secsToWait) + ')';
+  end;
+end;
+
+procedure TfrmCutting.memOutputClick(Sender: TObject);
+begin
+  if timAutoClose.Enabled then
+  begin
+    timAutoClose.Enabled := false;
+    btnClose.Caption := '&Close';
   end;
 end;
 

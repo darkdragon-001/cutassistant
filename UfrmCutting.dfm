@@ -38,6 +38,9 @@ object frmCutting: TfrmCutting
     ReadOnly = True
     ScrollBars = ssBoth
     TabOrder = 0
+    WantReturns = False
+    WordWrap = False
+    OnClick = memOutputClick
   end
   object btnClose: TButton
     Left = 381
@@ -66,7 +69,7 @@ object frmCutting: TfrmCutting
     Width = 105
     Height = 25
     Anchors = [akLeft, akBottom]
-    Caption = 'Copy to Clipboard'
+    Caption = 'Copy to Clip&board'
     TabOrder = 3
     OnClick = btnCopyClipbrdClick
   end
@@ -85,5 +88,12 @@ object frmCutting: TfrmCutting
     ParentFont = False
     TabOrder = 4
     OnClick = btnEmergencyExitClick
+  end
+  object timAutoClose: TTimer
+    Enabled = False
+    Interval = 250
+    OnTimer = timAutoCloseTimer
+    Left = 116
+    Top = 312
   end
 end

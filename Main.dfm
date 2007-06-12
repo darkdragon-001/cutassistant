@@ -508,7 +508,7 @@ object FMain: TFMain
     Width = 27
     Height = 27
     Hint = 'Previous Frame'
-    Action = StepBackward
+    Action = AStepBackward
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
@@ -520,7 +520,7 @@ object FMain: TFMain
     Width = 27
     Height = 27
     Hint = 'Next Frame'
-    Action = StepForward
+    Action = AStepForward
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
@@ -2530,7 +2530,7 @@ object FMain: TFMain
       Caption = '&Remove registry entries'
       OnExecute = RemoveRegistryEntriesExecute
     end
-    object StepForward: TAction
+    object AStepForward: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = '>II'
@@ -2538,9 +2538,9 @@ object FMain: TFMain
       ShortCut = 39
       SecondaryShortCuts.Strings = (
         'l')
-      OnExecute = StepForwardExecute
+      OnExecute = AStepForwardExecute
     end
-    object StepBackward: TAction
+    object AStepBackward: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = 'II<'
@@ -2548,7 +2548,7 @@ object FMain: TFMain
       ShortCut = 37
       SecondaryShortCuts.Strings = (
         'j')
-      OnExecute = StepBackwardExecute
+      OnExecute = AStepBackwardExecute
     end
     object OpenCutlistHome: TAction
       Category = '?'
@@ -2632,6 +2632,38 @@ object FMain: TFMain
       Category = 'Video'
       Caption = 'Save &Snapshot as...'
       OnExecute = ASnapshotSaveExecute
+    end
+    object ASmallSkipForward: TAction
+      Tag = -1
+      Category = 'Navigation'
+      Caption = '>III'
+      Enabled = False
+      ShortCut = 8231
+      OnExecute = AStepBackwardExecute
+    end
+    object ASmallSkipBackward: TAction
+      Tag = -1
+      Category = 'Navigation'
+      Caption = 'III<'
+      Enabled = False
+      ShortCut = 8229
+      OnExecute = AStepBackwardExecute
+    end
+    object ABigSkipForward: TAction
+      Tag = -1
+      Category = 'Navigation'
+      Caption = '>IIII'
+      Enabled = False
+      ShortCut = 24615
+      OnExecute = AStepBackwardExecute
+    end
+    object ABigSkipBackward: TAction
+      Tag = -1
+      Category = 'Navigation'
+      Caption = 'IIII<'
+      Enabled = False
+      ShortCut = 24613
+      OnExecute = AStepBackwardExecute
     end
   end
   object MainMenu: TMainMenu

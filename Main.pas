@@ -98,8 +98,8 @@ type
     RemoveRegistryEntries: TAction;
     CutlistUpload: TAction;
     IdHTTP1: TIdHTTP;
-    StepForward: TAction;
-    StepBackward: TAction;
+    AStepForward: TAction;
+    AStepBackward: TAction;
     BrowseWWWHelp: TAction;
     OpenCutlistHome: TAction;
     ARepairMovie: TAction;
@@ -203,6 +203,10 @@ type
     JvSpeedItem13: TJvSpeedItem;
     JvSpeedItem14: TJvSpeedItem;
     JvSpeedItem15: TJvSpeedItem;
+    ASmallSkipForward: TAction;
+    ASmallSkipBackward: TAction;
+    ABigSkipForward: TAction;
+    ABigSkipBackward: TAction;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -217,8 +221,8 @@ type
     procedure BToEndClick(Sender: TObject);
     procedure BJumpFromClick(Sender: TObject);
     procedure BJumpToClick(Sender: TObject);
-    procedure StepForwardExecute(Sender: TObject);
-    procedure StepBackwardExecute(Sender: TObject);
+    procedure AStepForwardExecute(Sender: TObject);
+    procedure AStepBackwardExecute(Sender: TObject);
 
     procedure LcutlistSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
@@ -471,6 +475,8 @@ begin
   self.IdHTTP1.ProxyParams.ProxyUsername := settings.proxyUserName;
   self.IdHTTP1.ProxyParams.ProxyPassword := settings.proxyPassword;
 
+  self.RCutMode.ItemIndex := settings.DefaultCutMode;
+  
   Cutlist.RefreshCallBack := self.refresh_Lcutlist;
   cutlist.RefreshGUI;
 
@@ -1860,9 +1866,10 @@ begin
   UploadCutlist(cutlist.SavedToFilename);
 end;
 
-procedure TFMain.StepForwardExecute(Sender: TObject);
+procedure TFMain.AStepForwardExecute(Sender: TObject);
 var
   event: integer;
+  timeToSkip: double;
 begin
   if not (FilterGraph.State = gsPaused) then GraphPause;
   if assigned(FrameStep) then begin
@@ -1870,16 +1877,25 @@ begin
     MediaEvent.WaitForCompletion(500, event);
     TBFilePos.TriggerTimer;
   end else
-    self.StepForward.Enabled := false;
+  begin
+    self.AStepForward.Enabled := false;
+  end;
 end;
 
-procedure TFMain.StepBackwardExecute(Sender: TObject);
+procedure TFMain.AStepBackwardExecute(Sender: TObject);
 var
   new_pos: double;
+  timeToSkip: double;
 begin
   if not (FilterGraph.State = gsPaused) then GraphPause;
-  new_pos := currentPosition - MovieInfo.frame_duration;
-  JumpTo(new_pos);
+
+  if Sender = ABigSkipBackward then timeToSkip := 20
+  else if Sender = ASmallSkipBackward then timeToSkip := 2
+  else if Sender = ABigSkipForward then timeToSkip := -20
+  else if Sender = ASmallSkipForward then timeToSkip := -2
+  else timeToSkip := MovieInfo.frame_duration;
+
+  JumpTo(currentPosition - timeToSkip);
 end;
 
 procedure TFMain.BrowseWWWHelpExecute(Sender: TObject);
@@ -2603,9 +2619,11 @@ function TFMain.AskForUserRating(Cutlist: TCutlist): boolean;
 //false = abort operation
 var
   message_string: String;
+  userIsAuthor: boolean;
 begin
   result := false;
-  if Cutlist.UserShouldSendRating then begin
+  userIsAuthor := Cutlist.Author = settings.UserName;
+  if (Cutlist.UserShouldSendRating) and not userIsAuthor then begin
     message_string := 'Please send a rating for the current cutlist. Would you like to do that now?';
     case (application.messagebox(PChar(message_string), nil, MB_YESNOCANCEL + MB_ICONQUESTION)) of
       IDYES: begin
@@ -3242,9 +3260,9 @@ begin
   self.OpenCutlist.Enabled := false;
   self.ASearchCutlistByFileSize.Enabled := false;
   self.EnableMovieControls(false);
-  self.StepForward.Enabled := false;
+  self.AStepForward.Enabled := false;
 
-  self.LDuration.Caption := '0:00:00.000';
+  self.LDuration.Caption := '0 / 0:00:00.000';
 end;
 
 procedure TFMain.EnableMovieControls(value: boolean);
@@ -3253,14 +3271,18 @@ begin
     self.Prev12.Enabled := value;
     self.TBFilePos.Enabled := value;
     self.TFinePos.Enabled := value;
-    self.StepBackward.Enabled := value;
+    self.ASmallSkipForward.Enabled := value;
+    self.ABigSkipForward.Enabled := value;
+    self.AStepBackward.Enabled := value;
+    self.ASmallSkipBackward.Enabled := value;
+    self.ABigSkipBackward.Enabled := value;
     self.BPlayPause.Enabled := value;
     self.BStop.Enabled:= value;
     if value and MovieInfo.CanStepForward then begin
-      self.StepForward.Enabled := true;
+      self.AStepForward.Enabled := true;
     end else begin
-      self.StepForward.Enabled := false;
-    end;     
+      self.AStepForward.Enabled := false;
+    end;
 end;
 
 function TFMain.BuildFilterGraph(FileName: String;

@@ -21,7 +21,7 @@ type
   end;
 
   TCutlistMode = (clmCutOut, clmCrop);
-  TCutlistSaveMOde = (csmNeverAsk, csmAskBeforeOverwrite, csmAskWhenSavingFirstTime, csmAlwaysAsk);
+  TCutlistSaveMode = (csmNeverAsk, csmAskBeforeOverwrite, csmAskWhenSavingFirstTime, csmAlwaysAsk);
 
   TCutlistCallBackMethod = procedure(cutlist: TCutlist) of object;
 

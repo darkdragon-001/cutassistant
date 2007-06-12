@@ -102,6 +102,7 @@ type
     EFrameCount: TEdit;
     Label27: TLabel;
     Label28: TLabel;
+    RCutMode: TRadioGroup;
     procedure BCutMovieSaveDirClick(Sender: TObject);
     procedure BCutlistSaveDirClick(Sender: TObject);
     procedure EProxyPortKeyPress(Sender: TObject; var Key: Char);
@@ -162,6 +163,7 @@ type
     //General
     CutlistSaveDir, CutMovieSaveDir, CutMovieExtension, CurrentMovieDir: string;
     UseMovieNameSuggestion: boolean;
+    DefaultCutMode: integer;
 
     //Warnings
     WarnOnWrongCutApp: boolean;
@@ -223,7 +225,8 @@ implementation
 
 uses
   Math,
-  main, UCutApplicationAsfbin, UCutApplicationVirtualDub, UCutApplicationAviDemux, UCutApplicationMP4Box;
+  main, UCutApplicationAsfbin, UCutApplicationVirtualDub, UCutApplicationAviDemux, UCutApplicationMP4Box,
+  UCutlist;
 
 
 {$R *.dfm}
@@ -343,6 +346,7 @@ begin
   FSettings.CutlistSaveDir.Text                    := CutlistSaveDir;
   FSettings.CutlistNameAlwaysConfirm.Checked       := CutlistNameAlwaysConfirm;
   Fsettings.CutlistAutoSaveBeforeCutting.Checked   := CutlistAutoSaveBeforeCutting;
+  Fsettings.RCutMode.ItemIndex                     := DefaultCutMode;
 
   Fsettings.EURL_Cutlist_Home.Text                 := self.url_cutlists_home;
   Fsettings.EURL_Info_File.Text                    := self.url_info_file;
@@ -426,6 +430,8 @@ begin
       CutlistSaveDir                                        := FSettings.CutlistSaveDir.Text                 ;
       if FSettings.CutlistNameAlwaysConfirm.Checked then     _SaveCutlistMode := _SaveCutlistMode OR smAlwaysAsk;
       if Fsettings.CutlistAutoSaveBeforeCutting.Checked then _SaveCutlistMOde := _SaveCutlistMOde OR smAutoSaveBeforeCutting;
+
+      DefaultCutMode := Fsettings.RCutMode.ItemIndex;
 
       self.url_cutlists_home           := Fsettings.EURL_Cutlist_Home.Text           ;
       self.url_info_file               := Fsettings.EURL_Info_File.Text   ;
@@ -617,6 +623,7 @@ begin
     self.InfoShowMessages := ini.ReadBool(section, 'InfoShowMessages', true);
     self.InfoShowStable := ini.ReadBool(section, 'InfoShowStable', true);
     self.InfoShowBeta := ini.ReadBool(section, 'InfoShowBeta', false);
+    self.DefaultCutMode := ini.ReadInteger(section, 'DefaultCutMode', 0);
 
     section := 'Warnings';
     self.WarnOnWrongCutApp := ini.ReadBool(section, 'WarnOnWrongCutApp', true);
@@ -722,6 +729,7 @@ begin
     ini.WriteBool(section, 'InfoShowMessages', self.InfoShowMessages);
     ini.WriteBool(section, 'InfoShowBeta', self.InfoShowBeta);
     ini.WriteBool(section, 'InfoShowStable', self.InfoShowStable);
+    ini.WriteInteger(section, 'DefaultCutMode', self.DefaultCutMode);
 
     section := 'Warnings';
     ini.WriteBool(section, 'WarnOnWrongCutApp', WarnOnWrongCutApp);

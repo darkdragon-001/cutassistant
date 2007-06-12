@@ -152,6 +152,25 @@ object FSettings: TFSettings
         OnExit = EFrameWidthExit
         OnKeyPress = EProxyPortKeyPress
       end
+      object RCutMode: TRadioGroup
+        Left = 364
+        Top = 60
+        Width = 181
+        Height = 61
+        Hint = 
+          'Cut out: New file is everything except cuts. Crop: NEw file is s' +
+          'um of cuts.'
+        Anchors = [akTop, akRight]
+        Caption = 'Default Cut Mode'
+        Columns = 2
+        ItemIndex = 0
+        Items.Strings = (
+          'Cut out'
+          'Crop')
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 5
+      end
     end
     object TabSaveMovie: TTabSheet
       Caption = 'Save movie'

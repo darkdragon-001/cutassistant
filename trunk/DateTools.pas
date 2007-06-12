@@ -68,6 +68,14 @@ INTERFACE
 FUNCTION DateTimeStrEval(CONST DateTimeFormat: STRING;
   CONST DateTimeStr: STRING): TDateTime;
 
+{: Returns current UTC date and time. }
+FUNCTION NowUTC: TDateTime;
+
+{: Returns current UTC time. }
+FUNCTION TimeUTC: TDateTime;
+
+{: Returns current UTC date. }
+FUNCTION DateUTC: TDateTime;
 
 IMPLEMENTATION
 
@@ -312,6 +320,24 @@ BEGIN
     Retvar := 0.0;
   Result := Retvar;
 END;
+
+FUNCTION NowUTC: TDateTime;
+VAR
+  sysnow                      : TSystemTime;
+BEGIN
+  GetSystemTime(sysnow);
+  Result := SystemTimeToDateTime(sysnow);
+END; { NowUTC }
+
+FUNCTION TimeUTC: TDateTime;
+BEGIN
+  Result := Frac(NowUTC);
+END; { TimeUTC }
+
+FUNCTION DateUTC: TDateTime;
+BEGIN
+  Result := Int(NowUTC);
+END; { DateUTC }
 
 END.
 

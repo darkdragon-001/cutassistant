@@ -106,7 +106,7 @@ type
 
     function PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean; virtual; abstract;
     property CommandLines: TStringList read FCommandLines;
-    function StartCutting: boolean;
+    function StartCutting: boolean; virtual;
     function CleanUpAfterCutting: boolean; virtual;
   end;
 
@@ -172,7 +172,12 @@ begin
   result := false;
   if self.FCommandLines.Count < 1 then exit;
 
-  if assigned(FOutputMemo) then  FOutputMemo.Clear;
+  if assigned(FOutputMemo) then
+  begin
+    FOutputMemo.Clear;
+    if not FRedirectOutput then
+      FOutputMemo.Lines.Add('Output redirection not activated.');
+  end;
 
   FCommandLineCounter := 0;
   self.jvcpAppProcessTerminate(self, 0);   //start process with first command line

@@ -2301,6 +2301,7 @@ object FMain: TFMain
     Request.BasicAuthentication = False
     Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
     HTTPOptions = [hoForceEncodeParams]
+    ConnectTimeout = 5000
     Left = 208
     Top = 88
   end
@@ -2535,6 +2536,7 @@ object FMain: TFMain
       Category = 'Navigation'
       Caption = '>II'
       Enabled = False
+      Hint = 'Step Forward'
       ShortCut = 39
       SecondaryShortCuts.Strings = (
         'l')
@@ -2545,6 +2547,7 @@ object FMain: TFMain
       Category = 'Navigation'
       Caption = 'II<'
       Enabled = False
+      Hint = 'Step Backward'
       ShortCut = 37
       SecondaryShortCuts.Strings = (
         'j')
@@ -2638,6 +2641,7 @@ object FMain: TFMain
       Category = 'Navigation'
       Caption = '>III'
       Enabled = False
+      Hint = 'Small Skip Forward'
       ShortCut = 8231
       OnExecute = AStepBackwardExecute
     end
@@ -2646,22 +2650,25 @@ object FMain: TFMain
       Category = 'Navigation'
       Caption = 'III<'
       Enabled = False
+      Hint = 'Small Skip Backward'
       ShortCut = 8229
       OnExecute = AStepBackwardExecute
     end
-    object ABigSkipForward: TAction
+    object ALargeSkipForward: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = '>IIII'
       Enabled = False
+      Hint = 'Large Skip Forward'
       ShortCut = 24615
       OnExecute = AStepBackwardExecute
     end
-    object ABigSkipBackward: TAction
+    object ALargeSkipBackward: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = 'IIII<'
       Enabled = False
+      Hint = 'Large Skip Backward'
       ShortCut = 24613
       OnExecute = AStepBackwardExecute
     end
@@ -2728,6 +2735,42 @@ object FMain: TFMain
       end
       object SendRating1: TMenuItem
         Action = ASendRating
+      end
+    end
+    object Navigation1: TMenuItem
+      Caption = '&Navigation'
+      object II1: TMenuItem
+        Action = AStepForward
+      end
+      object II2: TMenuItem
+        Action = AStepBackward
+      end
+      object N10: TMenuItem
+        Caption = '-'
+      end
+      object N11: TMenuItem
+        Action = ANextCut
+      end
+      object N12: TMenuItem
+        Action = APrevCut
+      end
+      object N8: TMenuItem
+        Caption = '-'
+      end
+      object III1: TMenuItem
+        Action = ASmallSkipForward
+      end
+      object III2: TMenuItem
+        Action = ASmallSkipBackward
+      end
+      object N9: TMenuItem
+        Caption = '-'
+      end
+      object IIII1: TMenuItem
+        Action = ALargeSkipForward
+      end
+      object IIII2: TMenuItem
+        Action = ALargeSkipBackward
       end
     end
     object Edit1: TMenuItem

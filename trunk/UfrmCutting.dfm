@@ -1,6 +1,6 @@
 object frmCutting: TfrmCutting
   Left = 286
-  Top = 124
+  Top = 125
   Width = 500
   Height = 378
   BorderIcons = [biMaximize]

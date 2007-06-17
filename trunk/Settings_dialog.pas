@@ -106,6 +106,14 @@ type
     Label29: TLabel;
     spnWaitTimeout: TJvSpinEdit;
     Label30: TLabel;
+    Label31: TLabel;
+    edtSmallSkip: TEdit;
+    Label32: TLabel;
+    Label33: TLabel;
+    edtLargeSkip: TEdit;
+    Label34: TLabel;
+    Label35: TLabel;
+    Label36: TLabel;
     procedure BCutMovieSaveDirClick(Sender: TObject);
     procedure BCutlistSaveDirClick(Sender: TObject);
     procedure EProxyPortKeyPress(Sender: TObject; var Key: Char);
@@ -167,6 +175,7 @@ type
     CutlistSaveDir, CutMovieSaveDir, CutMovieExtension, CurrentMovieDir: string;
     UseMovieNameSuggestion: boolean;
     DefaultCutMode: integer;
+    SmallSkipTime, LargeSkipTime: integer;
 
     //Warnings
     WarnOnWrongCutApp: boolean;
@@ -352,6 +361,8 @@ begin
   FSettings.CutlistNameAlwaysConfirm.Checked       := CutlistNameAlwaysConfirm;
   Fsettings.CutlistAutoSaveBeforeCutting.Checked   := CutlistAutoSaveBeforeCutting;
   Fsettings.RCutMode.ItemIndex                     := DefaultCutMode;
+  FSettings.edtSmallSkip.Text                      := IntToStr(SmallSkipTime);
+  FSettings.edtLargeSkip.Text                      := IntToStr(LargeSkipTime);
 
   Fsettings.EURL_Cutlist_Home.Text                 := self.url_cutlists_home;
   Fsettings.EURL_Info_File.Text                    := self.url_info_file;
@@ -445,7 +456,7 @@ begin
       self.url_cutlists_upload         := Fsettings.EURL_Cutlist_Upload.Text         ;
       self.url_help                    := Fsettings.EURL_Help.Text                   ;
 
-      self.proxyServerName             := FSettings.EProxyServerName.Text            ;     
+      self.proxyServerName             := FSettings.EProxyServerName.Text            ;
       self.proxyPort                   := strToIntDef(FSettings.EProxyPort.Text, self.proxyPort);
       self.proxyUserName               := FSettings.EProxyUserName.Text              ;
       self.proxyPassword               := FSettings.EProxyPassword.Text              ;
@@ -455,6 +466,9 @@ begin
       self.FramesWidth                 := StrToInt(FSettings.EFrameWidth.Text);
       self.FramesHeight                := StrToInt(FSettings.EFrameHeight.Text);
       self.FramesCount                 := StrToInt(FSettings.EFrameCount.Text);
+
+      self.SmallSkipTime               := StrToInt(FSettings.edtSmallSkip.Text);
+      self.LargeSkipTime               := StrToInt(FSettings.edtLargeSkip.Text);
 
       self.InfoShowMessages            :=  FSettings.CBInfoCheckMessages.Checked  ;
       self.InfoShowStable              :=  FSettings.CBInfoCheckStable.Checked    ;
@@ -633,6 +647,8 @@ begin
     self.InfoShowStable := ini.ReadBool(section, 'InfoShowStable', true);
     self.InfoShowBeta := ini.ReadBool(section, 'InfoShowBeta', false);
     self.DefaultCutMode := ini.ReadInteger(section, 'DefaultCutMode', 0);
+    self.SmallSkipTime := ini.ReadInteger(section, 'SmallSkipTime', 2);
+    self.LargeSkipTime := ini.ReadInteger(section, 'LargeSkipTime', 25);
 
     section := 'Warnings';
     self.WarnOnWrongCutApp := ini.ReadBool(section, 'WarnOnWrongCutApp', true);
@@ -740,6 +756,8 @@ begin
     ini.WriteBool(section, 'InfoShowBeta', self.InfoShowBeta);
     ini.WriteBool(section, 'InfoShowStable', self.InfoShowStable);
     ini.WriteInteger(section, 'DefaultCutMode', self.DefaultCutMode);
+    ini.WriteInteger(section, 'SmallSkipTime', self.SmallSkipTime);
+    ini.WriteInteger(section, 'LargeSkipTime', self.LargeSkipTime);
 
     section := 'Warnings';
     ini.WriteBool(section, 'WarnOnWrongCutApp', WarnOnWrongCutApp);

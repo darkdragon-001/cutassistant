@@ -205,8 +205,20 @@ type
     JvSpeedItem15: TJvSpeedItem;
     ASmallSkipForward: TAction;
     ASmallSkipBackward: TAction;
-    ABigSkipForward: TAction;
-    ABigSkipBackward: TAction;
+    ALargeSkipForward: TAction;
+    ALargeSkipBackward: TAction;
+    Navigation1: TMenuItem;
+    II1: TMenuItem;
+    II2: TMenuItem;
+    N8: TMenuItem;
+    III1: TMenuItem;
+    III2: TMenuItem;
+    N9: TMenuItem;
+    IIII1: TMenuItem;
+    IIII2: TMenuItem;
+    N10: TMenuItem;
+    N11: TMenuItem;
+    N12: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -1889,10 +1901,10 @@ var
 begin
   if not (FilterGraph.State = gsPaused) then GraphPause;
 
-  if Sender = ABigSkipBackward then timeToSkip := 20
-  else if Sender = ASmallSkipBackward then timeToSkip := 2
-  else if Sender = ABigSkipForward then timeToSkip := -20
-  else if Sender = ASmallSkipForward then timeToSkip := -2
+  if Sender = ALargeSkipBackward then timeToSkip := Settings.LargeSkipTime
+  else if Sender = ASmallSkipBackward then timeToSkip := Settings.SmallSkipTime
+  else if Sender = ALargeSkipForward then timeToSkip := -Settings.LargeSkipTime
+  else if Sender = ASmallSkipForward then timeToSkip := -Settings.SmallSkipTime
   else timeToSkip := MovieInfo.frame_duration;
 
   JumpTo(currentPosition - timeToSkip);
@@ -3272,10 +3284,10 @@ begin
     self.TBFilePos.Enabled := value;
     self.TFinePos.Enabled := value;
     self.ASmallSkipForward.Enabled := value;
-    self.ABigSkipForward.Enabled := value;
+    self.ALargeSkipForward.Enabled := value;
     self.AStepBackward.Enabled := value;
     self.ASmallSkipBackward.Enabled := value;
-    self.ABigSkipBackward.Enabled := value;
+    self.ALargeSkipBackward.Enabled := value;
     self.BPlayPause.Enabled := value;
     self.BStop.Enabled:= value;
     if value and MovieInfo.CanStepForward then begin

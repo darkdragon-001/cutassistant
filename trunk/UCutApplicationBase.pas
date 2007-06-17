@@ -79,6 +79,7 @@ type
     property RawRead: boolean read FRawRead write SetRawRead;
     function ExecuteCutProcess: boolean;
     function GetIniSectionName: string; virtual;
+    property CutApplicationProcess: TJvCreateProcess read FjvcpAppProcess;
   public
     FrameClass: TCutApplicationFrameClass;
     property OutputMemo: TMemo read FOutputMemo write SetOutputMemo;

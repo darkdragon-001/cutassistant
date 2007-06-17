@@ -4,11 +4,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UCutApplicationBase, CodecSettings, StdCtrls, IniFiles, Contnrs, MMSystem;
+  Dialogs, UCutApplicationBase, CodecSettings, StdCtrls, IniFiles, Contnrs, MMSystem,
+  ExtCtrls;
 
 const
   VIRTUALDUB_DEFAULT_EXENAME_1 = 'virtualdub.exe';
-  VIRTUALDUB_DEFAULT_EXENAME_2 = 'vdub.exe';
+  //VIRTUALDUB_DEFAULT_EXENAME_2 = 'vdub.exe';
 
 type
   TCutApplicationVirtualDub = class;
@@ -20,6 +21,7 @@ type
     cbxCodec: TComboBox;
     BConfigCodec: TButton;
     btnCodecAbout: TButton;
+    cbShowProgressWindow: TCheckBox;
     procedure BConfigCodecClick(Sender: TObject);
     procedure cbxCodecChange(Sender: TObject);
     procedure btnCodecAboutClick(Sender: TObject);
@@ -43,13 +45,17 @@ type
     FCodecVersion: DWORD;
     FCodecSettings: string;
     FCodecSettingsSize: Integer;
+    FFindProgressWindowTimer: TTimer;
     procedure SetSelectedCodecIndex(const Value: Integer);
+    procedure SetShowProgressWindow(const Value: boolean);
+    procedure FindProgressWindow(Sender: TObject);
   protected
     FCodecList: TCodecList;
 
     FNotClose: boolean;
     FUseSmartRendering: boolean;
     FScriptFileName: string;
+    FShowProgressWindow: boolean;
 
     function SetUseCodec(const fccHandler: FOURCC; Version: DWORD; SettingsSize: Integer; Settings: String): boolean;
     property SelectedCodecIndex: Integer read FSelectedCodecIndex write SetSelectedCodecIndex;
@@ -58,7 +64,9 @@ type
   public
     //CommandLineOptions: string;
 
-    constructor create; override;
+    constructor Create; override;
+    destructor Destroy; override;
+    property ShowProgressWindow: boolean read FShowProgressWindow write SetShowProgressWindow;
     property UseCodec: FOURCC read FUseCodec;
     function UseCodecString: string;
     property UseCodecVersion: DWord read FCodecVersion;
@@ -71,6 +79,7 @@ type
     function InfoString: string; override;
     function WriteCutlistInfo(CutlistFile: TIniFile; section: string): boolean; override;
     function PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean; override;
+    function StartCutting: boolean; override;
     function CleanUpAfterCutting: boolean; override;
   end;
 
@@ -82,9 +91,17 @@ implementation
 {$R *.dfm}
 
 uses
-  FileCtrl, StrUtils,
+  FileCtrl, StrUtils, JvCreateProcess,
   Utils, UCutlist, UfrmCutting, Main;
 
+type
+  PFindWindowStruct = ^TFindWindowStruct;
+  TFindWindowStruct = record
+    Caption: string;
+    ClassName: String;
+    ProcessID: Cardinal;
+    WindowHandle: THandle;
+end;
 
 { TCutApplicationVirtualDub }
 
@@ -96,11 +113,27 @@ begin
   FrameClass := TfrmCutApplicationVirtualDub;
   Name := 'VirtualDub';
   DefaultExeNames.Add(VIRTUALDUB_DEFAULT_EXENAME_1);
-  DefaultExeNames.Add(VIRTUALDUB_DEFAULT_EXENAME_2);
+  //DefaultExeNames.Add(VIRTUALDUB_DEFAULT_EXENAME_2);
   RedirectOutput := false;
   ShowAppWindow := true;
   FNotClose := false;
   FUseSmartRendering := true;
+  FShowProgressWindow := true;
+  FFindProgressWindowTimer := TTimer.Create(Application);
+  FFindProgressWindowTimer.OnTimer := FindProgressWindow;
+  FFindProgressWindowTimer.Enabled := false;
+  FFindProgressWindowTimer.Interval := 1000;
+end;
+
+destructor TCutApplicationVirtualDub.Destroy;
+begin
+  //FreeAndNIL(FFindProgressWindowTimer);
+  inherited;
+end;
+
+procedure TCutApplicationVirtualDub.SetShowProgressWindow(const Value: boolean);
+begin
+  FShowProgressWindow := Value;
 end;
 
 function TCutApplicationVirtualDub.LoadSettings(IniFile: TIniFile): boolean;
@@ -130,6 +163,7 @@ begin
   //CommandLineOptions := IniFile.ReadString(section, 'CommandLineOptions', CommandLineOptions);
   self.FNotClose := IniFile.ReadBool(section, 'NotClose', FNotClose);
   self.FUseSmartRendering := IniFile.ReadBool(section, 'UseSmartRendering', FUseSmartRendering);
+  self.FShowProgressWindow := IniFile.ReadBool(section, 'ShowProgressWindow', FShowProgressWindow);
 
   StrValue := IniFile.ReadString(section, 'CodecFourCC', '0x0');
   fccHandler := StrToInt64Def(StrValue, $00000000);
@@ -172,12 +206,77 @@ begin
   //IniFile.WriteString(section, 'CommandLineOptions', CommandLineOptions);
   IniFile.WriteBool(section, 'NotClose', self.FNotClose);
   IniFile.WriteBool(section, 'UseSmartRendering', self.FUseSmartRendering);
+  IniFile.WriteBool(section, 'ShowProgressWindow', self.FShowProgressWindow);
   IniFile.WriteString(section, 'CodecFourCC', '0x' + IntToHex(self.FUseCodec, 8));
   IniFile.WriteString(section, 'CodecVersion', '0x' + IntToHex(self.FCodecVersion, 8));
   IniFile.WriteString(section, 'CodecSettings', FCodecSettings);
   IniFile.WriteInteger(section, 'CodecSettingsSize', self.FCodecSettingsSize);
 
   result := success;
+end;
+
+
+function FindWindowByWindowStructParam(wHandle: HWND; lParam: Cardinal): Bool; stdcall;
+var
+  Title, ClassName: array[0..255] of char;
+  dwProcessId, dwThreadId: cardinal;
+begin
+  Result := True;
+  if GetClassName(wHandle, ClassName, 255) <= 0 then
+    exit;
+  if Pos(PFindWindowStruct(lParam).ClassName, StrPas(ClassName)) = 0 then
+    exit;
+  if GetWindowText(wHandle, Title, 255) <= 0 then
+    exit;
+  if Pos(PFindWindowStruct(lParam).Caption, StrPas(Title)) = 0 then
+    exit;
+  dwThreadId := GetWindowThreadProcessId(wHandle, dwProcessId);
+  if dwProcessId <> PFindWindowStruct(lParam).ProcessId then
+    exit;
+
+  PFindWindowStruct(lParam).WindowHandle := wHandle;
+  Result := False;
+end;
+
+procedure TCutApplicationVirtualDub.FindProgressWindow(Sender: TObject);
+const
+  ID_OPTIONS_SHOWSTATUSWINDOW = 40034;
+var
+  WindowInfo: TFindWindowStruct;
+begin
+  if CutApplicationProcess.State = psReady then // CutApp not running ...
+  begin
+    FFindProgressWindowTimer.Enabled := false;
+    Exit;
+  end;
+
+  with WindowInfo do begin
+    Caption := 'VirtualDub Status';
+    ClassName := '#32770';
+    ProcessID := CutApplicationProcess.ProcessInfo.dwProcessId;
+    WindowHandle := 0;
+    EnumWindows(@FindWindowByWindowStructParam, LongInt(@WindowInfo));
+    if WindowHandle <> 0 then
+    begin
+      //if not IsWindowVisible(vDubWindow) then
+      ShowWindow(WindowHandle, SW_SHOW);
+      // Activate progress window
+      // WM_COMMAND, lParam=0, wParam=ID_OPTIONS_SHOWSTATUSWINDOW (40034)
+      //SendMessage(wnd, WM_COMMAND, ID_OPTIONS_SHOWSTATUSWINDOW, 0);
+      FFindProgressWindowTimer.Enabled := false;
+    end;
+  end;
+end;
+
+function TCutApplicationVirtualDub.StartCutting: boolean;
+begin
+  result := inherited StartCutting;
+  if result then
+  begin
+    WaitForInputIdle(CutApplicationProcess.ProcessInfo.hProcess, 1000);
+    if FShowProgressWindow then
+      FFindProgressWindowTimer.Enabled := true;
+  end;
 end;
 
 function TCutApplicationVirtualDub.PrepareCutting(SourceFileName: string;
@@ -224,8 +323,9 @@ begin
 
     CreateScript(TempCutlist, SourceFileName, DestFileName, FScriptFileName);
 
-    CommandLine :=  '/s"'+FScriptFileName+'"';
-    if not self.FNotClose then CommandLine := CommandLine + ' /x';
+    CommandLine :=  '/console /s"'+FScriptFileName+'"';
+    if not self.FNotClose then
+      CommandLine := CommandLine + ' /x';
 
 //    CommandLine := CommandLine +  ' ' + self.CommandLineOptions;
 
@@ -260,20 +360,21 @@ begin
     end;
     result := true;
   end;
-end;    
+end;
 
 function TCutApplicationVirtualDub.CleanUpAfterCutting: boolean;
 var
   success: boolean;
 begin
   result := false;
+  FFindProgressWindowTimer.Enabled := false;
   if self.CleanUp then begin
     result := inherited CleanUpAfterCutting;
     if FileExists(FScriptFileName) then begin
       success := DeleteFile(FScriptFileName);
       result := result and success;
     end;
-  end;    
+  end;
 end;
 
 { TfrmCutApplicationVirtualDub }
@@ -284,6 +385,7 @@ begin
   //self.edtCommandLineOptions.Text := CutApplication.CommandLineOptions;
   cbNotClose.Checked := CutApplication.FNotClose;
   cbUseSmartRendering.Checked := CutApplication.FUseSmartRendering;
+  cbShowProgressWindow.Checked := CutApplication.ShowProgressWindow;
   cbxCodec.Items := CutApplication.FCodecList;
   cbxCodec.ItemIndex := CutApplication.FCodecList.IndexOfCodec(CutApplication.UseCodec);
   CodecState := CutApplication.FCodecSettings;
@@ -304,6 +406,7 @@ begin
   CutApplication.FNotClose := cbNotClose.Checked;
   CutApplication.FUseSmartRendering := cbUseSmartRendering.Checked;
   CutApplication.SelectedCodecIndex := cbxCodec.ItemIndex;
+  CutApplication.ShowProgressWindow := self.cbShowProgressWindow.Checked;
   if cbxCodec.ItemIndex >= 0 then begin
     CutApplication.FCodecSettings := CodecState;
     CutApplication.FCodecSettingsSize := CodecStateSize;

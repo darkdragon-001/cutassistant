@@ -18,14 +18,26 @@ object FSettings: TFSettings
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
+  DesignSize = (
+    562
+    292)
   PixelsPerInch = 96
   TextHeight = 13
+  object Label31: TLabel
+    Left = 16
+    Top = 143
+    Width = 102
+    Height = 13
+    Alignment = taRightJustify
+    Anchors = [akTop, akRight]
+    Caption = 'Frame preview count:'
+  end
   object pgSettings: TPageControl
     Left = 0
     Top = 0
     Width = 562
     Height = 266
-    ActivePage = TabExternalCutApplication
+    ActivePage = tabUserData
     Align = alClient
     Style = tsFlatButtons
     TabOrder = 0
@@ -61,14 +73,13 @@ object FSettings: TFSettings
         Caption = 'Frame preview size:'
       end
       object Label17: TLabel
-        Left = 156
-        Top = 59
-        Width = 15
-        Height = 14
-        Alignment = taCenter
+        Left = 148
+        Top = 60
+        Width = 19
+        Height = 13
         Anchors = [akTop, akRight]
         AutoSize = False
-        Caption = 'x'
+        Caption = 'px x'
       end
       object Label22: TLabel
         Left = 12
@@ -80,7 +91,7 @@ object FSettings: TFSettings
         Caption = 'Frame preview count:'
       end
       object Label27: TLabel
-        Left = 232
+        Left = 218
         Top = 60
         Width = 114
         Height = 13
@@ -88,12 +99,58 @@ object FSettings: TFSettings
         Caption = '(change requires restart)'
       end
       object Label28: TLabel
-        Left = 232
+        Left = 218
         Top = 87
         Width = 114
         Height = 13
         Anchors = [akTop, akRight]
         Caption = '(change requires restart)'
+      end
+      object Label32: TLabel
+        Left = 42
+        Top = 116
+        Width = 72
+        Height = 13
+        Alignment = taRightJustify
+        Anchors = [akTop, akRight]
+        Caption = 'Small skip time:'
+      end
+      object Label33: TLabel
+        Left = 41
+        Top = 144
+        Width = 74
+        Height = 13
+        Alignment = taRightJustify
+        Anchors = [akTop, akRight]
+        Caption = 'Large skip time:'
+      end
+      object Label34: TLabel
+        Left = 148
+        Top = 116
+        Width = 15
+        Height = 14
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        Caption = 's'
+      end
+      object Label35: TLabel
+        Left = 148
+        Top = 144
+        Width = 15
+        Height = 14
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        Caption = 's'
+      end
+      object Label36: TLabel
+        Left = 200
+        Top = 60
+        Width = 11
+        Height = 13
+        Alignment = taCenter
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        Caption = 'px'
       end
       object EUserName: TEdit
         Left = 120
@@ -116,7 +173,7 @@ object FSettings: TFSettings
       object EFrameWidth: TEdit
         Left = 120
         Top = 57
-        Width = 30
+        Width = 26
         Height = 21
         Anchors = [akTop, akRight]
         AutoSize = False
@@ -127,9 +184,9 @@ object FSettings: TFSettings
         OnKeyPress = EProxyPortKeyPress
       end
       object EFrameHeight: TEdit
-        Left = 177
+        Left = 172
         Top = 57
-        Width = 31
+        Width = 26
         Height = 21
         Anchors = [akTop, akRight]
         AutoSize = False
@@ -142,7 +199,7 @@ object FSettings: TFSettings
       object EFrameCount: TEdit
         Left = 120
         Top = 84
-        Width = 30
+        Width = 26
         Height = 21
         Anchors = [akTop, akRight]
         AutoSize = False
@@ -718,7 +775,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 0
         Text = '(none)'
@@ -734,7 +791,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 1
         Text = '(none)'
@@ -750,7 +807,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
@@ -776,7 +833,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 4
         Text = '(none)'
@@ -826,5 +883,31 @@ object FSettings: TFSettings
       ModalResult = 1
       TabOrder = 1
     end
+  end
+  object edtSmallSkip: TEdit
+    Left = 124
+    Top = 140
+    Width = 26
+    Height = 21
+    Anchors = [akTop, akRight]
+    AutoSize = False
+    MaxLength = 2
+    TabOrder = 2
+    Text = '2'
+    OnExit = EFrameWidthExit
+    OnKeyPress = EProxyPortKeyPress
+  end
+  object edtLargeSkip: TEdit
+    Left = 124
+    Top = 168
+    Width = 26
+    Height = 21
+    Anchors = [akTop, akRight]
+    AutoSize = False
+    MaxLength = 2
+    TabOrder = 3
+    Text = '25'
+    OnExit = EFrameWidthExit
+    OnKeyPress = EProxyPortKeyPress
   end
 end

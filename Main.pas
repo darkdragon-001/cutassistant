@@ -545,10 +545,8 @@ end;
 
 function TFMain.StartCutting: boolean;
 var
-  CutAppName,
-  command : string;
   message_string: string;
-  AppPath, sourcefile, sourceExtension, targetfile, targetpath, scriptfile: string;
+  sourcefile, sourceExtension, targetfile, targetpath: string;
   AskForPath: boolean;
   saveDlg: TSaveDialog;
 //  exitCode: DWord;
@@ -575,7 +573,7 @@ begin
          targetpath := extractFilePath(MovieInfo.current_filename);
        end;
     smGivenDir: begin    //in given Dir
-         targetpath := includeTrailingBackslash(Settings.CutMovieSaveDir);
+         targetpath := IncludeTrailingPathDelimiter(Settings.CutMovieSaveDir);
        end;
     else begin       //with source
          targetpath := extractFilePath(MovieInfo.current_filename);
@@ -595,6 +593,13 @@ begin
   end;
   }
   MovieInfo.target_filename := targetpath + targetfile;
+
+  if not ForceDirectories(targetpath) then
+  begin
+      if not batchmode then
+        showmessage('Could not create target file path ' + targetpath + '. Abort.');
+      exit;
+  end;
 
   //Display Save Dialog?
   AskForPath := Settings.MovieNameAlwaysConfirm;
@@ -943,7 +948,7 @@ begin
          cutlist_path := extractFilePath(MovieInfo.current_filename);
        end;
     smGivenDir: begin    //in given Dir
-         cutlist_path := includeTrailingBackslash(Settings.CutlistSaveDir);
+         cutlist_path := IncludeTrailingPathDelimiter(Settings.CutlistSaveDir);
        end;
     else begin       //with source
          cutlist_path := extractFilePath(MovieInfo.current_filename);
@@ -1881,7 +1886,6 @@ end;
 procedure TFMain.AStepForwardExecute(Sender: TObject);
 var
   event: integer;
-  timeToSkip: double;
 begin
   if not (FilterGraph.State = gsPaused) then GraphPause;
   if assigned(FrameStep) then begin
@@ -1896,7 +1900,6 @@ end;
 
 procedure TFMain.AStepBackwardExecute(Sender: TObject);
 var
-  new_pos: double;
   timeToSkip: double;
 begin
   if not (FilterGraph.State = gsPaused) then GraphPause;
@@ -2068,16 +2071,17 @@ var
 begin
   if (MovieInfo.target_filename = '') then begin
     selectFileDlg := TOpenDialog.Create(self);
-    selectFileDlg.Filter := 'Supported Movie files|*.wmv;*.asf;*.avi|All files|*.*';
-    selectFileDlg.Options := selectFileDlg.Options + [ofPathMustExist, ofFileMustExist, ofNoChangeDir];
-    selectFileDlg.Title := 'Select File to check:';
-    selectFileDlg.InitialDir := settings.CutMovieSaveDir;
-    if selectFileDlg.Execute then begin
-      MovieInfo.target_filename := selectFileDlg.FileName;
+    try
+      selectFileDlg.Filter := 'Supported Movie files|*.wmv;*.asf;*.avi|All files|*.*';
+      selectFileDlg.Options := selectFileDlg.Options + [ofPathMustExist, ofFileMustExist, ofNoChangeDir];
+      selectFileDlg.Title := 'Select File to check:';
+      selectFileDlg.InitialDir := settings.CutMovieSaveDir;
+      if selectFileDlg.Execute then
+        MovieInfo.target_filename := selectFileDlg.FileName
+      else
+        Exit;
+    finally
       selectFileDlg.Free;
-    end else begin
-      selectFileDlg.Free;
-      exit;
     end;
   end;
 
@@ -2884,6 +2888,12 @@ begin
   try
     try
       self.IdHTTP1.Get(url, MemoryStream);
+      if not ForceDirectories(cutlist_path) then
+      begin
+          if not batchmode then
+            showmessage('Could not create cutlist path ' + cutlist_path + '. Abort.');
+          exit;
+      end;
       if fileexists(target_file) then begin
         if not batchmode then begin
           message_string := 'Target File exists already:' + #13#10 + target_file +#13#10+
@@ -2893,14 +2903,18 @@ begin
           end;
         end;
         if not deletefile(target_file) then begin
-          if not batchmode then showmessage('Could not delete existing file ' + target_file + '. Abort.');
+          if not batchmode then
+            showmessage('Could not delete existing file ' + target_file + '. Abort.');
           exit;
         end;
       end;
-      if memoryStream.Size < 5 then begin
+
+      if MemoryStream.Size < 5 then begin
         Error_message := 'Server did not return any valid data (' + inttostr(memoryStream.Size) + ' bytes). Abort.';
         result := false;
-      end else begin
+      end
+      else
+      begin
         MemoryStream.SaveToFile(target_file);
         result := true;
       end;
@@ -2981,15 +2995,14 @@ end;
 function GetXMLMessage(const Node: TJCLSimpleXMLElem; const LastChecked: TDateTime) : string;
 var
   Msg: TJCLSimpleXMLElems;
-  idx:integer;
   datum: TDateTime;
-  xmltext: string;
 begin
   Result := '';
+  Msg := Node.Items;
   if not TryEncodeDate(
-    StrToInt(Node.Items.ItemNamed['date_year'].Value),
-    StrToInt(Node.Items.ItemNamed['date_month'].Value),
-    StrToInt(Node.Items.ItemNamed['date_day'].Value), Datum
+    StrToInt(Msg.ItemNamed['date_year'].Value),
+    StrToInt(Msg.ItemNamed['date_month'].Value),
+    StrToInt(Msg.ItemNamed['date_day'].Value), Datum
   ) then exit;
   if LastChecked <= Datum then begin
     Result := '[' + DateToStr(Datum) + '] ' +Msg.ItemNamed['text'].Value;
@@ -2998,10 +3011,9 @@ end;
 
 function GetXMLMessages(const Node: TJCLSimpleXMLElem; const LastChecked: TDateTime; const name: string) : string;
 var
-  MsgList, Msg: TJCLSimpleXMLElems;
+  MsgList: TJCLSimpleXMLElems;
   s: string;
   idx:integer;
-  datum: TDateTime;
 begin
   Result := '';
   MsgList := Node.Items.ItemNamed[name].Items;
@@ -3019,8 +3031,7 @@ function TFMain.DownloadInfo(settings: TSettings): boolean;
 var
   error_message, url, AText: string;
   Response: TStringStream;
-  XmlText: string;
-  f: textFile;
+  //f: textFile;
 begin
   result := false;
   if not settings.CheckInfos then exit;

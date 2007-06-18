@@ -57,6 +57,7 @@ type
   function fcc2String(fcc: DWord): String;
   function SaveBitmapAsJPEG(ABitmap: TBitmap; FileName: string): boolean;
 
+  function IsPathRooted(const Path: string): boolean;
 
 //global Vars
 var
@@ -221,6 +222,14 @@ begin
     f := AnsiReplaceText(f, ch, '_');
   end;
   result := f;
+end;
+
+function IsPathRooted(const Path: string): boolean;
+begin
+  if ExtractFileDrive(Path) = '' then
+    Result := true
+  else
+    Result := IsPathDelimiter(Path, 1);
 end;
 
 
@@ -436,7 +445,7 @@ function SaveBitmapAsJPEG(ABitmap: TBitmap; FileName: string): boolean;
 var
   tempJPEG: TJPEGImage;
 begin
-  result := false;
+  Result := false;
   TempJPEG := TJPEGImage.Create;
   try
     TempJPEG.Assign(ABitmap);

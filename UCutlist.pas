@@ -620,7 +620,7 @@ begin
            cutlist_path := extractFilePath(FMovieInfo.current_filename);
          end;
       smGivenDir: begin    //in given Dir
-           cutlist_path := includeTrailingBackslash(FSettings.CutlistSaveDir);
+           cutlist_path := IncludeTrailingPathDelimiter(FSettings.CutlistSaveDir);
          end;
       else begin       //with source
            cutlist_path := extractFilePath(FMovieInfo.current_filename);
@@ -657,6 +657,13 @@ begin
       end;
     end;
 
+    cutlist_path := ExtractFilePath(target_file);
+    if not ForceDirectories(cutlist_path) then
+    begin
+        if not batchmode then
+          showmessage('Could not create cutlist path ' + cutlist_path + '. Abort.');
+        exit;
+    end;
     if fileexists(target_File) then begin
       if not deletefile(target_file) then begin
         showmessage('Could not delete existing file ' + target_file + '. Abort.');

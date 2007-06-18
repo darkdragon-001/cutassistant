@@ -1,8 +1,8 @@
 object frmCutting: TfrmCutting
   Left = 286
   Top = 125
-  Width = 500
-  Height = 378
+  Width = 711
+  Height = 474
   BorderIcons = [biMaximize]
   Caption = 'Cutting ...'
   Color = clBtnFace
@@ -18,15 +18,15 @@ object frmCutting: TfrmCutting
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (
-    492
-    344)
+    703
+    440)
   PixelsPerInch = 96
   TextHeight = 13
   object memOutput: TMemo
     Left = 6
     Top = 6
-    Width = 480
-    Height = 301
+    Width = 691
+    Height = 397
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
@@ -43,8 +43,8 @@ object frmCutting: TfrmCutting
     OnClick = memOutputClick
   end
   object btnClose: TButton
-    Left = 381
-    Top = 313
+    Left = 592
+    Top = 409
     Width = 105
     Height = 25
     Anchors = [akRight, akBottom]
@@ -53,8 +53,8 @@ object frmCutting: TfrmCutting
     TabOrder = 1
   end
   object btnAbort: TButton
-    Left = 270
-    Top = 313
+    Left = 481
+    Top = 409
     Width = 105
     Height = 25
     Anchors = [akRight, akBottom]
@@ -65,7 +65,7 @@ object frmCutting: TfrmCutting
   end
   object btnCopyClipbrd: TButton
     Left = 6
-    Top = 313
+    Top = 409
     Width = 105
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -74,8 +74,8 @@ object frmCutting: TfrmCutting
     OnClick = btnCopyClipbrdClick
   end
   object btnEmergencyExit: TButton
-    Left = 159
-    Top = 313
+    Left = 370
+    Top = 409
     Width = 105
     Height = 25
     Anchors = [akRight, akBottom]

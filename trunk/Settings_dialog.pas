@@ -106,7 +106,6 @@ type
     Label29: TLabel;
     spnWaitTimeout: TJvSpinEdit;
     Label30: TLabel;
-    Label31: TLabel;
     edtSmallSkip: TEdit;
     Label32: TLabel;
     Label33: TLabel;
@@ -266,18 +265,26 @@ end;
 procedure TFSettings.BCutMovieSaveDirClick(Sender: TObject);
 var
   newDir: String;
+  currentDir: string;
 begin
   newDir := self.CutMovieSaveDir.Text;
-  if selectdirectory('Destination directory for cut movies:', '', newDir) then
+  currentDir := self.CutMovieSaveDir.Text;
+  if not IsPathRooted(currentDir) then
+    currentDir := '';
+  if selectdirectory('Destination directory for cut movies:', currentDir, newDir) then
     self.CutMovieSaveDir.Text := newDir;
 end;
 
 procedure TFSettings.BCUtlistSaveDirClick(Sender: TObject);
 var
   newDir: String;
+  currentDir: string;
 begin
   newDir := self.CutlistSaveDir.Text;
-  if selectdirectory('Destination directory for cutlists:', '', newDir) then
+  currentDir := self.CutlistSaveDir.Text;
+  if not IsPathRooted(currentDir) then
+    currentDir := '';
+  if selectdirectory('Destination directory for cutlists:', currentDir, newDir) then
     self.CutlistSaveDir.Text := newDir;
 end;
                           
@@ -394,24 +401,32 @@ begin
   while not Data_Valid do begin
     if FSettings.ShowModal <> mrOK then break;     //User Cancelled
     Data_Valid := true;
-    if (Fsettings.SaveCutMovieMode.ItemIndex = 1) and (not DirectoryExists(FSettings.CutMovieSaveDir.Text)) then begin
-      message_string := 'Directory does not exist:' + #13#10 + #13#10 + FSettings.CutMovieSaveDir.Text + #13#10 +  #13#10 + 'Create?' ;
-      if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then begin
-        Data_Valid := forceDirectories(FSettings.CutMovieSaveDir.Text);
-      end else begin
-        Data_Valid := false;
-        FSettings.pgSettings.ActivePage := Fsettings.TabSaveMovie;
-        FSettings.ActiveControl := FSettings.CutMovieSaveDir;
+    if (Fsettings.SaveCutMovieMode.ItemIndex = 1) then
+    begin
+      if IsPathRooted(FSettings.CutMovieSaveDir.Text) and (not DirectoryExists(FSettings.CutMovieSaveDir.Text)) then
+      begin
+        message_string := 'Cut movie directory does not exist:' + #13#10 + #13#10 + FSettings.CutMovieSaveDir.Text + #13#10 +  #13#10 + 'Create?' ;
+        if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then begin
+          Data_Valid := forceDirectories(FSettings.CutMovieSaveDir.Text);
+        end else begin
+          Data_Valid := false;
+          FSettings.pgSettings.ActivePage := Fsettings.TabSaveMovie;
+          FSettings.ActiveControl := FSettings.CutMovieSaveDir;
+        end;
       end;
     end;
-    if Data_Valid AND (Fsettings.SaveCutlistMode.ItemIndex = 1) and (not DirectoryExists(FSettings.CutlistSaveDir.Text)) then begin
-      message_string := 'Directory does not exist:' + #13#10 + #13#10 + FSettings.CutlistSaveDir.Text + #13#10 +  #13#10 + 'Create?' ;
-      if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then begin
-        Data_Valid := forceDirectories(FSettings.CutlistSaveDir.Text);
-      end else begin
-        Data_Valid := false;
-        FSettings.pgSettings.ActivePage := Fsettings.TabSaveCutlist;
-        FSettings.ActiveControl := FSettings.CutlistSaveDir;
+    if Data_Valid AND (Fsettings.SaveCutlistMode.ItemIndex = 1) then
+    begin
+      if IsPathRooted(FSettings.CutlistSaveDir.Text) and (not DirectoryExists(FSettings.CutlistSaveDir.Text)) then
+      begin
+        message_string := 'Cutlist save directory does not exist:' + #13#10 + #13#10 + FSettings.CutlistSaveDir.Text + #13#10 +  #13#10 + 'Create?' ;
+        if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then begin
+          Data_Valid := forceDirectories(FSettings.CutlistSaveDir.Text);
+        end else begin
+          Data_Valid := false;
+          FSettings.pgSettings.ActivePage := Fsettings.TabSaveCutlist;
+          FSettings.ActiveControl := FSettings.CutlistSaveDir;
+        end;
       end;
     end;
     if Data_Valid then begin  //Apply new settings and save them

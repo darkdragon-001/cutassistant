@@ -18,20 +18,8 @@ object FSettings: TFSettings
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
-  DesignSize = (
-    562
-    292)
   PixelsPerInch = 96
   TextHeight = 13
-  object Label31: TLabel
-    Left = 16
-    Top = 143
-    Width = 102
-    Height = 13
-    Alignment = taRightJustify
-    Anchors = [akTop, akRight]
-    Caption = 'Frame preview count:'
-  end
   object pgSettings: TPageControl
     Left = 0
     Top = 0
@@ -39,6 +27,7 @@ object FSettings: TFSettings
     Height = 266
     ActivePage = tabUserData
     Align = alClient
+    MultiLine = True
     Style = tsFlatButtons
     TabOrder = 0
     object tabUserData: TTabSheet
@@ -227,6 +216,32 @@ object FSettings: TFSettings
         ParentShowHint = False
         ShowHint = True
         TabOrder = 5
+      end
+      object edtLargeSkip: TEdit
+        Left = 120
+        Top = 141
+        Width = 26
+        Height = 21
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        MaxLength = 2
+        TabOrder = 7
+        Text = '25'
+        OnExit = EFrameWidthExit
+        OnKeyPress = EProxyPortKeyPress
+      end
+      object edtSmallSkip: TEdit
+        Left = 120
+        Top = 113
+        Width = 26
+        Height = 21
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        MaxLength = 2
+        TabOrder = 6
+        Text = '2'
+        OnExit = EFrameWidthExit
+        OnKeyPress = EProxyPortKeyPress
       end
     end
     object TabSaveMovie: TTabSheet
@@ -883,31 +898,5 @@ object FSettings: TFSettings
       ModalResult = 1
       TabOrder = 1
     end
-  end
-  object edtSmallSkip: TEdit
-    Left = 124
-    Top = 140
-    Width = 26
-    Height = 21
-    Anchors = [akTop, akRight]
-    AutoSize = False
-    MaxLength = 2
-    TabOrder = 2
-    Text = '2'
-    OnExit = EFrameWidthExit
-    OnKeyPress = EProxyPortKeyPress
-  end
-  object edtLargeSkip: TEdit
-    Left = 124
-    Top = 168
-    Width = 26
-    Height = 21
-    Anchors = [akTop, akRight]
-    AutoSize = False
-    MaxLength = 2
-    TabOrder = 3
-    Text = '25'
-    OnExit = EFrameWidthExit
-    OnKeyPress = EProxyPortKeyPress
   end
 end

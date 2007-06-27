@@ -219,6 +219,11 @@ type
     N10: TMenuItem;
     N11: TMenuItem;
     N12: TMenuItem;
+    AShowLogging: TAction;
+    N13: TMenuItem;
+    ShowLoggingMessages1: TMenuItem;
+    ATestExceptionHandling: TAction;
+    TestExceptionHandling1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -315,6 +320,8 @@ type
     procedure FramePopUpNext12FramesClick(Sender: TObject);
     procedure FramePopUpPrevious12FramesClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure AShowLoggingExecute(Sender: TObject);
+    procedure ATestExceptionHandlingExecute(Sender: TObject);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -406,9 +413,9 @@ var
   VMRWindowlessControl9: IVMRWindowlessControl9;
 
 implementation
-  uses Utils, Frames,  CutlistRate_Dialog, ResultingTimes, CutlistSearchResults, 
+  uses Utils, Frames,  CutlistRate_Dialog, ResultingTimes, CutlistSearchResults,
     PBOnceOnly, UfrmCutting, UCutApplicationBase, UCutApplicationAsfbin, UCutApplicationMP4Box, UMemoDialog,
-    DateTools;
+    DateTools, ULogging, UDSAStorage;
 
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
@@ -3442,11 +3449,29 @@ begin
   end;
 end;
 
+procedure TFMain.AShowLoggingExecute(Sender: TObject);
+begin
+  if not FLogging.Visible then
+  begin
+    FLogging.Width := Self.Width;
+    FLogging.Top := Self.Top + Self.Height + 1;
+    FLogging.Left := Self.Left;
+  end;
+  FLogging.Visible := true;
+end;
+
+procedure TFMain.ATestExceptionHandlingExecute(Sender: TObject);
+begin
+  raise Exception.Create('This is a exception handling test at ' + FormatDateTime('', Now));
+end;
+
 initialization
 begin
   randomize;
   Settings := TSettings.Create;
   Settings.load;
+  RegisterDSAMessage(1, 'CutlistRated', 'Cutlist rated');
+  //JvDSADialogs.RegisterDSA(Incr(DlgID), 'CutlistRated', 'Cutlist rated', DSAStorage, ctkShow);
   MovieInfo := TMovieInfo.Create;
   Cutlist := TCutList.Create(Settings, MovieInfo);
 end;

@@ -1,6 +1,9 @@
 program cut_assistant;
 
 uses
+  madExcept,
+  madListModules,
+  SysUtils,
   PBOnceOnly in 'lib\PBOnceOnly.pas',
   Forms,
   Classes,
@@ -29,7 +32,9 @@ uses
   UCutApplicationVirtualDub in 'UCutApplicationVirtualDub.pas' {frmCutApplicationVirtualDub: TFrame},
   trackBarEx in 'VCL\TrackBarEx\trackBarEx.pas',
   Unit_DSTrackBarEx in 'VCL\DSTrackBarEx\Unit_DSTrackBarEx.pas',
-  DateTools in 'DateTools.pas';
+  DateTools in 'DateTools.pas',
+  ULogging in 'ULogging.pas' {FLogging},
+  UDSAStorage in 'UDSAStorage.pas';
 
 {$R *.res}
 const
@@ -38,8 +43,11 @@ const
 var
   iParam: integer;
   FileList: TStringList;
+  MessageList: TStringList;
 
 begin
+  MessageList := TStringList.Create;
+  try
   if AlreadyRunning(ProcessName, TApplication, TFMain) then
     Exit;
 
@@ -56,6 +64,7 @@ begin
   Application.CreateForm(TFCutlistInfo, FCutlistInfo);
   Application.CreateForm(TFUploadList, FUploadList);
   Application.CreateForm(TfrmCutting, frmCutting);
+  Application.CreateForm(TFLogging, FLogging);
   FFrames.MainForm := FMain;
 
   FileList := TStringList.Create;
@@ -71,5 +80,10 @@ begin
     else
       Application.Run;
   end;
-
+  finally
+    MessageList.SaveToFile(ChangeFileExt(Application.ExeName, '.LOG'));
+    FreeAndNIL(MessageList);
+  end;
 end.
+
+

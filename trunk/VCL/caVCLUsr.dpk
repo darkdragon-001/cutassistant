@@ -27,11 +27,9 @@ package caVCLUsr;
 requires
   rtl,
   vcl,
-  DSPack_D2006,
-  DirectX9_D2006,
+  DSPack_D7,
+  DirectX9_D7,
   designide,
-  xmlrtl,
-  vclactnband,
   vclx;
 
 contains

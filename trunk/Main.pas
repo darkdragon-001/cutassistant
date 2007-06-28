@@ -415,7 +415,7 @@ var
 implementation
   uses Utils, Frames,  CutlistRate_Dialog, ResultingTimes, CutlistSearchResults,
     PBOnceOnly, UfrmCutting, UCutApplicationBase, UCutApplicationAsfbin, UCutApplicationMP4Box, UMemoDialog,
-    DateTools, ULogging, UDSAStorage;
+    DateTools, UAbout, ULogging, UDSAStorage;
 
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
@@ -1771,7 +1771,8 @@ end;
 
 procedure TFMain.AboutExecute(Sender: TObject);
 begin
-  showmessage('Cut Assistant' + #13#10 + 'Version ' + Application_version+ #13#10#13#10 + 'Author: 1248');
+  AboutBox.ShowModal();
+  //showmessage('Cut Assistant' + #13#10 + 'Version ' + Application_version+ #13#10#13#10 + 'Author: 1248');
 end;
            
 procedure TFMain.WriteToRegistyExecute(Sender: TObject);

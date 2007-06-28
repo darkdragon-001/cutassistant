@@ -34,7 +34,8 @@ uses
   Unit_DSTrackBarEx in 'VCL\DSTrackBarEx\Unit_DSTrackBarEx.pas',
   DateTools in 'DateTools.pas',
   ULogging in 'ULogging.pas' {FLogging},
-  UDSAStorage in 'UDSAStorage.pas';
+  UDSAStorage in 'UDSAStorage.pas',
+  UAbout in 'UAbout.pas' {AboutBox};
 
 {$R *.res}
 const
@@ -65,6 +66,7 @@ begin
   Application.CreateForm(TFUploadList, FUploadList);
   Application.CreateForm(TfrmCutting, frmCutting);
   Application.CreateForm(TFLogging, FLogging);
+  Application.CreateForm(TAboutBox, AboutBox);
   FFrames.MainForm := FMain;
 
   FileList := TStringList.Create;

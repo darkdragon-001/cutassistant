@@ -2677,11 +2677,13 @@ object FMain: TFMain
       Caption = 'Show &Logging Messages'
       Hint = 'Show the log message window'
       ShortCut = 123
+      Visible = False
       OnExecute = AShowLoggingExecute
     end
     object ATestExceptionHandling: TAction
       Category = 'Info'
       Caption = 'Test exception handling'
+      Visible = False
       OnExecute = ATestExceptionHandlingExecute
     end
   end

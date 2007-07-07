@@ -3472,7 +3472,6 @@ begin
   Settings := TSettings.Create;
   Settings.load;
   //RegisterDSAMessage(1, 'CutlistRated', 'Cutlist rated');
-  //JvDSADialogs.RegisterDSA(Incr(DlgID), 'CutlistRated', 'Cutlist rated', DSAStorage, ctkShow);
   MovieInfo := TMovieInfo.Create;
   Cutlist := TCutList.Create(Settings, MovieInfo);
 end;

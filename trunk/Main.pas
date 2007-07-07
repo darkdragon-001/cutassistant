@@ -3471,7 +3471,7 @@ begin
   randomize;
   Settings := TSettings.Create;
   Settings.load;
-  RegisterDSAMessage(1, 'CutlistRated', 'Cutlist rated');
+  //RegisterDSAMessage(1, 'CutlistRated', 'Cutlist rated');
   //JvDSADialogs.RegisterDSA(Incr(DlgID), 'CutlistRated', 'Cutlist rated', DSAStorage, ctkShow);
   MovieInfo := TMovieInfo.Create;
   Cutlist := TCutList.Create(Settings, MovieInfo);
@@ -3479,9 +3479,9 @@ end;
 
 finalization
 begin
-  cutlist.Free;
+  Cutlist.Free;
   MovieInfo.Free;
-  settings.save;
+  Settings.save;
   Settings.Free;
 end;
 

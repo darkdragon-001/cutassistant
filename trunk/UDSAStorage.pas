@@ -226,40 +226,33 @@ VAR
   DontShowAgain               : integer;
   LastResult                  : integer;
   Check                       : integer;
-  delimPos                    : integer;
+  FUNCTION NextWord(VAR s: STRING): integer;
+  VAR
+    delimPos                  : integer;
+  BEGIN
+    delimPos := Pos(';', s);
+    IF delimPos > 0 THEN BEGIN
+      Result := StrToIntDef(Copy(s, 1, delimPos - 1), -1);
+      Delete(s, 1, delimPos);
+    END
+    ELSE BEGIN
+      Result := -1;
+    END;
+  END;
 BEGIN
   IF NOT Assigned(DSAData) THEN
     Exit;
-  dlgID := -1;
-  LastResult := -1;
-  DontShowAgain := -1;
   FOR idx := 0 TO DSAData.Count - 1 DO BEGIN
     item := DSAData.Strings[idx];
-    Check := -1;
-    delimPos := Pos(';', item);
-    IF delimPos > 0 THEN BEGIN
-      dlgId := StrToIntDef(Copy(item, 1, delimPos - 1), -1);
-      Delete(item, 1, delimPos);
-    END;
-    delimPos := Pos(';', item);
-    IF delimPos > 0 THEN BEGIN
-      LastResult := StrToIntDef(Copy(item, 1, delimPos - 1), -1);
-      Delete(item, 1, delimPos);
-    END;
-    delimPos := Pos(';', item);
-    IF delimPos > 0 THEN BEGIN
-      DontShowAgain := StrToIntDef(Copy(item, 1, delimPos - 1), -1);
-      Delete(item, 1, delimPos);
-    END;
-    delimPos := Pos(';', item);
-    IF delimPos > 0 THEN BEGIN
-      Check := StrToIntDef(Copy(item, 1, delimPos - 1), -1);
-      Delete(item, 1, delimPos);
-    END;
+    dlgID := NextWord(item);
+    LastResult := NextWord(item);
+    DontShowAgain := NextWord(item);
+    Check := NextWord(item);
 
-    IF Check <> -1 THEN
+    IF (Check > 0) AND (Check = dlgID + LastResult + DontShowAgain) THEN BEGIN
       IF (dlgId <> -1) AND (LastResult <> -1) AND (DontShowAgain <> -1) THEN
         JvDSADialogs.SetDSAState(dlgId, DontShowAgain = 0, LastResult);
+    END;
   END;
 END;
 
@@ -278,7 +271,7 @@ BEGIN
       DontShowAgain := 0
     ELSE
       DontShowAgain := 1;
-    DSAData.Append(Format('%d;%d;%d;%d', [item.ID, LastResult, DontShowAgain, 1]));
+    DSAData.Append(Format('%d;%d;%d;%d', [item.ID, LastResult, DontShowAgain, item.ID + LastResult + DontShowAgain]));
   END;
 END;
 

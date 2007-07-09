@@ -119,8 +119,6 @@ type
     procedure FormCreate(Sender: TObject);
 
     procedure EChceckInfoIntervalKeyPress(Sender: TObject; var Key: Char);
-    procedure CBInfoCheckEnabledClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
     procedure tsSourceFilterShow(Sender: TObject);
     procedure btnRefreshFilterListClick(Sender: TObject);
     procedure lbchkBlackListClickCheck(Sender: TObject);
@@ -862,16 +860,6 @@ begin
     ActiveControl := Edit;
     raise EConvertError.Create('Invalid value: ' + Edit.Text);
   end
-end;
-
-procedure TFSettings.CBInfoCheckEnabledClick(Sender: TObject);
-begin
-  self.GBInfoCheck.Visible := self.CBInfoCheckEnabled.Checked;
-end;
-
-procedure TFSettings.FormShow(Sender: TObject);
-begin
-  CBInfoCheckEnabledClick(sender);
 end;
 
 procedure TFSettings.lbchkBlackListClickCheck(Sender: TObject);

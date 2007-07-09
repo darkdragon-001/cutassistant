@@ -17,7 +17,6 @@ object FSettings: TFSettings
   Position = poOwnerFormCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object pgSettings: TPageControl
@@ -586,11 +585,10 @@ object FSettings: TFSettings
       object CBInfoCheckEnabled: TCheckBox
         Left = 3
         Top = 3
-        Width = 131
+        Width = 290
         Height = 14
-        Caption = 'Check Infos on Server'
+        Caption = 'Check Infos on Server on Startup'
         TabOrder = 0
-        OnClick = CBInfoCheckEnabledClick
       end
     end
     object TabExternalCutApplication: TTabSheet

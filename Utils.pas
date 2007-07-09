@@ -59,6 +59,10 @@ type
 
   function IsPathRooted(const Path: string): boolean;
 
+  function CtrlDown : Boolean;
+  function ShiftDown : Boolean;
+  function AltDown : Boolean;
+
 //global Vars
 var
   batchmode: boolean;
@@ -68,6 +72,30 @@ implementation
 
 uses
   Messages, SysUtils, ShellAPI, Variants, Classes, Forms, Clipbrd, StrUtils, jpeg;
+
+function CtrlDown : Boolean;
+var
+   State : TKeyboardState;
+begin
+   GetKeyboardState(State) ;
+   Result := ((State[vk_Control] And 128) <> 0) ;
+end;
+
+function ShiftDown : Boolean;
+var
+   State : TKeyboardState;
+begin
+   GetKeyboardState(State) ;
+   Result := ((State[vk_Shift] and 128) <> 0) ;
+end;
+
+function AltDown : Boolean;
+var
+   State : TKeyboardState;
+begin
+   GetKeyboardState(State) ;
+   Result := ((State[vk_Menu] and 128) <> 0) ;
+end;
 
 procedure PatchINT3;
   {http://www.delphipraxis.net/topic24054.html

@@ -2332,6 +2332,7 @@ object FMain: TFMain
     Top = 88
   end
   object IdAntiFreeze1: TIdAntiFreeze
+    OnlyWhenIdle = False
     Left = 208
     Top = 192
   end
@@ -2559,9 +2560,16 @@ object FMain: TFMain
       Hint = 'Open Homepage of Cutlist Server in Browser'
       OnExecute = OpenCutlistHomeExecute
     end
+    object AOpenCutassistantHome: TAction
+      Category = '?'
+      Caption = '&Cut Assistant Project'
+      Hint = 'Open project page of Cut Assistant in browser'
+      OnExecute = AOpenCutassistantHomeExecute
+    end
     object About: TAction
       Category = '?'
-      Caption = '&About'
+      Caption = '&About ...'
+      Hint = 'Show About Dialog'
       OnExecute = AboutExecute
     end
     object ADeleteCutlistFromServer: TAction
@@ -2685,6 +2693,12 @@ object FMain: TFMain
       Caption = 'Test exception handling'
       Visible = False
       OnExecute = ATestExceptionHandlingExecute
+    end
+    object ACheckInfoOnServer: TAction
+      Category = '?'
+      Caption = 'Check Update &Infos on Server ...'
+      Hint = 'Check update infos on server now.'
+      OnExecute = ACheckInfoOnServerExecute
     end
   end
   object MainMenu: TMainMenu
@@ -2863,6 +2877,12 @@ object FMain: TFMain
       end
       object CutlistHomepage1: TMenuItem
         Action = OpenCutlistHome
+      end
+      object CutAssistantProject1: TMenuItem
+        Action = AOpenCutassistantHome
+      end
+      object Checkinfoonserver1: TMenuItem
+        Action = ACheckInfoOnServer
       end
       object N7: TMenuItem
         Caption = '-'

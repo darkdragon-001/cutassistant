@@ -224,6 +224,10 @@ type
     ShowLoggingMessages1: TMenuItem;
     ATestExceptionHandling: TAction;
     TestExceptionHandling1: TMenuItem;
+    ACheckInfoOnServer: TAction;
+    Checkinfoonserver1: TMenuItem;
+    AOpenCutassistantHome: TAction;
+    CutAssistantProject1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -322,6 +326,8 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure AShowLoggingExecute(Sender: TObject);
     procedure ATestExceptionHandlingExecute(Sender: TObject);
+    procedure ACheckInfoOnServerExecute(Sender: TObject);
+    procedure AOpenCutassistantHomeExecute(Sender: TObject);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -373,7 +379,7 @@ type
 //    function CreateVDubScript(cutlist: TCutlist; Inputfile, Outputfile: String; var scriptfile: string): boolean;
     function CreateMPlayerEDL(cutlist: TCutlist; Inputfile, Outputfile: String; var scriptfile: string): boolean;
 
-    function DownloadInfo(settings: TSettings): boolean;
+    function DownloadInfo(settings: TSettings; const UseDate, ShowAll: boolean): boolean;
     procedure LoadCutList;
 //    function search_cutlist: boolean;
     function SearchCutlistsByFileSize_XML: boolean;
@@ -504,7 +510,8 @@ begin
   TVOlume.LineSize := round(TVolume.PageSize /10);
   TVolume.Position := filtergraph.Volume;
 
-  self.DownloadInfo(settings);
+  if settings.CheckInfos then
+    self.DownloadInfo(settings, true, false);
 
   //self.WindowState := wsMaximized;
 end;
@@ -2173,6 +2180,9 @@ begin
           else raise;
         end;
       end;
+      on E: EIdException do begin
+        error_message := error_message + E.Message;
+      end;
       else begin
         raise;
       end;
@@ -2349,6 +2359,9 @@ begin
                       end;
             else raise;
           end;
+        end;
+        on E: EIdException do begin
+          error_message := error_message + E.Message;
         end;
         else begin
           raise;
@@ -2581,6 +2594,9 @@ begin
                   end;
         else raise;
       end;
+    end;
+    on E: EIdException do begin
+      error_message := error_message + E.Message;
     end;
     else begin
       raise;
@@ -2938,6 +2954,9 @@ begin
         else raise;
       end;
     end;
+    on E: EIdException do begin
+      error_message := error_message + E.Message;
+    end;
     else begin
       raise;
     end;
@@ -3004,16 +3023,26 @@ function GetXMLMessage(const Node: TJCLSimpleXMLElem; const LastChecked: TDateTi
 var
   Msg: TJCLSimpleXMLElems;
   datum: TDateTime;
+  function ItemStr(const AName: string): string;
+  var Item: TJCLSimpleXMLElem;
+  begin
+    Item := Msg.ItemNamed[AName];
+    if Item = nil then Result := ''
+    else Result := Item.Value;
+  end;
+  function ItemInt(const AName: string): integer;
+  begin
+    Result := StrToIntDef(ItemStr(AName), -1);
+  end;
 begin
   Result := '';
   Msg := Node.Items;
   if not TryEncodeDate(
-    StrToInt(Msg.ItemNamed['date_year'].Value),
-    StrToInt(Msg.ItemNamed['date_month'].Value),
-    StrToInt(Msg.ItemNamed['date_day'].Value), Datum
+    ItemInt('date_year'),ItemInt('date_month'), ItemInt('date_day'),
+    Datum
   ) then exit;
   if LastChecked <= Datum then begin
-    Result := '[' + DateToStr(Datum) + '] ' +Msg.ItemNamed['text'].Value;
+    Result := '[' + DateToStr(Datum) + '] ' + ItemStr('text');
   end;
 end;
 
@@ -3035,28 +3064,52 @@ begin
   end;
 end;
 
-function TFMain.DownloadInfo(settings: TSettings): boolean;
+function TFMain.DownloadInfo(settings: TSettings; const UseDate, ShowAll: boolean): boolean;
 var
-  error_message, url, AText: string;
-  Response: TStringStream;
+  error_message, url, AText, ResponseText: string;
+  lastChecked : TDateTime;
   //f: textFile;
 begin
   result := false;
-  if not settings.CheckInfos then exit;
-  if not (daysBetween(settings.InfoLastChecked, SysUtils.Date) >= settings.InfoCheckInterval) then exit;
+  lastChecked := settings.InfoLastChecked;
+  if UseDate then
+    if not (daysBetween(lastChecked, SysUtils.Date) >= settings.InfoCheckInterval) then
+      exit;
+  if ShowAll then
+    lastChecked := 0;
 
   self.IdHTTP1.HandleRedirects := false;
   Error_message := 'Unknown error.';
-
-  response := TStringStream.Create('');
-
   url := settings.url_info_file;
+
   try
-    try
       Error_message := 'Error while checking for Information and new Versions on Server.' +#13#10;
-      self.IdHTTP1.Get(url, Response);
-      result := true;
-    except
+      ResponseText := self.IdHTTP1.Get(url);
+
+      if Length(ResponseText) > 5 then begin
+        XMLResponse.LoadFromString(ResponseText);
+
+        if XMLResponse.Root.ChildsCount > 0 then begin
+          if settings.InfoShowMessages then begin
+            AText := GetXMLMessages(XMLResponse.Root, lastChecked, 'messages');
+            if Length(AText) > 0 then
+              ShowMessage('Information: ' + AText);
+          end;
+          if settings.InfoShowBeta then begin
+            AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['beta'], lastChecked);
+            if Length(AText) > 0 then
+              ShowMessage('Beta-Information: ' + AText);
+          end;
+          if settings.InfoShowStable then begin
+            AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['stable'], lastChecked);
+            if Length(AText) > 0 then
+              ShowMessage('Stable-Information: ' + AText);
+          end;
+          Result := true;
+        end;
+      end;
+      settings.InfoLastChecked := sysutils.Date;
+  except
       on E: EIdProtocolReplyError do begin
         case E.ReplyErrorCode of
           404, 302: begin
@@ -3066,49 +3119,14 @@ begin
             Error_message := Error_message + E.Message;
         end;
       end;
-      on E: EIDSocketError do begin
+      on E: EIdException do begin
         Error_message := Error_message + E.Message;
+        ShowMessage(Error_Message);
       end;
       else begin
         raise;
       end;
-    end;
-
-    if result then begin
-      if response.Size > 5 then begin
-        Response.Position := 0;
-        XMLResponse.LoadFromStream(Response);
-//        AssignFile(F, 'debug.xml');
-//        Rewrite(f);
-//        Write(f, Response.DataString);
-//        Closefile(f);
-
-        if XMLResponse.Root.ChildsCount > 0 then begin
-          if settings.InfoShowMessages then begin
-            AText := GetXMLMessages(XMLResponse.Root, settings.InfoLastChecked, 'messages');
-            if Length(AText) > 0 then
-              ShowMessage('Information: ' + AText);
-          end;
-          if settings.InfoShowBeta then begin
-            AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['beta'], settings.InfoLastChecked);
-            if Length(AText) > 0 then
-              ShowMessage('Beta-Information: ' + AText);
-          end;
-          if settings.InfoShowStable then begin
-            AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['stable'], settings.InfoLastChecked);
-            if Length(AText) > 0 then
-              ShowMessage('Stable-Information: ' + AText);
-          end;
-          result := true;
-        end;
-      end;
-      settings.InfoLastChecked := sysutils.Date;
-    end else begin
-      showmessage(Error_Message);
-    end;
-  finally
-    response.Free;
-  end;              
+  end;
 end;
 
 procedure TFMain.ASnapshotCopyExecute(Sender: TObject);
@@ -3464,6 +3482,16 @@ end;
 procedure TFMain.ATestExceptionHandlingExecute(Sender: TObject);
 begin
   raise Exception.Create('This is a exception handling test at ' + FormatDateTime('', Now));
+end;
+
+procedure TFMain.ACheckInfoOnServerExecute(Sender: TObject);
+begin
+  self.DownloadInfo(Settings, false, Utils.ShiftDown);
+end;
+
+procedure TFMain.AOpenCutassistantHomeExecute(Sender: TObject);
+begin
+  ShellExecute(0, nil, 'http://sourceforge.net/projects/cutassistant/', '', '', SW_SHOWNORMAL);
 end;
 
 initialization

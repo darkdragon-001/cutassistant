@@ -2188,7 +2188,8 @@ begin
       end;
     end;
 
-    if result and (response.Size > 5) then begin
+    try
+      if result and (response.Size > 5) then begin
           Response.Position := 0;
           XMLResponse.LoadFromStream(Response);
           FCutlistSearchResults.LLinklist.Clear;
@@ -2223,6 +2224,12 @@ begin
       end else begin
         showmessage('Search Cutlist by File Size: No Cutlist found.');
       end;
+    except
+    on E: EJclSimpleXMLError do begin
+        Error_message := 'XML-Error while getting cutlist infos.'#13#10 + E.Message;
+        ShowMessage(Error_Message);
+      end;
+    end;
   finally
     response.Free;
   end;
@@ -2981,6 +2988,7 @@ var
   CutlistID: integer;
   CutlistDate: TDateTime;
   CutlistIDStr, CutlistName, CutlistDateStr: string;
+  Error_message: string;
 begin
   Result := false;
   if not FileExists(UploadData_Path(false)) then
@@ -2989,33 +2997,40 @@ begin
   cntNew := 0;
 
   XMLResponse.LoadFromFile(UploadData_Path(false));
-  RowDataNode := XMLResponse.Root.Items.ItemNamed['ROWDATA'];
-  if RowDataNode <> nil then begin
-    for idx := 0 to RowDataNode.Items.Count - 1 do begin
-      RowNode := RowDataNode.Items.Item[idx];
-      if RowNode <> nil then begin
-        CutlistIDStr := RowNode.Properties.Value('id', '0');
-        CutlistID := StrToIntDef(CutlistIDStr, 0);
-        CutlistName := RowNode.Properties.Value('name', '');
-        CutlistDateStr := RowNode.Properties.Value('DateTime', '');
-        if Length(CutlistDateStr) > 9 then begin
-          CutlistDate := DateTimeStrEval('YYYYMMDDTHH:NN:SSZZZ', CutlistDateStr);
-        end
-        else begin
-          CutlistDate := DateTimeStrEval('YYYYMMDD', CutlistDateStr);
-        end;
-        if (CutlistID > 0) and (UploadDataEntries.IndexOfName(CutlistIDStr) < 0) then begin
-          AddUploadDataEntry(CutlistDate, CutlistName, CutlistID);
-          Inc(cntNew);
+  try
+    RowDataNode := XMLResponse.Root.Items.ItemNamed['ROWDATA'];
+    if RowDataNode <> nil then begin
+      for idx := 0 to RowDataNode.Items.Count - 1 do begin
+        RowNode := RowDataNode.Items.Item[idx];
+        if RowNode <> nil then begin
+          CutlistIDStr := RowNode.Properties.Value('id', '0');
+          CutlistID := StrToIntDef(CutlistIDStr, 0);
+          CutlistName := RowNode.Properties.Value('name', '');
+          CutlistDateStr := RowNode.Properties.Value('DateTime', '');
+          if Length(CutlistDateStr) > 9 then begin
+            CutlistDate := DateTimeStrEval('YYYYMMDDTHH:NN:SSZZZ', CutlistDateStr);
+          end
+          else begin
+            CutlistDate := DateTimeStrEval('YYYYMMDD', CutlistDateStr);
+          end;
+          if (CutlistID > 0) and (UploadDataEntries.IndexOfName(CutlistIDStr) < 0) then begin
+            AddUploadDataEntry(CutlistDate, CutlistName, CutlistID);
+            Inc(cntNew);
+          end;
         end;
       end;
     end;
-  end;
-  if cntNew > 0 then begin
-    UploadDataEntries.SaveToFile(UploadData_Path(true));
-  end;
-  if FileExists(UploadData_Path(false)) then begin
-    RenameFile(UploadData_Path(false), UploadData_Path(false) + '.BAK');
+    if cntNew > 0 then begin
+      UploadDataEntries.SaveToFile(UploadData_Path(true));
+    end;
+    if FileExists(UploadData_Path(false)) then begin
+      RenameFile(UploadData_Path(false), UploadData_Path(false) + '.BAK');
+    end;
+  except
+  on E: EJclSimpleXMLError do begin
+      Error_message := 'XML-Error while converting upload infos.'#13#10 + E.Message;
+      ShowMessage(Error_Message);
+    end;
   end;
 end;
 
@@ -3121,6 +3136,10 @@ begin
       end;
       on E: EIdException do begin
         Error_message := Error_message + E.Message;
+        ShowMessage(Error_Message);
+      end;
+      on E: EJclSimpleXMLError do begin
+        Error_message := Error_message + 'XML-Error: ' + E.Message;
         ShowMessage(Error_Message);
       end;
       else begin

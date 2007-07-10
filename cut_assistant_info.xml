@@ -29,16 +29,28 @@ Die neue Version hat einige Detailverbesserungen, neue Funktionen
 und kann bei Fehlern automatisch Bug-Reports erzeugen.
 </text>
 		</message>
+		<message>
+			<id>3</id>
+			<date_day>10</date_day>
+			<date_month>7</date_month>
+			<date_year>2007</date_year>
+			<text>
+Neue Version 0.9.9.8:
+Die neue Version verbessert die Behandlung der häufig gemeldeten Fehler
+beim Abrufen der Update-Informationen und Kommunikation mit dem
+Cutlist-Server.
+</text>
+		</message>
 	</messages>
 	<stable>
-		<date_day>07</date_day>
+		<date_day>10</date_day>
 		<date_month>07</date_month>
 		<date_year>2007</date_year>
-		<version>0x0000000900090006</version>
+		<version>0x0000000900090008</version>
 		<version_text>
-Letzte stabile Version: 0.9.9.6
+Letzte stabile Version: 0.9.9.8
 
-Last stable version 0.9.9.6
+Last stable version 0.9.9.8
 
 Download: http://sourceforge.net/projects/cutassistant/
 oder      http://www.cutlist.de/</version_text>

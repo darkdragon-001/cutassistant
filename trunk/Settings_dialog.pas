@@ -250,7 +250,7 @@ function StringToFilterGUID(const s: string): TGUID;
 var
   idx, len: integer;
 begin
-  idx := LastDelimiter('(', s);
+  idx := LastDelimiter('(', s) + 1;
   len := LastDelimiter(')', s);
   if idx < 0 then Result := GUID_NULL
   else

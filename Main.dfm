@@ -2301,7 +2301,7 @@ object FMain: TFMain
     Request.BasicAuthentication = False
     Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
     HTTPOptions = [hoForceEncodeParams]
-    ConnectTimeout = 5000
+    ConnectTimeout = 15000
     Left = 208
     Top = 88
   end

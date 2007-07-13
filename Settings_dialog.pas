@@ -113,6 +113,10 @@ type
     Label34: TLabel;
     Label35: TLabel;
     Label36: TLabel;
+    Label31: TLabel;
+    edtNetTimeout: TEdit;
+    Label37: TLabel;
+    Label38: TLabel;
     procedure BCutMovieSaveDirClick(Sender: TObject);
     procedure BCutlistSaveDirClick(Sender: TObject);
     procedure EProxyPortKeyPress(Sender: TObject; var Key: Char);
@@ -159,6 +163,9 @@ type
     _SaveCutListMode, _SaveCutMovieMode: byte;
 
   public
+    // window state
+    MainFormBounds, FramesFormBounds, PreviewFormBounds: TRect;
+
     //CutApplications
     CutApplicationList: TObjectList;
 
@@ -173,6 +180,7 @@ type
     UseMovieNameSuggestion: boolean;
     DefaultCutMode: integer;
     SmallSkipTime, LargeSkipTime: integer;
+    NetTimeout: integer;
 
     //Warnings
     WarnOnWrongCutApp: boolean;
@@ -223,6 +231,9 @@ type
     function CutlistAutoSaveBeforeCutting: boolean;
     function FilterIsInBlackList(ClassID: TGUID): boolean;
 
+    function iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
+    procedure iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
+
     procedure load;
     procedure edit;
     procedure save;
@@ -234,12 +245,35 @@ var
 implementation
 
 uses
-  Math,
+  Math, Types,
   main, UCutApplicationAsfbin, UCutApplicationVirtualDub, UCutApplicationAviDemux, UCutApplicationMP4Box,
   UCutlist;
 
+var
+  EmptyRect: TRect;
 
 {$R *.dfm}
+
+function TSettings.iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
+var
+  s: string;
+begin
+  s := ini.ReadString(section, name, '');
+  if s = '' then Result := default
+  else
+  begin
+    Result.Left := -1;
+    Result.Right := -1;
+    Result.Top := -1;
+    Result.Bottom := -1;
+  end;
+end;
+
+procedure TSettings.iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
+begin
+  //
+end;
+
 
 function FilterInfoToString(const filterInfo: TFilCatNode): string;
 begin
@@ -368,6 +402,7 @@ begin
   Fsettings.RCutMode.ItemIndex                     := DefaultCutMode;
   FSettings.edtSmallSkip.Text                      := IntToStr(SmallSkipTime);
   FSettings.edtLargeSkip.Text                      := IntToStr(LargeSkipTime);
+  FSettings.edtNetTimeout.Text                     := IntToStr(NetTimeout);
 
   Fsettings.EURL_Cutlist_Home.Text                 := self.url_cutlists_home;
   Fsettings.EURL_Info_File.Text                    := self.url_info_file;
@@ -482,6 +517,7 @@ begin
 
       self.SmallSkipTime               := StrToInt(FSettings.edtSmallSkip.Text);
       self.LargeSkipTime               := StrToInt(FSettings.edtLargeSkip.Text);
+      self.NetTimeout                  := StrToInt(FSettings.edtNetTimeout.Text);
 
       self.InfoShowMessages            :=  FSettings.CBInfoCheckMessages.Checked  ;
       self.InfoShowStable              :=  FSettings.CBInfoCheckStable.Checked    ;
@@ -646,6 +682,7 @@ begin
     self.url_help := ini.ReadString(section, 'ApplicationHelp', 'http://wiki.onlinetvrecorder.com/index.php/Cut_Assistant');
 
     section := 'Connection';
+    self.NetTimeout := ini.ReadInteger(section, 'Timeout', 20);
     self.proxyServerName := ini.ReadString(section, 'ProxyServerName', '');
     self.proxyPort := ini.ReadInteger(section, 'ProxyPort', 0);
     self.proxyUserName := ini.ReadString(section, 'ProxyUserName', '');
@@ -669,6 +706,11 @@ begin
     for iCutApplication := 0 to CutApplicationList.Count - 1 do begin
       (CutApplicationList[iCutApplication] as TCutApplicationBase).LoadSettings(ini);
     end;
+
+    section := 'WindowStates';
+    self.MainFormBounds := iniReadRect(ini, section, 'Main', EmptyRect);
+    self.FramesFormBounds := iniReadRect(ini, section, 'Frames', EmptyRect);
+    self.PreviewFormBounds := iniReadRect(ini, section, 'Preview', EmptyRect);
 
   finally
     ini.Free;
@@ -759,6 +801,7 @@ begin
     ini.WriteInteger(section, 'ProxyPort', ProxyPort);
     ini.WriteString(section, 'ProxyUserName', ProxyUserName);
     ini.WriteString(section, 'ProxyPassword', ProxyPassword);
+    ini.WriteInteger(section, 'Timeout', NetTimeout);
 
     section := 'Settings';
     ini.WriteInteger(section, 'OffsetSecondsCutChecking', OffsetSecondsCutChecking);
@@ -778,6 +821,11 @@ begin
     for iCutApplication := 0 to CutApplicationList.Count - 1 do begin
       (CutApplicationList[iCutApplication] as TCutApplicationBase).SaveSettings(ini);
     end;
+
+    section := 'WindowStates';
+    iniWriteRect(ini, section, 'Main', self.MainFormBounds);
+    iniWriteRect(ini, section, 'Frames', self.FramesFormBounds);
+    iniWriteRect(ini, section, 'Preview', self.PreviewFormBounds);
 
   finally
     ini.Free;
@@ -1141,6 +1189,11 @@ begin
     screen.cursor := cur;
     self.pnlPleaseWait.Visible := false;
   end;
+end;
+
+initialization
+begin
+  EmptyRect := Rect(-1, -1, -1, -1);
 end;
 
 end.

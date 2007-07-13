@@ -17,8 +17,20 @@ object FSettings: TFSettings
   Position = poOwnerFormCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  DesignSize = (
+    562
+    292)
   PixelsPerInch = 96
   TextHeight = 13
+  object Label31: TLabel
+    Left = 45
+    Top = 200
+    Width = 74
+    Height = 13
+    Alignment = taRightJustify
+    Anchors = [akTop, akRight]
+    Caption = 'Large skip time:'
+  end
   object pgSettings: TPageControl
     Left = 0
     Top = 0
@@ -139,6 +151,24 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 'px'
+      end
+      object Label37: TLabel
+        Left = 35
+        Top = 173
+        Width = 80
+        Height = 13
+        Alignment = taRightJustify
+        Anchors = [akTop, akRight]
+        Caption = 'Network timeout:'
+      end
+      object Label38: TLabel
+        Left = 148
+        Top = 173
+        Width = 15
+        Height = 14
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        Caption = 's'
       end
       object EUserName: TEdit
         Left = 120
@@ -788,7 +818,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 0
         Text = '(none)'
@@ -804,7 +834,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 1
         Text = '(none)'
@@ -820,7 +850,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
@@ -846,7 +876,7 @@ object FSettings: TFSettings
         Font.Height = -11
         Font.Name = 'Courier New'
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 4
         Text = '(none)'
@@ -896,5 +926,18 @@ object FSettings: TFSettings
       ModalResult = 1
       TabOrder = 1
     end
+  end
+  object edtNetTimeout: TEdit
+    Left = 124
+    Top = 197
+    Width = 26
+    Height = 21
+    Anchors = [akTop, akRight]
+    AutoSize = False
+    MaxLength = 2
+    TabOrder = 2
+    Text = '20'
+    OnExit = EFrameWidthExit
+    OnKeyPress = EProxyPortKeyPress
   end
 end

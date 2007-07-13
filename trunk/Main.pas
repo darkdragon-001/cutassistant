@@ -328,6 +328,7 @@ type
     procedure ATestExceptionHandlingExecute(Sender: TObject);
     procedure ACheckInfoOnServerExecute(Sender: TObject);
     procedure AOpenCutassistantHomeExecute(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -495,6 +496,7 @@ begin
     ConvertUploadData;
   end;
 
+  self.IdHTTP1.ConnectTimeout := 1000 * settings.NetTimeout;
   self.IdHTTP1.ProxyParams.ProxyServer := settings.proxyServerName;
   self.IdHTTP1.ProxyParams.ProxyPort := settings.proxyPort;
   self.IdHTTP1.ProxyParams.ProxyUsername := settings.proxyUserName;
@@ -509,9 +511,6 @@ begin
   TVolume.PageSize := TVOlume.Frequency;
   TVOlume.LineSize := round(TVolume.PageSize /10);
   TVolume.Position := filtergraph.Volume;
-
-  if settings.CheckInfos then
-    self.DownloadInfo(settings, true, false);
 
   //self.WindowState := wsMaximized;
 end;
@@ -1754,6 +1753,7 @@ end;
 procedure TFMain.EditSettingsExecute(Sender: TObject);
 begin
   settings.edit;
+  self.IdHTTP1.ConnectTimeout := 1000 * settings.NetTimeout;
   self.IdHTTP1.ProxyParams.ProxyServer := settings.proxyServerName;
   self.IdHTTP1.ProxyParams.ProxyPort := settings.proxyPort;
   self.IdHTTP1.ProxyParams.ProxyUsername := settings.proxyUserName;
@@ -2156,7 +2156,7 @@ const
   command = '?ofsb=';
 var
   error_message: string;
-  Response: TMemoryStream;
+  Response: string;
   Node, CutNode: TJCLSimpleXMLElems;
   idx: integer;
 begin
@@ -2165,11 +2165,8 @@ begin
   self.IdHTTP1.HandleRedirects := false;
   Error_message := 'Unknown error.';
 
-  response := TMemoryStream.Create;
-
-  try
     try
-      self.IdHTTP1.Get(settings.url_cutlists_home + php_name + command + inttostr(MovieInfo.current_filesize) +'&version=' + Application_Version, Response);
+      Response := self.IdHTTP1.Get(settings.url_cutlists_home + php_name + command + inttostr(MovieInfo.current_filesize) +'&version=' + Application_Version);
       result := true;
     except
       on E: EIdProtocolReplyError do begin
@@ -2189,9 +2186,8 @@ begin
     end;
 
     try
-      if result and (response.Size > 5) then begin
-          Response.Position := 0;
-          XMLResponse.LoadFromStream(Response);
+      if result and (Length(response) > 5) then begin
+          XMLResponse.LoadFromString(Response);
           FCutlistSearchResults.LLinklist.Clear;
 
           if XMLResponse.Root.ChildsCount > 0 then begin
@@ -2230,9 +2226,6 @@ begin
         ShowMessage(Error_Message);
       end;
     end;
-  finally
-    response.Free;
-  end;
 end;
 
 {function TFMain.DownloadCutlist(cutlist_name: string): boolean;
@@ -2488,7 +2481,6 @@ end;
 function TFMain.UploadCutlist(filename: string): boolean;
 var
   Stream:       TIdMultiPartFormDataStream;
-  StringStream: TStringStream;
   Response, Answer: string;
   Cutlist_id: Integer;
   lines: TStringList;
@@ -2497,7 +2489,6 @@ begin
   result := false;
   if fileexists(filename) then begin
     Stream := TIdMultiPartFormDataStream.Create;
-    StringStream := TStringStream.Create('');
     self.IdHTTP1.HandleRedirects := true;
     try
       Stream.AddFormField('MAX_FILE_SIZE','1587200');
@@ -2521,11 +2512,11 @@ begin
       begin_answer := LastDelimiter(#10, response)+1;
       Answer := midstr(response, begin_answer, length(response)-begin_answer+1); //Last Line
       lines.Free;
-      if not batchmode then showmessage('Server responded:' + #13#10 + answer);
+      if not batchmode then
+        showmessage('Server responded:' + #13#10 + answer);
 
     finally
       Stream.Free;
-      StringStream.Free;
     end;
   end;
 end;
@@ -2589,10 +2580,7 @@ begin
        + '&userid=' + settings.UserID
        + '&version=' + Application_Version;
   try
-    try
-      Response := self.IdHTTP1.Get(url);
-    finally
-    end;
+    Response := self.IdHTTP1.Get(url);
   except
     on E: EIdProtocolReplyError do begin
       case E.ReplyErrorCode of
@@ -3511,6 +3499,12 @@ end;
 procedure TFMain.AOpenCutassistantHomeExecute(Sender: TObject);
 begin
   ShellExecute(0, nil, 'http://sourceforge.net/projects/cutassistant/', '', '', SW_SHOWNORMAL);
+end;
+
+procedure TFMain.FormShow(Sender: TObject);
+begin
+  if settings.CheckInfos then
+    self.DownloadInfo(settings, true, false);
 end;
 
 initialization

@@ -258,20 +258,18 @@ function TSettings.iniReadRect(const ini: TIniFile; const section, name: string;
 var
   s: string;
 begin
-  s := ini.ReadString(section, name, '');
-  if s = '' then Result := default
-  else
-  begin
-    Result.Left := -1;
-    Result.Right := -1;
-    Result.Top := -1;
-    Result.Bottom := -1;
-  end;
+  Result.Left := ini.ReadInteger(section, name + '_Left', default.Left);
+  Result.Top := ini.ReadInteger(section, name + '_Top', default.Top);
+  Result.Right := Result.Left + ini.ReadInteger(section, name + '_Width', default.Right - default.Left);
+  Result.Bottom := Result.Top + ini.ReadInteger(section, name + '_Height', default.Bottom - default.Top);
 end;
 
 procedure TSettings.iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
 begin
-  //
+  ini.WriteInteger(section, name + '_Left', value.Left);
+  ini.WriteInteger(section, name + '_Top', value.Top);
+  ini.WriteInteger(section, name + '_Width', value.Right - value.Left);
+  ini.WriteInteger(section, name + '_Height', value.Bottom - value.Top);
 end;
 
 

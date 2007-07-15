@@ -19,7 +19,8 @@ uses
 
   CodecSettings, JvComponentBase, JvSimpleXml, JclSimpleXML, IdAntiFreezeBase,
   IdAntiFreeze, JvGIF, JvSpeedbar, JvExExtCtrls, JvExtComponent, JvExControls,
-  JvXPCore, JvXPBar, ActnList;
+  JvXPCore, JvXPBar, ActnList, IdThreadComponent, JvBaseDlg,
+  JvProgressDialog;
 
 const
   //Registry Keys
@@ -228,6 +229,8 @@ type
     Checkinfoonserver1: TMenuItem;
     AOpenCutassistantHome: TAction;
     CutAssistantProject1: TMenuItem;
+    RequestProgressDialog: TJvProgressDialog;
+    RequestWorker: TIdThreadComponent;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -329,6 +332,12 @@ type
     procedure ACheckInfoOnServerExecute(Sender: TObject);
     procedure AOpenCutassistantHomeExecute(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure RequestProgressDialogShow(Sender: TObject);
+    procedure RequestProgressDialogProgress(Sender: TObject;
+      var AContinue: Boolean);
+    procedure RequestWorkerRun(Sender: TIdCustomThreadComponent);
+    procedure RequestWorkerException(Sender: TIdCustomThreadComponent;
+      AException: Exception);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -393,6 +402,12 @@ type
   protected
     procedure WMDropFiles(var message: TWMDropFiles); message WM_DROPFILES;
     procedure WMCopyData(var msg: TWMCopyData); message WM_COPYDATA;
+    function DoHttpGet(const url: string; const handleRedirects: boolean; const Error_message: string; var Response: string): boolean;
+    function DoHttpPost(const url: string; const handleRedirects: boolean; const Error_message: string; const data: TIdMultiPartFormDataStream; var Response: string): boolean;
+    procedure InitHttpProperties;
+  private
+    RequestUrl, RequestContent, RequestException: string;
+    RequestData: TIdMultiPartFormDataStream;
   end;
 
 
@@ -424,9 +439,55 @@ implementation
     PBOnceOnly, UfrmCutting, UCutApplicationBase, UCutApplicationAsfbin, UCutApplicationMP4Box, UMemoDialog,
     DateTools, UAbout, ULogging, UDSAStorage;
 
+  type
+    THttpRequest = class(TObject)
+    private
+      FUrl: string;
+      FHandleRedirects: boolean;
+      FResponse: string;
+      FError_message: string;
+      FPostData: TIdMultiPartFormDataStream;
+      FIsPost: boolean;
+    public
+      constructor Create(const Url: string; const handleRedirects: boolean; const Error_message: string); overload;
+      destructor Destroy; override;
+    protected
+      procedure SetIsPost(const value: boolean);
+    published
+      property IsPostRequest: boolean read FIsPost write SetIsPost;
+      property Url: string read FUrl write FUrl;
+      property HandleRedirects: boolean read FHandleRedirects write FHandleRedirects;
+      property Response: string read FResponse write FResponse;
+      property PostData: TIdMultiPartFormDataStream read FPostData;
+    end;
+
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
- 
+
+constructor THttpRequest.Create(const Url: string; const handleRedirects: boolean; const Error_message: string);
+begin
+  self.FUrl := Url;
+  self.FHandleRedirects := handleRedirects;
+  self.FError_message := Error_message;
+  self.FPostData := PostData;
+  self.FResponse := '';
+  self.IsPostRequest := false;
+end;
+
+destructor THttpRequest.Destroy;
+begin
+  IsPostRequest := false;
+end;
+
+procedure THttpRequest.SetIsPost(const value: boolean);
+begin
+  self.FIsPost := value;
+  if not value and Assigned(FPostData) then
+    FreeAndNil(FPostData);
+  if value and not Assigned(FPostData) then
+    FPostData := TIdMultiPartFormDataStream.Create;
+end;
+
 procedure TFMain.BPlayPauseClick(Sender: TObject);
 begin
   GraphPlayPause;
@@ -496,11 +557,7 @@ begin
     ConvertUploadData;
   end;
 
-  self.IdHTTP1.ConnectTimeout := 1000 * settings.NetTimeout;
-  self.IdHTTP1.ProxyParams.ProxyServer := settings.proxyServerName;
-  self.IdHTTP1.ProxyParams.ProxyPort := settings.proxyPort;
-  self.IdHTTP1.ProxyParams.ProxyUsername := settings.proxyUserName;
-  self.IdHTTP1.ProxyParams.ProxyPassword := settings.proxyPassword;
+  InitHttpProperties;
 
   self.RCutMode.ItemIndex := settings.DefaultCutMode;
   
@@ -1753,11 +1810,7 @@ end;
 procedure TFMain.EditSettingsExecute(Sender: TObject);
 begin
   settings.edit;
-  self.IdHTTP1.ConnectTimeout := 1000 * settings.NetTimeout;
-  self.IdHTTP1.ProxyParams.ProxyServer := settings.proxyServerName;
-  self.IdHTTP1.ProxyParams.ProxyPort := settings.proxyPort;
-  self.IdHTTP1.ProxyParams.ProxyUsername := settings.proxyUserName;
-  self.IdHTTP1.ProxyParams.ProxyPassword := settings.proxyPassword;    
+  InitHttpProperties;
 end;
 
 procedure TFMain.AStartCuttingExecute(Sender: TObject);
@@ -2155,35 +2208,38 @@ const
   php_name = 'getxml.php';
   command = '?ofsb=';
 var
-  error_message: string;
+  url, error_message: string;
   Response: string;
   Node, CutNode: TJCLSimpleXMLElems;
   idx: integer;
 begin
   result := false;
-  if (MovieInfo.current_filesize = 0) or (MovieInfo.current_filename = '') then exit;
-  self.IdHTTP1.HandleRedirects := false;
+  if (MovieInfo.current_filesize = 0) or (MovieInfo.current_filename = '') then
+    exit;
   Error_message := 'Unknown error.';
 
-    try
-      Response := self.IdHTTP1.Get(settings.url_cutlists_home + php_name + command + inttostr(MovieInfo.current_filesize) +'&version=' + Application_Version);
-      result := true;
-    except
-      on E: EIdProtocolReplyError do begin
-        case E.ReplyErrorCode of
-          404, 302: begin
-                      Error_message := 'File not found on server: ' + settings.url_cutlists_home + php_name + ' .';
-                    end;
-          else raise;
-        end;
-      end;
-      on E: EIdException do begin
-        error_message := error_message + E.Message;
-      end;
-      else begin
-        raise;
-      end;
-    end;
+  url := settings.url_cutlists_home + php_name + command + inttostr(MovieInfo.current_filesize) +'&version=' + Application_Version;
+  Result := DoHttpGet(url, false, error_message, Response);
+
+//    try
+//      Response := self.IdHTTP1.Get(url);
+//      result := true;
+//    except
+//      on E: EIdProtocolReplyError do begin
+//        case E.ReplyErrorCode of
+//          404, 302: begin
+//                      Error_message := 'File not found on server: ' + settings.url_cutlists_home + php_name + ' .';
+//                    end;
+//          else raise;
+//        end;
+//      end;
+//      on E: EIdException do begin
+//        error_message := error_message + E.Message;
+//      end;
+//      else begin
+//        raise;
+//      end;
+//    end;
 
     try
       if result and (Length(response) > 5) then begin
@@ -2323,7 +2379,7 @@ const
   php_name = 'rate.php';
   command = '?rate=';
 var
-  Response, Error_message: string;
+  Response, Error_message, url: string;
 begin
   result := false;
   if cutlist.IDOnServer = '' then begin
@@ -2336,37 +2392,38 @@ begin
     else}
       FCutlistRate.RGRatingByAuthor.ItemIndex := -1;
     FCutlistRate.ButtonOK.Enabled := false;
-    if FCutlistRate.ShowModal = mrOK then begin
-
-      self.IdHTTP1.HandleRedirects := true;
+    if FCutlistRate.ShowModal = mrOK then
+    begin
       Error_message := 'Unknown error.';
+      url := settings.url_cutlists_home
+           + php_name + command +cutlist.IDOnServer
+           +'&rating=' + inttostr(FCutlistRate.RGRatingByAuthor.ItemIndex)
+           +'&userid=' + settings.UserID
+           +'&version=' + Application_Version;
+      Result := DoHttpGet(url, true, Error_message, Response);
 
-      try
-        try
-          Response := self.IdHTTP1.Get(settings.url_cutlists_home
-                                        + php_name + command +cutlist.IDOnServer
-                                        +'&rating=' + inttostr(FCutlistRate.RGRatingByAuthor.ItemIndex)
-                                        +'&userid=' + settings.UserID
-                                        +'&version=' + Application_Version);
-          result := true;
-        finally
-        end;
-      except
-        on E: EIdProtocolReplyError do begin
-          case E.ReplyErrorCode of
-            404, 302: begin
-                        Error_message := 'File not found on server: ' + settings.url_cutlists_home + php_name + ' .';
-                      end;
-            else raise;
-          end;
-        end;
-        on E: EIdException do begin
-          error_message := error_message + E.Message;
-        end;
-        else begin
-          raise;
-        end;
-      end;
+//      try
+//        try
+//          Response := self.IdHTTP1.Get(url);
+//          result := true;
+//        finally
+//        end;
+//      except
+//        on E: EIdProtocolReplyError do begin
+//          case E.ReplyErrorCode of
+//            404, 302: begin
+//                        Error_message := 'File not found on server: ' + settings.url_cutlists_home + php_name + ' .';
+//                      end;
+//            else raise;
+//          end;
+//        end;
+//        on E: EIdException do begin
+//          error_message := error_message + E.Message;
+//        end;
+//        else begin
+//          raise;
+//        end;
+//      end;
 
       if result then begin
         if AnsiContainsText(Response, '<html>') then begin
@@ -2481,15 +2538,17 @@ end;
 function TFMain.UploadCutlist(filename: string): boolean;
 var
   Stream:       TIdMultiPartFormDataStream;
-  Response, Answer: string;
+  Response, Answer, url, error_message: string;
   Cutlist_id: Integer;
   lines: TStringList;
   begin_answer: integer;
 begin
   result := false;
+  url := settings.url_cutlists_upload;
+  error_message := 'Error uploading cutlist: ';
+
   if fileexists(filename) then begin
     Stream := TIdMultiPartFormDataStream.Create;
-    self.IdHTTP1.HandleRedirects := true;
     try
       Stream.AddFormField('MAX_FILE_SIZE','1587200');
       Stream.AddFormField('confirm','true');
@@ -2497,15 +2556,17 @@ begin
       Stream.AddFormField('userid', settings.UserID);
       Stream.AddFormField('version', application_version);
       Stream.AddFile('userfile[]',filename, 'multipart/form-data');
-      Response := FMain.IdHTTP1.Post(settings.url_cutlists_upload, Stream);
 
-      result := true;
+      Result := DoHttpPost(url, true, error_message, Stream, Response);
+
+      //Response := FMain.IdHTTP1.Post(settings.url_cutlists_upload, Stream);
+      //result := true;
 
       lines := TStringLIst.Create;
       lines.Delimiter := #10;
       lines.NameValueSeparator := '=';
       lines.DelimitedText := response;
-      if trystrtoInt(lines.values['id'], Cutlist_id) then begin
+      if TryStrToInt(lines.values['id'], Cutlist_id) then begin
         AddUploadDataEntry(Now, extractFileName(filename), Cutlist_id);
         UploadDataEntries.SaveToFile(UploadData_Path(true));
       end;
@@ -2514,7 +2575,6 @@ begin
       lines.Free;
       if not batchmode then
         showmessage('Server responded:' + #13#10 + answer);
-
     finally
       Stream.Free;
     end;
@@ -2571,32 +2631,33 @@ begin
   result := false;
   if cutlist_id='' then exit;
 
-  self.IdHTTP1.HandleRedirects := true;
   Error_message := 'Unknown error.';
-
-  Response:='';
   url := settings.url_cutlists_home + php_name + '?'
        + 'cutlistid=' + cutlist_id
        + '&userid=' + settings.UserID
        + '&version=' + Application_Version;
-  try
-    Response := self.IdHTTP1.Get(url);
-  except
-    on E: EIdProtocolReplyError do begin
-      case E.ReplyErrorCode of
-        404, 302: begin
-                    Error_message := 'File not found on server: ' + settings.url_cutlists_home + php_name + ' .';
-                  end;
-        else raise;
-      end;
-    end;
-    on E: EIdException do begin
-      error_message := error_message + E.Message;
-    end;
-    else begin
-      raise;
-    end;
-  end;
+
+  Result := DoHttpGet(url, true, Error_message, Response);
+
+//  Response := '';
+//  try
+//    Response := self.IdHTTP1.Get(url);
+//  except
+//    on E: EIdProtocolReplyError do begin
+//      case E.ReplyErrorCode of
+//        404, 302: begin
+//                    Error_message := 'File not found on server: ' + settings.url_cutlists_home + php_name + ' .';
+//                  end;
+//        else raise;
+//      end;
+//    end;
+//    on E: EIdException do begin
+//      error_message := error_message + E.Message;
+//    end;
+//    else begin
+//      raise;
+//    end;
+//  end;
 
   if response<>'' then begin
     response := ansilowercase(response);
@@ -2869,8 +2930,9 @@ const
   php_name = 'getfile.php';
   Command = '?id=';
 var
-  MemoryStream: TMemoryStream;
-  message_string, error_message: string;
+  Cutlist_File: File;
+  ResponseStream: TMemoryStream;
+  message_string, error_message, Response: string;
   url, target_file, cutlist_path: string;
 begin
   result := false;
@@ -2896,75 +2958,62 @@ begin
     end;
   end;
 
-  MemoryStream := TMemoryStream.Create;
   //FileStream := TFileStream.Create(target_file, fmCreate);
   self.IdHTTP1.HandleRedirects := false;
   Error_message := 'Unknown error.';
-
-
   url := settings.url_cutlists_home + php_name + command + cleanurl(cutlist_id);
 
-  try
-    try
-      self.IdHTTP1.Get(url, MemoryStream);
-      if not ForceDirectories(cutlist_path) then
-      begin
-          if not batchmode then
-            showmessage('Could not create cutlist path ' + cutlist_path + '. Abort.');
-          exit;
-      end;
-      if fileexists(target_file) then begin
-        if not batchmode then begin
-          message_string := 'Target File exists already:' + #13#10 + target_file +#13#10+
-                            'Overwrite?';
-          if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONQUESTION) = IDYES) then begin
-            exit;
-          end;
-        end;
-        if not deletefile(target_file) then begin
-          if not batchmode then
-            showmessage('Could not delete existing file ' + target_file + '. Abort.');
-          exit;
-        end;
-      end;
-
-      if MemoryStream.Size < 5 then begin
-        Error_message := 'Server did not return any valid data (' + inttostr(memoryStream.Size) + ' bytes). Abort.';
-        result := false;
-      end
-      else
-      begin
-        MemoryStream.SaveToFile(target_file);
-        result := true;
-      end;
-    finally
-      MemoryStream.Free;
-    end;
-  except
-    on E: EIdProtocolReplyError do begin
-      case E.ReplyErrorCode of
-        404, 302: begin
-                    Error_message := 'File not found on server: ' + settings.url_cutlists_home + php_name + ' .';
-                  end;
-        else raise;
-      end;
-    end;
-    on E: EIdException do begin
-      error_message := error_message + E.Message;
-    end;
-    else begin
-      raise;
-    end;
-  end;
-
-  if result then begin
-    cutlist.LoadFromFile(target_file);
-  end else begin
-    if not batchmode then begin
+  if not DoHttpGet(url, false, error_message, Response) then
+  begin
+    if not batchmode then
+    begin
       message_string := Error_message + #13#10 +  'Open cutlist homepage in webbrowser?';
-      if (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONQUESTION) = IDYES) then begin
+      if (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONQUESTION) = IDYES) then
+      begin
         ShellExecute(0, nil, PChar(settings.url_cutlists_home), '', '', SW_SHOWNORMAL);
       end;
+    end;
+  end else
+  begin
+    if (Length(Response) < 5) then
+    begin
+      if not batchmode then
+        ShowMessage('Server did not return any valid data (' + inttostr(Length(Response)) + ' bytes). Abort.');
+      Exit;
+    end;
+    if not ForceDirectories(cutlist_path) then
+    begin
+      if not batchmode then
+        ShowMessage('Could not create cutlist path ' + cutlist_path + '. Abort.');
+      exit;
+    end;
+    if fileexists(target_file) then
+    begin
+      if not batchmode then
+      begin
+        message_string := 'Target File exists already:' + #13#10 + target_file +#13#10+
+                          'Overwrite?';
+        if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONQUESTION) = IDYES) then
+        begin
+          exit;
+        end;
+      end;
+      if not DeleteFile(target_file) then
+      begin
+        if not batchmode then
+          ShowMessage('Could not delete existing file ' + target_file + '. Abort.');
+        exit;
+      end;
+    end;
+
+    ResponseStream := TMemoryStream.Create;
+    try
+      ResponseStream.Write(Response[1], Length(Response));
+      ResponseStream.SaveToFile(target_file);
+      cutlist.LoadFromFile(target_file);
+      Result := true;
+    finally
+      FreeAndNil(ResponseStream);
     end;
   end;
 end;
@@ -3081,14 +3130,14 @@ begin
   if ShowAll then
     lastChecked := 0;
 
-  self.IdHTTP1.HandleRedirects := false;
   Error_message := 'Unknown error.';
   url := settings.url_info_file;
 
-  try
-      Error_message := 'Error while checking for Information and new Versions on Server.' +#13#10;
-      ResponseText := self.IdHTTP1.Get(url);
+  Error_message := 'Error while checking for Information and new Versions on Server.' +#13#10;
+  Result := DoHttpGet(url, false, Error_message, ResponseText);
 
+  if Result then begin
+    try
       if Length(ResponseText) > 5 then begin
         XMLResponse.LoadFromString(ResponseText);
 
@@ -3112,20 +3161,7 @@ begin
         end;
       end;
       settings.InfoLastChecked := sysutils.Date;
-  except
-      on E: EIdProtocolReplyError do begin
-        case E.ReplyErrorCode of
-          404, 302: begin
-                      Error_message := Error_message+ 'File not found on server: ' + url + ' .';
-                    end;
-          else
-            Error_message := Error_message + E.Message;
-        end;
-      end;
-      on E: EIdException do begin
-        Error_message := Error_message + E.Message;
-        ShowMessage(Error_Message);
-      end;
+    except
       on E: EJclSimpleXMLError do begin
         Error_message := Error_message + 'XML-Error: ' + E.Message;
         ShowMessage(Error_Message);
@@ -3133,6 +3169,7 @@ begin
       else begin
         raise;
       end;
+    end;
   end;
 end;
 
@@ -3505,6 +3542,120 @@ procedure TFMain.FormShow(Sender: TObject);
 begin
   if settings.CheckInfos then
     self.DownloadInfo(settings, true, false);
+end;
+
+function TFMain.DoHttpGet(const url: string; const handleRedirects: boolean; const Error_message: string; var Response: string): boolean;
+begin
+  IdHTTP1.HandleRedirects := handleRedirects;
+  RequestUrl := url;
+  RequestData := nil;
+  RequestException := Error_message;
+  RequestProgressDialog.Execute;
+  Response := RequestContent;
+  if RequestWorker.ReturnValue = 0 then
+    Result := true
+  else begin
+    ShowMessage(RequestException);
+    Result := false;
+  end;
+end;
+
+function TFMain.DoHttpPost(const url: string; const handleRedirects: boolean; const Error_message: string; const data: TIdMultiPartFormDataStream; var Response: string): boolean;
+begin
+  IdHTTP1.HandleRedirects := handleRedirects;
+  RequestUrl := url;
+  RequestData := data;
+  RequestException := Error_message;
+  RequestProgressDialog.Execute;
+  Response := RequestContent;
+  RequestData := nil;
+  if RequestWorker.ReturnValue = 0 then
+    Result := true
+  else begin
+    ShowMessage(RequestException);
+    Result := false;
+  end;
+end;
+
+procedure TFMain.RequestProgressDialogShow(Sender: TObject);
+var
+  dlg: TJvProgressDialog;
+begin
+  dlg := Sender as TJvProgressDialog;
+  Assert(Assigned(dlg));
+  RequestException := '';
+  dlg.Position := 30;
+  RequestWorker.Start;
+end;
+
+procedure TFMain.RequestProgressDialogProgress(Sender: TObject;
+  var AContinue: Boolean);
+var
+  dlg: TJvProgressDialog;
+begin
+  dlg := Sender as TJvProgressDialog;
+  if dlg.Interval > 50 then
+    dlg.Interval := 50;
+  if dlg.Position = dlg.Max then dlg.Position := dlg.Min
+  else dlg.Position := dlg.Position + 1;
+  if RequestWorker.Stopped then
+    dlg.Interval := 0;
+  if RequestWorker.ReturnValue > 0 then
+    AContinue := false
+  else
+    RequestException := '';
+end;
+
+procedure TFMain.RequestWorkerRun(Sender: TIdCustomThreadComponent);
+begin
+  Assert(Assigned(Sender));
+  Sender.ReturnValue := 0;
+  try
+    if RequestData <> nil then
+      RequestContent := IdHTTP1.Post(RequestUrl, RequestData)
+    else
+      RequestContent := IdHTTP1.Get(RequestUrl);
+  finally
+    Sender.Stop;
+  end;
+end;
+
+procedure TFMain.RequestWorkerException(Sender: TIdCustomThreadComponent;
+  AException: Exception);
+var
+  idx: integer;
+begin
+  Assert(Assigned(Sender));
+  Sender.ReturnValue := 1;
+  RequestContent := '';
+  Sender.Stop;
+  if AException is EIdProtocolReplyError then
+    with AException as EIdProtocolReplyError do
+    begin
+      case ReplyErrorCode of
+        404, 302: begin
+          idx := Pos('?', RequestUrl);
+          if idx < 1 then idx := Length(RequestUrl)
+          else Dec(idx);
+          RequestException := 'File not found on server: ' + Copy(RequestUrl, 1, idx) + '.';
+        end;
+        else
+          raise AException;
+      end;
+    end
+  else if AException is EIdException then
+    RequestException := RequestException + AException.Message
+  else
+    raise AException;
+end;
+
+procedure TFMain.InitHttpProperties;
+begin
+  self.IdHTTP1.ConnectTimeout := 1000 * settings.NetTimeout;
+  self.IdHTTP1.ProxyParams.ProxyServer := settings.proxyServerName;
+  self.IdHTTP1.ProxyParams.ProxyPort := settings.proxyPort;
+  self.IdHTTP1.ProxyParams.ProxyUsername := settings.proxyUserName;
+  self.IdHTTP1.ProxyParams.ProxyPassword := settings.proxyPassword;
 end;
 
 initialization

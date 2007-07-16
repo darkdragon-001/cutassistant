@@ -1,6 +1,6 @@
 object FMain: TFMain
-  Left = 203
-  Top = 150
+  Left = 205
+  Top = 152
   Width = 750
   Height = 519
   Caption = 'Cut Assistant'
@@ -15,8 +15,6 @@ object FMain: TFMain
   KeyPreview = True
   Menu = MainMenu
   OldCreateOrder = False
-  Position = poScreenCenter
-  Scaled = False
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate

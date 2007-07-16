@@ -57,6 +57,8 @@ var
 
 implementation
 
+  uses Utils, Math;
+  
 {$R *.dfm}
 
 { TFResultingTimes }
@@ -252,6 +254,13 @@ end;
 
 procedure TFResultingTimes.FormCreate(Sender: TObject);
 begin
+  if ValidRect(Settings.PreviewFormBounds) then
+    self.BoundsRect := Settings.PreviewFormBounds
+  else
+  begin
+    self.Left := Max(0, FMain.Left + (FMain.Width - self.Width) div 2);
+    self.Top := Max(0, FMain.Top + (FMain.Height - self.Height) div 2);
+  end;
   self.UDSeconds.Position := settings.OffsetSecondsCutChecking;
   FOffset := settings.OffsetSecondsCutChecking;
   FMovieInfo := TMovieInfo.Create;
@@ -266,6 +275,7 @@ end;
 
 procedure TFResultingTimes.FormDestroy(Sender: TObject);
 begin
+  Settings.PreviewFormBounds := self.BoundsRect;
   FMovieInfo.Free;
 end;
 

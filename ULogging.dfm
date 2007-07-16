@@ -1,8 +1,8 @@
 object FLogging: TFLogging
-  Left = 334
-  Top = 370
-  Width = 729
-  Height = 241
+  Left = 336
+  Top = 372
+  Width = 725
+  Height = 237
   BorderIcons = [biSystemMenu]
   BorderStyle = bsSizeToolWin
   Caption = 'Logging messages'
@@ -18,8 +18,8 @@ object FLogging: TFLogging
   object reMessages: TRichEdit
     Left = 0
     Top = 0
-    Width = 721
-    Height = 207
+    Width = 717
+    Height = 203
     Align = alClient
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText

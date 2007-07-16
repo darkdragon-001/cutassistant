@@ -3,12 +3,35 @@ unit Utils;
 interface
 
 uses
-  StdCtrls, Windows, Graphics;
+  StdCtrls, Windows, Graphics,
+  IdMultipartFormData;
 
 const
   Application_name ='Cut_assistant.exe';   //for use in cutlist files etc.
 
 type
+
+  THttpRequest = class(TObject)
+  private
+    FUrl: string;
+    FHandleRedirects: boolean;
+    FResponse: string;
+    FErrorMessage: string;
+    FPostData: TIdMultiPartFormDataStream;
+    FIsPost: boolean;
+  public
+    constructor Create(const Url: string; const handleRedirects: boolean; const Error_message: string); overload;
+    destructor Destroy; override;
+  protected
+    procedure SetIsPost(const value: boolean);
+  published
+    property IsPostRequest: boolean read FIsPost write SetIsPost;
+    property Url: string read FUrl write FUrl;
+    property HandleRedirects: boolean read FHandleRedirects write FHandleRedirects;
+    property Response: string read FResponse write FResponse;
+    property ErrorMessage: string read FErrorMessage write FErrorMessage;
+    property PostData: TIdMultiPartFormDataStream read FPostData;
+  end;
 
   TGUIDList = class
   private
@@ -63,7 +86,9 @@ type
   function ShiftDown : Boolean;
   function AltDown : Boolean;
 
-//global Vars
+  function ValidRect(const ARect: TRect): boolean;
+
+  //global Vars
 var
   batchmode: boolean;
 
@@ -71,7 +96,40 @@ var
 implementation
 
 uses
-  Messages, SysUtils, ShellAPI, Variants, Classes, Forms, Clipbrd, StrUtils, jpeg;
+  Messages, SysUtils, ShellAPI, Variants, Classes, Forms, Clipbrd, StrUtils, jpeg,
+  Types;
+
+constructor THttpRequest.Create(const Url: string; const handleRedirects: boolean; const Error_message: string);
+begin
+  self.FUrl := Url;
+  self.FHandleRedirects := handleRedirects;
+  self.FErrorMessage := Error_message;
+  self.FPostData := PostData;
+  self.FResponse := '';
+  self.IsPostRequest := false;
+end;
+
+destructor THttpRequest.Destroy;
+begin
+  IsPostRequest := false;
+end;
+
+procedure THttpRequest.SetIsPost(const value: boolean);
+begin
+  self.FIsPost := value;
+  if not value and Assigned(FPostData) then
+    FreeAndNil(FPostData);
+  if value and not Assigned(FPostData) then
+    FPostData := TIdMultiPartFormDataStream.Create;
+end;
+
+function ValidRect(const ARect: TRect): boolean;
+begin
+  Result := (ARect.Left > -1)
+        and (ARect.Right > -1) and (ARect.Right > ARect.Left)
+        and (ARect.Top > -1)
+        and (ARect.Bottom > -1) and (ARect.Bottom > ARect.Top);
+end;
 
 function CtrlDown : Boolean;
 var

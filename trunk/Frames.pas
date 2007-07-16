@@ -41,6 +41,7 @@ type
   TFFrames = class(TForm)
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
     FrameList: TObjectList;
@@ -65,6 +66,7 @@ var
 
 implementation
 
+  uses Utils, Math;
 
 {$R *.dfm}
 
@@ -203,7 +205,20 @@ end;
 procedure TFFrames.FormCreate(Sender: TObject);
 begin
   FrameList := TObjectlist.Create;
+  if ValidRect(Settings.FramesFormBounds) then
+    self.BoundsRect := Settings.FramesFormBounds
+  else
+  begin
+    self.Top := Screen.WorkAreaTop + Max(0, (Screen.WorkAreaHeight - self.Height) div 2);
+    self.Left := Screen.WorkAreaLeft + Max(0, Screen.WorkAreaWidth - self.Width);
+  end;
+
   Init(Settings.FramesCount, Settings.FramesHeight, Settings.FramesWidth);
+end;
+
+procedure TFFrames.FormDestroy(Sender: TObject);
+begin
+  Settings.FramesFormBounds := self.BoundsRect;
 end;
 
 procedure TCutFrame.init(image_height, image_width: INteger);
@@ -353,8 +368,5 @@ begin
     self.BorderVisible := true;
   end;
 end;
-
-
-
 
 end.

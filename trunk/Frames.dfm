@@ -11,8 +11,8 @@ object FFrames: TFFrames
   Font.Name = 'Small Fonts'
   Font.Style = []
   OldCreateOrder = False
-  Position = poDesktopCenter
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnResize = FormResize
   PixelsPerInch = 96
   TextHeight = 11

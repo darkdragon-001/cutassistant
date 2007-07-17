@@ -406,8 +406,6 @@ type
     function DoHttpRequest(data: THttpRequest): boolean;
     procedure InitHttpProperties;
     function HandleWorkerException(data: THttpRequest): boolean;
-  private
-    RequestData: THttpRequest;
   end;
 
 
@@ -3376,19 +3374,31 @@ begin
     Result := DoHttpRequest(data);
     Response := data.Response;
   finally
-    FreeAndNil(Self.RequestData);
+    FreeAndNil(data);
   end;
 end;
 
 function TFMain.DoHttpRequest(data: THttpRequest): boolean;
+const
+  SLEEP_TIME = 50;
+  MAX_SLEEP = 10;
+var
+  idx: integer;
 begin
-  try
-    Self.RequestData := data;
-    RequestProgressDialog.Execute;
-    Result := HandleWorkerException(data);
-  finally
-    Self.RequestData := nil;
+  RequestWorker.Start;
+  RequestWorker.Data := data;
+
+  idx := MAX_SLEEP;
+  while idx > 0 do
+  begin
+    Dec(idx);
+    Sleep(SLEEP_TIME);
+    if RequestWorker.Stopped then
+      Break;
   end;
+  if not RequestWorker.Stopped then
+    RequestProgressDialog.Execute;
+  Result := HandleWorkerException(data);
 end;
 
 function TFMain.HandleWorkerException(data: THttpRequest): boolean;
@@ -3431,7 +3441,6 @@ begin
   dlg := Sender as TJvProgressDialog;
   Assert(Assigned(dlg));
   dlg.Position := 30;
-  RequestWorker.Start;
 end;
 
 procedure TFMain.RequestProgressDialogProgress(Sender: TObject;
@@ -3455,9 +3464,12 @@ var
   data: THttpRequest;
 begin
   Assert(Assigned(Sender));
-  data := Self.RequestData;
-  //data := Sender.Data as THttpRequest;
-  Assert(Assigned(data));
+  data := Sender.Data as THttpRequest;
+  if not Assigned(data) then // busy wait for data object ...
+  begin
+    Sleep(10);
+    Exit;
+  end;
   Sender.ReturnValue := 0;
   try
     IdHttp1.HandleRedirects := data.HandleRedirects;
@@ -3477,8 +3489,7 @@ var
   idx: integer;
 begin
   Assert(Assigned(Sender));
-  data := Self.RequestData;
-  //data := Sender.Data as THttpRequest;
+  data := Sender.Data as THttpRequest;
   Assert(Assigned(data));
 
   data.Response := '';

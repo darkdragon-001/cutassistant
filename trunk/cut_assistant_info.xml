@@ -56,13 +56,14 @@ Download: http://sourceforge.net/projects/cutassistant/
 oder      http://www.cutlist.de/</version_text>
 	</stable>
 	<beta>
-		<date_day>22</date_day>
-		<date_month>02</date_month>
+		<date_day>18</date_day>
+		<date_month>07</date_month>
 		<date_year>2007</date_year>
-		<version>0x0000000900090002</version>
+		<version>0x0000000900110003</version>
 		<version_text>
-Letzte Beta Version: 0.9.9.2 
-(Bugfix: VirtualDub Settings werden nun wieder geladen) 
-(Bugfix: VirtualDub Settings are now loaded again)</version_text>
+Letzte Beta Version: 0.9.11.3
+Hintergrund-Transfers und Fortschrittsdialog für HTTP-Requests
+Fensterpositionen werden gespeichert.
+</version_text>
 	</beta>
 </infos>

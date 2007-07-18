@@ -2288,6 +2288,7 @@ object FMain: TFMain
       000000000000}
   end
   object IdHTTP1: TIdHTTP
+    OnStatus = IdHTTP1Status
     MaxLineAction = maException
     AllowCookies = True
     HandleRedirects = True
@@ -2330,11 +2331,6 @@ object FMain: TFMain
     IndentString = '  '
     Left = 296
     Top = 88
-  end
-  object IdAntiFreeze1: TIdAntiFreeze
-    ApplicationHasPriority = False
-    Left = 208
-    Top = 192
   end
   object ActionList1: TActionList
     Images = ImageList1
@@ -2894,11 +2890,12 @@ object FMain: TFMain
   end
   object RequestProgressDialog: TJvProgressDialog
     OnShow = RequestProgressDialogShow
-    Caption = 'Progress'
-    Interval = 1000
+    Caption = 'Web request progress'
+    Interval = 50
+    Max = 40
     ShowCancel = False
     Smooth = True
-    ScreenPosition = poOwnerFormCenter
+    ScreenPosition = poMainFormCenter
     OnProgress = RequestProgressDialogProgress
     Left = 207
     Top = 248
@@ -2906,7 +2903,7 @@ object FMain: TFMain
   object RequestWorker: TIdThreadComponent
     OnException = RequestWorkerException
     OnRun = RequestWorkerRun
-    Left = 47
-    Top = 248
+    Left = 207
+    Top = 192
   end
 end

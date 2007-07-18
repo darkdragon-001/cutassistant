@@ -139,7 +139,6 @@ type
     FramePopUpPrevious12Frames: TMenuItem;
     N1: TMenuItem;
     XMLResponse: TJvSimpleXML;
-    IdAntiFreeze1: TIdAntiFreeze;
     ActionList1: TActionList;
     SpeedBar: TJvSpeedBar;
     MainMenu: TMainMenu;
@@ -338,6 +337,8 @@ type
     procedure RequestWorkerRun(Sender: TIdCustomThreadComponent);
     procedure RequestWorkerException(Sender: TIdCustomThreadComponent;
       AException: Exception);
+    procedure IdHTTP1Status(ASender: TObject; const AStatus: TIdStatus;
+      const AStatusText: String);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -435,7 +436,7 @@ var
 implementation
   uses Frames,  CutlistRate_Dialog, ResultingTimes, CutlistSearchResults,
     PBOnceOnly, UfrmCutting, UCutApplicationBase, UCutApplicationAsfbin, UCutApplicationMP4Box, UMemoDialog,
-    DateTools, UAbout, ULogging, UDSAStorage;
+    DateTools, UAbout, ULogging, UDSAStorage, IdResourceStrings;
 
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
@@ -3449,14 +3450,12 @@ var
   dlg: TJvProgressDialog;
 begin
   dlg := Sender as TJvProgressDialog;
-  if dlg.Interval > 50 then
-    dlg.Interval := 50;
   if dlg.Position = dlg.Max then dlg.Position := dlg.Min
-  else dlg.Position := dlg.Position + 1;
+  else dlg.Position := dlg.Position + 2;
   if RequestWorker.Stopped then
     dlg.Interval := 0;
   if RequestWorker.ReturnValue > 0 then
-    AContinue := false
+    AContinue := false;
 end;
 
 procedure TFMain.RequestWorkerRun(Sender: TIdCustomThreadComponent);
@@ -3478,6 +3477,8 @@ begin
     else
       data.Response := IdHTTP1.Get(data.Url)
   finally
+    // Only for testing purposes
+    //Sleep(10000);
     Sender.Stop;
   end;
 end;
@@ -3491,6 +3492,8 @@ begin
   Assert(Assigned(Sender));
   data := Sender.Data as THttpRequest;
   Assert(Assigned(data));
+
+  RequestProgressDialog.Text := 'Transfer error. Aborting ...';
 
   data.Response := '';
 
@@ -3510,6 +3513,13 @@ begin
   self.IdHTTP1.ProxyParams.ProxyPort := settings.proxyPort;
   self.IdHTTP1.ProxyParams.ProxyUsername := settings.proxyUserName;
   self.IdHTTP1.ProxyParams.ProxyPassword := settings.proxyPassword;
+end;
+
+procedure TFMain.IdHTTP1Status(ASender: TObject; const AStatus: TIdStatus;
+  const AStatusText: String);
+begin
+  //if (AStatus <> hsStatusText) or (AStatusText <> RSHTTPChunkStarted) then
+    RequestProgressDialog.Text := AStatusText;
 end;
 
 initialization

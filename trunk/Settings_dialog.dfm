@@ -17,20 +17,8 @@ object FSettings: TFSettings
   Position = poOwnerFormCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  DesignSize = (
-    562
-    292)
   PixelsPerInch = 96
   TextHeight = 13
-  object Label31: TLabel
-    Left = 45
-    Top = 200
-    Width = 74
-    Height = 13
-    Alignment = taRightJustify
-    Anchors = [akTop, akRight]
-    Caption = 'Large skip time:'
-  end
   object pgSettings: TPageControl
     Left = 0
     Top = 0
@@ -269,6 +257,19 @@ object FSettings: TFSettings
         MaxLength = 2
         TabOrder = 6
         Text = '2'
+        OnExit = EFrameWidthExit
+        OnKeyPress = EProxyPortKeyPress
+      end
+      object edtNetTimeout: TEdit
+        Left = 120
+        Top = 170
+        Width = 26
+        Height = 21
+        Anchors = [akTop, akRight]
+        AutoSize = False
+        MaxLength = 2
+        TabOrder = 8
+        Text = '20'
         OnExit = EFrameWidthExit
         OnKeyPress = EProxyPortKeyPress
       end
@@ -926,18 +927,5 @@ object FSettings: TFSettings
       ModalResult = 1
       TabOrder = 1
     end
-  end
-  object edtNetTimeout: TEdit
-    Left = 124
-    Top = 197
-    Width = 26
-    Height = 21
-    Anchors = [akTop, akRight]
-    AutoSize = False
-    MaxLength = 2
-    TabOrder = 2
-    Text = '20'
-    OnExit = EFrameWidthExit
-    OnKeyPress = EProxyPortKeyPress
   end
 end

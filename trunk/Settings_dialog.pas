@@ -113,7 +113,6 @@ type
     Label34: TLabel;
     Label35: TLabel;
     Label36: TLabel;
-    Label31: TLabel;
     edtNetTimeout: TEdit;
     Label37: TLabel;
     Label38: TLabel;
@@ -165,6 +164,7 @@ type
   public
     // window state
     MainFormBounds, FramesFormBounds, PreviewFormBounds: TRect;
+    MainFormWindowState, FramesFormWindowState, PreviewFormWindowState: TWindowState;
 
     //CutApplications
     CutApplicationList: TObjectList;
@@ -255,8 +255,6 @@ var
 {$R *.dfm}
 
 function TSettings.iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
-var
-  s: string;
 begin
   Result.Left := ini.ReadInteger(section, name + '_Left', default.Left);
   Result.Top := ini.ReadInteger(section, name + '_Top', default.Top);
@@ -706,8 +704,11 @@ begin
     end;
 
     section := 'WindowStates';
+    self.MainFormWindowState := TWindowState(ini.ReadInteger(section, 'Main_WindowState', integer(wsNormal)));
     self.MainFormBounds := iniReadRect(ini, section, 'Main', EmptyRect);
+    self.FramesFormWindowState := TWindowState(ini.ReadInteger(section, 'Frames_WindowState', integer(wsNormal)));
     self.FramesFormBounds := iniReadRect(ini, section, 'Frames', EmptyRect);
+    self.PreviewFormWindowState := TWindowState(ini.ReadInteger(section, 'Preview_WindowState', integer(wsNormal)));
     self.PreviewFormBounds := iniReadRect(ini, section, 'Preview', EmptyRect);
 
   finally
@@ -821,8 +822,13 @@ begin
     end;
 
     section := 'WindowStates';
+    ini.WriteInteger(section, 'Main_WindowState', integer(self.MainFormWindowState));
     iniWriteRect(ini, section, 'Main', self.MainFormBounds);
+    if self.FramesFormWindowState <> wsNormal then
+      ini.WriteInteger(section, 'Frames_WindowState', integer(self.FramesFormWindowState));
     iniWriteRect(ini, section, 'Frames', self.FramesFormBounds);
+    if self.PreviewFormWindowState <> wsNormal then
+      ini.WriteInteger(section, 'Preview_WindowState', integer(self.PreviewFormWindowState));
     iniWriteRect(ini, section, 'Preview', self.PreviewFormBounds);
 
   finally

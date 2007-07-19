@@ -57,7 +57,7 @@ var
 
 implementation
 
-  uses Utils, Math;
+  uses Utils, Math, Settings_dialog;
   
 {$R *.dfm}
 
@@ -109,7 +109,6 @@ end;
 
 procedure TFResultingTimes.LTimeListDblClick(Sender: TObject);
 var
-  timestring: string;
   target_Time: double;
 begin
   if filtergraph2.Active then begin
@@ -160,7 +159,8 @@ var
 begin
   result := false;
 
-  FMovieInfo.InitMovie(filename);
+  if not FMovieInfo.InitMovie(filename) then
+    Exit;
 
   filtergraph2.Active := true;
 
@@ -221,7 +221,7 @@ begin
     current_filename := filename;
     self.DSTrackBar1.Position := 0;
     result := true;
-  end;        
+  end;
 end;
 
 procedure TFResultingTimes.TVolumeChange(Sender: TObject);
@@ -261,6 +261,8 @@ begin
     self.Left := Max(0, FMain.Left + (FMain.Width - self.Width) div 2);
     self.Top := Max(0, FMain.Top + (FMain.Height - self.Height) div 2);
   end;
+  self.WindowState := Settings.PreviewFormWindowState;
+
   self.UDSeconds.Position := settings.OffsetSecondsCutChecking;
   FOffset := settings.OffsetSecondsCutChecking;
   FMovieInfo := TMovieInfo.Create;
@@ -281,8 +283,6 @@ end;
 
 function TFResultingTimes.FilterGraph2SelectedFilter(Moniker: IMoniker;
   FilterName: WideString; ClassID: TGUID): Boolean;
-var
-  i : integer;
 begin
   result := not settings.FilterIsInBlackList(ClassID);
 end;

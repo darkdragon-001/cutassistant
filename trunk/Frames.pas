@@ -213,6 +213,8 @@ begin
     self.Left := Screen.WorkAreaLeft + Max(0, Screen.WorkAreaWidth - self.Width);
   end;
 
+  self.WindowState := Settings.FramesFormWindowState;
+
   Init(Settings.FramesCount, Settings.FramesHeight, Settings.FramesWidth);
 end;
 
@@ -362,7 +364,7 @@ begin
           (self.Owner as TFFrames).MainForm.TBFilePos.SelStart := round(frame[scan_2].position);
           (self.Owner as TFFrames).MainForm.TBFilePos.SelEnd := round(frame[scan_1].position);
         end;
-        (self.Owner as TFFrames).MainForm.ScanInterval.Enabled := true;
+        (self.Owner as TFFrames).MainForm.AScanInterval.Enabled := true;
       end;
     end;
     self.BorderVisible := true;

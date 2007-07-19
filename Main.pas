@@ -86,10 +86,10 @@ type
     ReplaceCut: TAction;
     EditCut: TAction;
     DeleteCut: TAction;
-    ShowFramesForm: TAction;
-    Next12: TAction;
-    Prev12: TAction;
-    ScanInterval: TAction;
+    AShowFramesForm: TAction;
+    ANextFrames: TAction;
+    APrevFrames: TAction;
+    AScanInterval: TAction;
     AStartCutting: TAction;
     EditSettings: TAction;
     MovieMetaData: TAction;
@@ -286,10 +286,10 @@ type
     procedure ASendRatingExecute(Sender: TObject);
     procedure ADeleteCutlistFromServerExecute(Sender: TObject);
 
-    procedure ShowFramesFormExecute(Sender: TObject);
-    procedure Next12Execute(Sender: TObject);
-    procedure Prev12Execute(Sender: TObject);
-    procedure ScanIntervalExecute(Sender: TObject);
+    procedure AShowFramesFormExecute(Sender: TObject);
+    procedure ANextFramesExecute(Sender: TObject);
+    procedure APrevFramesExecute(Sender: TObject);
+    procedure AScanIntervalExecute(Sender: TObject);
 
     procedure ARepairMovieExecute(Sender: TObject);
     procedure AStartCuttingExecute(Sender: TObject);
@@ -373,8 +373,8 @@ type
     procedure SetStartPosition(Position: double);
     procedure SetStopPosition(Position: double);
 
-    procedure showframes(startframe, endframe: Integer);
-    procedure showframesAbs(startframe, endframe: double; numberOfFrames: Integer);
+    procedure ShowFrames(startframe, endframe: Integer);
+    procedure ShowFramesAbs(startframe, endframe: double; numberOfFrames: Integer);
 
     function OpenFile(Filename: String): boolean;
     function BuildFilterGraph(FileName: String; FileType: TMovieType):boolean;
@@ -407,6 +407,7 @@ type
     function DoHttpRequest(data: THttpRequest): boolean;
     procedure InitHttpProperties;
     function HandleWorkerException(data: THttpRequest): boolean;
+    procedure InitFramesProperties(const AAction: TAction; const s: string);
   end;
 
 
@@ -440,6 +441,14 @@ implementation
 
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
+
+procedure TFMain.InitFramesProperties(const AAction: TAction; const s: string);
+begin
+  if not Assigned(AAction) then
+    Exit;
+  AAction.Caption := AnsiReplaceText(AAction.Caption, '$$', s);
+  AAction.Hint    := AnsiReplaceText(AAction.Hint   , '$$', s);
+end;
 
 procedure TFMain.BPlayPauseClick(Sender: TObject);
 begin
@@ -477,6 +486,8 @@ begin
 end;
 
 procedure TFMain.FormCreate(Sender: TObject);
+var
+  numFrames: string;
 begin
   if screen.WorkAreaWidth < self.Constraints.MinWidth then begin
     self.Constraints.MinWidth := screen.Width;
@@ -494,6 +505,14 @@ begin
     self.Top := Screen.WorkAreaTop + Max(0, (Screen.WorkAreaHeight - self.Height) div 2);
     self.Left := Screen.WorkAreaLeft + Max(0, (Screen.WorkAreaWidth - self.Width) div 2);
   end;
+
+  self.WindowState := Settings.MainFormWindowState;
+  
+
+  numFrames := IntToStr(Settings.FramesCount);
+  InitFramesProperties(self.ANextFrames, numFrames);
+  InitFramesProperties(self.APrevFrames, numFrames);
+  InitFramesProperties(self.AScanInterval, numFrames);
 
   ResetForm;
 
@@ -681,9 +700,9 @@ end;
 procedure TFMain.CBMuteClick(Sender: TObject);
 begin
   if CBMUte.Checked then begin
-    filtergraph.Volume := 0;
+    FilterGraph.Volume := 0;
   end else begin
-    filtergraph.Volume := TVolume.Position;
+    FilterGraph.Volume := TVolume.Position;
   end;
 
 end;
@@ -694,7 +713,7 @@ begin
     FilterGraph.Volume := TVolume.Position;
 end;
 
-procedure TFMain.showframes(startframe, endframe: Integer);
+procedure TFMain.ShowFrames(startframe, endframe: Integer);
 //startframe, endframe relative to current frame
 var
   iImage, count : integer;
@@ -710,33 +729,42 @@ begin
       endframe := endframe-1;
   end;
 
-  FFrames.Show;
-
   pos := currentPosition;
   temp_pos := pos + (startframe - 0) * MovieInfo.frame_duration;
-  if (temp_pos > MovieInfo.current_file_duration) then temp_pos := MovieInfo.current_file_duration;
-  if temp_pos<0 then temp_pos := 0;
-  jumpto(temp_pos);
+  if (temp_pos > MovieInfo.current_file_duration) then
+    temp_pos := MovieInfo.current_file_duration;
+  if temp_pos<0 then
+    temp_pos := 0;
 
+  FFrames.Show;
 
-  for iImage := 0 to endframe - startframe do begin
-    Target := FFrames.Frame[iImage];
-    if (temp_pos >= 0) and (temp_pos <= MovieInfo.current_file_duration) then begin
+  JumpTo(temp_pos);
+  // Mute sound
+  FilterGraph.Volume := 0;
+  try
+    for iImage := 0 to endframe - startframe do begin
+      Target := FFrames.Frame[iImage];
+      if (temp_pos >= 0) and (temp_pos <= MovieInfo.current_file_duration) then begin
 
-      self.StepComplete := false;
-      SampleTarget := Target;  //Set SampleTarget to trigger sampleGrabber.onbuffer method;
-      FrameStep.Step(1, nil);
-      if not waitforStep(5000) then break;
+        self.StepComplete := false;
+        SampleTarget := Target;  //Set SampleTarget to trigger sampleGrabber.onbuffer method;
+        FrameStep.Step(1, nil);
+        if not WaitForStep(5000) then
+          break;
 
-      temp_pos := currentPosition;
-      Target.image.visible := true;
-    end else begin
-      Target.image.visible := false;
-      Target.position := 0;
+        temp_pos := currentPosition;
+        Target.image.visible := true;
+      end else begin
+        Target.image.visible := false;
+        Target.position := 0;
+      end;
     end;
+  finally
+    // Restore sound
+    if not CBMute.Checked then
+      FilterGraph.Volume := TVolume.Position;
+    JumpTo(pos);
   end;
-
-  JumpTo(pos);
 end;
 
 procedure TFMain.TFinePosMouseUp(Sender: TObject; Button: TMouseButton;
@@ -864,7 +892,8 @@ begin
     try
       screen.Cursor := crHourGlass;
       MovieInfo.target_filename := '';
-      MovieInfo.InitMovie(FileName);
+      if not MovieInfo.InitMovie(FileName) then
+        exit;
 
       if MovieInfo.MovieType = mtwmv then begin
         self.ARepairMovie.Enabled := true;
@@ -931,7 +960,8 @@ begin
         if SampleGrabber1.FilterGraph = nil then begin
           InsertSampleGrabber;
           if not filtergraph.Active then begin
-            showmessage('Could not insert sample grabber.');
+            if not batchmode then
+              showmessage('Could not insert sample grabber.');
             MovieInfo.current_filename := '';
             MovieInfo.MovieLoaded := false;
             MovieInfo.current_filesize := -1;
@@ -952,13 +982,17 @@ begin
 
       MovieInfo.MovieLoaded := true;
       result := true;
-    finally
-      screen.Cursor := TempCursor;
+    except
+      on E: Exception do
+        if not batchmode then
+          ShowMessage('Could not open Movie!'#13#10'Error: '+ E.Message);
     end;
+    screen.Cursor := TempCursor;
   end else begin
-    if not batchmode then showmessage('File not found: ' + #13#10 + filename);
-      MovieInfo.current_filename := '';
-      MovieInfo.MovieLoaded := false;
+    if not batchmode then
+      ShowMessage('File not found: ' + #13#10 + filename);
+    MovieInfo.current_filename := '';
+    MovieInfo.MovieLoaded := false;
   end;
 end;
 
@@ -969,7 +1003,8 @@ var
   newCutlist : TCutlist;
 begin
   if MovieInfo.current_filename = '' then begin
-    showmessage('Please load movie first.');
+    if not batchmode then
+      showmessage('Please load movie first.');
     exit;
   end;
 
@@ -1089,7 +1124,9 @@ begin
       end;
 //         samplegrabber.SetBMPCompatible(@MediaType, 32);
       freeMediaType(@MediaType);
-    end else showmessage('Could not retrieve Renderer Filter.');
+    end
+    else if not batchmode then
+      showmessage('Could not retrieve Renderer Filter.');
 
     if MovieInfo.frame_duration = 0 then begin
       //try calculating
@@ -1287,7 +1324,7 @@ begin
   end; 
 end;
 
-procedure TFMain.showframesAbs(startframe, endframe: double;
+procedure TFMain.ShowFramesAbs(startframe, endframe: double;
   numberOfFrames: Integer);
 //starframe, endframe: absolute position.
 var
@@ -1303,29 +1340,36 @@ begin
   numberOfFrames := FFrames.Count;
   distance := (endframe - startframe) / (numberofFrames-1);
 
-  filtergraph.Pause;
+  FilterGraph.Pause;
   WaitForFiltergraph;
-  
-  FFrames.Show;
+
   pos := currentPosition;
+  FFrames.Show;
 
-  //  counter:= 0;
-  for iImage := 0 to numberOfFrames-1 do begin
-    Target := FFrames.Frame[iImage];
-    temp_pos := startframe + (iImage * distance);
-    if (temp_pos >= 0) and (temp_pos <= MovieInfo.current_file_duration) then begin
+  // Mute sound
+  FilterGraph.Volume := 0;
+  try
+    for iImage := 0 to numberOfFrames-1 do begin
+      Target := FFrames.Frame[iImage];
+      temp_pos := startframe + (iImage * distance);
+      if (temp_pos >= 0) and (temp_pos <= MovieInfo.current_file_duration) then
+      begin
+        SampleTarget := Target; //set sampleTarget to trigger samplegrabber.onbuffer method
+        JumpTo(temp_pos);
+        WaitForFiltergraph;
 
-      SampleTarget := Target; //set sampleTarget to trigger samplegrabber.onbuffer method
-      jumpto(temp_pos);
-      WaitForFiltergraph;
-
-      Target.image.visible := true;
-    end else begin
-      Target.image.visible := false;
-      Target.position := 0;
+        Target.image.visible := true;
+      end else begin
+        Target.image.visible := false;
+        Target.position := 0;
+      end;
     end;
+  finally
+    // Restore sound
+    if not CBMute.Checked then
+      FilterGraph.Volume := TVolume.Position;
+    JumpTo(pos);
   end;
-  JumpTo(pos);
 end;
 
 procedure TFMain.WaitForFilterGraph;
@@ -1459,9 +1503,9 @@ begin
     end;
   end;
   if self.TBFilePos.SelEnd-self.TBFilePos.SelStart > 0 then
-    ScanInterval.Enabled := true
+    AScanInterval.Enabled := true
   else
-    ScanInterval.Enabled := false;
+    AScanInterval.Enabled := false;
 end;
 
 procedure TFMain.WMDropFiles(var message: TWMDropFiles);
@@ -1576,7 +1620,8 @@ begin
         cutlist.LoadFromFile(filename_cutlist);
       {end;}
     end else begin
-      if not batchmode then showmessage('Can not load Cutlist. Please load movie first.');
+      if not batchmode then
+        showmessage('Can not load Cutlist. Please load movie first.');
     end;
   end;
 
@@ -1591,7 +1636,8 @@ end;
 procedure TFMain.SaveCutlistAsExecute(Sender: TObject);
 begin
   if cutlist.Save(true) then
-    showmessage('Cutlist saved successfully to' +#13#10 + cutlist.SavedToFilename);
+    if not batchmode then
+      showmessage('Cutlist saved successfully to' +#13#10 + cutlist.SavedToFilename);
 end;
 
 procedure TFMain.OpenMovieExecute(Sender: TObject);
@@ -1633,7 +1679,7 @@ begin
     OpenDialog.InitialDir := settings.CurrentMovieDir;
     if OpenDialog.Execute then begin
       settings.CurrentMovieDir := ExtractFilePath(openDialog.FileName);
-      openfile(opendialog.FileName);
+      OpenFile(opendialog.FileName);
     end;
   finally
     OpenDialog.Free;
@@ -1694,48 +1740,44 @@ begin
   cutlist.DeleteCut(strtoint(self.Lcutlist.Selected.caption));
 end;
 
-procedure TFMain.ShowFramesFormExecute(Sender: TObject);
+procedure TFMain.AShowFramesFormExecute(Sender: TObject);
 begin
   FFrames.Show;
 end;
 
-procedure TFMain.Next12Execute(Sender: TObject);
+procedure TFMain.ANextFramesExecute(Sender: TObject);
 var
   c: TCursor;
 begin
   c := self.Cursor;
   try
     EnableMovieControls(false);
-  //  self.Next12.Enabled := false;
     self.Cursor := crHourGlass;
     application.ProcessMessages;
     showframes(1, FFrames.Count);
   finally
     EnableMovieControls(true);
-    //self.Next12.Enabled := true;;
     self.Cursor := c;
   end;
 end;
 
-procedure TFMain.Prev12Execute(Sender: TObject);
+procedure TFMain.APrevFramesExecute(Sender: TObject);
 var
   c: TCursor;
 begin
   c := self.Cursor;
   try
     EnableMovieControls(false);
-    //self.Prev12.Enabled := false;
     self.Cursor := crHourGlass;
     application.ProcessMessages;
     showframes(-1*FFrames.Count, -1);
   finally
     EnableMovieControls(true);
-    //self.Prev12.Enabled := true;
     self.Cursor := c;
   end;
 end;
 
-procedure TFMain.ScanIntervalExecute(Sender: TObject);
+procedure TFMain.AScanIntervalExecute(Sender: TObject);
 var
   i1, i2: integer;
   pos1, pos2: double;
@@ -1759,14 +1801,18 @@ begin
   end;
 
   c := self.Cursor;
-  self.ScanInterval.Enabled := false;
   self.Cursor := crHourGlass;
-  application.ProcessMessages;
+  try
+    EnableMovieControls(false);
+    self.AScanInterval.Enabled := false;
+    Application.ProcessMessages;
 
-  showframesabs(pos1, pos2, FFrames.Count);
-
-  self.ScanInterval.Enabled := true;
-  self.Cursor := c;
+    showframesabs(pos1, pos2, FFrames.Count);
+  finally
+    EnableMovieControls(true);
+    self.AScanInterval.Enabled := true;
+    self.Cursor := c;
+  end;
 end;
 
 procedure TFMain.EditSettingsExecute(Sender: TObject);
@@ -1794,7 +1840,6 @@ end;
 procedure TFMain.AboutExecute(Sender: TObject);
 begin
   AboutBox.ShowModal();
-  //showmessage('Cut Assistant' + #13#10 + 'Version ' + Application_version+ #13#10#13#10 + 'Author: 1248');
 end;
            
 procedure TFMain.WriteToRegistyExecute(Sender: TObject);
@@ -1934,11 +1979,16 @@ var
 begin
   if not (FilterGraph.State = gsPaused) then GraphPause;
 
-  if Sender = ALargeSkipBackward then timeToSkip := Settings.LargeSkipTime
-  else if Sender = ASmallSkipBackward then timeToSkip := Settings.SmallSkipTime
-  else if Sender = ALargeSkipForward then timeToSkip := -Settings.LargeSkipTime
-  else if Sender = ASmallSkipForward then timeToSkip := -Settings.SmallSkipTime
-  else timeToSkip := MovieInfo.frame_duration;
+  if Sender = ALargeSkipBackward then
+    timeToSkip := Settings.LargeSkipTime
+  else if Sender = ASmallSkipBackward then
+    timeToSkip := Settings.SmallSkipTime
+  else if Sender = ALargeSkipForward then
+    timeToSkip := -Settings.LargeSkipTime
+  else if Sender = ASmallSkipForward then
+    timeToSkip := -Settings.SmallSkipTime
+  else
+    timeToSkip := MovieInfo.frame_duration;
 
   JumpTo(currentPosition - timeToSkip);
 end;
@@ -2018,7 +2068,8 @@ begin
 
   CutApplication := Settings.GetCutApplicationByName('Asfbin') as TCutApplicationAsfbin;
   if not assigned (CutApplication) then begin
-    showmessage('Could not get Object CutApplication Asfbin.');
+    if not batchmode then
+      showmessage('Could not get Object CutApplication Asfbin.');
     exit;
   end;
 
@@ -2051,7 +2102,8 @@ begin
   CloseMovie;
 
   if not renameFile(filename_temp, filename_damaged) then begin
-    showmessage('Could not rename original file. Abort.');
+    if not batchmode then
+      showmessage('Could not rename original file. Abort.');
     exit;
   end;
 
@@ -2082,17 +2134,16 @@ begin
   self.RepairMovie;
 end;
 
-
 procedure TFMain.ACutlistInfoExecute(Sender: TObject);
 begin
   cutlist.EditInfo;
 end;
 
-
 procedure TFMain.ASaveCutlistExecute(Sender: TObject);
 begin
   if cutlist.Save(false) then
-    showmessage('Cutlist saved successfully to' +#13#10 + cutlist.SavedToFilename);
+    if not batchmode then
+      showmessage('Cutlist saved successfully to' +#13#10 + cutlist.SavedToFilename);
 end;
 
 procedure TFMain.ACalculateResultingTimesExecute(Sender: TObject);
@@ -2116,14 +2167,23 @@ begin
   end;
 
   if not fileexists(MovieInfo.target_filename) then begin
-    showmessage('Movie File not found.');
+    if not batchmode then
+      showmessage('Movie File not found.');
   end else begin
-    if not FResultingTimes.loadMovie(MovieInfo.target_filename) then begin
-      showmessage('Could not load cut movie.');
-      exit;
+    try
+      if not FResultingTimes.loadMovie(MovieInfo.target_filename) then begin
+        if not batchmode then
+          showmessage('Could not load cut movie.');
+        exit;
+      end;
+      FResultingTimes.calculate(cutlist);
+      FResultingTimes.Show;
+    except
+      on E: Exception do
+        if not batchmode then
+          ShowMessage('Could not load cut movie!'#13#10'Error: '+ E.Message);
     end;
-    FResultingTimes.calculate(cutlist);
-    FResultingTimes.Show;
+
   end;
 end;
 
@@ -2216,12 +2276,14 @@ begin
             end;
           end;
       end else begin
-        showmessage('Search Cutlist by File Size: No Cutlist found.');
+        if not batchmode then
+          showmessage('Search Cutlist by File Size: No Cutlist found.');
       end;
     except
     on E: EJclSimpleXMLError do begin
         Error_message := 'XML-Error while getting cutlist infos.'#13#10 + E.Message;
-        ShowMessage(Error_Message);
+        if not batchmode then
+          ShowMessage(Error_Message);
       end;
     end;
 end;
@@ -2242,7 +2304,8 @@ begin
   result := false;
   if cutlist.IDOnServer = '' then begin
     ASendRating.Enabled := false;
-    Showmessage('Current cutlist was not downloaded. Rating not possible.');
+    if not batchmode then
+      Showmessage('Current cutlist was not downloaded. Rating not possible.');
     exit;
   end else begin
 {    if cutlist.RatingByAuthorPresent then
@@ -2263,9 +2326,11 @@ begin
       if result then begin
         if AnsiContainsText(Response, '<html>') then begin
           cutlist.RatingSent := true;
-          showmessage ('Rating done.');
+          if not batchmode then
+            showmessage ('Rating done.');
         end else begin
-          showmessage('Answer from Server:' + #13#10 + leftstr(response, 255));
+          if not batchmode then
+            showmessage('Answer from Server:' + #13#10 + leftstr(response, 255));
         end;
       end;
     end;
@@ -2284,9 +2349,6 @@ var
   Target: TCutFrame;
   TargetBitmap: TBitmap;
 begin
-{  MovieInfo.current_position_seconds := SampleTime;
-  LPos.Caption := MovieInfo.current_position_string;   }
-
   if SampleTarget = nil then exit;
   Target := (SampleTarget as TCutFrame);
   try
@@ -2297,73 +2359,6 @@ begin
     SampleTarget := nil;
   end;
 end;
-
-{function TFMain.CreateVDubScript(cutlist: TCutlist; Inputfile, Outputfile: String; var scriptfile: string): boolean;
-  function EscapeString(s: string): string;
-  begin
-    result := AnsiReplaceStr(s, '\', '\\');
-    result := AnsiReplaceStr(Result, '''', '\''');
-  end;
-
-var
-  f: Textfile;
-  i: integer;
-  vdubStart, vdubLength: string;
-  cutlist_tmp: TCutlist;
-begin
-  result := false;
-  if scriptfile = '' then scriptfile := Inputfile + '.syl';
-  assignfile(f, scriptfile);
-  rewrite(f);
-  writeln(f, '// Virtual Dub Sylia Script');
-  writeln(f, '// Generated by ' + Application_friendly_name);
-  writeln(f, 'VirtualDub.Open("' + EscapeString(Inputfile) + '",0,0);');
-  writeln(f, 'VirtualDub.audio.SetMode(0);');
-  if settings.VDUseSmartRendering then begin
-    writeln(f, 'VirtualDub.video.SetMode(1);');      //fast Recompression
-    writeln(f, 'VirtualDub.video.SetSmartRendering(1);');
-    writeln(f, 'VirtualDub.video.SetCompression(0x' + IntToHex(settings.VDUseCodec, 8) + ',0,10000,0);');
-    if settings.VDCodecSettings > '' then begin
-      writeln(f, 'VirtualDub.video.SetCompData(' + inttostr(settings.VDCodecSettingsSize) + ',"' + settings.VDCodecSettings + '");');
-    end;
-  end else begin
-    writeln(f, 'VirtualDub.video.SetMode(0);');
-  end;
-  writeln(f, 'VirtualDub.subset.Clear();');
-
-  if cutlist.Mode = clmCrop then begin
-    cutlist.sort;
-    for i := 0 to cutlist.Count -1 do begin
-      if cutlist.FramesPresent and not cutlist.HasChanged then begin
-        vdubstart := inttostr(cutlist.Cut[i].frame_from);
-        vdubLength := inttostr(cutlist.Cut[i].DurationFrames);
-      end else begin
-        vdubstart := inttostr(round(cutlist.Cut[i].pos_from / MovieInfo.frame_duration));
-        vdubLength := inttostr(round((cutlist.Cut[i].pos_to - cutlist.Cut[i].pos_from) / MovieInfo.frame_duration + 1));
-      end;
-      writeln(f, 'VirtualDub.subset.AddRange(' + vdubstart + ', ' + vdubLength + ');');
-    end;
-  end else begin
-    cutlist_tmp := cutlist.convert;
-    for i := 0 to cutlist_tmp.Count -1 do begin
-      if cutlist_tmp.FramesPresent and not cutlist_tmp.HasChanged then begin
-        vdubstart := inttostr(cutlist_tmp.Cut[i].frame_from);
-        vdubLength := inttostr(cutlist_tmp.Cut[i].DurationFrames);
-      end else begin
-        vdubstart := inttostr(round(cutlist_tmp.Cut[i].pos_from / MovieInfo.frame_duration));
-        vdubLength := inttostr(round((cutlist_tmp.Cut[i].pos_to - cutlist_tmp.Cut[i].pos_from) / MovieInfo.frame_duration + 1));
-      end;
-      writeln(f, 'VirtualDub.subset.AddRange(' + vdubstart + ', ' + vdubLength + ');');
-    end;
-    cutlist_tmp.Free;
-  end;
-
-  writeln(f, 'VirtualDub.SaveAVI(U"'+OutputFile+'");');   //For OUTPUT use undecorated string!
-  if not settings.VDNotClose then writeln(f, 'VirtualDub.Close();');
-
-  closefile(f);
-  result := true;
-end;    }
 
 procedure TFMain.LcutlistDblClick(Sender: TObject);
 begin
@@ -2487,7 +2482,8 @@ begin
       if val = '' then
       begin
         Result := false;
-        ShowMessage ('Delete command sent to server, but received unexpected response from server.');
+        if not batchmode then
+          ShowMessage ('Delete command sent to server, but received unexpected response from server.');
       end
       else
       begin
@@ -2505,7 +2501,8 @@ begin
           answer := answer + 'Database entry NOT removed.' + #13#10;
           result := false;
         end;
-        ShowMessage(answer);
+        if not batchmode then
+          ShowMessage(answer);
       end;
     finally
       FreeAndNil(lines);
@@ -2888,7 +2885,8 @@ begin
   except
   on E: EJclSimpleXMLError do begin
       Error_message := 'XML-Error while converting upload infos.'#13#10 + E.Message;
-      ShowMessage(Error_Message);
+      if not batchmode then
+        ShowMessage(Error_Message);
     end;
   end;
 end;
@@ -2967,17 +2965,20 @@ begin
           if settings.InfoShowMessages then begin
             AText := GetXMLMessages(XMLResponse.Root, lastChecked, 'messages');
             if Length(AText) > 0 then
-              ShowMessage('Information: ' + AText);
+              if not batchmode then
+                ShowMessage('Information: ' + AText);
           end;
           if settings.InfoShowBeta then begin
             AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['beta'], lastChecked);
             if Length(AText) > 0 then
-              ShowMessage('Beta-Information: ' + AText);
+              if not batchmode then
+                ShowMessage('Beta-Information: ' + AText);
           end;
           if settings.InfoShowStable then begin
             AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['stable'], lastChecked);
             if Length(AText) > 0 then
-              ShowMessage('Stable-Information: ' + AText);
+              if not batchmode then
+                ShowMessage('Stable-Information: ' + AText);
           end;
           Result := true;
         end;
@@ -2986,7 +2987,8 @@ begin
     except
       on E: EJclSimpleXMLError do begin
         Error_message := Error_message + 'XML-Error: ' + E.Message;
-        ShowMessage(Error_Message);
+        if not batchmode then
+          ShowMessage(Error_Message);
       end;
       else begin
         raise;
@@ -3160,7 +3162,8 @@ begin
     command := command + ' -edl ' + edlfile;
   end;
   if not CallApplication(AppPath, Command, message_string) then begin
-    showmessage('Error while calling ' + extractFilename(AppPath) + ': ' + message_string);
+    if not batchmode then
+      showmessage('Error while calling ' + extractFilename(AppPath) + ': ' + message_string);
   end;   
 end;
 
@@ -3182,8 +3185,8 @@ end;
 
 procedure TFMain.EnableMovieControls(value: boolean);
 begin
-    self.Next12.Enabled := value;
-    self.Prev12.Enabled := value;
+    self.ANextFrames.Enabled := value;
+    self.APrevFrames.Enabled := value;
     self.TBFilePos.Enabled := value;
     self.TFinePos.Enabled := value;
     self.ASmallSkipForward.Enabled := value;
@@ -3315,22 +3318,22 @@ var
   _pos: double;
 begin
   if MenuVideo.PopupComponent = VideoWindow then begin
-    self.Prev12.Execute;
+    self.APrevFrames.Execute;
   end;
   if MenuVideo.PopupComponent is TImage then begin
     ((MenuVideo.PopupComponent as TImage).Owner as TCutFrame).ImageDoubleClick(MenuVideo.PopupComponent);
-    self.Prev12.Execute;
+    self.APrevFrames.Execute;
   end;
 end;
 
 procedure TFMain.FramePopUpNext12FramesClick(Sender: TObject);
 begin
   if MenuVideo.PopupComponent = VideoWindow then begin
-    self.Next12.Execute;
+    self.ANextFrames.Execute;
   end;
   if MenuVideo.PopupComponent is TImage then begin
     ((MenuVideo.PopupComponent as TImage).Owner as TCutFrame).ImageDoubleClick(MenuVideo.PopupComponent);
-    self.Next12.Execute;
+    self.ANextFrames.Execute;
   end;
 end;
 
@@ -3431,7 +3434,8 @@ begin
         end;
       end;
     end;
-    ShowMessage(data.ErrorMessage + msg);
+    if not batchmode then
+      ShowMessage(data.ErrorMessage + msg);
   end;
 end;
 

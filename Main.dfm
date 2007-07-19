@@ -496,7 +496,7 @@ object FMain: TFMain
     Top = 440
     Width = 111
     Height = 20
-    Action = Prev12
+    Action = APrevFrames
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
@@ -553,7 +553,7 @@ object FMain: TFMain
     Top = 440
     Width = 111
     Height = 20
-    Action = Next12
+    Action = ANextFrames
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
@@ -601,7 +601,7 @@ object FMain: TFMain
     Top = 440
     Width = 88
     Height = 20
-    Action = ScanInterval
+    Action = AScanInterval
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
@@ -1105,7 +1105,7 @@ object FMain: TFMain
       SectionName = 'Main'
     end
     object JvSpeedItem9: TJvSpeedItem
-      Action = ShowFramesForm
+      Action = AShowFramesForm
       BtnCaption = '&Show Form'
       Caption = 'JvSpeedItem9'
       Glyph.Data = {
@@ -1148,11 +1148,11 @@ object FMain: TFMain
       Left = 283
       Top = 3
       Visible = True
-      OnClick = ShowFramesFormExecute
+      OnClick = AShowFramesFormExecute
       SectionName = 'Main'
     end
     object JvSpeedItem10: TJvSpeedItem
-      Action = ScanInterval
+      Action = AScanInterval
       BtnCaption = 'Scan &Interval'
       Caption = 'JvSpeedItem10'
       Glyph.Data = {
@@ -1190,17 +1190,17 @@ object FMain: TFMain
         FF0000FFFF0000FFFF000000FF000000FF000000FF00FF00FF00FF00FF00FF00
         FF00FF00FF00FF00FF00FF00FF0000FFFF00FF00FF00FF00FF00FF00FF0000FF
         FF0000FFFF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00}
-      Hint = 'Scans selected interval for 12 frames'
+      Hint = 'Scans selected interval for $$ frames'
       Spacing = 1
       Left = 315
       Top = 3
       Visible = True
-      OnClick = ScanIntervalExecute
+      OnClick = AScanIntervalExecute
       SectionName = 'Main'
     end
     object JvSpeedItem11: TJvSpeedItem
-      Action = Prev12
-      BtnCaption = '&Previous 12 Frames'
+      Action = APrevFrames
+      BtnCaption = '&Previous $$ Frames'
       Caption = 'JvSpeedItem11'
       Glyph.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
@@ -1237,17 +1237,17 @@ object FMain: TFMain
         FF00FF00FF0000FFFF0000FFFF0000FFFF0000FFFF00FF00FF00FF00FF00FF00
         FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF0000FFFF00FF00
         FF00FF00FF00FF00FF0000FFFF0000FFFF00FF00FF00FF00FF00}
-      Hint = 'Show last 12 frames before current position'
+      Hint = 'Show last $$ frames before current position'
       Spacing = 1
       Left = 347
       Top = 3
       Visible = True
-      OnClick = Prev12Execute
+      OnClick = APrevFramesExecute
       SectionName = 'Main'
     end
     object JvSpeedItem12: TJvSpeedItem
-      Action = Next12
-      BtnCaption = '&Next 12 Frames'
+      Action = ANextFrames
+      BtnCaption = '&Next $$ Frames'
       Caption = 'JvSpeedItem12'
       Glyph.Data = {
         36040000424D3604000000000000360000002800000010000000100000000100
@@ -1284,12 +1284,12 @@ object FMain: TFMain
         FF00FF00FF000000FF000000FF000000FF000000FF00FF00FF00FF00FF00FF00
         FF0000FFFF00FF00FF00FF00FF00FF00FF0000FFFF0000FFFF00FF00FF00FF00
         FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00FF00}
-      Hint = 'Show next 12 frames from current position'
+      Hint = 'Show next $$ frames from current position'
       Spacing = 1
       Left = 379
       Top = 3
       Visible = True
-      OnClick = Next12Execute
+      OnClick = ANextFramesExecute
       SectionName = 'Main'
     end
     object JvSpeedItem13: TJvSpeedItem
@@ -2455,41 +2455,41 @@ object FMain: TFMain
       ShortCut = 46
       OnExecute = DeleteCutExecute
     end
-    object ShowFramesForm: TAction
+    object AShowFramesForm: TAction
       Tag = 9
       Category = 'Frames'
       Caption = '&Show Form'
       Hint = 'Bring frames form to front'
       ImageIndex = 9
-      OnExecute = ShowFramesFormExecute
+      OnExecute = AShowFramesFormExecute
     end
-    object Next12: TAction
+    object ANextFrames: TAction
       Tag = 12
       Category = 'Frames'
-      Caption = '&Next 12 Frames'
+      Caption = '&Next $$ Frames'
       Enabled = False
-      Hint = 'Show next 12 frames from current position'
+      Hint = 'Show next $$ frames from current position'
       ImageIndex = 11
-      OnExecute = Next12Execute
+      OnExecute = ANextFramesExecute
     end
-    object Prev12: TAction
+    object APrevFrames: TAction
       Tag = 11
       Category = 'Frames'
-      Caption = '&Previous 12 Frames'
+      Caption = '&Previous $$ Frames'
       Enabled = False
-      Hint = 'Show last 12 frames before current position'
+      Hint = 'Show last $$ frames before current position'
       ImageIndex = 10
-      OnExecute = Prev12Execute
+      OnExecute = APrevFramesExecute
     end
-    object ScanInterval: TAction
+    object AScanInterval: TAction
       Tag = 10
       Category = 'Frames'
       Caption = 'Scan &Interval'
       Enabled = False
-      Hint = 'Scans selected interval for 12 frames'
+      Hint = 'Scans selected interval for $$ frames'
       ImageIndex = 12
       ShortCut = 16416
-      OnExecute = ScanIntervalExecute
+      OnExecute = AScanIntervalExecute
     end
     object EditSettings: TAction
       Category = 'Options'
@@ -2815,19 +2815,19 @@ object FMain: TFMain
     object Frames1: TMenuItem
       Caption = '&Frames'
       object ShowForm1: TMenuItem
-        Action = ShowFramesForm
+        Action = AShowFramesForm
       end
       object N5: TMenuItem
         Caption = '-'
       end
       object ScanInterval1: TMenuItem
-        Action = ScanInterval
+        Action = AScanInterval
       end
       object Previous12Frames1: TMenuItem
-        Action = Prev12
+        Action = APrevFrames
       end
       object Next12Frames1: TMenuItem
-        Action = Next12
+        Action = ANextFrames
       end
     end
     object Info1: TMenuItem

@@ -72,24 +72,24 @@ var
   f: file of byte;
 begin
   result := false;
-  if not fileexists(filename) then exit;
-
-  current_filename := filename;
+  if not fileexists(filename) then
+    exit;
 
   //determine filesize
-  assignfile(f, filename);
+  AssignFile(f, filename);
   FileMode := fmOpenRead;
   reset(f);
   try
+    current_filename := filename;
     current_filesize := filesize(f);
-    for i := 0 to length(FileData)-1 do
-      Read(f, FileData[i]);
+    BlockRead(f, FileData, Length(FileData));
   finally
     closefile(f)
   end;
 
   MovieType := mtUnknown;
   FFourCC := 0;
+  Result := true;
 
  //detect Avi File
   setstring(s, Pchar(@FileData[0]), 4);

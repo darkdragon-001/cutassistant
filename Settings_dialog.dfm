@@ -10,8 +10,9 @@ object FSettings: TFSettings
   Constraints.MinWidth = 570
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -10
-  Font.Name = 'MS Sans Serif'
+  Font.Height = -11
+  Font.Name = 'Microsoft Sans Serif'
+  Font.Pitch = fpVariable
   Font.Style = []
   OldCreateOrder = False
   Position = poOwnerFormCenter
@@ -219,7 +220,7 @@ object FSettings: TFSettings
         Left = 364
         Top = 60
         Width = 181
-        Height = 61
+        Height = 45
         Hint = 
           'Cut out: New file is everything except cuts. Crop: NEw file is s' +
           'um of cuts.'
@@ -273,6 +274,14 @@ object FSettings: TFSettings
         OnExit = EFrameWidthExit
         OnKeyPress = EProxyPortKeyPress
       end
+      object cbAutoMuteOnSeek: TCheckBox
+        Left = 219
+        Top = 115
+        Width = 122
+        Height = 17
+        Caption = 'Auto mute on seek'
+        TabOrder = 9
+      end
     end
     object TabSaveMovie: TTabSheet
       Caption = 'Save movie'
@@ -303,7 +312,7 @@ object FSettings: TFSettings
       object MovieNameAlwaysConfirm: TCheckBox
         Left = 3
         Top = 112
-        Width = 209
+        Width = 330
         Height = 13
         Caption = 'Always confirm filename before cutting'
         TabOrder = 5
@@ -318,9 +327,9 @@ object FSettings: TFSettings
         Text = 'CutMovieSaveDir'
       end
       object CutMovieExtension: TEdit
-        Left = 200
+        Left = 212
         Top = 65
-        Width = 345
+        Width = 333
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 3
@@ -339,7 +348,7 @@ object FSettings: TFSettings
       object CBUseMovieNameSuggestion: TCheckBox
         Left = 3
         Top = 92
-        Width = 313
+        Width = 334
         Height = 14
         Caption = 'Use movie file name suggested by cutlist (if present)'
         TabOrder = 4
@@ -355,7 +364,7 @@ object FSettings: TFSettings
         Left = 3
         Top = 3
         Width = 542
-        Height = 59
+        Height = 56
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Save cutlist:'
         Items.Strings = (
@@ -365,7 +374,7 @@ object FSettings: TFSettings
       end
       object CutlistNameAlwaysConfirm: TCheckBox
         Left = 3
-        Top = 68
+        Top = 66
         Width = 209
         Height = 14
         Caption = 'Always confirm filename before saving'
@@ -381,7 +390,7 @@ object FSettings: TFSettings
       end
       object CutlistAutoSaveBeforeCutting: TCheckBox
         Left = 3
-        Top = 88
+        Top = 86
         Width = 209
         Height = 13
         Caption = 'Auto save before cutting'
@@ -802,7 +811,8 @@ object FSettings: TFSettings
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clYellow
         Font.Height = -11
-        Font.Name = 'MS Sans Serif'
+        Font.Name = 'Microsoft Sans Serif'
+        Font.Pitch = fpVariable
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 5
@@ -818,8 +828,9 @@ object FSettings: TFSettings
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Courier New'
+        Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 0
         Text = '(none)'
@@ -834,8 +845,9 @@ object FSettings: TFSettings
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Courier New'
+        Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 1
         Text = '(none)'
@@ -850,8 +862,9 @@ object FSettings: TFSettings
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Courier New'
+        Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
@@ -876,8 +889,9 @@ object FSettings: TFSettings
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'Courier New'
+        Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 4
         Text = '(none)'
@@ -889,7 +903,14 @@ object FSettings: TFSettings
         Height = 66
         OnClickCheck = lbchkBlackListClickCheck
         Anchors = [akLeft, akTop, akRight, akBottom]
-        ItemHeight = 13
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Courier New'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ItemHeight = 14
+        ParentFont = False
         TabOrder = 6
       end
     end

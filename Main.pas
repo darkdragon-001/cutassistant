@@ -1964,9 +1964,13 @@ var
 begin
   if not (FilterGraph.State = gsPaused) then GraphPause;
   if assigned(FrameStep) then begin
+    if settings.AutoMuteOnSeek and not CBMute.Checked then
+      FilterGraph.Volume := 0;
     FrameStep.Step(1, nil);
     MediaEvent.WaitForCompletion(500, event);
     TBFilePos.TriggerTimer;
+    if settings.AutoMuteOnSeek and not CBMute.Checked then
+      FilterGraph.Volume := TVolume.Position;
   end else
   begin
     self.AStepForward.Enabled := false;
@@ -3367,6 +3371,8 @@ procedure TFMain.FormShow(Sender: TObject);
 begin
   if settings.CheckInfos then
     self.DownloadInfo(settings, true, false);
+  if settings.NewSettingsCreated then
+    EditSettings.Execute;
 end;
 
 function TFMain.DoHttpGet(const url: string; const handleRedirects: boolean; const Error_message: string; var Response: string): boolean;

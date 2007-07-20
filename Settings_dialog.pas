@@ -116,6 +116,7 @@ type
     edtNetTimeout: TEdit;
     Label37: TLabel;
     Label38: TLabel;
+    cbAutoMuteOnSeek: TCheckBox;
     procedure BCutMovieSaveDirClick(Sender: TObject);
     procedure BCutlistSaveDirClick(Sender: TObject);
     procedure EProxyPortKeyPress(Sender: TObject; var Key: Char);
@@ -160,7 +161,9 @@ type
   private
      SourceFilterList: TSourceFilterList;
     _SaveCutListMode, _SaveCutMovieMode: byte;
-
+    _NewSettingsCreated: boolean;
+  published
+    property NewSettingsCreated: boolean read _NewSettingsCreated;
   public
     // window state
     MainFormBounds, FramesFormBounds, PreviewFormBounds: TRect;
@@ -181,6 +184,7 @@ type
     DefaultCutMode: integer;
     SmallSkipTime, LargeSkipTime: integer;
     NetTimeout: integer;
+    AutoMuteOnSeek: boolean;
 
     //Warnings
     WarnOnWrongCutApp: boolean;
@@ -315,7 +319,7 @@ begin
   if selectdirectory('Destination directory for cutlists:', currentDir, newDir) then
     self.CutlistSaveDir.Text := newDir;
 end;
-                          
+
 procedure TFSettings.EProxyPortKeyPress(Sender: TObject; var Key: Char);
 begin
   if not (key in [#0 .. #31, '0'..'9']) then key := chr(0);
@@ -399,6 +403,7 @@ begin
   FSettings.edtSmallSkip.Text                      := IntToStr(SmallSkipTime);
   FSettings.edtLargeSkip.Text                      := IntToStr(LargeSkipTime);
   FSettings.edtNetTimeout.Text                     := IntToStr(NetTimeout);
+  FSettings.cbAutoMuteOnSeek.Checked               := AutoMuteOnSeek;
 
   Fsettings.EURL_Cutlist_Home.Text                 := self.url_cutlists_home;
   Fsettings.EURL_Info_File.Text                    := self.url_info_file;
@@ -514,6 +519,7 @@ begin
       self.SmallSkipTime               := StrToInt(FSettings.edtSmallSkip.Text);
       self.LargeSkipTime               := StrToInt(FSettings.edtLargeSkip.Text);
       self.NetTimeout                  := StrToInt(FSettings.edtNetTimeout.Text);
+      self.AutoMuteOnSeek              := FSettings.cbAutoMuteOnSeek.Checked;
 
       self.InfoShowMessages            :=  FSettings.CBInfoCheckMessages.Checked  ;
       self.InfoShowStable              :=  FSettings.CBInfoCheckStable.Checked    ;
@@ -611,6 +617,7 @@ var
   //CutAppAviDemux : TCutApplicationAviDemux;
 begin
   FileName := ChangeFileExt( Application.ExeName, '.ini' );
+  self._NewSettingsCreated := not FileExists(FileName);
   ini := TIniFile.Create(FileName);
   try
     section := 'General';
@@ -695,6 +702,7 @@ begin
     self.DefaultCutMode := ini.ReadInteger(section, 'DefaultCutMode', 0);
     self.SmallSkipTime := ini.ReadInteger(section, 'SmallSkipTime', 2);
     self.LargeSkipTime := ini.ReadInteger(section, 'LargeSkipTime', 25);
+    self.AutoMuteOnSeek := ini.ReadBool(section, 'AutoMuteOnSeek', false);
 
     section := 'Warnings';
     self.WarnOnWrongCutApp := ini.ReadBool(section, 'WarnOnWrongCutApp', true);
@@ -730,11 +738,13 @@ end;
 procedure TSettings.save;
 var
   ini: TIniFile;
+  FileName: string;
   section: String;
   iCutApplication: integer;
   iFilter: integer;
 begin
-  ini := TIniFile.Create(ChangeFileExt( Application.ExeName, '.ini' ));
+  FileName := ChangeFileExt( Application.ExeName, '.ini' );
+  ini := TIniFile.Create(FileName);
   try
     section := 'General';
     ini.WriteString(section, 'Version', Application_version);
@@ -813,6 +823,7 @@ begin
     ini.WriteInteger(section, 'DefaultCutMode', self.DefaultCutMode);
     ini.WriteInteger(section, 'SmallSkipTime', self.SmallSkipTime);
     ini.WriteInteger(section, 'LargeSkipTime', self.LargeSkipTime);
+    ini.WriteBool(section, 'AutoMuteOnSeek', self.AutoMuteOnSeek);
 
     section := 'Warnings';
     ini.WriteBool(section, 'WarnOnWrongCutApp', WarnOnWrongCutApp);
@@ -833,6 +844,7 @@ begin
 
   finally
     ini.Free;
+    self._NewSettingsCreated := not FileExists(FileName);
   end;
 end;
 

@@ -1,16 +1,17 @@
 object FMain: TFMain
-  Left = 205
-  Top = 152
+  Left = 297
+  Top = 208
   Width = 750
   Height = 519
   Caption = 'Cut Assistant'
   Color = clBtnFace
   Constraints.MinHeight = 519
   Constraints.MinWidth = 750
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -10
-  Font.Name = 'MS Sans Serif'
+  Font.Height = -11
+  Font.Name = 'Microsoft Sans Serif'
+  Font.Pitch = fpVariable
   Font.Style = []
   KeyPreview = True
   Menu = MainMenu
@@ -77,8 +78,9 @@ object FMain: TFMain
     Caption = '0 / 0:00:00.000'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'MS Sans Serif'
+    Font.Height = -13
+    Font.Name = 'Microsoft Sans Serif'
+    Font.Pitch = fpVariable
     Font.Style = []
     ParentFont = False
   end
@@ -186,7 +188,8 @@ object FMain: TFMain
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clRed
     Font.Height = -11
-    Font.Name = 'MS Sans Serif'
+    Font.Name = 'Microsoft Sans Serif'
+    Font.Pitch = fpVariable
     Font.Style = []
     ParentFont = False
   end
@@ -201,7 +204,8 @@ object FMain: TFMain
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clGreen
     Font.Height = -11
-    Font.Name = 'MS Sans Serif'
+    Font.Name = 'Microsoft Sans Serif'
+    Font.Pitch = fpVariable
     Font.Style = []
     ParentFont = False
   end
@@ -225,7 +229,8 @@ object FMain: TFMain
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -16
-    Font.Name = 'MS Sans Serif'
+    Font.Name = 'Microsoft Sans Serif'
+    Font.Pitch = fpVariable
     Font.Style = []
     ParentFont = False
     OnDblClick = LRateDblClick
@@ -648,8 +653,9 @@ object FMain: TFMain
       Color = clNone
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clNavy
-      Font.Height = -15
-      Font.Name = 'MS Sans Serif'
+      Font.Height = -13
+      Font.Name = 'Microsoft Sans Serif'
+      Font.Pitch = fpVariable
       Font.Style = []
       ParentColor = False
       ParentFont = False
@@ -714,7 +720,8 @@ object FMain: TFMain
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Name = 'Microsoft Sans Serif'
+    Font.Pitch = fpVariable
     Font.Style = []
     Options = [sbFlatBtns]
     BtnOffsetHorz = 3

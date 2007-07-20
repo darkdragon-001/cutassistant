@@ -191,7 +191,6 @@ end;
 
 procedure TCodecList.InsertDummy;
 var
-  Info: TICInfo;
   InfoObject: TICInfoObject;
 begin
   InfoObject := TICInfoObject.create;

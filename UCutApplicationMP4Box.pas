@@ -53,6 +53,8 @@ implementation
 
 {$R *.dfm}
 
+{$WARN UNIT_PLATFORM OFF}
+
 uses
   FileCtrl, StrUtils,
   Utils, UCutlist, UfrmCutting;
@@ -80,7 +82,6 @@ var
   section: string;
   success: boolean;
 begin
-  result := false;
   success := inherited LoadSettings(IniFile);
   section := GetIniSectionName;
   CommandLineOptions := IniFile.ReadString(section, 'CommandLineOptions', '');
@@ -92,7 +93,6 @@ var
   section: string;
   success: boolean;
 begin
-  result := false;
   success := inherited SaveSettings(IniFile);
 
   section := GetIniSectionName;

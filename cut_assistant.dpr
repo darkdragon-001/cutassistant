@@ -2,7 +2,6 @@ program cut_assistant;
 
 uses
   madExcept,
-  madListModules,
   SysUtils,
   PBOnceOnly in 'lib\PBOnceOnly.pas',
   Forms,
@@ -45,8 +44,10 @@ var
   iParam: integer;
   FileList: TStringList;
   MessageList: TStringList;
+  MessageListStream: TFileStream;
 
 begin
+  MessageListStream := nil;
   MessageList := TStringList.Create;
   try
   if AlreadyRunning(ProcessName, TApplication, TFMain) then
@@ -83,7 +84,16 @@ begin
       Application.Run;
   end;
   finally
-    MessageList.SaveToFile(ChangeFileExt(Application.ExeName, '.LOG'));
+    if MessageList.Count > 0 then
+    begin
+      MessageListStream := TFileStream.Create(ChangeFileExt(Application.ExeName, '.log'), fmCreate OR fmOpenReadWrite, fmShareDenyWrite);
+      TRY
+        MessageListStream.Seek(0, soFromEnd);
+        MessageList.SaveToStream(MessageListStream);
+      FINALLY
+        FreeAndNil(MessageListStream);
+      END;
+    end;
     FreeAndNIL(MessageList);
   end;
 end.

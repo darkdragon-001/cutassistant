@@ -62,6 +62,8 @@ implementation
 
 {$R *.dfm}
 
+{$WARN UNIT_PLATFORM OFF}
+
 uses
   FileCtrl, StrUtils,
   Utils, UCutlist, UfrmCutting, Main;
@@ -84,8 +86,6 @@ var
   section: string;
   success: boolean;
 begin
-  result := false;
-
   //This part only for compatibility issues for versions below 0.9.9
   //This Setting may be overwritten below
   self.TempDir := IniFile.ReadString('AviDemux', 'ScriptsPath', '');
@@ -110,7 +110,6 @@ var
   section: string;
   success: boolean;
 begin
-  result := false;
   success := inherited SaveSettings(IniFile);
 
   section := GetIniSectionName;
@@ -201,7 +200,6 @@ function TCutApplicationAviDemux.WriteCutlistInfo(CutlistFile: TIniFile;
 begin
   result := inherited WriteCutlistInfo(CutlistFile, section);
   if result then begin
-    result := false;
     cutlistfile.WriteString(section, 'IntendedCutApplicationOptions', self.CommandLineOptions);
     cutlistfile.WriteBool(section, 'AviDemuxRebuildIndex', self.RebuildIndex);
     cutlistfile.WriteBool(section, 'AviDemuxScanVBR', self.ScanVBR);
@@ -225,7 +223,6 @@ var
   vdubStart, vdubLength: string;
   cutlist_tmp: TCutlist;
 begin
-  result := false;
   cutlist_tmp := TCutlist(cutlist);
   if scriptfile = '' then scriptfile := Inputfile + '.avidemux';
   assignfile(f, scriptfile);

@@ -230,6 +230,8 @@ type
     CutAssistantProject1: TMenuItem;
     RequestProgressDialog: TJvProgressDialog;
     RequestWorker: TIdThreadComponent;
+    ASupportRequest: TAction;
+    Makeasupportrequest1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -339,6 +341,7 @@ type
       AException: Exception);
     procedure IdHTTP1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: String);
+    procedure ASupportRequestExecute(Sender: TObject);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -435,7 +438,7 @@ var
   VMRWindowlessControl9: IVMRWindowlessControl9;
 
 implementation
-  uses Frames,  CutlistRate_Dialog, ResultingTimes, CutlistSearchResults,
+  uses madExcept, madNVBitmap, madNVAssistant, Frames, CutlistRate_Dialog, ResultingTimes, CutlistSearchResults,
     PBOnceOnly, UfrmCutting, UCutApplicationBase, UCutApplicationAsfbin, UCutApplicationMP4Box, UMemoDialog,
     DateTools, UAbout, ULogging, UDSAStorage, IdResourceStrings;
 
@@ -2351,7 +2354,7 @@ procedure TFMain.SampleGrabber1Buffer(sender: TObject; SampleTime: Double;
   pBuffer: Pointer; BufferLen: Integer);
 var
   Target: TCutFrame;
-  TargetBitmap: TBitmap;
+  //TargetBitmap: TBitmap;
 begin
   if SampleTarget = nil then exit;
   Target := (SampleTarget as TCutFrame);
@@ -3318,8 +3321,6 @@ begin
 end;
 
 procedure TFMain.FramePopUpPrevious12FramesClick(Sender: TObject);
-var
-  _pos: double;
 begin
   if MenuVideo.PopupComponent = VideoWindow then begin
     self.APrevFrames.Execute;
@@ -3473,6 +3474,8 @@ var
   data: THttpRequest;
 begin
   Assert(Assigned(Sender));
+  if Assigned(Sender.Thread) then
+    NameThread(Sender.Thread.ThreadID, 'RequestWorker');
   data := Sender.Data as THttpRequest;
   if not Assigned(data) then // busy wait for data object ...
   begin
@@ -3497,7 +3500,6 @@ procedure TFMain.RequestWorkerException(Sender: TIdCustomThreadComponent;
   AException: Exception);
 var
   data: THttpRequest;
-  idx: integer;
 begin
   Assert(Assigned(Sender));
   data := Sender.Data as THttpRequest;
@@ -3530,6 +3532,29 @@ procedure TFMain.IdHTTP1Status(ASender: TObject; const AStatus: TIdStatus;
 begin
   //if (AStatus <> hsStatusText) or (AStatusText <> RSHTTPChunkStarted) then
     RequestProgressDialog.Text := AStatusText;
+end;
+
+procedure TFMain.ASupportRequestExecute(Sender: TObject);
+var
+  AException: IMEException;
+  AAssistant: INVAssistant;
+  ABugReport: string;
+  AScreenShot: INVBitmap;
+  AMemo: INVEdit;
+begin
+  AException := NewException(etHidden);
+  AException.ListThreads := false;
+  //AException.MailAddr := 'cutassistant-help@lists.sourceforge.net';
+  AException.MailSubject := 'CutAssistant ' + Application_Version + ' support request';
+  AAssistant := AException.GetAssistant('SupportAssistant');
+  AMemo := AAssistant.Form['SupportDetailsForm'].nvEdit('DetailsMemo');
+  AScreenShot := AException.ScreenShot;
+  if AAssistant.ShowModal() = nvmOk then
+  begin
+    ABugReport := AException.GetBugReport(true);
+    AException.MailBody := AMemo.OutputName + #13#10 + StringOfChar('-', Length(AMemo.OutputName)) + #13#10 + AMemo.Text;
+    SendBugReport(ABugReport, AScreenShot, self.Handle, AException);
+  end;
 end;
 
 initialization

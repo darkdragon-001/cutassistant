@@ -2703,6 +2703,12 @@ object FMain: TFMain
       Hint = 'Check update infos on server now.'
       OnExecute = ACheckInfoOnServerExecute
     end
+    object ASupportRequest: TAction
+      Category = 'Info'
+      Caption = 'Make a &support request'
+      Hint = 'Creates a support request ...'
+      OnExecute = ASupportRequestExecute
+    end
   end
   object MainMenu: TMainMenu
     Images = ImageList1
@@ -2850,6 +2856,9 @@ object FMain: TFMain
       end
       object N13: TMenuItem
         Caption = '-'
+      end
+      object Makeasupportrequest1: TMenuItem
+        Action = ASupportRequest
       end
       object ShowLoggingMessages1: TMenuItem
         Action = AShowLogging

@@ -90,6 +90,8 @@ implementation
 
 {$R *.dfm}
 
+{$WARN UNIT_PLATFORM OFF}
+
 uses
   FileCtrl, StrUtils, JvCreateProcess,
   Utils, UCutlist, UfrmCutting, Main;
@@ -140,15 +142,13 @@ function TCutApplicationVirtualDub.LoadSettings(IniFile: TIniFile): boolean;
 var
   section: string;
   success: boolean;
-  default, StrValue: string;
+  StrValue: string;
   fccHandler: FOURCC;
   CodecVersion: DWORD;
   CodecSettingsBuffer: PChar;
   CodecSettings: String;
   CodecSettingsSize, CodecSettingsSizeRead, BufferSize: Integer;
 begin
-  result := false;
-
   //This part only for compatibility issues for versions below 0.9.9
   //This Setting may be overwritten below
   section := 'External Cut Application';
@@ -199,7 +199,6 @@ var
   section: string;
   success: boolean;
 begin
-  result := false;
   success := inherited SaveSettings(IniFile);
 
   section := GetIniSectionName;
@@ -219,7 +218,7 @@ end;
 function FindWindowByWindowStructParam(wHandle: HWND; lParam: Cardinal): Bool; stdcall;
 var
   Title, ClassName: array[0..255] of char;
-  dwProcessId, dwThreadId: cardinal;
+  dwProcessId{, dwThreadId}: cardinal;
 begin
   Result := True;
   if GetClassName(wHandle, ClassName, 255) <= 0 then
@@ -230,7 +229,7 @@ begin
     exit;
   if Pos(PFindWindowStruct(lParam).Caption, StrPas(Title)) = 0 then
     exit;
-  dwThreadId := GetWindowThreadProcessId(wHandle, dwProcessId);
+  {dwThreadId := }GetWindowThreadProcessId(wHandle, dwProcessId);
   if dwProcessId <> PFindWindowStruct(lParam).ProcessId then
     exit;
 
@@ -286,7 +285,6 @@ var
   MustFreeTempCutlist: boolean;
   myFormatSettings: TFormatSettings;
   CommandLine, ExeName, message_string: string;
-  ExitCode: Cardinal;
   success: boolean;
 begin
   result := false;
@@ -323,7 +321,9 @@ begin
 
     CreateScript(TempCutlist, SourceFileName, DestFileName, FScriptFileName);
 
-    CommandLine :=  '/console /s"'+FScriptFileName+'"';
+    CommandLine :=  '/s"' + FScriptFileName + '"';
+    if self.RedirectOutput then
+      CommandLine := '/console ' + CommandLine;
     if not self.FNotClose then
       CommandLine := CommandLine + ' /x';
 
@@ -351,7 +351,6 @@ function TCutApplicationVirtualDub.WriteCutlistInfo(CutlistFile: TIniFile;
 begin
   result := inherited WriteCutlistInfo(CutlistFile, section);
   if result then begin
-    result := false;
     //cutlistfile.WriteString(section, 'IntendedCutApplicationOptions', self.CommandLineOptions);
     cutlistfile.WriteBool(section, 'VDUseSmartRendering', self.UseSmartRendering);
     if UseSmartRendering then begin

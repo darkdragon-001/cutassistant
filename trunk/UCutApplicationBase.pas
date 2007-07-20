@@ -113,6 +113,8 @@ type
 
 implementation
 
+{$WARN UNIT_PLATFORM OFF}
+
 uses
   FileCtrl, Utils;
 
@@ -263,9 +265,8 @@ function TCutApplicationBase.LoadSettings(IniFile: TIniFile): boolean;
 const
   TEMP_DIR = 'temp';
 var
-  section, default: string;
+  section: string;
 begin
-  result := false;
   section := GetIniSectionName;
   if Path = '' then begin
     if DefaultExeNames.Count > 0 then
@@ -285,7 +286,6 @@ function TCutApplicationBase.SaveSettings(IniFile: TIniFile): boolean;
 var
   section: string;
 begin
-  result := false;
   section := GetIniSectionName;
   IniFile.WriteString(section, 'Path', Path);
   IniFile.WriteString(section, 'TempDir', TempDir);
@@ -470,7 +470,6 @@ end;
 function TCutApplicationBase.WriteCutlistInfo(
   CutlistFile: TIniFile; section: string): boolean;
 begin
-  result := false;
   cutlistfile.WriteString(section, 'IntendedCutApplicationName', Name);
   cutlistfile.WriteString(section, 'IntendedCutApplication', extractfilename(Path));
   cutlistfile.WriteString(section, 'IntendedCutApplicationVersion', Version);

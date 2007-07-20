@@ -67,7 +67,6 @@ end;
 function TMovieInfo.InitMovie(FileName: String): boolean;
 var
   FileData: array [0..63] of byte;
-  i: integer;
   s: string;
   f: file of byte;
 begin

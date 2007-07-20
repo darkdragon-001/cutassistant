@@ -55,6 +55,8 @@ implementation
 
 {$R *.dfm}
 
+{$WARN UNIT_PLATFORM OFF}
+
 uses
   FileCtrl, StrUtils,
   Utils, UCutlist, UfrmCutting;
@@ -78,8 +80,6 @@ var
   section: string;
   success: boolean;
 begin
-  result := false;
-
   //This part only for compatibility issues for versions below 0.9.9
   //These Settings may be overwritten below
   self.Path := IniFile.ReadString('External Cut Application', 'Path', '');
@@ -96,7 +96,6 @@ var
   section: string;
   success: boolean;
 begin
-  result := false;
   success := inherited SaveSettings(IniFile);
 
   section := GetIniSectionName;
@@ -164,7 +163,6 @@ function TCutApplicationAsfbin.WriteCutlistInfo(CutlistFile: TIniFile;
 begin
   result := inherited WriteCutlistInfo(CutlistFile, section);
   if result then begin
-    result := false;
     cutlistfile.WriteString(section, 'IntendedCutApplicationOptions', self.CommandLineOptions);
     result := true;
   end;

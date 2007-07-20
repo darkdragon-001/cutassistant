@@ -120,8 +120,6 @@ var
   message_string: string;
   CanClear: boolean;
 begin
-  result := false;
-
   canClear := true;
   if self.HasChanged then begin
     message_string := 'Save changes in current cutlist?';

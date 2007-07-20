@@ -2,6 +2,8 @@ unit Settings_dialog;
 
 interface
 
+{$WARN UNIT_PLATFORM OFF}
+
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, COntnrs,
   Dialogs, FileCtrl, StdCtrls, ComCtrls, ExtCtrls, IniFiles, Utils, CodecSettings, MMSystem,

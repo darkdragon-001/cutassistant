@@ -221,6 +221,7 @@ end;
 procedure TFFrames.FormDestroy(Sender: TObject);
 begin
   Settings.FramesFormBounds := self.BoundsRect;
+  Settings.FramesFormWindowState := self.WindowState;
 end;
 
 procedure TCutFrame.init(image_height, image_width: INteger);

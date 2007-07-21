@@ -278,6 +278,7 @@ end;
 procedure TFResultingTimes.FormDestroy(Sender: TObject);
 begin
   Settings.PreviewFormBounds := self.BoundsRect;
+  Settings.PreviewFormWindowState := self.WindowState;
   FMovieInfo.Free;
 end;
 

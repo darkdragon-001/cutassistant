@@ -1,6 +1,6 @@
 object FFrames: TFFrames
-  Left = 500
-  Top = 74
+  Left = 436
+  Top = 79
   Width = 815
   Height = 761
   Caption = 'Frames'

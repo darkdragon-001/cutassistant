@@ -558,6 +558,7 @@ end;
 procedure TFMain.FormDestroy(Sender: TObject);
 begin
   Settings.MainFormBounds := self.BoundsRect;
+  Settings.MainFormWindowState := self.WindowState;
   FreeAndNIL(UploadDataEntries);
 end;
 

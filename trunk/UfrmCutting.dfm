@@ -1,17 +1,19 @@
 object frmCutting: TfrmCutting
   Left = 286
   Top = 125
-  Width = 711
-  Height = 474
+  AutoScroll = False
   BorderIcons = [biMaximize]
   Caption = 'Cutting ...'
+  ClientHeight = 440
+  ClientWidth = 703
   Color = clBtnFace
   Constraints.MinHeight = 260
   Constraints.MinWidth = 500
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -10
-  Font.Name = 'MS Sans Serif'
+  Font.Height = -11
+  Font.Name = 'Microsoft Sans Serif'
+  Font.Pitch = fpVariable
   Font.Style = []
   OldCreateOrder = False
   Position = poOwnerFormCenter
@@ -28,10 +30,10 @@ object frmCutting: TfrmCutting
     Width = 691
     Height = 397
     Anchors = [akLeft, akTop, akRight, akBottom]
-    Font.Charset = DEFAULT_CHARSET
+    Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
-    Font.Name = 'System'
+    Font.Name = 'Courier New'
     Font.Pitch = fpFixed
     Font.Style = []
     ParentFont = False

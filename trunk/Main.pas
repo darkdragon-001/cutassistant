@@ -492,6 +492,7 @@ procedure TFMain.FormCreate(Sender: TObject);
 var
   numFrames: string;
 begin
+  AdjustFormConstraints(self);
   if screen.WorkAreaWidth < self.Constraints.MinWidth then begin
     self.Constraints.MinWidth := screen.Width;
     //self.WindowState := wsMaximized;

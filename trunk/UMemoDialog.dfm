@@ -1,26 +1,28 @@
 object frmMemoDialog: TfrmMemoDialog
   Left = 733
   Top = 218
-  Width = 437
-  Height = 432
   ActiveControl = BClose
+  AutoScroll = False
   Caption = 'Cut Assistant'
+  ClientHeight = 393
+  ClientWidth = 429
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -10
-  Font.Name = 'MS Sans Serif'
+  Font.Height = -11
+  Font.Name = 'Microsoft Sans Serif'
+  Font.Pitch = fpVariable
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
   DesignSize = (
     429
-    398)
+    393)
   PixelsPerInch = 96
   TextHeight = 13
   object BClose: TButton
     Left = 330
-    Top = 367
+    Top = 362
     Width = 95
     Height = 25
     Anchors = [akRight, akBottom]
@@ -35,7 +37,7 @@ object frmMemoDialog: TfrmMemoDialog
     Left = 0
     Top = 0
     Width = 429
-    Height = 358
+    Height = 357
     Anchors = [akLeft, akTop, akRight, akBottom]
     ReadOnly = True
     ScrollBars = ssBoth

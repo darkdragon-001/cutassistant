@@ -116,7 +116,7 @@ begin
   Name := 'VirtualDub';
   DefaultExeNames.Add(VIRTUALDUB_DEFAULT_EXENAME_1);
   //DefaultExeNames.Add(VIRTUALDUB_DEFAULT_EXENAME_2);
-  RedirectOutput := false;
+  RedirectOutput := true;
   ShowAppWindow := true;
   FNotClose := false;
   FUseSmartRendering := true;
@@ -145,9 +145,8 @@ var
   StrValue: string;
   fccHandler: FOURCC;
   CodecVersion: DWORD;
-  CodecSettingsBuffer: PChar;
   CodecSettings: String;
-  CodecSettingsSize, CodecSettingsSizeRead, BufferSize: Integer;
+  CodecSettingsSize, BufferSize: Integer;
 begin
   //This part only for compatibility issues for versions below 0.9.9
   //This Setting may be overwritten below
@@ -173,21 +172,15 @@ begin
 
   //ini.ReadString does work only up to 2047 characters due to restrictions in iniFiles.pas
   //CodecSettings := ini.ReadString(section, 'CodecSettings', '');
+
   BufferSize := CodecSettingsSize div 3;
   if (CodecSettingsSize mod 3) > 0 then inc(BufferSize);
   BufferSize := BufferSize * 4 + 1;        //+1 for terminating #0
-
-  getmem(CodecSettingsBuffer, BufferSize * SizeOf(Char));
-  try
-    CodecSettingsSizeRead := GetPrivateProfileString(PChar(Section), 'CodecSettings', '', CodecSettingsBuffer, BufferSize , PChar(iniFile.FileName));
-    if CodecSettingsSizeRead = BufferSize-1 then begin
-      SetString(CodecSettings, CodecSettingsBuffer, CodecSettingsSizeRead);
-    end else begin
-      CodecSettings := '';
-      CodecSettingsSize := 0;
-    end;
-  finally
-    freemem(CodecSettingsBuffer, BufferSize * SizeOf(Char));
+  CodecSettings := iniReadLargeString(IniFile, BufferSize, section, 'CodecSettings', '');
+  if Length(CodecSettings) <> BufferSize - 1 then
+  begin
+     CodecSettings := '';
+     CodecSettingsSize := 0;
   end;
   self.SetUseCodec(fccHandler, CodecVersion, CodecSettingsSize, CodecSettings);
 
@@ -552,7 +545,6 @@ begin
     CodecState := s;
     CodecStateSize := sz;
   end;
-
 end;
 
 procedure TfrmCutApplicationVirtualDub.cbxCodecChange(Sender: TObject);

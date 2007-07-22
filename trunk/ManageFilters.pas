@@ -51,10 +51,10 @@ end;
 
 procedure TFManageFilters.refresh_FilterList(Graph: TFilterGraph);
 var
-  Filters: IEnumFilters;
-  BaseFilter: IBaseFilter;
-//  cFetched: ULONG;
-  FilterInfo: _FilterInfo;
+  //Filters: IEnumFilters;
+  //BaseFilter: IBaseFilter;
+  //cFetched: ULONG;
+  //FilterInfo: _FilterInfo;
 
   iFilter: Integer;
   guid: TGUID;

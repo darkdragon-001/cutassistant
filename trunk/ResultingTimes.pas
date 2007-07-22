@@ -39,6 +39,7 @@ type
     procedure FormDestroy(Sender: TObject);
     function FilterGraph2SelectedFilter(Moniker: IMoniker;
       FilterName: WideString; ClassID: TGUID): Boolean;
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     To_Array: Array of double;
@@ -243,8 +244,6 @@ end;
 
 procedure TFResultingTimes.FormClose(Sender: TObject;
   var Action: TCloseAction);
-var
-  filter: IBaseFilter;
 begin
   filtergraph2.Stop;
   filtergraph2.ClearGraph;
@@ -254,6 +253,7 @@ end;
 
 procedure TFResultingTimes.FormCreate(Sender: TObject);
 begin
+  AdjustFormConstraints(Self);
   if ValidRect(Settings.PreviewFormBounds) then
     self.BoundsRect := Settings.PreviewFormBounds
   else
@@ -286,6 +286,12 @@ function TFResultingTimes.FilterGraph2SelectedFilter(Moniker: IMoniker;
   FilterName: WideString; ClassID: TGUID): Boolean;
 begin
   result := not settings.FilterIsInBlackList(ClassID);
+end;
+
+procedure TFResultingTimes.FormShow(Sender: TObject);
+begin
+  // Show taskbar button for this form ...
+  SetWindowLong(Handle, GWL_ExStyle, WS_Ex_AppWindow);
 end;
 
 end.

@@ -3,8 +3,16 @@ object frmCutApplicationBase: TfrmCutApplicationBase
   Top = 0
   Width = 385
   Height = 160
+  AutoScroll = False
   Constraints.MinHeight = 160
   Constraints.MinWidth = 385
+  Font.Charset = ANSI_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Microsoft Sans Serif'
+  Font.Pitch = fpVariable
+  Font.Style = []
+  ParentFont = False
   TabOrder = 0
   TabStop = True
   DesignSize = (

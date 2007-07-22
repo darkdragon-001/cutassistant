@@ -1,9 +1,10 @@
 object FMain: TFMain
-  Left = 297
-  Top = 208
-  Width = 750
-  Height = 519
+  Left = 301
+  Top = 215
+  AutoScroll = False
   Caption = 'Cut Assistant'
+  ClientHeight = 465
+  ClientWidth = 742
   Color = clBtnFace
   Constraints.MinHeight = 519
   Constraints.MinWidth = 750

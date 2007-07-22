@@ -13,6 +13,8 @@ TYPE
     reMessages: TRichEdit;
     timScroll: TTimer;
     PROCEDURE timScrollTimer(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
   PRIVATE
     { Private-Deklarationen }
   PROTECTED
@@ -30,6 +32,8 @@ VAR
   FLogging                    : TFLogging;
 
 IMPLEMENTATION
+
+uses Main, Utils, Math;
 
 {$R *.dfm}
 
@@ -89,6 +93,24 @@ BEGIN
   timScroll.Enabled := true;
 END;
 
+procedure TFLogging.FormCreate(Sender: TObject);
+begin
+  if ValidRect(Settings.LoggingFormBounds) then
+    self.BoundsRect := Settings.LoggingFormBounds
+  else
+  begin
+    self.Top := Screen.WorkAreaTop + Max(0, (Screen.WorkAreaHeight - self.Height) div 2);
+    self.Left := Screen.WorkAreaLeft + Max(0, (Screen.WorkAreaWidth - self.Width) div 2);
+  end;
+
+  self.Visible := Settings.LoggingFormVisible;
+end;
+
+procedure TFLogging.FormDestroy(Sender: TObject);
+begin
+  Settings.LoggingFormBounds := self.BoundsRect;
+  Settings.LoggingFormVisible := self.Visible;
+end;
 
 END.
 

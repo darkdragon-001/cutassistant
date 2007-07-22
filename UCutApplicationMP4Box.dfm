@@ -1,6 +1,13 @@
 inherited frmCutApplicationMP4Box: TfrmCutApplicationMP4Box
   Height = 210
+  HorzScrollBar.Range = 0
+  VertScrollBar.Range = 0
+  AutoScroll = False
   Constraints.MinHeight = 210
+  Font.Charset = ANSI_CHARSET
+  Font.Name = 'Microsoft Sans Serif'
+  Font.Pitch = fpVariable
+  ParentFont = False
   object lblCommandLineOptions: TLabel [2]
     Left = 8
     Top = 164

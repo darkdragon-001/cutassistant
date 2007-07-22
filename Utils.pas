@@ -3,7 +3,7 @@ unit Utils;
 interface
 
 uses
-  StdCtrls, Windows, Graphics,
+  Forms, StdCtrls, Windows, Graphics, IniFiles, MMSystem,
   IdMultipartFormData;
 
 const
@@ -88,16 +88,166 @@ type
 
   function ValidRect(const ARect: TRect): boolean;
 
-  //global Vars
+  // Use in Create event of form to fix scaling when screen resolution changes.
+  procedure ScaleForm(const F: TForm); overload;
+  procedure ScaleForm(const F: TForm; const ScreenWidthDev, ScreenHeightDev: Integer); overload;
+
+  // Fix Borland QC Report 13832: Constraints don't obey form Scaled property
+  procedure AdjustFormConstraints (form : TForm);
+
+//ini.ReadString does work only up to 2047 characters due to restrictions in iniFiles.pas
+function iniReadLargeString(
+    const ini: TIniFile;
+    const BufferSize: integer;
+    const section, name, default: string): string;
+
+type
+  RCutAppSettings = record
+    CutAppName: string;
+    PreferredSourceFilter: TGUID;
+    CodecFourCC: FOURCC;
+    CodecVersion: DWORD;
+    CodecSettingsSize: integer;
+    CodecSettings: string;
+  end;
+
+procedure ReadCutAppSettings(
+  const ini: TIniFile;
+  const section: string;
+  var CutAppSettings: RCutAppSettings);
+procedure WriteCutAppSettings(
+  const ini: TIniFile;
+  const section: string;
+  var CutAppSettings: RCutAppSettings);
+
+
+//global Vars
 var
   batchmode: boolean;
 
 
 implementation
 
+{$I jedi.inc}
+
 uses
-  Messages, SysUtils, ShellAPI, Variants, Classes, Forms, Clipbrd, StrUtils, jpeg,
-  Types;
+  Messages, SysUtils, ShellAPI, Variants, Classes, Clipbrd, StrUtils, jpeg,
+  Types, DirectShow9;
+
+
+const ScreenWidthDev  = 1280;
+      ScreenHeightDev = 1024;
+
+procedure WriteCutAppSettings(
+  const ini: TIniFile;
+  const section: string;
+  var CutAppSettings: RCutAppSettings);
+begin
+  ini.WriteString(section, 'AppName', CutAppSettings.CutAppName);
+  ini.WriteString(section, 'PreferredSourceFilter', GUIDToString(CutAppSettings.PreferredSourceFilter));
+  ini.WriteInteger(section, 'CodecFourCC', CutAppSettings.CodecFourCC);
+  ini.WriteInteger(section, 'CodecVersion', CutAppSettings.CodecVersion);
+  ini.WriteInteger(section, 'CodecSettingsSize', CutAppSettings.CodecSettingsSize);
+  ini.WriteString(section, 'CodecSettings', CutAppSettings.CodecSettings);
+end;
+
+procedure ReadCutAppSettings(
+  const ini: TIniFile;
+  const section: string;
+  var CutAppSettings: RCutAppSettings);
+var
+  StrValue: string;
+  BufferSize: integer;
+begin
+  if not Assigned(ini) then exit;
+
+  CutAppSettings.CutAppName := ini.ReadString(section, 'AppName', '');
+  StrValue := ini.ReadString(section, 'PreferredSourceFilter', GUIDToString(GUID_NULL));
+  try
+    CutAppSettings.PreferredSourceFilter := StringToGUID(StrValue);
+  except
+    on EConvertError do
+      CutAppSettings.PreferredSourceFilter := GUID_NULL;
+  end;
+  CutAppSettings.CodecFourCC := ini.ReadInteger(section, 'CodecFourCC', 0);
+  CutAppSettings.CodecVersion := ini.ReadInteger(section, 'CodecVersion', 0);
+  CutAppSettings.CodecSettingsSize := ini.ReadInteger(section, 'CodecSettingsSize', 0);
+  BufferSize := CutAppSettings.CodecSettingsSize div 3;
+  if (CutAppSettings.CodecSettingsSize mod 3) > 0 then
+    Inc(BufferSize);
+  BufferSize := BufferSize * 4 + 1;        //+1 for terminating #0
+  CutAppSettings.CodecSettings := iniReadLargeString(ini, BufferSize, section, 'CodecSettings', '');
+  if Length(CutAppSettings.CodecSettings) <> BufferSize - 1 then
+  begin
+     CutAppSettings.CodecSettings := '';
+     CutAppSettings.CodecSettingsSize := 0;
+  end;
+end;
+
+//ini.ReadString does work only up to 2047 characters due to restrictions in iniFiles.pas
+function iniReadLargeString(
+    const ini: TIniFile;
+    const BufferSize: integer;
+    const section, name, default: string): string;
+var
+  SizeRead: Integer;
+  Buffer: PChar;
+begin
+  GetMem(Buffer, BufferSize * SizeOf(Char));
+  try
+    SizeRead := GetPrivateProfileString(PChar(Section), PChar(name), PChar(default), Buffer, BufferSize , PChar(ini.FileName));
+    if (SizeRead >= 0) and (SizeRead <= BufferSize-1) then
+      SetString(Result, Buffer, SizeRead)
+    else Result := default;
+  finally
+    freemem(Buffer, BufferSize * SizeOf(Char));
+  end;
+end;
+
+procedure ScaleForm(const F: TForm); overload;
+begin
+  ScaleForm(F, ScreenWidthDev, ScreenHeightDev);
+end;
+
+procedure AdjustFormConstraints (form : TForm);
+{IFNDEF RTL180_UP}
+var
+  FormDPI, ScreenDPI: integer;
+{IFEND}
+begin
+  if not Assigned(form) then
+    exit;
+{IFNDEF RTL180_UP}
+  if not form.Scaled then
+    exit;
+  FormDPI := form.PixelsPerInch;
+  ScreenDPI := Screen.PixelsPerInch;
+  if FormDPI <> ScreenDPI then
+    with form.Constraints do
+    begin
+      MinHeight := (MinHeight * ScreenDPI) div FormDPI;
+      MinWidth  := (MinWidth  * ScreenDPI) div FormDPI;
+      MaxHeight := (MinHeight * ScreenDPI) div FormDPI;
+      MaxWidth  := (MinWidth  * ScreenDPI) div FormDPI;
+    end;
+{IFEND}
+end;
+
+procedure ScaleForm(const F: TForm; const ScreenWidthDev, ScreenHeightDev: Integer);
+var
+  x,y: Integer;
+begin
+  if not Assigned(F) then
+    exit;
+  F.Scaled := true;
+  x := Screen.Width;
+  y := Screen.Height;
+  if (x<>ScreenWidthDev) or (y<>ScreenHeightDev) then begin
+    F.Height := (F.ClientHeight*y div ScreenHeightDev) + F.Height - F.ClientHeight;
+    F.Width :=  (F.ClientWidth*y div ScreenWidthDev)   + F.Width  - F.ClientWidth;
+    F.ScaleBy(x, ScreenWidthDev);
+  end;
+end;
 
 constructor THttpRequest.Create(const Url: string; const handleRedirects: boolean; const Error_message: string);
 begin
@@ -188,7 +338,7 @@ begin
     if WriteProcessMemory(GetCurrentProcess, Address, @NOP, 1, BytesWritten) and 
       (BytesWritten = 1) then 
       FlushInstructionCache(GetCurrentProcess, Address, 1); 
-  except 
+  except
     //Do not panic if you see an EAccessViolation here, it is perfectly harmless! 
     on EAccessViolation do ; 
     else raise; 

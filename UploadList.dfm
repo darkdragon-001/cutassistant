@@ -7,8 +7,9 @@ object FUploadList: TFUploadList
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -10
-  Font.Name = 'MS Sans Serif'
+  Font.Height = -11
+  Font.Name = 'Microsoft Sans Serif'
+  Font.Pitch = fpVariable
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
@@ -26,7 +27,7 @@ object FUploadList: TFUploadList
       805
       34)
     object BCancel: TButton
-      Left = 699
+      Left = 705
       Top = 6
       Width = 95
       Height = 25
@@ -37,7 +38,7 @@ object FUploadList: TFUploadList
       TabOrder = 0
     end
     object BDelete: TButton
-      Left = 598
+      Left = 604
       Top = 6
       Width = 95
       Height = 25

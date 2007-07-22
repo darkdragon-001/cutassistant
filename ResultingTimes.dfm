@@ -1,28 +1,33 @@
 object FResultingTimes: TFResultingTimes
-  Left = 263
-  Top = 283
-  Width = 901
-  Height = 534
+  Left = 340
+  Top = 318
   ActiveControl = BClose
+  AutoScroll = False
   Caption = 'Check cuts after cutting'
+  ClientHeight = 396
+  ClientWidth = 592
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Constraints.MinHeight = 430
+  Constraints.MinWidth = 600
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -10
-  Font.Name = 'MS Sans Serif'
+  Font.Height = -11
+  Font.Name = 'Microsoft Sans Serif'
+  Font.Pitch = fpVariable
   Font.Style = []
   FormStyle = fsStayOnTop
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
   object LTimeList: TListView
-    Left = 661
+    Left = 360
     Top = 0
     Width = 232
-    Height = 456
+    Height = 352
     Align = alRight
     Columns = <
       item
@@ -52,17 +57,18 @@ object FResultingTimes: TFResultingTimes
   end
   object Panel1: TPanel
     Left = 0
-    Top = 456
-    Width = 893
+    Top = 352
+    Width = 592
     Height = 44
     Align = alBottom
     BevelOuter = bvNone
+    Constraints.MinWidth = 360
     TabOrder = 1
     DesignSize = (
-      893
+      592
       44)
     object Label1: TLabel
-      Left = 502
+      Left = 360
       Top = 7
       Width = 106
       Height = 26
@@ -71,7 +77,7 @@ object FResultingTimes: TFResultingTimes
       WordWrap = True
     end
     object Label8: TLabel
-      Left = 353
+      Left = 214
       Top = 7
       Width = 18
       Height = 13
@@ -88,7 +94,7 @@ object FResultingTimes: TFResultingTimes
       Caption = 'Pos.'
     end
     object Label3: TLabel
-      Left = 604
+      Left = 462
       Top = 20
       Width = 20
       Height = 13
@@ -97,10 +103,10 @@ object FResultingTimes: TFResultingTimes
       Caption = 'sec.'
     end
     object BClose: TButton
-      Left = 657
+      Left = 492
       Top = 13
-      Width = 61
-      Height = 20
+      Width = 95
+      Height = 25
       Anchors = [akTop, akRight]
       Caption = 'Close'
       ModalResult = 1
@@ -108,7 +114,7 @@ object FResultingTimes: TFResultingTimes
       OnClick = BCloseClick
     end
     object TVolume: TTrackBar
-      Left = 372
+      Left = 233
       Top = 7
       Width = 122
       Height = 26
@@ -146,7 +152,7 @@ object FResultingTimes: TFResultingTimes
     object DSTrackBar1: TDSTrackBar
       Left = 98
       Top = 7
-      Width = 240
+      Width = 112
       Height = 26
       Anchors = [akLeft, akTop, akRight]
       Frequency = 300
@@ -154,7 +160,7 @@ object FResultingTimes: TFResultingTimes
       FilterGraph = FilterGraph2
     end
     object ESeconds: TEdit
-      Left = 565
+      Left = 423
       Top = 20
       Width = 20
       Height = 21
@@ -164,7 +170,7 @@ object FResultingTimes: TFResultingTimes
       Text = '0'
     end
     object UDSeconds: TUpDown
-      Left = 585
+      Left = 443
       Top = 20
       Width = 15
       Height = 21
@@ -178,20 +184,24 @@ object FResultingTimes: TFResultingTimes
   object PanelVideoWindow2: TPanel
     Left = 0
     Top = 0
-    Width = 661
-    Height = 456
+    Width = 360
+    Height = 352
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
     OnResize = PanelVideoWindow2Resize
+    DesignSize = (
+      360
+      352)
     object VideoWindow2: TVideoWindow
       Left = 0
       Top = 0
-      Width = 488
-      Height = 366
+      Width = 355
+      Height = 262
       FilterGraph = FilterGraph2
       VMROptions.Mode = vmrWindowed
       Color = clBlack
+      Anchors = [akLeft, akTop, akRight, akBottom]
     end
   end
   object FilterGraph2: TFilterGraph

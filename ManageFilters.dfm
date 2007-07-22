@@ -1,16 +1,18 @@
 object FManageFilters: TFManageFilters
   Left = 471
   Top = 363
-  Width = 450
-  Height = 255
+  AutoScroll = False
   Caption = 'Filters'
+  ClientHeight = 221
+  ClientWidth = 442
   Color = clBtnFace
   Constraints.MinHeight = 200
   Constraints.MinWidth = 250
-  Font.Charset = DEFAULT_CHARSET
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -10
-  Font.Name = 'MS Sans Serif'
+  Font.Height = -11
+  Font.Name = 'Microsoft Sans Serif'
+  Font.Pitch = fpVariable
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
@@ -24,7 +26,7 @@ object FManageFilters: TFManageFilters
   TextHeight = 13
   object Label1: TLabel
     Left = 148
-    Top = 187
+    Top = 188
     Width = 103
     Height = 26
     Anchors = [akLeft, akBottom]
@@ -33,9 +35,9 @@ object FManageFilters: TFManageFilters
   end
   object BRemove: TButton
     Left = 4
-    Top = 185
+    Top = 192
     Width = 131
-    Height = 20
+    Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Remove from FilterGraph'
     Enabled = False
@@ -45,9 +47,9 @@ object FManageFilters: TFManageFilters
   end
   object BClose: TButton
     Left = 377
-    Top = 185
+    Top = 192
     Width = 61
-    Height = 20
+    Height = 25
     Anchors = [akRight, akBottom]
     Cancel = True
     Caption = 'Close'
@@ -64,10 +66,11 @@ object FManageFilters: TFManageFilters
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -15
+    Font.Height = -13
     Font.Name = 'Courier New'
+    Font.Pitch = fpVariable
     Font.Style = []
-    ItemHeight = 17
+    ItemHeight = 16
     MultiSelect = True
     ParentFont = False
     TabOrder = 2
@@ -76,9 +79,9 @@ object FManageFilters: TFManageFilters
   end
   object BCopy: TButton
     Left = 269
-    Top = 185
+    Top = 192
     Width = 102
-    Height = 20
+    Height = 25
     Anchors = [akRight, akBottom]
     Cancel = True
     Caption = 'Copy to clipboard'

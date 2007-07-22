@@ -42,6 +42,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure FormResize(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     FrameList: TObjectList;
@@ -370,6 +371,12 @@ begin
     end;
     self.BorderVisible := true;
   end;
+end;
+
+procedure TFFrames.FormShow(Sender: TObject);
+begin
+  // Show taskbar button for this form ...
+  SetWindowLong(Handle, GWL_ExStyle, WS_Ex_AppWindow);
 end;
 
 end.

@@ -1,21 +1,25 @@
 object FCutlistInfo: TFCutlistInfo
-  Left = 535
-  Top = 177
-  Width = 615
-  Height = 672
+  Left = 371
+  Top = 200
+  BorderStyle = bsSingle
   Caption = 'Cutlist Info'
+  ClientHeight = 520
+  ClientWidth = 494
   Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
+  Constraints.MinHeight = 553
+  Constraints.MinWidth = 502
+  Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -10
-  Font.Name = 'MS Sans Serif'
+  Font.Height = -11
+  Font.Name = 'Microsoft Sans Serif'
+  Font.Pitch = fpVariable
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
   OnShow = FormShow
   DesignSize = (
-    607
-    638)
+    494
+    520)
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -26,8 +30,9 @@ object FCutlistInfo: TFCutlistInfo
     Caption = 'Infos saved in Cutlist:'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
-    Font.Height = -15
-    Font.Name = 'MS Sans Serif'
+    Font.Height = -13
+    Font.Name = 'Microsoft Sans Serif'
+    Font.Pitch = fpVariable
     Font.Style = []
     ParentFont = False
   end
@@ -36,6 +41,7 @@ object FCutlistInfo: TFCutlistInfo
     Top = 442
     Width = 72
     Height = 13
+    Anchors = [akLeft, akBottom]
     Caption = 'User Comment:'
   end
   object Label3: TLabel
@@ -43,6 +49,7 @@ object FCutlistInfo: TFCutlistInfo
     Top = 397
     Width = 221
     Height = 13
+    Anchors = [akLeft, akBottom]
     Caption = 'Suggested movie file name (without extension):'
   end
   object RGRatingByAuthor: TRadioGroup
@@ -50,7 +57,7 @@ object FCutlistInfo: TFCutlistInfo
     Top = 33
     Width = 481
     Height = 156
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = 'How do you rate your cutlist?'
     Items.Strings = (
       
@@ -73,7 +80,7 @@ object FCutlistInfo: TFCutlistInfo
     Top = 208
     Width = 481
     Height = 176
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = [akLeft, akRight, akBottom]
     Caption = 'Infos about the movie:'
     TabOrder = 1
     DesignSize = (
@@ -128,7 +135,7 @@ object FCutlistInfo: TFCutlistInfo
     end
     object CBOtherError: TCheckBox
       Left = 7
-      Top = 156
+      Top = 153
       Width = 78
       Height = 14
       Caption = 'Other Error:'
@@ -137,7 +144,7 @@ object FCutlistInfo: TFCutlistInfo
     end
     object EOtherErrorDescription: TEdit
       Left = 85
-      Top = 150
+      Top = 149
       Width = 384
       Height = 21
       Anchors = [akLeft, akTop, akRight]
@@ -155,9 +162,9 @@ object FCutlistInfo: TFCutlistInfo
     end
   end
   object Button1: TButton
-    Left = 429
-    Top = 494
-    Width = 61
+    Left = 402
+    Top = 491
+    Width = 85
     Height = 20
     Anchors = [akRight, akBottom]
     Caption = 'Cancel'
@@ -165,9 +172,9 @@ object FCutlistInfo: TFCutlistInfo
     TabOrder = 2
   end
   object Button2: TButton
-    Left = 364
-    Top = 494
-    Width = 61
+    Left = 312
+    Top = 491
+    Width = 85
     Height = 20
     Anchors = [akRight, akBottom]
     Caption = 'OK'
@@ -179,30 +186,33 @@ object FCutlistInfo: TFCutlistInfo
     Top = 462
     Width = 481
     Height = 21
+    Anchors = [akLeft, akRight, akBottom]
     TabOrder = 4
     OnChange = EnableOK
   end
   object Panel1: TPanel
     Left = 7
     Top = 488
-    Width = 351
+    Width = 298
     Height = 26
+    Anchors = [akLeft, akRight, akBottom]
     BevelInner = bvLowered
     TabOrder = 5
     object LAuthor: TLabel
       Left = 2
       Top = 6
-      Width = 347
+      Width = 294
       Height = 18
       Align = alBottom
       Alignment = taCenter
       AutoSize = False
       Caption = 'Cutlist Author unknown'
       Color = clNone
-      Font.Charset = DEFAULT_CHARSET
+      Font.Charset = ANSI_CHARSET
       Font.Color = clNavy
-      Font.Height = -15
-      Font.Name = 'MS Sans Serif'
+      Font.Height = -13
+      Font.Name = 'Microsoft Sans Serif'
+      Font.Pitch = fpVariable
       Font.Style = []
       ParentColor = False
       ParentFont = False
@@ -211,9 +221,10 @@ object FCutlistInfo: TFCutlistInfo
   end
   object CBFramesPresent: TCheckBox
     Left = 345
-    Top = 7
+    Top = 12
     Width = 143
     Height = 13
+    Anchors = [akTop, akRight]
     Caption = 'Frame numbers present'
     Enabled = False
     TabOrder = 6
@@ -223,6 +234,7 @@ object FCutlistInfo: TFCutlistInfo
     Top = 416
     Width = 364
     Height = 21
+    Anchors = [akLeft, akRight, akBottom]
     TabOrder = 7
     OnChange = EnableOK
   end
@@ -231,13 +243,8 @@ object FCutlistInfo: TFCutlistInfo
     Top = 416
     Width = 111
     Height = 20
+    Anchors = [akRight, akBottom]
     Caption = 'Copy from Filename'
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -11
-    Font.Name = 'MS Sans Serif'
-    Font.Style = []
-    ParentFont = False
     TabOrder = 8
     OnClick = BMovieNameCopyClick
   end

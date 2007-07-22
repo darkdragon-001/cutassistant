@@ -607,6 +607,7 @@ var
   saveDlg: TSaveDialog;
 //  exitCode: DWord;
   CutApplication: TCutApplicationBase;
+  CutAppSettings: RCutAppSettings;
 begin
   result := false;
   if cutlist.Count = 0 then begin
@@ -689,8 +690,8 @@ begin
   end;
 
   CutApplication := Settings.GetCutApplicationByMovieType(MovieInfo.MovieType);
-
   if assigned(CutApplication) then begin
+    CutApplication.CutAppSettings := Settings.GetCutAppSettingsByMovieType(MovieInfo.MovieType);
     frmCutting.CutApplication := CutApplication;
     result := CutApplication.PrepareCutting(MovieInfo.current_filename, MovieInfo.target_filename, cutlist);
     if result then begin

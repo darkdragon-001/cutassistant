@@ -57,7 +57,7 @@ implementation
 
 uses
   FileCtrl, StrUtils,
-  Utils, UCutlist, UfrmCutting;
+  UCutlist, UfrmCutting;
 
 
 { TCutApplicationMP4Box }

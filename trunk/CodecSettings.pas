@@ -3,7 +3,7 @@ unit CodecSettings;
 interface
 
 uses
-  classes, MMSystem, vfw;
+  Classes, ExtCtrls, DSUtil, MMSystem, vfw, Utils;
 
 type
   TICInfoArray = array of TICInfo;
@@ -41,6 +41,23 @@ type
     property CodecInfoObject[i: Integer]: TICInfoObject read GetCodecInfoObject;
   end;
 
+  TSourceFilterList = class
+  private
+    FFilters: TList;
+    procedure ClearFilterList;
+    function Add: PFilCatNode;
+    function GetFilter(Index: Integer): TFilCatNode;
+    function CheckFilter(EnumFilters: TSysDevEnum; index: integer; FilterBlackList: TGUIDList): Boolean;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function Fill(progressLabel: TPanel; FilterBlackList: TGUIDList): Integer;
+    function count: Integer;
+    property GetFilterInfo[Index: Integer]: TFilCatNode read GetFilter;
+    function GetFilterIndexByCLSID(CLSID: TGUID): Integer;
+  end;
+
+
 function ConfigCodec(ParentWindow: THandle; ICInfo: TICInfo; var State: string; var SizeDecoded: Integer): boolean;
 function FillCodecInfo(var Info: TICInfo): boolean;
 function EnumCodecs(fccType: FOURCC; var ICInfoArray: TICInfoArray): boolean;
@@ -48,44 +65,195 @@ function EnumCodecs(fccType: FOURCC; var ICInfoArray: TICInfoArray): boolean;
 implementation
 
 uses
-  Forms, Windows, Base64, Utils;
+  Forms, Controls, StdCtrls, Dialogs,
+  Windows, Types, SysUtils, Base64,
+  DirectShow9;
+
+{ TSourceFilterList }
+
+procedure TSourceFilterList.ClearFilterList;
+var
+  i: Integer;
+begin
+  for i := 0 to (FFilters.Count - 1) do
+    if assigned(FFilters.Items[i]) then Dispose(FFilters.Items[i]);
+  FFilters.Clear;
+end;
+
+function TSourceFilterList.GetFilter(Index: Integer): TFilCatNode;
+var
+  FilterInfo: PFilCatNode;
+begin
+  FilterINfo := FFilters.Items[Index];
+  result := FilterInfo^;
+end;
+
+function TSourceFilterList.Add: PFilCatNode;
+var
+  newFilterINfo: PFilCatNode;
+begin
+  new(newFilterINfo);
+  self.FFilters.Add(newFilterINfo);
+  result := newFilterInfo;
+end;
+
+function TSourceFilterList.GetFilterIndexByCLSID(CLSID: TGUID): Integer;
+var
+  i: integer;
+begin
+  result := -1;
+  for i := 0 to self.count -1 do begin
+    if isEqualGUID(CLSID, self.GetFilterInfo[i].CLSID) then begin
+      result := i;
+      break;
+    end;
+  end;
+end;
+
+procedure UpdateControlCaption(cntrl: TControl; s: string);
+begin
+  if cntrl = nil then exit;
+
+  if cntrl is TPanel then
+  begin
+    with cntrl as TPanel do
+    begin
+      Caption := s;
+      Refresh;
+    end;
+  end
+  else if cntrl is TLabel then
+  begin
+    with cntrl as TLabel do
+    begin
+      Caption := s;
+      Refresh;
+    end;
+  end
+end;
+
+function TSourceFilterList.count: Integer;
+begin
+  result := FFilters.Count;
+end;
+
+constructor TSourceFilterList.create;
+begin
+  FFilters := TList.Create;
+end;
+
+destructor TSourceFilterList.destroy;
+begin
+  ClearFilterList;
+  FreeAndNil(FFilters);
+  inherited;
+end;
+
+function TSourceFilterList.CheckFilter(EnumFilters: TSysDevEnum; index: integer; FilterBlackList: TGUIDList): Boolean;
+const
+  CLS_ID_WMT_LOG_FILTER: TGUID = '{92883667-E95C-443D-AC96-4CACA27BEB6E}';
+var
+  Filter: IBaseFilter;
+  newFilterInfo: PFilCatNode;
+  filterInfo: TFilCatNode;
+begin
+  Result := false;
+  filterInfo := EnumFilters.Filters[index];
+  //Skip Wmt Log Filter -> causing strange exception
+  if not ( IsEqualGUID(filterInfo.CLSID, CLS_ID_WMT_LOG_FILTER)
+    or FilterBlackList.IsInList(filterInfo.CLSID) ) then
+  begin
+    Filter := EnumFilters.GetBaseFilter(index);
+    if supports(Filter, IFileSourceFilter) then
+    begin
+      newFilterInfo := self.Add;
+      newFilterINfo^  := filterInfo;
+      Result := true;
+    end;
+    Filter:=nil;
+  end;
+end;
+
+function TSourceFilterList.Fill(progressLabel: TPanel; FilterBlackList: TGUIDList): Integer;
+var
+  EnumFilters: TSysDevEnum;
+  i, filterCount: Integer;
+  newFilterInfo: PFilCatNode;
+  ParentForm: TWinControl;
+begin
+  self.ClearFilterList;
+  newFilterInfo := self.Add;
+  newFilterINfo^.FriendlyName := '(none)';
+  newFilterInfo^.CLSID := GUID_NULL;
+  result := 1;
+
+  EnumFilters := TSysDevEnum.Create(CLSID_LegacyAmFilterCategory); //DirectShow Filters
+  if not assigned(EnumFilters) then exit;
+
+  ParentForm := progressLabel;
+  while (ParentForm <> nil) and not (ParentForm is TCustomForm) do
+    ParentForm := ParentForm.Parent;
+
+  UpdateControlCaption(progressLabel, 'Checking Filters. Please wait ...');
+  filterCount := EnumFilters.CountFilters;
+  try
+    For i := 0 to filterCount - 1 do
+    begin
+      try
+        UpdateControlCaption(progressLabel, SysUtils.Format('Checking Filter (%3d/%3d)', [i+1, filterCount]));
+        CheckFilter(EnumFilters, i, FilterBlackList);
+      except
+      on E: exception do
+        begin
+        showmessage('Error while checking Filter '+EnumFilters.Filters[i].FriendlyName +#13#10
+                   +'ClassID: ' + GUIDTOString(EnumFilters.Filters[i].CLSID)+#13#10
+                   +'Error: ' + E.Message);
+        if ParentForm <> nil then ParentForm.Refresh;
+        //raise;
+        end;
+      end;
+    end;
+  finally
+    UpdateControlCaption(progressLabel, 'Checking Filters. Done.');
+    EnumFilters.free;
+    result := self.FFilters.Count;
+  end;
+end;
+
+{ TSourceFilterList }
 
 function ConfigCodec(ParentWindow: THandle; ICInfo: TICInfo; var State: string; var SizeDecoded: Integer): boolean;
 var
   Codec: HIC;
-  bufferSize, SizeFromDecoding: DWORD;
+  BufferSize, SizeFromDecoding: DWORD;
   StateBuffer: Pointer;
 begin
   result := false;
   Codec := ICOpen(ICInfo.fccType, ICInfo.fccHandler, ICMODE_COMPRESS);
   if Codec = 0 then exit;
 
-  bufferSize := ICGetStateSize(Codec);
   if State <>'' then begin
     //set old state
     Base64ToBuffer(State, StateBuffer, SizeFromDecoding);
     assert(SizeFromDecoding = SizeDecoded, 'Invalid Codec Settings.');
-    if BufferSize = SizeFromDecoding then begin
-      ICSetState(Codec, StateBuffer, bufferSize);
-    end else begin
-      FreeMem(StateBuffer, SizeFromDecoding);
-      Getmem(StateBuffer, bufferSize);
-    end;
+    BufferSize := SizeFromDecoding;
+    ICSetState(Codec, StateBuffer, BufferSize);
   end else begin
-    Getmem(StateBuffer, bufferSize);
+    bufferSize := ICGetStateSize(Codec);
+    Getmem(StateBuffer, BufferSize);
   end;
 
   try
-  if (ICCOnfigure(Codec, ParentWindow) = ICERR_OK) then begin
-    if (ICGetState(Codec, StateBuffer, bufferSize) = ICERR_OK) then begin
-      state := BufferToBase64(StateBuffer, bufferSize);
-      SizeDecoded := Integer(bufferSize);
-    end else begin
-      state := '';
+    if (ICCOnfigure(Codec, ParentWindow) = ICERR_OK) then begin
+      if (ICGetState(Codec, StateBuffer, BufferSize) = ICERR_OK) then begin
+        state := BufferToBase64(StateBuffer, BufferSize);
+        SizeDecoded := Integer(BufferSize);
+      end else begin
+        state := '';
+      end;
     end;
-  end;
   finally
-    freemem(StateBuffer, bufferSize);
+    freemem(StateBuffer, BufferSize);
   end;
   assert(ICClose(Codec) = ICERR_OK, 'Could not close Compressor.');
   result := true;

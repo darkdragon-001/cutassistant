@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, StdCtrls,
   IniFiles, Contnrs,
-  JvComponentBase, JvCreateProcess;
+  JvComponentBase, JvCreateProcess, Utils;
 
 type
   TCutApplicationFrameClass = class of TfrmCutApplicationBase;
@@ -75,12 +75,14 @@ type
     procedure SetOnCommandLineTerminate(
       const Value: TCutApplicationCommandLineEvent);
   protected
+    FHasSmartRendering: boolean;
     FCommandLines: TStringList;       //ONLY command line parameters WITHOUT path to exe file!!!
     property RawRead: boolean read FRawRead write SetRawRead;
     function ExecuteCutProcess: boolean;
     function GetIniSectionName: string; virtual;
     property CutApplicationProcess: TJvCreateProcess read FjvcpAppProcess;
   public
+    CutAppSettings: RCutAppSettings;
     FrameClass: TCutApplicationFrameClass;
     property OutputMemo: TMemo read FOutputMemo write SetOutputMemo;
     property OnCommandLineTerminate: TCutApplicationCommandLineEvent read FOnCommandLineTerminate write SetOnCommandLineTerminate;
@@ -97,6 +99,7 @@ type
     property CleanUp: boolean read FCleanUp write SetCleanUp;
     property Version: string read FVersion;
     property VersionWords[Index: Integer]: word read GetVersionWords;
+    property HasSmartRendering: boolean read FHasSmartRendering;
 
     constructor create; virtual;
     destructor Destroy; override;
@@ -116,7 +119,7 @@ implementation
 {$WARN UNIT_PLATFORM OFF}
 
 uses
-  FileCtrl, Utils;
+  FileCtrl;
 
 {$R *.dfm}
 
@@ -151,6 +154,7 @@ begin
   ShowAppWindow := true;
   CleanUp := true;
   RawRead := true;
+  FHasSmartRendering := false;
 end;
 
 destructor TCutApplicationBase.destroy;

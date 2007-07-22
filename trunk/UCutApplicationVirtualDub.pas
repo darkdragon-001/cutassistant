@@ -125,6 +125,7 @@ begin
   FFindProgressWindowTimer.OnTimer := FindProgressWindow;
   FFindProgressWindowTimer.Enabled := false;
   FFindProgressWindowTimer.Interval := 1000;
+  FHasSmartRendering := true;
 end;
 
 destructor TCutApplicationVirtualDub.Destroy;

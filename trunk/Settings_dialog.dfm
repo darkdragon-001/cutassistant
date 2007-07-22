@@ -720,6 +720,7 @@ object FSettings: TFSettings
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 0
+        OnChange = cbCutAppChange
         Items.Strings = (
           '')
       end
@@ -731,6 +732,7 @@ object FSettings: TFSettings
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 1
+        OnChange = cbCutAppChange
         Items.Strings = (
           '')
       end
@@ -742,6 +744,7 @@ object FSettings: TFSettings
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 2
+        OnChange = cbCutAppChange
         Items.Strings = (
           '')
       end
@@ -753,6 +756,7 @@ object FSettings: TFSettings
         Style = csDropDownList
         ItemHeight = 13
         TabOrder = 3
+        OnChange = cbCutAppChange
         Items.Strings = (
           '')
       end
@@ -778,7 +782,7 @@ object FSettings: TFSettings
         TabOrder = 4
         OnChange = cbxCodecChange
       end
-      object BConfigCodecWmv: TButton
+      object btnCodecConfigWmv: TButton
         Left = 457
         Top = 21
         Width = 65
@@ -786,7 +790,7 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = 'Config'
         TabOrder = 5
-        OnClick = BConfigCodecClick
+        OnClick = btnCodecConfigClick
       end
       object btnCodecAboutWmv: TButton
         Left = 528
@@ -808,7 +812,7 @@ object FSettings: TFSettings
         TabOrder = 7
         OnChange = cbxCodecChange
       end
-      object BConfigCodecAvi: TButton
+      object btnCodecConfigAvi: TButton
         Left = 457
         Top = 48
         Width = 65
@@ -816,7 +820,7 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = 'Config'
         TabOrder = 8
-        OnClick = BConfigCodecClick
+        OnClick = btnCodecConfigClick
       end
       object btnCodecAboutAvi: TButton
         Left = 528
@@ -838,7 +842,7 @@ object FSettings: TFSettings
         TabOrder = 10
         OnChange = cbxCodecChange
       end
-      object BConfigCodecMP4: TButton
+      object btnCodecConfigMP4: TButton
         Left = 457
         Top = 75
         Width = 65
@@ -846,7 +850,7 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = 'Config'
         TabOrder = 11
-        OnClick = BConfigCodecClick
+        OnClick = btnCodecConfigClick
       end
       object btnCodecAboutMP4: TButton
         Left = 528
@@ -868,7 +872,7 @@ object FSettings: TFSettings
         TabOrder = 13
         OnChange = cbxCodecChange
       end
-      object BConfigCodecOther: TButton
+      object btnCodecConfigOther: TButton
         Left = 457
         Top = 102
         Width = 65
@@ -876,7 +880,7 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = 'Config'
         TabOrder = 14
-        OnClick = BConfigCodecClick
+        OnClick = btnCodecConfigClick
       end
       object btnCodecAboutOther: TButton
         Left = 528
@@ -979,6 +983,7 @@ object FSettings: TFSettings
         ParentFont = False
         TabOrder = 0
         Text = '(none)'
+        OnChange = cbxSourceFilterListChange
       end
       object cbxSourceFilterListMP4: TComboBox
         Left = 122
@@ -996,6 +1001,7 @@ object FSettings: TFSettings
         ParentFont = False
         TabOrder = 1
         Text = '(none)'
+        OnChange = cbxSourceFilterListChange
       end
       object cbxSourceFilterListOther: TComboBox
         Left = 122
@@ -1013,6 +1019,7 @@ object FSettings: TFSettings
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
+        OnChange = cbxSourceFilterListChange
       end
       object btnRefreshFilterList: TButton
         Left = 424
@@ -1040,6 +1047,7 @@ object FSettings: TFSettings
         ParentFont = False
         TabOrder = 4
         Text = '(none)'
+        OnChange = cbxSourceFilterListChange
       end
       object lbchkBlackList: TCheckListBox
         Left = 122

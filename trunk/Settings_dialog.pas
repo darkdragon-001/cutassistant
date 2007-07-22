@@ -120,16 +120,16 @@ type
     Label38: TLabel;
     cbAutoMuteOnSeek: TCheckBox;
     cbxCodecWmv: TComboBox;
-    BConfigCodecWmv: TButton;
+    btnCodecConfigWmv: TButton;
     btnCodecAboutWmv: TButton;
     cbxCodecAvi: TComboBox;
-    BConfigCodecAvi: TButton;
+    btnCodecConfigAvi: TButton;
     btnCodecAboutAvi: TButton;
     cbxCodecMP4: TComboBox;
-    BConfigCodecMP4: TButton;
+    btnCodecConfigMP4: TButton;
     btnCodecAboutMP4: TButton;
     cbxCodecOther: TComboBox;
-    BConfigCodecOther: TButton;
+    btnCodecConfigOther: TButton;
     btnCodecAboutOther: TButton;
     lblSmartRenderingCodec: TLabel;
     procedure BCutMovieSaveDirClick(Sender: TObject);
@@ -144,8 +144,10 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure EFrameWidthExit(Sender: TObject);
     procedure cbxCodecChange(Sender: TObject);
-    procedure BConfigCodecClick(Sender: TObject);
+    procedure btnCodecConfigClick(Sender: TObject);
     procedure btnCodecAboutClick(Sender: TObject);
+    procedure cbCutAppChange(Sender: TObject);
+    procedure cbxSourceFilterListChange(Sender: TObject);
   private
     { Private declarations }
     AviAppSettings, WmvAppSettings, MP4AppSettings, OtherAppSettings: RCutAppSettings;
@@ -167,22 +169,6 @@ type
 
   //deprecated:
   TCutApp = (caAsfBin = 0, caVirtualDub = 1,  caAviDemux = 2);
-
-  TSourceFilterList = class
-  private
-    FFilters: TList;
-    procedure ClearFilterList;
-    function Add: PFilCatNode;
-    function GetFilter(Index: Integer): TFilCatNode;
-    function CheckFilter(EnumFilters: TSysDevEnum; index: integer): Boolean;
-  public
-    constructor Create;
-    destructor Destroy; override;
-    function Fill(progressLabel: TPanel): Integer;
-    function count: Integer;
-    property GetFilterInfo[Index: Integer]: TFilCatNode read GetFilter;
-    function GetFilterIndexByCLSID(CLSID: TGUID): Integer;
-  end;
 
   TSettings = class (TObject)
   private
@@ -247,9 +233,12 @@ type
     constructor Create;
     destructor Destroy; override;
 
+    //deprecated
+    function GetCutAppNameByCutAppType(CAType: TCutApp): String;
+
     function GetCutAppName(MovieType: TMovieType): String;
-    function GetCutAppNameByCutAppType(CAType: TCutApp): String; //deprecated
     function GetCutApplicationByName(CAName: string): TCutApplicationBase;
+    function GetCutAppSettingsByMovieType(MovieType: TMovieType): RCutAppSettings;
     function GetCutApplicationByMovieType(MovieType: TMovieType): TCutApplicationBase;
 
     function GetPreferredSourceFilterByMovieType(MovieType: TMovieType): TGUID;
@@ -279,7 +268,11 @@ implementation
 
 uses
   Math, Types,
-  main, UCutApplicationAsfbin, UCutApplicationVirtualDub, UCutApplicationAviDemux, UCutApplicationMP4Box,
+  Main,
+  UCutApplicationAsfbin,
+  UCutApplicationVirtualDub,
+  UCutApplicationAviDemux,
+  UCutApplicationMP4Box,
   UCutlist, VFW;
 
 var
@@ -301,26 +294,6 @@ begin
   ini.WriteInteger(section, name + '_Top', value.Top);
   ini.WriteInteger(section, name + '_Width', value.Right - value.Left);
   ini.WriteInteger(section, name + '_Height', value.Bottom - value.Top);
-end;
-
-
-function FilterInfoToString(const filterInfo: TFilCatNode): string;
-begin
-  Result := filterInfo.FriendlyName + '  (' + GUIDToString(filterInfo.CLSID) + ')';
-end;
-
-function StringToFilterGUID(const s: string): TGUID;
-var
-  idx, len: integer;
-begin
-  idx := LastDelimiter('(', s) + 1;
-  len := LastDelimiter(')', s);
-  if idx < 0 then Result := GUID_NULL
-  else
-  begin
-    if len <= idx then len := MaxInt;
-    Result := StringToGUID(Copy(s, idx, len - idx))
-  end;
 end;
 
 procedure TFSettings.BCutMovieSaveDirClick(Sender: TObject);
@@ -597,14 +570,26 @@ begin
   end;
 end;
 
-function TSettings.GetCutAppName(MovieType: TMovieType): String;
+function TSettings.GetCutAppSettingsByMovieType(
+  MovieType: TMovieType): RCutAppSettings;
 begin
   Case MovieType of
-    mtWMV: result := self.CutAppSettingsWmv.CutAppName;
-    mtAVI: result := self.CutAppSettingsAvi.CutAppName;
-    mtMP4: result := self.CutAppSettingsMP4.CutAppName;
-    else result := self.CutAppSettingsOther.CutAppName;
+    mtWMV: result := self.CutAppSettingsWmv;
+    mtAVI: result := self.CutAppSettingsAvi;
+    mtMP4: result := self.CutAppSettingsMP4;
+    else result := self.CutAppSettingsOther;
   end;
+end;
+
+function TSettings.GetCutAppName(MovieType: TMovieType): String;
+begin
+  Result := GetCutAppSettingsByMovieType(MovieType).CutAppName;
+end;
+
+function TSettings.GetPreferredSourceFilterByMovieType(
+  MovieType: TMovieType): TGUID;
+begin
+  Result := GetCutAppSettingsByMovieType(MovieType).PreferredSourceFilter;
 end;
 
 function TSettings.GetCutAppNameByCutAppType(CAType: TCutApp): String;
@@ -615,17 +600,6 @@ begin
     caVirtualDub: result := 'VirtualDub';
     caAviDemux: result := 'AviDemux';
     else result := '';
-  end;
-end;
-
-function TSettings.GetPreferredSourceFilterByMovieType(
-  MovieType: TMovieType): TGUID;
-begin
-  case MovieType of
-    mtWMV: result := self.CutAppSettingsWmv.PreferredSourceFilter;
-    mtAVI: result := self.CutAppSettingsAvi.PreferredSourceFilter;
-    mtMP4: result := self.CutAppSettingsMP4.PreferredSourceFilter;
-    else result := self.CutAppSettingsOther.PreferredSourceFilter;
   end;
 end;
 
@@ -1013,159 +987,6 @@ begin
   end;
 end;
 
-{ TSourceFilterList }
-
-procedure TSourceFilterList.ClearFilterList;
-var
-  i: Integer;
-begin
-  for i := 0 to (FFilters.Count - 1) do
-    if assigned(FFilters.Items[i]) then Dispose(FFilters.Items[i]);
-  FFilters.Clear;
-end;
-
-function TSourceFilterList.GetFilter(Index: Integer): TFilCatNode;
-var
-  FilterInfo: PFilCatNode;
-begin
-  FilterINfo := FFilters.Items[Index];
-  result := FilterInfo^;
-end;
-
-function TSourceFilterList.Add: PFilCatNode;
-var
-  newFilterINfo: PFilCatNode;
-begin
-  new(newFilterINfo);
-  self.FFilters.Add(newFilterINfo);
-  result := newFilterInfo;
-end;
-
-function TSourceFilterList.GetFilterIndexByCLSID(CLSID: TGUID): Integer;
-var
-  i: integer;
-begin
-  result := -1;
-  for i := 0 to self.count -1 do begin
-    if isEqualGUID(CLSID, self.GetFilterInfo[i].CLSID) then begin
-      result := i;
-      break;
-    end;
-  end;
-end;
-
-{ TSourceFilterList }
-
-procedure UpdateControlCaption(cntrl: TControl; s: string);
-begin
-  if cntrl = nil then exit;
-
-  if cntrl is TPanel then
-  begin
-    with cntrl as TPanel do
-    begin
-      Caption := s;
-      Refresh;
-    end;
-  end
-  else if cntrl is TLabel then
-  begin
-    with cntrl as TLabel do
-    begin
-      Caption := s;
-      Refresh;
-    end;
-  end
-end;
-
-function TSourceFilterList.count: Integer;
-begin
-  result := FFilters.Count;
-end;
-
-constructor TSourceFilterList.create;
-begin
-  FFilters := TList.Create;
-end;
-
-destructor TSourceFilterList.destroy;
-begin
-  ClearFilterList;
-  FreeAndNil(FFilters);
-  inherited;
-end;
-
-function TSourceFilterList.CheckFilter(EnumFilters: TSysDevEnum; index: integer): Boolean;
-const
-  CLS_ID_WMT_LOG_FILTER: TGUID = '{92883667-E95C-443D-AC96-4CACA27BEB6E}';
-var
-  Filter: IBaseFilter;
-  newFilterInfo: PFilCatNode;
-  filterInfo: TFilCatNode;
-begin
-  Result := false;
-  filterInfo := EnumFilters.Filters[index];
-  //Skip Wmt Log Filter -> causing strange exception
-  if not (IsEqualGUID(filterInfo.CLSID, CLS_ID_WMT_LOG_FILTER)
-    or Settings.FilterIsInBlackList(filterInfo.CLSID))  then
-  begin
-    Filter := EnumFilters.GetBaseFilter(index);
-    if supports(Filter, IFileSourceFilter) then
-    begin
-      newFilterInfo := self.Add;
-      newFilterINfo^  := filterInfo;
-      Result := true;
-    end;
-    Filter:=nil;
-  end;
-end;
-
-function TSourceFilterList.Fill(progressLabel: TPanel): Integer;
-var
-  EnumFilters: TSysDevEnum;
-  i, filterCount: Integer;
-  newFilterInfo: PFilCatNode;
-  ParentForm: TWinControl;
-begin
-  self.ClearFilterList;
-  newFilterInfo := self.Add;
-  newFilterINfo^.FriendlyName := '(none)';
-  newFilterInfo^.CLSID := GUID_NULL;
-  result := 1;
-
-  EnumFilters := TSysDevEnum.Create(CLSID_LegacyAmFilterCategory); //DirectShow Filters
-  if not assigned(EnumFilters) then exit;
-
-  ParentForm := progressLabel;
-  while (ParentForm <> nil) and not (ParentForm is TCustomForm) do
-    ParentForm := ParentForm.Parent;
-
-  UpdateControlCaption(progressLabel, 'Checking Filters. Please wait ...');
-  filterCount := EnumFilters.CountFilters;
-  try
-    For i := 0 to filterCount - 1 do
-    begin
-      try
-        UpdateControlCaption(progressLabel, SysUtils.Format('Checking Filter (%3d/%3d)', [i+1, filterCount]));
-        CheckFilter(EnumFilters, i);
-      except
-      on E: exception do
-        begin
-        showmessage('Error while checking Filter '+EnumFilters.Filters[i].FriendlyName +#13#10
-                   +'ClassID: ' + GUIDTOString(EnumFilters.Filters[i].CLSID)+#13#10
-                   +'Error: ' + E.Message);
-        if ParentForm <> nil then ParentForm.Refresh;
-        //raise;
-        end;
-      end;
-    end;
-  finally
-    UpdateControlCaption(progressLabel, 'Checking Filters. Done.');
-    EnumFilters.free;
-    result := self.FFilters.Count;
-  end;
-end;
-
 procedure TFSettings.tsSourceFilterShow(Sender: TObject);
 var
   i: Integer;
@@ -1181,11 +1002,17 @@ begin
     cbxSourceFilterListMP4.Enabled := false;
     cbxSourceFilterListOther.Enabled := false;
 
+    cbxSourceFilterListWMV.Items.Clear;
     cbxSourceFilterListWMV.ItemIndex := -1;
+    cbxSourceFilterListAVI.Items.Clear;
     cbxSourceFilterListAVI.ItemIndex := -1;
+    cbxSourceFilterListMP4.Items.Clear;
     cbxSourceFilterListMP4.ItemIndex := -1;
+    cbxSourceFilterListOther.Items.Clear;
     cbxSourceFilterListOther.ItemIndex := -1;
-  end else begin
+  end else if self.cbxSourceFilterListOther.Items.Count = 0 then
+  begin
+    // lazy initialize
     for i := 0 to Settings.SourceFilterList.count-1 do begin
       filterInfo := Settings.SourceFilterList.GetFilterInfo[i];
       self.cbxSourceFilterListOther.AddItem(FilterInfoToString(filterInfo), nil);
@@ -1195,9 +1022,13 @@ begin
     cbxSourceFilterListMP4.Items.Assign(cbxSourceFilterListOther.Items);
 
     cbxSourceFilterListWMV.ItemIndex := Settings.SourceFilterList.GetFilterIndexByCLSID(Settings.CutAppSettingsWmv.PreferredSourceFilter);
+    cbxSourceFilterListChange(cbxSourceFilterListWMV);
     cbxSourceFilterListAVI.ItemIndex := Settings.SourceFilterList.GetFilterIndexByCLSID(Settings.CutAppSettingsAvi.PreferredSourceFilter);
+    cbxSourceFilterListChange(cbxSourceFilterListAVI);
     cbxSourceFilterListMP4.ItemIndex := Settings.SourceFilterList.GetFilterIndexByCLSID(Settings.CutAppSettingsMP4.PreferredSourceFilter);
+    cbxSourceFilterListChange(cbxSourceFilterListMP4);
     cbxSourceFilterListOther.ItemIndex := Settings.SourceFilterList.GetFilterIndexByCLSID(Settings.CutAppSettingsOther.PreferredSourceFilter);
+    cbxSourceFilterListChange(cbxSourceFilterListOther);
 
     cbxSourceFilterListWMV.Enabled := true;
     cbxSourceFilterListAVI.Enabled := true;
@@ -1222,7 +1053,7 @@ begin
     cbxSourceFilterListOther.Clear;
 
     FillBlackList;
-    Settings.SourceFilterList.Fill(pnlPleaseWait);
+    Settings.SourceFilterList.Fill(pnlPleaseWait, Settings.FilterBlackList);
 
     tsSourceFilterShow(sender);
   finally
@@ -1233,22 +1064,22 @@ end;
 
 function TFSettings.GetMovieTypeFromControl(const Sender: TObject; var MovieType: TMovieType): boolean;
 begin
-  if (Sender = cbxCodecWmv) or (Sender = BConfigCodecWmv) or (Sender = btnCodecAboutWmv) then
+  if (Sender = CBWmvApp) or (Sender = cbxCodecWmv) or (Sender = btnCodecConfigWmv) or (Sender = btnCodecAboutWmv) then
   begin
     MovieType := mtWMV;
     Result := true;
   end
-  else if (Sender = cbxCodecAvi) or (Sender = BConfigCodecAvi) or (Sender = btnCodecAboutAvi) then
+  else if (Sender = CBAviApp) or (Sender = cbxCodecAvi) or (Sender = btnCodecConfigAvi) or (Sender = btnCodecAboutAvi) then
   begin
     MovieType := mtAVI;
     Result := true;
   end
-  else if (Sender = cbxCodecMP4) or (Sender = BConfigCodecMP4) or (Sender = btnCodecAboutMP4) then
+  else if (Sender = CBMP4App) or (Sender = cbxCodecMP4) or (Sender = btnCodecConfigMP4) or (Sender = btnCodecAboutMP4) then
   begin
     MovieType := mtMP4;
     Result := true;
   end
-  else if (Sender = cbxCodecOther) or (Sender = BConfigCodecOther) or (Sender = btnCodecAboutOther) then
+  else if (Sender = CBOtherApp) or (Sender = cbxCodecOther) or (Sender = btnCodecConfigOther) or (Sender = btnCodecAboutOther) then
   begin
     MovieType := mtUnknown;
     Result := true;
@@ -1256,73 +1087,6 @@ begin
   else
   begin
     Result := false;
-  end;
-end;
-
-procedure TFSettings.Init;
-begin
-  CBWmvApp.ItemIndex      := CBWmvApp.Items.IndexOf(WmvAppSettings.CutAppName);
-  CBAviApp.ItemIndex      := CBAviApp.Items.IndexOf(AviAppSettings.CutAppName);
-  CBMP4App.ItemIndex      := CBMP4App.Items.IndexOf(MP4AppSettings.CutAppName);
-  CBOtherApp.ItemIndex    := CBOtherApp.Items.IndexOf(OtherAppSettings.CutAppName);
-
-  cbxCodecWmv.ItemIndex := FCodecList.IndexOfCodec(WmvAppSettings.CodecFourCC);
-  cbxCodecChange(cbxCodecWmv);
-  cbxCodecAvi.ItemIndex := FCodecList.IndexOfCodec(AviAppSettings.CodecFourCC);
-  cbxCodecChange(cbxCodecAvi);
-  cbxCodecMP4.ItemIndex := FCodecList.IndexOfCodec(MP4AppSettings.CodecFourCC);
-  cbxCodecChange(cbxCodecMP4);
-  cbxCodecOther.ItemIndex := FCodecList.IndexOfCodec(OtherAppSettings.CodecFourCC);
-  cbxCodecChange(cbxCodecOther);
-end;
-
-procedure TFSettings.SetCutAppSettings(const MovieType: TMovieType; var ASettings: RCutAppSettings);
-begin
-  case MovieType of
-    mtWMV:      WmvAppSettings := ASettings;
-    mtAVI:      AviAppSettings := ASettings;
-    mtMP4:      MP4AppSettings := ASettings;
-    mtUnknown:  OtherAppSettings := ASettings;
-  end;
-end;
-
-procedure TFSettings.GetCutAppSettings(const MovieType: TMovieType; var ASettings: RCutAppSettings);
-var
-  idx: integer;
-begin
-  case MovieType of
-    mtWMV: begin
-      WmvAppSettings.CutAppName := CBWmvApp.Text;
-      idx := cbxSourceFilterListWMV.ItemIndex;
-      if idx >= 0 then
-        WmvAppSettings.PreferredSourceFilter := Settings.GetFilterInfo[idx].CLSID
-      else WmvAppSettings.PreferredSourceFilter := GUID_NULL;
-      ASettings := WmvAppSettings;
-    end;
-    mtAVI: begin
-      AviAppSettings.CutAppName := CBAviApp.Text;
-      idx := cbxSourceFilterListAVI.ItemIndex;
-      if idx >= 0 then
-        AviAppSettings.PreferredSourceFilter := Settings.GetFilterInfo[idx].CLSID
-      else AviAppSettings.PreferredSourceFilter := GUID_NULL;
-      ASettings := AviAppSettings;
-    end;
-    mtMP4: begin
-      MP4AppSettings.CutAppName := CBMP4App.Text;
-      idx := cbxSourceFilterListMP4.ItemIndex;
-      if idx >= 0 then
-        MP4AppSettings.PreferredSourceFilter := Settings.GetFilterInfo[idx].CLSID
-      else MP4AppSettings.PreferredSourceFilter := GUID_NULL;
-      ASettings := MP4AppSettings;
-    end;
-    mtUnknown: begin
-      OtherAppSettings.CutAppName := CBOtherApp.Text;
-      idx := cbxSourceFilterListWMV.ItemIndex;
-      if idx >= 0 then
-        OtherAppSettings.PreferredSourceFilter := Settings.GetFilterInfo[idx].CLSID
-      else OtherAppSettings.PreferredSourceFilter := GUID_NULL;
-      ASettings := OtherAppSettings;
-    end;
   end;
 end;
 
@@ -1342,30 +1106,86 @@ begin
   case MovieType of
     mtWMV: begin
       cbx := cbxCodecWmv;
-      btnConfig := BConfigCodecWmv;
+      btnConfig := btnCodecConfigWmv;
       btnAbout := btnCodecAboutWmv;
       Result := true;
       end;
     mtAVI: begin
       cbx := cbxCodecAvi;
-      btnConfig := BConfigCodecAvi;
+      btnConfig := btnCodecConfigAvi;
       btnAbout := btnCodecAboutAvi;
       Result := true;
       end;
     mtMP4: begin
       cbx := cbxCodecMP4;
-      btnConfig := BConfigCodecMP4;
+      btnConfig := btnCodecConfigMP4;
       btnAbout := btnCodecAboutMP4;
       Result := true;
       end;
     mtUnknown: begin
       cbx := cbxCodecOther;
-      btnConfig := BConfigCodecOther;
+      btnConfig := btnCodecConfigOther;
       btnAbout := btnCodecAboutOther;
       Result := true;
       end;
     else
       Result := false;
+  end;
+end;
+
+
+procedure TFSettings.Init;
+begin
+  CBWmvApp.ItemIndex      := CBWmvApp.Items.IndexOf(WmvAppSettings.CutAppName);
+  CBAviApp.ItemIndex      := CBAviApp.Items.IndexOf(AviAppSettings.CutAppName);
+  CBMP4App.ItemIndex      := CBMP4App.Items.IndexOf(MP4AppSettings.CutAppName);
+  CBOtherApp.ItemIndex    := CBOtherApp.Items.IndexOf(OtherAppSettings.CutAppName);
+
+  cbxCodecWmv.ItemIndex := FCodecList.IndexOfCodec(WmvAppSettings.CodecFourCC);
+  cbxCodecAvi.ItemIndex := FCodecList.IndexOfCodec(AviAppSettings.CodecFourCC);
+  cbxCodecMP4.ItemIndex := FCodecList.IndexOfCodec(MP4AppSettings.CodecFourCC);
+  cbxCodecOther.ItemIndex := FCodecList.IndexOfCodec(OtherAppSettings.CodecFourCC);
+
+  cbCutAppChange(CBWmvApp);
+  cbCutAppChange(CBAviApp);
+  cbCutAppChange(CBMP4App);
+  cbCutAppChange(CBOtherApp);
+
+  cbxCodecChange(CBWmvApp);
+  cbxCodecChange(CBAviApp);
+  cbxCodecChange(CBMP4App);
+  cbxCodecChange(CBOtherApp);
+end;
+
+procedure TFSettings.SetCutAppSettings(const MovieType: TMovieType; var ASettings: RCutAppSettings);
+begin
+  case MovieType of
+    mtWMV:      WmvAppSettings := ASettings;
+    mtAVI:      AviAppSettings := ASettings;
+    mtMP4:      MP4AppSettings := ASettings;
+    mtUnknown:  OtherAppSettings := ASettings;
+  end;
+end;
+
+procedure TFSettings.GetCutAppSettings(const MovieType: TMovieType; var ASettings: RCutAppSettings);
+begin
+  case MovieType of
+    mtWMV: begin
+      WmvAppSettings.CutAppName := CBWmvApp.Text;
+      ASettings := WmvAppSettings;
+    end;
+    mtAVI: begin
+      AviAppSettings.CutAppName := CBAviApp.Text;
+      ASettings := AviAppSettings;
+    end;
+    mtMP4: begin
+      MP4AppSettings.CutAppName := CBMP4App.Text;
+      ASettings := MP4AppSettings;
+    end;
+    mtUnknown: begin
+      OtherAppSettings.CutAppName := CBOtherApp.Text;
+      ASettings := OtherAppSettings;
+    end;
   end;
 end;
 
@@ -1381,27 +1201,33 @@ begin
     Exit;
   if not GetCodecSettingsControls(MovieType, cbxCodec, btnConfig, btnAbout) then
     Exit;
+
   GetCutAppSettings(MovieType, CutAppSettings);
+
+  // Reset codec settings ...
   CutAppSettings.CodecSettingsSize := 0;
   CutAppSettings.CodecSettings := '';
-  CutAppSettings.CodecFourCC := 0;
-  CutAppSettings.CodecVersion := 0;
+
   Codec := nil;
   if cbxCodec.ItemIndex >= 0 then
     Codec := (cbxCodec.Items.Objects[cbxCodec.ItemIndex] as TICInfoObject);
   if Assigned(Codec) then begin
     CutAppSettings.CodecFourCC := Codec.ICInfo.fccHandler;
     CutAppSettings.CodecVersion := Codec.ICInfo.dwVersion;
-    btnConfig.Enabled := Codec.HasConfigureBox;
-    btnAbout.Enabled := Codec.HasAboutBox;
+    btnConfig.Enabled := cbxCodec.Enabled and Codec.HasConfigureBox;
+    btnAbout.Enabled := cbxCodec.Enabled and Codec.HasAboutBox;
   end else begin
+    CutAppSettings.CodecFourCC := 0;
+    CutAppSettings.CodecVersion := 0;
     btnConfig.Enabled := false;
     btnAbout.Enabled := false;
   end;
-  SetCutAppSettings(MovieType, CutAppSettings);
+  // only set settings, if sender is codec combo (else called from init)
+  if Sender = cbxCodec then
+    SetCutAppSettings(MovieType, CutAppSettings);
 end;
 
-procedure TFSettings.BConfigCodecClick(Sender: TObject);
+procedure TFSettings.btnCodecConfigClick(Sender: TObject);
 var
   Codec: TICInfoObject;
   cbxCodec: TComboBox;
@@ -1439,6 +1265,43 @@ begin
     if Codec.HasAboutBox then
       Codec.About(self.Handle);
   end;
+end;
+
+procedure TFSettings.cbCutAppChange(Sender: TObject);
+var
+  cbx, cbxCodec: TComboBox;
+  btnConfig, btnAbout: TButton;
+  CutApp: TCutApplicationBase;
+begin
+  cbx := Sender as TComboBox;
+  if not Assigned(cbx) then exit;
+  if not GetCodecSettingsControls(Sender, cbxCodec, btnConfig, btnAbout) then
+    Exit;
+
+  CutApp := Settings.GetCutApplicationByName(cbx.Text);
+  cbxCodec.Enabled := Assigned(CutApp) and CutApp.HasSmartRendering;
+  // enable / disable controls
+  cbxCodecChange(Sender);
+end;
+
+procedure TFSettings.cbxSourceFilterListChange(Sender: TObject);
+var
+  idx: integer;
+  cbx: TComboBox;
+  MovieType: TMovieType;
+  CutAppSettings: RCutAppSettings;
+begin
+  cbx := Sender as TComboBox;
+  if not Assigned(cbx) then exit;
+  if not GetMovieTypeFromControl(Sender, MovieType) then
+    Exit;
+  GetCutAppSettings(MovieType, CutAppSettings);
+  idx := cbx.ItemIndex;
+  if idx >= 0 then
+     CutAppSettings.PreferredSourceFilter := Settings.GetFilterInfo[idx].CLSID
+  else
+    CutAppSettings.PreferredSourceFilter := GUID_NULL;
+  SetCutAppSettings(MovieType, CutAppSettings);
 end;
 
 initialization

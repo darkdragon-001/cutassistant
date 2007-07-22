@@ -59,7 +59,7 @@ implementation
 
 uses
   FileCtrl, StrUtils,
-  Utils, UCutlist, UfrmCutting;
+  UCutlist, UfrmCutting;
 
 
 { TCutApplicationAsfbin }

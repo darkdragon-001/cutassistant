@@ -3,7 +3,7 @@ unit Utils;
 interface
 
 uses
-  Forms, StdCtrls, Windows, Graphics, IniFiles, MMSystem,
+  Forms, StdCtrls, Windows, Graphics, IniFiles, MMSystem, DSUtil,
   IdMultipartFormData;
 
 const
@@ -120,6 +120,8 @@ procedure WriteCutAppSettings(
   const section: string;
   var CutAppSettings: RCutAppSettings);
 
+function FilterInfoToString(const filterInfo: TFilCatNode): string;
+function StringToFilterGUID(const s: string): TGUID;
 
 //global Vars
 var
@@ -137,6 +139,25 @@ uses
 
 const ScreenWidthDev  = 1280;
       ScreenHeightDev = 1024;
+
+function FilterInfoToString(const filterInfo: TFilCatNode): string;
+begin
+  Result := filterInfo.FriendlyName + '  (' + GUIDToString(filterInfo.CLSID) + ')';
+end;
+
+function StringToFilterGUID(const s: string): TGUID;
+var
+  idx, len: integer;
+begin
+  idx := LastDelimiter('(', s) + 1;
+  len := LastDelimiter(')', s);
+  if idx < 0 then Result := GUID_NULL
+  else
+  begin
+    if len <= idx then len := MaxInt;
+    Result := StringToGUID(Copy(s, idx, len - idx))
+  end;
+end;
 
 procedure WriteCutAppSettings(
   const ini: TIniFile;

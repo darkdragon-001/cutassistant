@@ -153,8 +153,9 @@ type
     AviAppSettings, WmvAppSettings, MP4AppSettings, OtherAppSettings: RCutAppSettings;
     EnumFilters: TSysDevEnum;
     procedure FillBlackList;
+    function GetCodecList: TCodecList;
+    property CodecList: TCodecList read GetCodecList;
   private
-    FCodecList: TCodecList;
     function GetMovieTypeFromControl(const Sender: TObject; var MovieType: TMovieType): boolean;
     function GetCodecSettingsControls(const Sender: TObject;
       var cbx: TComboBox; var btnConfig, btnAbout: TButton): boolean; overload;
@@ -162,6 +163,7 @@ type
       var cbx: TComboBox; var btnConfig, btnAbout: TButton): boolean; overload;
   public
     procedure Init;
+    function GetCodecNameByFourCC(FourCC: DWord): string;
     procedure GetCutAppSettings(const MovieType: TMovieType; var ASettings: RCutAppSettings);
     procedure SetCutAppSettings(const MovieType: TMovieType; var ASettings: RCutAppSettings);
     { Public declarations }
@@ -175,7 +177,9 @@ type
      SourceFilterList: TSourceFilterList;
     _SaveCutListMode, _SaveCutMovieMode: byte;
     _NewSettingsCreated: boolean;
+    FCodecList: TCodecList;
     function GetFilter(Index: Integer): TFilCatNode;
+    property CodecList: TCodecList read FCodecList;
   public
     // window state
     MainFormBounds, FramesFormBounds, PreviewFormBounds, LoggingFormBounds: TRect;
@@ -249,15 +253,13 @@ type
     function CutlistAutoSaveBeforeCutting: boolean;
     function FilterIsInBlackList(ClassID: TGUID): boolean;
 
-    function iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
-    procedure iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
-
     procedure load;
     procedure edit;
     procedure save;
   published
     property NewSettingsCreated: boolean read _NewSettingsCreated;
   public
+    function GetCodecNameByFourCC(FourCC: DWord): string;
     property GetFilterInfo[Index: Integer]: TFilCatNode read GetFilter;
   end;
 
@@ -280,20 +282,27 @@ var
 
 {$R *.dfm}
 
-function TSettings.iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
+function TFSettings.GetCodecList: TCodecList;
 begin
-  Result.Left := ini.ReadInteger(section, name + '_Left', default.Left);
-  Result.Top := ini.ReadInteger(section, name + '_Top', default.Top);
-  Result.Right := Result.Left + ini.ReadInteger(section, name + '_Width', default.Right - default.Left);
-  Result.Bottom := Result.Top + ini.ReadInteger(section, name + '_Height', default.Bottom - default.Top);
+  Result := Settings.CodecList;
 end;
 
-procedure TSettings.iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
+function TFSettings.GetCodecNameByFourCC(FourCC: DWord): string;
 begin
-  ini.WriteInteger(section, name + '_Left', value.Left);
-  ini.WriteInteger(section, name + '_Top', value.Top);
-  ini.WriteInteger(section, name + '_Width', value.Right - value.Left);
-  ini.WriteInteger(section, name + '_Height', value.Bottom - value.Top);
+  Result := Settings.GetCodecNameByFourCC(FourCC);
+end;
+
+function TSettings.GetCodecNameByFourCC(FourCC: DWord): string;
+var
+  idx: integer;
+  codec: TICInfoObject;
+begin
+  codec := nil;
+  idx := FCodecList.IndexOfCodec(FourCC);
+  if idx > -1 then
+    codec := FCodecList.CodecInfoObject[idx];
+  if Assigned(codec) then Result := codec.Name
+  else Result := '';
 end;
 
 procedure TFSettings.BCutMovieSaveDirClick(Sender: TObject);
@@ -337,6 +346,8 @@ end;
 constructor TSettings.create;
 begin
   inherited;
+  FCodecList := TCodecList.Create;
+  FCodecList.Fill;
   CutApplicationList := TObjectList.Create;
   CutApplicationList.Add(TCutApplicationAsfbin.Create);
   CutApplicationList.Add(TCutApplicationVirtualDub.Create);
@@ -369,6 +380,7 @@ end;
 
 destructor TSettings.destroy;
 begin
+  FreeAndNil(FCodecList);
   FilterBlackList.Free;
   SourceFilterList.Free;
   CutApplicationList.Free;
@@ -552,6 +564,8 @@ function TSettings.GetCutApplicationByMovieType(
   MovieType: TMovieType): TCutApplicationBase;
 begin
   result := self.GetCutApplicationByName(GetCutAppName(MovieType));
+  if Assigned(Result) then
+    result.CutAppSettings := GetCutAppSettingsByMovieType(MovieType);
 end;
 
 function TSettings.GetCutApplicationByName(
@@ -610,6 +624,7 @@ var
   FileName: String;
   section: string;
   iFilter, iCutApplication: integer;
+
   procedure ReadOldCutAppName(var ASettings: RCutAppSettings;
     const s1: string; t1: TCutApp; s2, default: string);
   begin
@@ -701,10 +716,6 @@ begin
     section := 'Warnings';
     self.WarnOnWrongCutApp := ini.ReadBool(section, 'WarnOnWrongCutApp', true);
 
-    for iCutApplication := 0 to CutApplicationList.Count - 1 do begin
-      (CutApplicationList[iCutApplication] as TCutApplicationBase).LoadSettings(ini);
-    end;
-
     section := 'WindowStates';
     self.MainFormWindowState := TWindowState(ini.ReadInteger(section, 'Main_WindowState', integer(wsNormal)));
     self.MainFormBounds := iniReadRect(ini, section, 'Main', EmptyRect);
@@ -715,8 +726,12 @@ begin
     self.LoggingFormBounds := iniReadRect(ini, section, 'Logging', EmptyRect);
     self.LoggingFormVisible := ini.ReadBool(section, 'LoggingFormVisible', false);
 
+    for iCutApplication := 0 to CutApplicationList.Count - 1 do begin
+      TCutApplicationBase(CutApplicationList[iCutApplication]).LoadSettings(ini);
+    end;
+
   finally
-    ini.Free;
+    FreeAndNil(ini);
   end;
 
   if userID = '' then begin
@@ -767,12 +782,6 @@ begin
     section := 'OtherMediaFiles';
     WriteCutAppSettings(ini, section, CutAppSettingsOther);
 
-   { section := 'VirtualDub';
-    ini.WriteString(section, 'CodecFourCC', '0x' + IntToHex(self.VDUseCodec, 8));
-    ini.WriteString(section, 'CodecVersion', '0x' + IntToHex(self.VDCodecVersion, 8));
-    ini.WriteString(section, 'CodecSettings', VDCodecSettings);
-    ini.WriteInteger(section, 'CodecSettingsSize', self.VDCodecSettingsSize); }
-
     section := 'Filter Blacklist';
     ini.WriteInteger(section, 'Count', self.FilterBlackList.Count);
     for iFilter := 0 to self.FilterBlackList.Count - 1 do begin
@@ -816,10 +825,6 @@ begin
     section := 'Warnings';
     ini.WriteBool(section, 'WarnOnWrongCutApp', WarnOnWrongCutApp);
 
-    for iCutApplication := 0 to CutApplicationList.Count - 1 do begin
-      (CutApplicationList[iCutApplication] as TCutApplicationBase).SaveSettings(ini);
-    end;
-
     section := 'WindowStates';
     ini.WriteInteger(section, 'Main_WindowState', integer(self.MainFormWindowState));
     iniWriteRect(ini, section, 'Main', self.MainFormBounds);
@@ -832,8 +837,12 @@ begin
     iniWriteRect(ini, section, 'Logging', self.LoggingFormBounds);
     ini.WriteBool(section, 'LoggingFormVisible', self.LoggingFormVisible);
 
+    for iCutApplication := 0 to CutApplicationList.Count - 1 do begin
+      (CutApplicationList[iCutApplication] as TCutApplicationBase).SaveSettings(ini);
+    end;
+
   finally
-    ini.Free;
+    FreeAndNil(ini);
     self._NewSettingsCreated := not FileExists(FileName);
   end;
 end;
@@ -856,8 +865,6 @@ var
   CutApplication: TCutApplicationBase;
   MinSize: TSizeConstraints;
 begin
-  FCodecList := TCodecList.Create;
-  FCodecList.Fill;
   CBOtherApp.Items.Clear;
   MinSize := tabURLs.Constraints;
   EnumFilters := TSysDevEnum.Create(CLSID_LegacyAmFilterCategory); //DirectShow Filters
@@ -890,10 +897,10 @@ begin
   CBAviApp.Items.Assign(CBOtherApp.Items);
   CBMP4App.Items.Assign(CBOtherApp.Items);
 
-  cbxCodecWmv.Items := FCodecList;
-  cbxCodecAvi.Items := FCodecList;
-  cbxCodecMP4.Items := FCodecList;
-  cbxCodecOther.Items := FCodecList;
+  cbxCodecWmv.Items := CodecList;
+  cbxCodecAvi.Items := CodecList;
+  cbxCodecMP4.Items := CodecList;
+  cbxCodecOther.Items := CodecList;
 end;
 
 
@@ -901,7 +908,6 @@ procedure TFSettings.FormDestroy(Sender: TObject);
 begin
   if EnumFilters <> nil then
     FreeAndNil(EnumFilters);
-  FreeAndNil(FCodecList);
 end;
 
 procedure TFSettings.EChceckInfoIntervalKeyPress(Sender: TObject;
@@ -1141,10 +1147,10 @@ begin
   CBMP4App.ItemIndex      := CBMP4App.Items.IndexOf(MP4AppSettings.CutAppName);
   CBOtherApp.ItemIndex    := CBOtherApp.Items.IndexOf(OtherAppSettings.CutAppName);
 
-  cbxCodecWmv.ItemIndex := FCodecList.IndexOfCodec(WmvAppSettings.CodecFourCC);
-  cbxCodecAvi.ItemIndex := FCodecList.IndexOfCodec(AviAppSettings.CodecFourCC);
-  cbxCodecMP4.ItemIndex := FCodecList.IndexOfCodec(MP4AppSettings.CodecFourCC);
-  cbxCodecOther.ItemIndex := FCodecList.IndexOfCodec(OtherAppSettings.CodecFourCC);
+  cbxCodecWmv.ItemIndex := CodecList.IndexOfCodec(WmvAppSettings.CodecFourCC);
+  cbxCodecAvi.ItemIndex := CodecList.IndexOfCodec(AviAppSettings.CodecFourCC);
+  cbxCodecMP4.ItemIndex := CodecList.IndexOfCodec(MP4AppSettings.CodecFourCC);
+  cbxCodecOther.ItemIndex := CodecList.IndexOfCodec(OtherAppSettings.CodecFourCC);
 
   cbCutAppChange(CBWmvApp);
   cbCutAppChange(CBAviApp);
@@ -1204,13 +1210,16 @@ begin
 
   GetCutAppSettings(MovieType, CutAppSettings);
 
+  CutAppSettings.CodecName := cbxCodec.Text;
   // Reset codec settings ...
   CutAppSettings.CodecSettingsSize := 0;
   CutAppSettings.CodecSettings := '';
 
   Codec := nil;
   if cbxCodec.ItemIndex >= 0 then
+  begin
     Codec := (cbxCodec.Items.Objects[cbxCodec.ItemIndex] as TICInfoObject);
+  end;
   if Assigned(Codec) then begin
     CutAppSettings.CodecFourCC := Codec.ICInfo.fccHandler;
     CutAppSettings.CodecVersion := Codec.ICInfo.dwVersion;
@@ -1244,6 +1253,14 @@ begin
     Codec := (cbxCodec.Items.Objects[cbxCodec.ItemIndex] as TICInfoObject);
   if Assigned(Codec) then begin
     GetCutAppSettings(MovieType, CutAppSettings);
+    Assert(CutAppSettings.CodecFourCC = Codec.ICInfo.fccHandler);
+    if (CutAppSettings.CodecVersion <> Codec.ICInfo.dwVersion) then begin
+      // Reset settings, if codec version changes ...
+      // TODO: Log message or ask user.
+      CutAppSettings.CodecVersion := Codec.ICInfo.dwVersion;
+      CutAppSettings.CodecSettings := '';
+      CutAppSettings.CodecSettingsSize := 0;
+    end;
     if Codec.Config(self.Handle, CutAppSettings.CodecSettings, CutAppSettings.CodecSettingsSize) then begin
       SetCutAppSettings(MovieType, CutAppSettings);
     end;

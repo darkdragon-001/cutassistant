@@ -3,7 +3,8 @@ unit Utils;
 interface
 
 uses
-  Forms, StdCtrls, Windows, Graphics, IniFiles, MMSystem, DSUtil,
+  Forms, StdCtrls, Windows, Graphics,
+  SysUtils, IniFiles, MMSystem, DSUtil, madExcept,
   IdMultipartFormData;
 
 const
@@ -105,6 +106,7 @@ type
   RCutAppSettings = record
     CutAppName: string;
     PreferredSourceFilter: TGUID;
+    CodecName: string;
     CodecFourCC: FOURCC;
     CodecVersion: DWORD;
     CodecSettingsSize: integer;
@@ -123,6 +125,11 @@ procedure WriteCutAppSettings(
 function FilterInfoToString(const filterInfo: TFilCatNode): string;
 function StringToFilterGUID(const s: string): TGUID;
 
+procedure ShowExpectedException(const Header: string);
+
+function iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
+procedure iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
+
 //global Vars
 var
   batchmode: boolean;
@@ -133,12 +140,51 @@ implementation
 {$I jedi.inc}
 
 uses
-  Messages, SysUtils, ShellAPI, Variants, Classes, Clipbrd, StrUtils, jpeg,
+  Messages, Dialogs, ShellAPI, Variants, Classes, Clipbrd, StrUtils, jpeg,
   Types, DirectShow9;
 
 
 const ScreenWidthDev  = 1280;
       ScreenHeightDev = 1024;
+
+procedure ShowExpectedException(const Header: string);
+var
+  msg: string;
+begin
+  msg := '';
+  with NewException(etNormal) do begin
+//    SuspendThreads := true;
+//    ShowCpuRegisters := false;
+//    ShowStackDump := false;
+//    CreateScreenShot := false;
+//    ShowSetting := ssDetailBox;
+//    SendBtnVisible := false;
+//    CloseBtnVisible := false;
+//    FocusedButton := bContinueApplication;
+
+    if Header <> '' then
+      msg := 'Error while ' + Header + ':'#10#13#10#13;
+
+    ShowMessage(msg + '(' + ExceptClass + ') ' + ExceptMessage);
+  end;
+end;
+
+function iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
+begin
+  Result.Left := ini.ReadInteger(section, name + '_Left', default.Left);
+  Result.Top := ini.ReadInteger(section, name + '_Top', default.Top);
+  Result.Right := Result.Left + ini.ReadInteger(section, name + '_Width', default.Right - default.Left);
+  Result.Bottom := Result.Top + ini.ReadInteger(section, name + '_Height', default.Bottom - default.Top);
+end;
+
+procedure iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
+begin
+  ini.WriteInteger(section, name + '_Left', value.Left);
+  ini.WriteInteger(section, name + '_Top', value.Top);
+  ini.WriteInteger(section, name + '_Width', value.Right - value.Left);
+  ini.WriteInteger(section, name + '_Height', value.Bottom - value.Top);
+end;
+
 
 function FilterInfoToString(const filterInfo: TFilCatNode): string;
 begin
@@ -166,6 +212,7 @@ procedure WriteCutAppSettings(
 begin
   ini.WriteString(section, 'AppName', CutAppSettings.CutAppName);
   ini.WriteString(section, 'PreferredSourceFilter', GUIDToString(CutAppSettings.PreferredSourceFilter));
+  ini.WriteString(section, 'CodecName', CutAppSettings.CodecName);
   ini.WriteInteger(section, 'CodecFourCC', CutAppSettings.CodecFourCC);
   ini.WriteInteger(section, 'CodecVersion', CutAppSettings.CodecVersion);
   ini.WriteInteger(section, 'CodecSettingsSize', CutAppSettings.CodecSettingsSize);
@@ -190,6 +237,7 @@ begin
     on EConvertError do
       CutAppSettings.PreferredSourceFilter := GUID_NULL;
   end;
+  CutAppSettings.CodecName := ini.ReadString(section, 'CodecName', '');
   CutAppSettings.CodecFourCC := ini.ReadInteger(section, 'CodecFourCC', 0);
   CutAppSettings.CodecVersion := ini.ReadInteger(section, 'CodecVersion', 0);
   CutAppSettings.CodecSettingsSize := ini.ReadInteger(section, 'CodecSettingsSize', 0);

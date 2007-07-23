@@ -607,7 +607,6 @@ var
   saveDlg: TSaveDialog;
 //  exitCode: DWord;
   CutApplication: TCutApplicationBase;
-  CutAppSettings: RCutAppSettings;
 begin
   result := false;
   if cutlist.Count = 0 then begin
@@ -1641,9 +1640,9 @@ end;
 
 procedure TFMain.SaveCutlistAsExecute(Sender: TObject);
 begin
-  if cutlist.Save(true) then
-    if not batchmode then
-      showmessage('Cutlist saved successfully to' +#13#10 + cutlist.SavedToFilename);
+    if cutlist.Save(true) then
+      if not batchmode then
+        ShowMessage('Cutlist saved successfully to' +#13#10 + cutlist.SavedToFilename);
 end;
 
 procedure TFMain.OpenMovieExecute(Sender: TObject);
@@ -1688,8 +1687,9 @@ begin
       OpenFile(opendialog.FileName);
     end;
   finally
-    OpenDialog.Free;
+    FreeAndNil(OpenDialog);
   end;
+
 end;
 
 procedure TFMain.OpenCutlistExecute(Sender: TObject);
@@ -3523,11 +3523,12 @@ end;
 
 procedure TFMain.InitHttpProperties;
 begin
-  self.IdHTTP1.ConnectTimeout := 1000 * settings.NetTimeout;
-  self.IdHTTP1.ProxyParams.ProxyServer := settings.proxyServerName;
-  self.IdHTTP1.ProxyParams.ProxyPort := settings.proxyPort;
-  self.IdHTTP1.ProxyParams.ProxyUsername := settings.proxyUserName;
-  self.IdHTTP1.ProxyParams.ProxyPassword := settings.proxyPassword;
+  self.IdHTTP1.ConnectTimeout := 1000 * Settings.NetTimeout;
+  self.IdHTTP1.ReadTimeout := 1000 * Settings.NetTimeout;
+  self.IdHTTP1.ProxyParams.ProxyServer := Settings.proxyServerName;
+  self.IdHTTP1.ProxyParams.ProxyPort := Settings.proxyPort;
+  self.IdHTTP1.ProxyParams.ProxyUsername := Settings.proxyUserName;
+  self.IdHTTP1.ProxyParams.ProxyPassword := Settings.proxyPassword;
 end;
 
 procedure TFMain.IdHTTP1Status(ASender: TObject; const AStatus: TIdStatus;

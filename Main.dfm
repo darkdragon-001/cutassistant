@@ -2298,6 +2298,7 @@ object FMain: TFMain
   object IdHTTP1: TIdHTTP
     OnStatus = IdHTTP1Status
     MaxLineAction = maException
+    ReadTimeout = 15000
     AllowCookies = True
     HandleRedirects = True
     ProxyParams.BasicAuthentication = False

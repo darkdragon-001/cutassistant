@@ -702,106 +702,114 @@ begin
     DecimalSeparator := '.';
 
     cutlistfile := TInifile.Create(Filename);
-    section := 'General';
-    cutlistfile.WriteString(section, 'Application', Application_name);
-    cutlistfile.WriteString(section, 'Version', Application_version);
-    cutlistfile.WriteString(section, 'comment1', 'The following parts of the movie will be kept, the rest will be cut out.');
-    cutlistfile.WriteString(section, 'comment2', 'All values are given in seconds.');
-    cutlistfile.WriteString(section, 'ApplyToFile', extractfilename(FMovieInfo.current_filename));
-    cutlistfile.WriteInteger(section, 'OriginalFileSizeBytes', FMovieInfo.current_filesize);
-    if FMovieInfo.frame_duration > 0 then fps := 1/FMovieInfo.Frame_Duration else fps := 0;
-    cutlistfile.WriteFloat(section, 'FramesPerSecond', fps);
+    try
+      section := 'General';
+      cutlistfile.WriteString(section, 'Application', Application_name);
+      cutlistfile.WriteString(section, 'Version', Application_version);
+      cutlistfile.WriteString(section, 'comment1', 'The following parts of the movie will be kept, the rest will be cut out.');
+      cutlistfile.WriteString(section, 'comment2', 'All values are given in seconds.');
+      cutlistfile.WriteString(section, 'ApplyToFile', extractfilename(FMovieInfo.current_filename));
+      cutlistfile.WriteInteger(section, 'OriginalFileSizeBytes', FMovieInfo.current_filesize);
+      if FMovieInfo.frame_duration > 0 then
+        fps := 1/FMovieInfo.Frame_Duration else fps := 0;
+      cutlistfile.WriteFloat(section, 'FramesPerSecond', fps);
 
-    CutApplication := FSettings.GetCutApplicationByMovieType(FMovieInfo.MovieType);
-    if assigned(CutApplication) then begin
-      CutApplication.WriteCutlistInfo(CutlistFile, section);
+      CutApplication := FSettings.GetCutApplicationByMovieType(FMovieInfo.MovieType);
+      if assigned(CutApplication) then begin
+        CutApplication.WriteCutlistInfo(CutlistFile, section);
 
-      //Write Command Line Only for Cut Apps which do not require script files (Asfbin and MP4Box).
-      //For other Apps (VD or Avidemux) this would be useless / problematic because:
-      //- with these apps all commands are in the scripts
-      //- the command would show the full path to the script files  (privacy of user!)
-      //- the script files written while "prepareCutting" had to be deleted afterwards.
-      if (CutApplication is TCutApplicationAsfbin)
-      or (CutApplication is TCutApplicationMP4Box) then begin
-        OutputFileName := FMovieInfo.target_filename;
-        if OutputFileName = '' then OutputFileName := self.FSuggestedMovieName;
-        if OutputFileName = '' then OutputFileName := '<OutputFile>';
+        //Write Command Line Only for Cut Apps which do not require script files (Asfbin and MP4Box).
+        //For other Apps (VD or Avidemux) this would be useless / problematic because:
+        //- with these apps all commands are in the scripts
+        //- the command would show the full path to the script files  (privacy of user!)
+        //- the script files written while "prepareCutting" had to be deleted afterwards.
+        if (CutApplication is TCutApplicationAsfbin)
+          or (CutApplication is TCutApplicationMP4Box) then begin
+          OutputFileName := FMovieInfo.target_filename;
+          if OutputFileName = '' then OutputFileName := self.FSuggestedMovieName;
+          if OutputFileName = '' then OutputFileName := '<OutputFile>';
 
-        //Fill CommandLine List
-        CutApplication.PrepareCutting(extractfilename(extractFileName(FMovieInfo.current_filename)), OutputFileName, self);
-        CutApplication.CommandLines.Delimiter := '|';
-        CutApplication.CommandLines.QuoteChar := ' ';
-        cutCommand := CutApplication.CommandLines.DelimitedText;
+          //Fill CommandLine List
+          CutApplication.PrepareCutting(extractfilename(extractFileName(FMovieInfo.current_filename)), OutputFileName, self);
+          CutApplication.CommandLines.Delimiter := '|';
+          CutApplication.CommandLines.QuoteChar := ' ';
+          cutCommand := CutApplication.CommandLines.DelimitedText;
+          cutlistfile.WriteString(section, 'CutCommandLine', cutCommand);
+        end;
+      end else begin
+        cutApp := '';
+        cutAppVer := '';
+        cutAppOptions := '';
+        cutCommand := '';
+
+        cutlistfile.WriteString(section, 'IntendedCutApplication', cutApp);
+        cutlistfile.WriteString(section, 'IntendedCutApplicationVersion', cutAppVer);
+        cutlistfile.WriteString(section, 'IntendedCutApplicationOptions', cutAppOptions);
         cutlistfile.WriteString(section, 'CutCommandLine', cutCommand);
       end;
-    end else begin
-      cutApp := '';
-      cutAppVer := '';
-      cutAppOptions := '';
-      cutCommand := '';
 
-      cutlistfile.WriteString(section, 'IntendedCutApplication', cutApp);
-      cutlistfile.WriteString(section, 'IntendedCutApplicationVersion', cutAppVer);
-      cutlistfile.WriteString(section, 'IntendedCutApplicationOptions', cutAppOptions);
-      cutlistfile.WriteString(section, 'CutCommandLine', cutCommand);
-    end;
-
-    section := 'Info';
-    if self.HasChanged then begin
-      if self.Author = '' then
-        self.Author := Fsettings.UserName
-      else begin
-        if self.Author <> Fsettings.UserName then begin
-          message_string := 'Do you want to replace the Author name of this cutlist' + #13#10 + '"' + self.Author +'"'+#13#10+
-                            'by your own User Name?';
-          if  (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
-            self.Author := Fsettings.UserName;
+      section := 'Info';
+      if self.HasChanged then begin
+        if self.Author = '' then
+          self.Author := Fsettings.UserName
+        else begin
+          if self.Author <> Fsettings.UserName then begin
+            message_string := 'Do you want to replace the Author name of this cutlist' + #13#10 + '"' + self.Author +'"'+#13#10+
+                              'by your own User Name?';
+            if  (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
+              self.Author := Fsettings.UserName;
+            end;
           end;
         end;
       end;
+      cutlistfile.WriteString(section, 'Author', self.Author);
+      if self.RatingByAuthorPresent then cutlistfile.WriteInteger(section, 'RatingByAuthor', self.RatingByAuthor);
+      cutlistfile.WriteBool(section, 'EPGError', self.EPGError);
+      cutlistfile.WriteString(section, 'ActualContent', self.ActualContent);
+      cutlistfile.WriteBool(section, 'MissingBeginning', self.MissingBeginning);
+      cutlistfile.WriteBool(section, 'MissingEnding', self.MissingEnding);
+      cutlistfile.WriteBool(section, 'MissingVideo', self.MissingVideo);
+      cutlistfile.WriteBool(section, 'MissingAudio', self.MissingAudio);
+      cutlistfile.WriteBool(section, 'OtherError', self.OtherError);
+      cutlistfile.WriteString(section, 'OtherErrorDescription', self.OtherErrorDescription);
+      cutlistfile.WriteString(section, 'SuggestedMovieName', self.SuggestedMovieName);
+      cutlistfile.WriteString(section, 'UserComment', self.UserComment);
+
+      writtenCuts := 0;
+
+      for iCut := 0 to self.Count-1 do begin
+        section := 'Cut' + inttostr(writtenCuts);
+        inc(writtenCuts);
+        cutlistfile.WriteFloat(section, 'Start', self[iCut].pos_from);
+        if self.FramesPresent then
+          cutlistfile.WriteInteger(section, 'StartFrame', self[iCut].frame_from)
+        else
+          if cutlistfile.ValueExists(section, 'StartFrame') then cutlistfile.DeleteKey(section, 'StartFrame');
+        cutlistfile.WriteFloat(section, 'Duration', self[iCut].pos_to - self[iCut].pos_from + FMovieInfo.frame_duration);
+        if self.FramesPresent then
+          cutlistfile.WriteInteger(section, 'DurationFrames', self[iCut].DurationFrames)
+        else
+          if cutlistfile.ValueExists(section, 'DurationFrames') then cutlistfile.DeleteKey(section, 'DurationFrames');
+      end;
+      cutlistfile.WriteInteger('General', 'NoOfCuts', writtenCuts);
+      cutlistfile.Free;
+      result := true;
+      self.FHasChanged := false;
+      self.SavedToFilename := filename;
+
+      DecimalSeparator := Temp_DecimalSeparator;
+    finally
+      FreeAndNil(cutlistfile);
     end;
-    cutlistfile.WriteString(section, 'Author', self.Author);
-    if self.RatingByAuthorPresent then cutlistfile.WriteInteger(section, 'RatingByAuthor', self.RatingByAuthor);
-    cutlistfile.WriteBool(section, 'EPGError', self.EPGError);
-    cutlistfile.WriteString(section, 'ActualContent', self.ActualContent);
-    cutlistfile.WriteBool(section, 'MissingBeginning', self.MissingBeginning);
-    cutlistfile.WriteBool(section, 'MissingEnding', self.MissingEnding);
-    cutlistfile.WriteBool(section, 'MissingVideo', self.MissingVideo);
-    cutlistfile.WriteBool(section, 'MissingAudio', self.MissingAudio);
-    cutlistfile.WriteBool(section, 'OtherError', self.OtherError);
-    cutlistfile.WriteString(section, 'OtherErrorDescription', self.OtherErrorDescription);
-    cutlistfile.WriteString(section, 'SuggestedMovieName', self.SuggestedMovieName);
-    cutlistfile.WriteString(section, 'UserComment', self.UserComment);
-
-    writtenCuts := 0;
-
-    for iCut := 0 to self.Count-1 do begin
-      section := 'Cut' + inttostr(writtenCuts);
-      inc(writtenCuts);
-      cutlistfile.WriteFloat(section, 'Start', self[iCut].pos_from);
-      if self.FramesPresent then
-        cutlistfile.WriteInteger(section, 'StartFrame', self[iCut].frame_from)
-      else
-        if cutlistfile.ValueExists(section, 'StartFrame') then cutlistfile.DeleteKey(section, 'StartFrame');
-      cutlistfile.WriteFloat(section, 'Duration', self[iCut].pos_to - self[iCut].pos_from + FMovieInfo.frame_duration);
-      if self.FramesPresent then
-        cutlistfile.WriteInteger(section, 'DurationFrames', self[iCut].DurationFrames)
-      else
-        if cutlistfile.ValueExists(section, 'DurationFrames') then cutlistfile.DeleteKey(section, 'DurationFrames');
-    end;
-    cutlistfile.WriteInteger('General', 'NoOfCuts', writtenCuts);
-    cutlistfile.Free;
-    result := true;
-    self.FHasChanged := false;
-    self.SavedToFilename := filename;
-
-    DecimalSeparator := Temp_DecimalSeparator;
   end else begin
     ConvertedCutlist := self.convert;
-    result := ConvertedCutlist.SaveAs(filename);
-    self.FHasChanged := ConvertedCutlist.HasChanged;
-    self.SavedToFilename := ConvertedCutlist.SavedToFilename;
-    ConvertedCutlist.Free;
+    try
+      result := ConvertedCutlist.SaveAs(filename);
+      self.FHasChanged := ConvertedCutlist.HasChanged;
+      self.SavedToFilename := ConvertedCutlist.SavedToFilename;
+    finally
+      FreeAndNil(ConvertedCutlist);
+    end;
   end;
 end;
 

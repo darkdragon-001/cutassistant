@@ -17,18 +17,9 @@ type
   TfrmCutApplicationVirtualDub = class(TfrmCutApplicationBase)
     cbNotClose: TCheckBox;
     cbUseSmartRendering: TCheckBox;
-    lblSmartRenderingCodec: TLabel;
-    cbxCodec: TComboBox;
-    BConfigCodec: TButton;
-    btnCodecAbout: TButton;
     cbShowProgressWindow: TCheckBox;
-    procedure BConfigCodecClick(Sender: TObject);
-    procedure cbxCodecChange(Sender: TObject);
-    procedure btnCodecAboutClick(Sender: TObject);
   private
     { Private declarations }
-    CodecState: String;
-    CodecStateSize: Integer;
     procedure SetCutApplication(const Value: TCutApplicationVirtualDub);
     function GetCutApplication: TCutApplicationVirtualDub;
   public
@@ -40,25 +31,15 @@ type
 
   TCutApplicationVirtualDub = class(TCutApplicationBase)
   private
-    FSelectedCodecIndex: Integer;
-    FUseCodec: FOURCC;
-    FCodecVersion: DWORD;
-    FCodecSettings: string;
-    FCodecSettingsSize: Integer;
     FFindProgressWindowTimer: TTimer;
-    procedure SetSelectedCodecIndex(const Value: Integer);
     procedure SetShowProgressWindow(const Value: boolean);
     procedure FindProgressWindow(Sender: TObject);
   protected
     FCodecList: TCodecList;
-
     FNotClose: boolean;
     FUseSmartRendering: boolean;
     FScriptFileName: string;
     FShowProgressWindow: boolean;
-
-    function SetUseCodec(const fccHandler: FOURCC; Version: DWORD; SettingsSize: Integer; Settings: String): boolean;
-    property SelectedCodecIndex: Integer read FSelectedCodecIndex write SetSelectedCodecIndex;
 
     function CreateScript(aCutlist: TObjectList; Inputfile, Outputfile: String; var scriptfile: string): boolean;
   public
@@ -67,10 +48,10 @@ type
     constructor Create; override;
     destructor Destroy; override;
     property ShowProgressWindow: boolean read FShowProgressWindow write SetShowProgressWindow;
-    property UseCodec: FOURCC read FUseCodec;
-    function UseCodecString: string;
-    property UseCodecVersion: DWord read FCodecVersion;
-    function UseCodecVersionString: string;
+    //property UseCodec: FOURCC read FUseCodec;
+    //function UseCodecString: string;
+    //property UseCodecVersion: DWord read FCodecVersion;
+    //function UseCodecVersionString: string;
     function CanDoSmartRendering: boolean;
     function UseSmartRendering: boolean;
 
@@ -94,6 +75,7 @@ implementation
 
 uses
   FileCtrl, StrUtils, JvCreateProcess,
+  DirectShow9, 
   Utils, UCutlist, UfrmCutting, Main;
 
 type
@@ -139,16 +121,30 @@ begin
   FShowProgressWindow := Value;
 end;
 
+
 function TCutApplicationVirtualDub.LoadSettings(IniFile: TIniFile): boolean;
+  procedure SetCodecSettings(var s1, s2: RCutAppSettings);
+  begin
+    if s1.CutAppName <> s2.CutAppName then
+      Exit;
+    // do not overwrite existing settings ...
+    if s1.CodecFourCC <> 0 then
+      Exit;
+    s1.CodecName := s2.CodecName;
+    s1.CodecFourCC := s2.CodecFourCC;
+    s1.CodecVersion := s2.CodecVersion;
+    s1.CodecSettingsSize := s2.CodecSettingsSize;
+    s1.CodecSettings := s2.CodecSettings;
+  end;
 var
   section: string;
   success: boolean;
   StrValue: string;
-  fccHandler: FOURCC;
-  CodecVersion: DWORD;
-  CodecSettings: String;
-  CodecSettingsSize, BufferSize: Integer;
+  BufferSize: Integer;
+  cas: RCutAppSettings;
 begin
+  cas.PreferredSourceFilter := GUID_NULL;
+  
   //This part only for compatibility issues for versions below 0.9.9
   //This Setting may be overwritten below
   section := 'External Cut Application';
@@ -157,7 +153,6 @@ begin
   self.FNotClose := IniFile.ReadBool(section, 'VirtualDubNotClose', FNotClose);
   self.FUseSmartRendering := IniFile.ReadBool(section, 'VirtualDubUseSmartRendering', FUseSmartRendering);
 
-
   success := inherited LoadSettings(IniFile);
   section := GetIniSectionName;
   //CommandLineOptions := IniFile.ReadString(section, 'CommandLineOptions', CommandLineOptions);
@@ -165,25 +160,37 @@ begin
   self.FUseSmartRendering := IniFile.ReadBool(section, 'UseSmartRendering', FUseSmartRendering);
   self.FShowProgressWindow := IniFile.ReadBool(section, 'ShowProgressWindow', FShowProgressWindow);
 
+  //
+  // Read old settings ...
+  //
   StrValue := IniFile.ReadString(section, 'CodecFourCC', '0x0');
-  fccHandler := StrToInt64Def(StrValue, $00000000);
+  cas.CodecFourCC := StrToInt64Def(StrValue, $00000000);
   StrValue := IniFile.ReadString(section, 'CodecVersion', '0x0');
-  CodecVersion := StrToInt64Def(StrValue, $00000000);
-  CodecSettingsSize := IniFile.ReadInteger(section, 'CodecSettingsSize', 0);
+  cas.CodecVersion := StrToInt64Def(StrValue, $00000000);
+  cas.CodecSettingsSize := IniFile.ReadInteger(section, 'CodecSettingsSize', 0);
 
   //ini.ReadString does work only up to 2047 characters due to restrictions in iniFiles.pas
   //CodecSettings := ini.ReadString(section, 'CodecSettings', '');
-
-  BufferSize := CodecSettingsSize div 3;
-  if (CodecSettingsSize mod 3) > 0 then inc(BufferSize);
+  BufferSize := cas.CodecSettingsSize div 3;
+  if (cas.CodecSettingsSize mod 3) > 0 then inc(BufferSize);
   BufferSize := BufferSize * 4 + 1;        //+1 for terminating #0
-  CodecSettings := iniReadLargeString(IniFile, BufferSize, section, 'CodecSettings', '');
-  if Length(CodecSettings) <> BufferSize - 1 then
+  cas.CodecSettings := iniReadLargeString(IniFile, BufferSize, section, 'CodecSettings', '');
+  if Length(cas.CodecSettings) <> BufferSize - 1 then
   begin
-     CodecSettings := '';
-     CodecSettingsSize := 0;
+     cas.CodecSettings := '';
+     cas.CodecSettingsSize := 0;
   end;
-  self.SetUseCodec(fccHandler, CodecVersion, CodecSettingsSize, CodecSettings);
+
+  // Convert old settings if necessary ...
+  if (cas.CodecFourCC <> 0) then
+  begin
+    cas.CutAppName := self.Name;
+    cas.CodecName := Settings.GetCodecNameByFourCC(cas.CodecFourCC);
+    SetCodecSettings(Settings.CutAppSettingsWmv, cas);
+    SetCodecSettings(Settings.CutAppSettingsAvi, cas);
+    SetCodecSettings(Settings.CutAppSettingsMP4, cas);
+    SetCodecSettings(Settings.CutAppSettingsOther, cas);
+  end;
 
   result := success;
 end;
@@ -200,11 +207,15 @@ begin
   IniFile.WriteBool(section, 'NotClose', self.FNotClose);
   IniFile.WriteBool(section, 'UseSmartRendering', self.FUseSmartRendering);
   IniFile.WriteBool(section, 'ShowProgressWindow', self.FShowProgressWindow);
-  IniFile.WriteString(section, 'CodecFourCC', '0x' + IntToHex(self.FUseCodec, 8));
-  IniFile.WriteString(section, 'CodecVersion', '0x' + IntToHex(self.FCodecVersion, 8));
-  IniFile.WriteString(section, 'CodecSettings', FCodecSettings);
-  IniFile.WriteInteger(section, 'CodecSettingsSize', self.FCodecSettingsSize);
-
+  //IniFile.WriteString(section, 'CodecFourCC', '0x' + IntToHex(self.FUseCodec, 8));
+  //IniFile.WriteString(section, 'CodecVersion', '0x' + IntToHex(self.FCodecVersion, 8));
+  //IniFile.WriteString(section, 'CodecSettings', FCodecSettings);
+  //IniFile.WriteInteger(section, 'CodecSettingsSize', self.FCodecSettingsSize);
+  // Remove old settings ...
+  IniFile.DeleteKey(section, 'CodecFourCC');
+  IniFile.DeleteKey(section, 'CodecVersion');
+  IniFile.DeleteKey(section, 'CodecSettings');
+  IniFile.DeleteKey(section, 'CodecSettingsSize');
   result := success;
 end;
 
@@ -336,8 +347,9 @@ begin
   result := inherited InfoString
          // + 'Options: ' + self.CommandLineOptions + #13#10
           + 'Smart Rendering: ' + booltostr(UseSmartRendering, true) + #13#10
-          + 'Codec for Smart Rendering: ' + UseCodecString + #13#10
-          + 'Codec Version: ' + UseCodecVersionString +  #13#10;    
+          + 'Codec for Smart Rendering: ' + CutAppSettings.CodecName + #13#10
+          + 'Codec Version: '
+          + inttostr(HiWord(CutAppSettings.CodecVersion)) +'.' + inttostr(LoWord(CutAppSettings.CodecVersion)) + #13#10;
 end;
 
 function TCutApplicationVirtualDub.WriteCutlistInfo(CutlistFile: TIniFile;
@@ -348,8 +360,8 @@ begin
     //cutlistfile.WriteString(section, 'IntendedCutApplicationOptions', self.CommandLineOptions);
     cutlistfile.WriteBool(section, 'VDUseSmartRendering', self.UseSmartRendering);
     if UseSmartRendering then begin
-      cutlistfile.WriteString(section, 'VDSmartRenderingCodecFourCC', '0x' + IntToHex(self.UseCodec, 8));
-      cutlistfile.WriteString(section, 'VDSmartRenderingCodecVersion', '0x' + IntToHex(self.UseCodecVersion, 8));
+      cutlistfile.WriteString(section, 'VDSmartRenderingCodecFourCC', '0x' + IntToHex(CutAppSettings.CodecFourCC, 8));
+      cutlistfile.WriteString(section, 'VDSmartRenderingCodecVersion', '0x' + IntToHex(CutAppSettings.CodecVersion, 8));
     end;
     result := true;
   end;
@@ -379,17 +391,6 @@ begin
   cbNotClose.Checked := CutApplication.FNotClose;
   cbUseSmartRendering.Checked := CutApplication.FUseSmartRendering;
   cbShowProgressWindow.Checked := CutApplication.ShowProgressWindow;
-  cbxCodec.Items := CutApplication.FCodecList;
-  cbxCodec.ItemIndex := CutApplication.FCodecList.IndexOfCodec(CutApplication.UseCodec);
-  CodecState := CutApplication.FCodecSettings;
-  CodecStateSize := CutApplication.FCodecSettingsSize;
-  if cbxCodec.ItemIndex >= 0 then begin
-    BConfigCodec.Enabled := CutApplication.FCodecList.CodecInfoObject[cbxCodec.ItemIndex].HasConfigureBox;
-    btnCodecAbout.Enabled := CutApplication.FCodecList.CodecInfoObject[cbxCodec.ItemIndex].HasAboutBox;
-  end else begin
-    BConfigCodec.Enabled := false;
-    btnCodecAbout.Enabled := false;
-  end;
 end;
 
 procedure TfrmCutApplicationVirtualDub.Apply;
@@ -398,12 +399,7 @@ begin
   //CutApplication.CommandLineOptions := edtCommandLineOptions.Text;
   CutApplication.FNotClose := cbNotClose.Checked;
   CutApplication.FUseSmartRendering := cbUseSmartRendering.Checked;
-  CutApplication.SelectedCodecIndex := cbxCodec.ItemIndex;
   CutApplication.ShowProgressWindow := self.cbShowProgressWindow.Checked;
-  if cbxCodec.ItemIndex >= 0 then begin
-    CutApplication.FCodecSettings := CodecState;
-    CutApplication.FCodecSettingsSize := CodecStateSize;
-  end;
 end;
 
 procedure TfrmCutApplicationVirtualDub.SetCutApplication(
@@ -447,10 +443,10 @@ begin
   if self.UseSmartRendering then begin
     writeln(f, 'VirtualDub.video.SetMode(1);');      //fast Recompression
     writeln(f, 'VirtualDub.video.SetSmartRendering(1);');
-    if FUseCodec <> 0 then begin
-      writeln(f, 'VirtualDub.video.SetCompression(0x' + IntToHex(FUseCodec, 8) + ',0,10000,0);');
-      if self.FCodecSettings > '' then begin
-        writeln(f, 'VirtualDub.video.SetCompData(' + inttostr(self.FCodecSettingsSize) + ',"' + Self.FCodecSettings + '");');
+    if CutAppSettings.CodecFourCC <> 0 then begin
+      writeln(f, 'VirtualDub.video.SetCompression(0x' + IntToHex(CutAppSettings.CodecFourCC, 8) + ',0,10000,0);');
+      if CutAppSettings.CodecSettings <> '' then begin
+        writeln(f, 'VirtualDub.video.SetCompData(' + inttostr(CutAppSettings.CodecSettingsSize) + ',"' + CutAppSettings.CodecSettings + '");');
       end;
     end;
   end else begin
@@ -490,96 +486,9 @@ begin
       result := true;
 end;
 
-procedure TCutApplicationVirtualDub.SetSelectedCodecIndex(
-  const Value: Integer);
-begin
-  FSelectedCodecIndex := Value;
-  if Value < 0 then begin
-    FUseCodec := 0;
-    self.FCodecVersion := 0;
-  end else begin
-    FUseCodec := FCodecList.CodecInfo[Value].fccHandler;
-    self.FCodecVersion := FCodecList.CodecInfo[Value].dwVersion;
-  end;
-  self.FCodecSettings := '';
-  self.FCodecSettingsSize := 0;
-end;
-
-function TCutApplicationVirtualDub.SetUseCodec(const fccHandler: FOURCC;
-  Version: DWORD; SettingsSize: Integer; Settings: String): boolean;
-var
-  i: Integer;
-begin
-  result := false;
-  i := FCodecList.IndexOfCodec(fccHandler);
-  if i<0 then begin
-    {self.FUseCodec := 0;
-    self.FCodecVersion := 0;
-    self.FCodecSettings := '';
-    self.FCodecSettingsSize := 0;  }
-    exit;
-  end;
-  SetSelectedCodecIndex(i);  //<--- Set FUseCodec and FCOdecVersion. Clear CFodecSettings and FCodecSettingssize
-  if self.FCodecVersion = version then begin
-    self.FCodecSettings := Settings;
-    self.FCodecSettingsSize := SettingsSize;
-  end;
-  result := true;
-end;
-
 function TCutApplicationVirtualDub.UseSmartRendering: boolean;
 begin
   result := (self.FUseSmartRendering and self.CanDoSmartRendering);
-end;
-
-procedure TfrmCutApplicationVirtualDub.BConfigCodecClick(Sender: TObject);
-var
-  s: String;
-  sz: integer;
-begin
-  inherited;
-  if cbxCodec.ItemIndex < 0 then exit;
-  s := CodecState;
-  sz := CodecStateSize;
-//  if ConfigCodec((cbxCodec.Items.Objects[cbxCodec.ItemIndex] as TICInfoObject).ICInfo, s, sz) then begin
-  if (cbxCodec.Items.Objects[cbxCodec.ItemIndex] as TICInfoObject).Config(self.Handle, s, sz) then begin
-    CodecState := s;
-    CodecStateSize := sz;
-  end;
-end;
-
-procedure TfrmCutApplicationVirtualDub.cbxCodecChange(Sender: TObject);
-begin
-  inherited;
-  self.CodecState := '';
-  self.CodecStateSize := 0;
-  if cbxCodec.ItemIndex >= 0 then begin
-    BConfigCodec.Enabled := CutApplication.FCodecList.CodecInfoObject[cbxCodec.ItemIndex].HasConfigureBox;
-    btnCodecAbout.Enabled := CutApplication.FCodecList.CodecInfoObject[cbxCodec.ItemIndex].HasAboutBox;
-  end else begin
-    BConfigCodec.Enabled := false;
-    btnCodecAbout.Enabled := false;
-  end;
-end;
-
-function TCutApplicationVirtualDub.UseCodecString: string;
-begin
-  result := FCodecList.Strings[FSelectedCodecIndex];
-end;
-
-function TCutApplicationVirtualDub.UseCodecVersionString: string;
-begin
-  result := inttostr(HiWord(UseCodecVersion)) +'.' + inttostr(LoWord(UseCodecVersion));
-end;
-
-procedure TfrmCutApplicationVirtualDub.btnCodecAboutClick(Sender: TObject);
-var
-  Codec: TICInfoObject;
-begin
-  inherited;
-  if cbxCodec.ItemIndex < 0 then exit;
-  Codec := (cbxCodec.Items.Objects[cbxCodec.ItemIndex] as TICInfoObject);
-  if Codec.HasAboutBox then Codec.About(self.Handle);
 end;
 
 end.

@@ -56,14 +56,14 @@ Download: http://sourceforge.net/projects/cutassistant/
 oder      http://www.cutlist.de/</version_text>
 	</stable>
 	<beta>
-		<date_day>18</date_day>
+		<date_day>25</date_day>
 		<date_month>07</date_month>
 		<date_year>2007</date_year>
-		<version>0x0000000900110003</version>
+		<version>0x0000000900110015</version>
 		<version_text>
-Letzte Beta Version: 0.9.11.3
-Hintergrund-Transfers und Fortschrittsdialog für HTTP-Requests
-Fensterpositionen werden gespeichert.
+Letzte Beta Version: 0.9.11.15
+Implemented / solved FR1750858, FR1750860, FR1752242, FR1750862
+Try to fix problems on some systems with large fonts (please give feedback).
 </version_text>
 	</beta>
 </infos>

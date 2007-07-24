@@ -470,8 +470,8 @@ begin
       end;
 
       //options for asfbin
-      CutAppAsfBin := self.CutApplication as TCutApplicationAsfbin;
-      if Assigned(CutAppAsfBin) then begin
+      if self.CutApplication is TCutApplicationAsfbin then begin
+        CutAppAsfBin := self.CutApplication as TCutApplicationAsfbin;
         myOptions := CutAppAsfBin.CommandLineOptions;
         intended_options := cutlistfile.ReadString(section, 'IntendedCutApplicationOptions', myOptions);
         if not ansiSameText(intended_options, myOptions) and (not batchmode) then begin

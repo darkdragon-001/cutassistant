@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<infos>
+	<messages>
+		<message>
+			<id>1</id>
+			<date_day>3</date_day>
+			<date_month>11</date_month>
+			<date_year>2006</date_year>
+			<text>
+Willkommen zum neuen Informationsservice. 
+Hier werden bei Bedarf wichtige Informationen angezeigt.
+
+Welcome to our information service.
+Important messages concerning Cut Assistant 
+will be shown here.</text>
+		</message>
+		<message>
+			<id>2</id>
+			<date_day>7</date_day>
+			<date_month>7</date_month>
+			<date_year>2007</date_year>
+			<text>
+Cut Assistant jetzt auf SourceForge.
+Neue Versionen des Cut Assistant sind ab jetzt auf SourceForge
+(sourceforge.net/projects/cutassistant/) verfügbar.
+
+Neue Version 0.9.9.6:
+Die neue Version hat einige Detailverbesserungen, neue Funktionen
+und kann bei Fehlern automatisch Bug-Reports erzeugen.
+</text>
+		</message>
+		<message>
+			<id>3</id>
+			<date_day>10</date_day>
+			<date_month>7</date_month>
+			<date_year>2007</date_year>
+			<text>
+Neue Version 0.9.9.8:
+Die neue Version verbessert die Behandlung der häufig gemeldeten Fehler
+beim Abrufen der Update-Informationen und Kommunikation mit dem
+Cutlist-Server.
+</text>
+		</message>
+	</messages>
+	<stable>
+		<date_day>10</date_day>
+		<date_month>07</date_month>
+		<date_year>2007</date_year>
+		<version>0x0000000900090008</version>
+		<version_text>
+Letzte stabile Version: 0.9.9.8
+
+Last stable version 0.9.9.8
+
+Download: http://sourceforge.net/projects/cutassistant/
+oder      http://www.cutlist.de/</version_text>
+	</stable>
+	<beta>
+		<date_day>25</date_day>
+		<date_month>07</date_month>
+		<date_year>2007</date_year>
+		<version>0x0000000900110015</version>
+		<version_text>
+Letzte Beta Version: 0.9.11.15
+Implemented / solved FR1750858, FR1750860, FR1752242, FR1750862
+Try to fix problems on some systems with large fonts (please give feedback).
+</version_text>
+	</beta>
+</infos>

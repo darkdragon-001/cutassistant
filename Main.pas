@@ -2276,12 +2276,10 @@ begin
           end;
 
           if FCutlistSearchResults.ShowModal = mrOK then begin
-            //result := self.DownloadCutlist(FCutlistSearchResults.Llinklist.Selected.SubItems[0]);
             result := self.DownloadCutlistByID(FCutlistSearchResults.Llinklist.Selected.Caption, FCutlistSearchResults.Llinklist.Selected.SubItems[0]);
             if result then begin
-              //DownloadListAddCutlist(FCutlistSearchResults.Llinklist.Selected.SubItems[0], FCutlistSearchResults.Llinklist.Selected.Caption);
-
               cutlist.IDOnServer :=  FCutlistSearchResults.Llinklist.Selected.Caption;
+              cutlist.RatingOnServer := StrToFloatDef(FCutlistSearchResults.Llinklist.Selected.SubItems[1], -1);
               self.ASendRating.Enabled := true;
             end;
           end;
@@ -2318,17 +2316,18 @@ begin
       Showmessage('Current cutlist was not downloaded. Rating not possible.');
     exit;
   end else begin
-{    if cutlist.RatingByAuthorPresent then
-      FCutlistRate.RGRatingByAuthor.ItemIndex := cutlist.RatingByAuthor
-    else}
-      FCutlistRate.RGRatingByAuthor.ItemIndex := -1;
-    FCutlistRate.ButtonOK.Enabled := false;
+    if cutlist.RatingOnServer >= 0.0 then
+      FCutlistRate.SelectedRating := Round(cutlist.RatingOnServer)
+    else if cutlist.RatingByAuthorPresent then
+      FCutlistRate.SelectedRating := cutlist.RatingByAuthor
+    else
+      FCutlistRate.SelectedRating := -1;
     if FCutlistRate.ShowModal = mrOK then
     begin
       Error_message := 'Unknown error.';
       url := settings.url_cutlists_home
            + php_name + command +cutlist.IDOnServer
-           +'&rating=' + inttostr(FCutlistRate.RGRatingByAuthor.ItemIndex)
+           +'&rating=' + inttostr(FCutlistRate.SelectedRating)
            +'&userid=' + settings.UserID
            +'&version=' + Application_Version;
       Result := DoHttpGet(url, true, Error_message, Response);

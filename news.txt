@@ -1,4 +1,20 @@
-New in 0.9.11 (beta)
+New in 0.9.11.14 (beta)
+- FR1750858: Window states (maximized, normal) are stored too.
+- Fixed display of frames count in menu items when frames count <> 12.
+- Auto-Mute sound while showing frames form.
+- Improved error handling in open file functions.
+- Fixed position of timeout edit in settings dialog, improved layout of many dialogs.
+- Try to fix problems on some systems with large fonts (please give feedback).
+- FR1750860: Added new user setting AutoMuteOnSeek (auto mute sound when seeking framewise).
+- Automatically show settings dialog on first start (when no settings are found).
+- Use /console-switch for virtualdub only when activated in options.
+- Show buttons in taskbar for frames and preview window.
+- Fixed missing codec configuration bug.
+- Solve FR1752242: Use separate codec settings for each cut application.
+- FR1750862: Preselect cutlist rating by user or author rating if present.
+- Implemented cancelling of Http requests.
+
+New in 0.9.11.3 (beta)
 - FR1750858: Save window size and position (main, frames and preview).
 - Code cleanups
 - Use background thread and progress dialog for Http requests.

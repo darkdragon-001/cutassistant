@@ -68,11 +68,13 @@ procedure TFCutlistRate.FormCloseQuery(Sender: TObject;
 var
   title, msg: string;
 begin
+  if ModalResult <> mrOk then
+    Exit;
   if SelectedRating < 0 then CanClose := false
   else if not FRatingSelectedByUser then
   begin
     title := 'Please confirm preselected rating ...';
-    msg := 'Do you want to use the proposed rating?'#13#10#9
+    msg := 'Do you want to use the proposed rating for the cutlist?'#13#10#13#10'  '
         +  SelectedRatingText;
     FRatingSelectedByUser := IDOK = Application.MessageBox(PChar(msg), PChar(title), MB_ICONQUESTION or MB_OKCANCEL or MB_DEFBUTTON2);
     CanClose := FRatingSelectedByUser;

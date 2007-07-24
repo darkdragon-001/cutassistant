@@ -342,6 +342,9 @@ type
     procedure IdHTTP1Status(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: String);
     procedure ASupportRequestExecute(Sender: TObject);
+    procedure RequestProgressDialogCancel(Sender: TObject);
+    procedure IdHTTP1Work(Sender: TObject; AWorkMode: TWorkMode;
+      const AWorkCount: Integer);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -2316,7 +2319,9 @@ begin
       Showmessage('Current cutlist was not downloaded. Rating not possible.');
     exit;
   end else begin
-    if cutlist.RatingOnServer >= 0.0 then
+    if (cutlist.RatingOnServer >= 0.0) and cutlist.RatingByAuthorPresent then
+      FCutlistRate.SelectedRating := Round(cutlist.RatingByAuthor + cutlist.RatingOnServer)
+    else if cutlist.RatingOnServer >= 0.0 then
       FCutlistRate.SelectedRating := Round(cutlist.RatingOnServer)
     else if cutlist.RatingByAuthorPresent then
       FCutlistRate.SelectedRating := cutlist.RatingByAuthor
@@ -3411,6 +3416,7 @@ begin
   end;
   if not RequestWorker.Stopped then
     RequestProgressDialog.Execute;
+
   Result := HandleWorkerException(data);
 end;
 
@@ -3457,6 +3463,12 @@ begin
   dlg.Position := 30;
 end;
 
+procedure TFMain.RequestProgressDialogCancel(Sender: TObject);
+begin
+  IdHTTP1.DisconnectSocket;
+  RequestWorker.WaitFor;
+end;
+
 procedure TFMain.RequestProgressDialogProgress(Sender: TObject;
   var AContinue: Boolean);
 var
@@ -3465,7 +3477,7 @@ begin
   dlg := Sender as TJvProgressDialog;
   if dlg.Position = dlg.Max then dlg.Position := dlg.Min
   else dlg.Position := dlg.Position + 2;
-  if RequestWorker.Stopped then
+  if RequestWorker.ReturnValue >= 0 then
     dlg.Interval := 0;
   if RequestWorker.ReturnValue > 0 then
     AContinue := false;
@@ -3474,6 +3486,7 @@ end;
 procedure TFMain.RequestWorkerRun(Sender: TIdCustomThreadComponent);
 var
   data: THttpRequest;
+  Response: string;
 begin
   Assert(Assigned(Sender));
   if Assigned(Sender.Thread) then
@@ -3484,17 +3497,21 @@ begin
     Sleep(10);
     Exit;
   end;
-  Sender.ReturnValue := 0;
+  Sender.ReturnValue := -1;
   try
     IdHttp1.HandleRedirects := data.HandleRedirects;
     if data.IsPostRequest then
-      data.Response := IdHTTP1.Post(data.Url, data.PostData)
+      Response := IdHTTP1.Post(data.Url, data.PostData)
     else
-      data.Response := IdHTTP1.Get(data.Url)
+      Response := IdHTTP1.Get(data.Url);
+    data.Response := Response;
   finally
     // Only for testing purposes
     //Sleep(10000);
-    Sender.Stop;
+    if not Sender.Terminated then
+      Sender.Stop;
+    if Sender.ReturnValue < 0 then;
+      Sender.ReturnValue := 0;
   end;
 end;
 
@@ -3504,17 +3521,20 @@ var
   data: THttpRequest;
 begin
   Assert(Assigned(Sender));
-  data := Sender.Data as THttpRequest;
-  Assert(Assigned(data));
-
-  RequestProgressDialog.Text := 'Transfer error. Aborting ...';
-
-  data.Response := '';
+  if not Assigned(Sender.Data) then
+  begin
+    RequestProgressDialog.Text := 'Transfer aborted ...';
+  end
+  else begin
+    data := Sender.Data as THttpRequest;
+    RequestProgressDialog.Text := 'Transfer error. Aborting ...';
+    data.Response := '';
+  end;
 
   if AException is EIdProtocolReplyError then
     with AException as EIdProtocolReplyError do
       Sender.ReturnValue := ReplyErrorCode;
-  if Sender.ReturnValue = 0 then
+  if Sender.ReturnValue <= 0 then
     Sender.ReturnValue := 1;
 
   Sender.Stop;
@@ -3533,9 +3553,20 @@ end;
 procedure TFMain.IdHTTP1Status(ASender: TObject; const AStatus: TIdStatus;
   const AStatusText: String);
 begin
-  //if (AStatus <> hsStatusText) or (AStatusText <> RSHTTPChunkStarted) then
-    RequestProgressDialog.Text := AStatusText;
+  RequestProgressDialog.Text := AStatusText;
 end;
+
+procedure TFMain.IdHTTP1Work(Sender: TObject; AWorkMode: TWorkMode;
+  const AWorkCount: Integer);
+begin
+  case AWorkMode of
+    wmRead:
+      RequestProgressDialog.Text := Format('Read %5d bytes from host.', [AWorkCount]);
+    wmWrite:
+      RequestProgressDialog.Text := Format('Wrote %5d bytes to host.', [AWorkCount]);
+  end;
+end;
+
 
 procedure TFMain.ASupportRequestExecute(Sender: TObject);
 var

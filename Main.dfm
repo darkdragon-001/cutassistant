@@ -2299,6 +2299,7 @@ object FMain: TFMain
     OnStatus = IdHTTP1Status
     MaxLineAction = maException
     ReadTimeout = 15000
+    OnWork = IdHTTP1Work
     AllowCookies = True
     HandleRedirects = True
     ProxyParams.BasicAuthentication = False
@@ -2709,6 +2710,7 @@ object FMain: TFMain
       Category = 'Info'
       Caption = 'Make a &support request'
       Hint = 'Creates a support request ...'
+      Visible = False
       OnExecute = ASupportRequestExecute
     end
   end
@@ -2911,9 +2913,9 @@ object FMain: TFMain
     Caption = 'Web request progress'
     Interval = 50
     Max = 40
-    ShowCancel = False
     Smooth = True
     ScreenPosition = poMainFormCenter
+    OnCancel = RequestProgressDialogCancel
     OnProgress = RequestProgressDialogProgress
     Left = 207
     Top = 248

@@ -236,10 +236,10 @@ type
 
     constructor Create;
     destructor Destroy; override;
-
+  protected
     //deprecated
     function GetCutAppNameByCutAppType(CAType: TCutApp): String;
-
+  public
     function GetCutAppName(MovieType: TMovieType): String;
     function GetCutApplicationByName(CAName: string): TCutApplicationBase;
     function GetCutAppSettingsByMovieType(MovieType: TMovieType): RCutAppSettings;

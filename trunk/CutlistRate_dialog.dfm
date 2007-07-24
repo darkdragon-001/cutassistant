@@ -1,6 +1,7 @@
 object FCutlistRate: TFCutlistRate
   Left = 492
   Top = 267
+  ActiveControl = RGRatingByAuthor
   BorderStyle = bsSingle
   Caption = 'Cutlist Info'
   ClientHeight = 223
@@ -14,6 +15,7 @@ object FCutlistRate: TFCutlistRate
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnCloseQuery = FormCloseQuery
   DesignSize = (
     493
     223)
@@ -58,12 +60,13 @@ object FCutlistRate: TFCutlistRate
     TabOrder = 0
     OnClick = RGRatingByAuthorClick
   end
-  object Button1: TButton
+  object btnCancel: TButton
     Left = 403
     Top = 196
     Width = 85
     Height = 21
     Anchors = [akRight, akBottom]
+    Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
     TabOrder = 1
@@ -75,6 +78,7 @@ object FCutlistRate: TFCutlistRate
     Height = 21
     Anchors = [akRight, akBottom]
     Caption = 'OK'
+    Default = True
     Enabled = False
     ModalResult = 1
     TabOrder = 2

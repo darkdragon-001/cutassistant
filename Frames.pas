@@ -111,6 +111,8 @@ var
   framewidth, frameheight, buttonheight, top_dist, hor_dist, LineHeight: integer;
   AFrame: TCutFrame;
 begin
+  if framelist.Count = 0 then
+    Exit;
   buttonheight := round(Screen.PixelsPerInch / 4);
   framewidth := (framelist[0] as TCutFrame).Image.Width;
   frameheight := (framelist[0] as TCutFrame).Image.Height;
@@ -206,6 +208,8 @@ end;
 procedure TFFrames.FormCreate(Sender: TObject);
 begin
   FrameList := TObjectlist.Create;
+  Init(Settings.FramesCount, Settings.FramesHeight, Settings.FramesWidth);
+
   if ValidRect(Settings.FramesFormBounds) then
     self.BoundsRect := Settings.FramesFormBounds
   else
@@ -213,10 +217,8 @@ begin
     self.Top := Screen.WorkAreaTop + Max(0, (Screen.WorkAreaHeight - self.Height) div 2);
     self.Left := Screen.WorkAreaLeft + Max(0, Screen.WorkAreaWidth - self.Width);
   end;
-
   self.WindowState := Settings.FramesFormWindowState;
-
-  Init(Settings.FramesCount, Settings.FramesHeight, Settings.FramesWidth);
+  adjust_frame_position;
 end;
 
 procedure TFFrames.FormDestroy(Sender: TObject);

@@ -1,5 +1,9 @@
 program cut_assistant;
 
+{%File 'readme.txt'}
+{%File 'news.txt'}
+{%File 'license.txt'}
+
 uses
   madExcept,
   SysUtils,

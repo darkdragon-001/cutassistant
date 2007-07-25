@@ -1,3 +1,6 @@
+New in 0.9.11.16 (beta)
+- Fixed error in handling of frames window size.
+
 New in 0.9.11.15 (beta)
 - FR1750858: Window states (maximized, normal) are stored too.
 - Fixed display of frames count in menu items when frames count <> 12.

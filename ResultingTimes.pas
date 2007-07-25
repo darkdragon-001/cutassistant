@@ -175,15 +175,6 @@ begin
       end;
     end;
 
-    {if MovieInfo.MovieType in [mtAVI, mtMP4, mtUnknown] then begin
-      //Try to load Haali Source Filter
-      SourceFilter := AvailableFilters.GetBaseFilter(CLSID_HAALI);
-      if assigned(SourceFilter) then begin
-        CheckDSError((SourceFilter as IFileSourceFilter).Load(StringToOleStr(FileName), nil));
-        CheckDSError((FilterGraph2 as IGraphBuilder).AddFilter(SourceFilter, StringToOleStr('Haali FileSource [' + extractFileName(FileName) + ']')));
-        SourceAdded := true;
-      end;
-    end;}
     SourceAdded:= false;
     If Not (IsEqualGUID(Settings.GetPreferredSourceFilterByMovieType(MovieInfo.MovieType), GUID_NULL)) then begin
       SourceFilter := AvailableFilters.GetBaseFilter(Settings.GetPreferredSourceFilterByMovieType(MovieInfo.MovieType));

@@ -246,6 +246,24 @@ object FMain: TFMain
     Anchors = [akTop, akRight]
     Caption = '[ ? x]'
   end
+  object lblMovieType: TLabel
+    Left = 614
+    Top = 332
+    Width = 119
+    Height = 13
+    Alignment = taCenter
+    AutoSize = False
+    Caption = '[None]'
+  end
+  object lblCutApplication: TLabel
+    Left = 613
+    Top = 348
+    Width = 120
+    Height = 13
+    Alignment = taCenter
+    AutoSize = False
+    Caption = 'N/A'
+  end
   object PanelVideoWindow: TPanel
     Left = 11
     Top = 32

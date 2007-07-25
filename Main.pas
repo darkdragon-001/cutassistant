@@ -232,6 +232,8 @@ type
     RequestWorker: TIdThreadComponent;
     ASupportRequest: TAction;
     Makeasupportrequest1: TMenuItem;
+    lblMovieType: TLabel;
+    lblCutApplication: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -369,6 +371,7 @@ type
     procedure FF_Stop;
     function ConvertUploadData: boolean;
     procedure AddUploadDataEntry(CutlistDate: TDateTime; CutlistName: string; CutlistID: Integer);
+    procedure UpdateMovieInfoControls;
   public
     { Public declarations }
     procedure ProcessFileList(FileList: TStringList; IsMyOwnCommandLine: boolean);
@@ -447,6 +450,18 @@ implementation
 
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
+
+procedure TFMain.UpdateMovieInfoControls;
+begin
+  if not Assigned(MovieInfo) or not MovieInfo.MovieLoaded then
+  begin
+    self.lblMovieType.Caption := '[None]';
+    self.lblCutApplication.Caption := 'Cut app.: N/A';
+  end else begin
+    self.lblMovieType.Caption := MovieInfo.MovieTypeString;
+    self.lblCutApplication.Caption := 'Cut app.: ' + Settings.GetCutAppName(MovieInfo.MovieType);
+  end;
+end;
 
 procedure TFMain.InitFramesProperties(const AAction: TAction; const s: string);
 begin
@@ -903,7 +918,7 @@ begin
       if not MovieInfo.InitMovie(FileName) then
         exit;
 
-      if MovieInfo.MovieType = mtwmv then begin
+      if MovieInfo.MovieType in [ mtWMV ] then begin
         self.ARepairMovie.Enabled := true;
       end else begin
         self.ARepairMovie.Enabled := false;
@@ -912,7 +927,7 @@ begin
       {if not batchmode then }begin
         SourceAdded := false;
 
-        if MovieInfo.MovieType in [mtwmv] then begin
+        if MovieInfo.MovieType in [ mtWMV ] then begin
           SampleGrabber1.FilterGraph := nil;
         end else begin
           SampleGrabber1.FilterGraph := FilterGraph;
@@ -930,15 +945,6 @@ begin
             end;
           end;
 
-          {if MovieInfo.MovieType in [mtAVI, mtMP4, mtUnknown] then begin
-            //Try to load Haali Source Filter
-            SourceFilter := AvailableFilters.GetBaseFilter(CLSID_HAALI);
-            if assigned(SourceFilter) then begin
-              CheckDSError((SourceFilter as IFileSourceFilter).Load(StringToOleStr(FileName), nil));
-              CheckDSError((FilterGraph as IGraphBuilder).AddFilter(SourceFilter, StringToOleStr('Haali FileSource [' + extractFileName(FileName) + ']')));
-              SourceAdded := true;
-            end;
-          end;}
           If Not (IsEqualGUID(Settings.GetPreferredSourceFilterByMovieType(MovieInfo.MovieType), GUID_NULL)) then begin
             SourceFilter := AvailableFilters.GetBaseFilter(Settings.GetPreferredSourceFilterByMovieType(MovieInfo.MovieType));
             if assigned(SourceFilter) then begin
@@ -973,6 +979,7 @@ begin
             MovieInfo.current_filename := '';
             MovieInfo.MovieLoaded := false;
             MovieInfo.current_filesize := -1;
+            UpdateMovieInfoControls;
             exit;
           end;
         end;
@@ -1002,6 +1009,7 @@ begin
     MovieInfo.current_filename := '';
     MovieInfo.MovieLoaded := false;
   end;
+  self.UpdateMovieInfoControls;
 end;
 
 procedure TFMain.LoadCutList;
@@ -1425,13 +1433,14 @@ begin
   frmMemoDialog.Caption := 'Movie Meta Data';
   frmMemoDialog.memInfo.Clear;
   frmMemoDialog.memInfo.Lines.Add('Filetype: ' + MovieInfo.MovieTypeString);
+  frmMemoDialog.memInfo.Lines.Add('Cut application: ' + Settings.GetCutAppName(MovieInfo.MovieType));
   frmMemoDialog.memInfo.Lines.Add('Filename: ' + MovieInfo.current_filename);
   frmMemoDialog.memInfo.Lines.Add('Frame Rate: ' + FloatToStrF(1/MovieInfo.frame_duration, ffFixed, 15, 4));
 
-  if MovieInfo.MovieType = mtAVI then begin
+  if MovieInfo.MovieType in [mtAVI, mtHQAvi] then begin
     frmMemoDialog.memInfo.Lines.Add('Video FourCC: ' + fcc2string(MovieInfo.FFourCC));
   end;
-  if MovieInfo.MovieType = mtWMV then begin
+  if MovieInfo.MovieType in [ mtWMV ] then begin
     filterlist := tfilterlist.Create;
     filterlist.Assign(filtergraph as IFiltergraph);
     found := false;
@@ -2077,7 +2086,7 @@ var
   CutApplication: TCutApplicationAsfbin;
 begin
   result := false;
-  if movieinfo.MovieType <> mtWMV then exit;
+  if not (movieinfo.MovieType in [ mtWMV ]) then exit;
 
   CutApplication := Settings.GetCutApplicationByName('Asfbin') as TCutApplicationAsfbin;
   if not assigned (CutApplication) then begin
@@ -2216,6 +2225,12 @@ begin
   CutApplication := Settings.GetCutApplicationByMovieType(mtAVI);
   if assigned(CutApplication) then begin
     info := info + 'AVI Cut Application' + #13#10;
+    info := info + CutApplication.InfoString + #13#10;
+  end;
+
+  CutApplication := Settings.GetCutApplicationByMovieType(mtHQAVI);
+  if assigned(CutApplication) then begin
+    info := info + 'HQ AVI Cut Application' + #13#10;
     info := info + CutApplication.InfoString + #13#10;
   end;
 
@@ -3195,6 +3210,7 @@ begin
   self.AStepForward.Enabled := false;
 
   self.LDuration.Caption := '0 / 0:00:00.000';
+  self.UpdateMovieInfoControls;
 end;
 
 procedure TFMain.EnableMovieControls(value: boolean);

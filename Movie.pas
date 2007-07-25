@@ -16,7 +16,7 @@ const
 
 type
 
-  TMovieType = (mtUnknown, mtWMV, mtAVI, mtMP4);
+  TMovieType = (mtUnknown, mtWMV, mtAVI, mtMP4, mtHQAVI);
 
   TMovieInfo = class
   private
@@ -94,7 +94,7 @@ begin
   setstring(s, Pchar(@FileData[0]), 4);
   if s = 'RIFF' then begin
     setstring(s, Pchar(@FileData[8]), 4);
-    if s = 'AVI ' then MovieType  := mtavi;
+    if s = 'AVI ' then MovieType  := mtAVI;
   end;
 
   //detect ISO FIle
@@ -103,21 +103,22 @@ begin
 
   //for OTR
   if MovieType = mtUnknown then begin
-    if AnsiEndsText('.hq.avi', FileName) then MovieType := mtMP4;
+    if AnsiEndsText('.hq.avi', FileName) then MovieType := mtHQAVI;
   end;
 
    //Try to detect MovieType from file extension
   if MovieType = mtUnknown then begin
-    if ansiMatchText(extractFileExt(FileName), WMV_EXTENSIONS) then MovieType  := mtwmv;
-    if ansiMatchText(extractFileExt(FileName), AVI_EXTENSIONS) then MovieType  := mtavi;
+    if ansiMatchText(extractFileExt(FileName), WMV_EXTENSIONS) then MovieType  := mtWMV;
+    if ansiMatchText(extractFileExt(FileName), AVI_EXTENSIONS) then MovieType  := mtAVI;
     if ansiMatchText(extractFileExt(FileName), MP4_EXTENSIONS) then MovieType  := mtMP4;
   end;
 
   //Try to get Video FourCC from AVI
   if MovieType in [mtAVI] then begin
     FFourCC := GetAviFourCC(FileName);
-    //showmessage('FourCC: ' + fcc2String(MovieInfo.FFourCC));
-    if FFourCC = 0 then MovieType := mtUnknown;
+    s := fcc2String(FFourCC);
+    if FFourCC = 0 then MovieType := mtUnknown
+    else if AnsiSameText(s, 'H264') then MovieType := mtHQAVI;
   end;
 end;
 
@@ -146,7 +147,8 @@ begin
     mtWMV: result := 'Windows Media File';
     mtAVI: result := 'AVI File';
     mtMP4: result := 'MP4 Iso File';
-    else result := '[Unknown]';
+    mtHQAVI: result := 'HQ AVI File';
+    else result := '[None]';
   end;
 end;
 

@@ -4,7 +4,7 @@ object FSettings: TFSettings
   AutoScroll = False
   BorderIcons = []
   Caption = 'Settings'
-  ClientHeight = 292
+  ClientHeight = 307
   ClientWidth = 562
   Color = clBtnFace
   Constraints.MinHeight = 310
@@ -25,7 +25,7 @@ object FSettings: TFSettings
     Left = 0
     Top = 0
     Width = 562
-    Height = 266
+    Height = 281
     ActivePage = tabUserData
     Align = alClient
     MultiLine = True
@@ -36,7 +36,7 @@ object FSettings: TFSettings
       ImageIndex = 4
       DesignSize = (
         554
-        235)
+        250)
       object Label8: TLabel
         Left = 12
         Top = 6
@@ -187,7 +187,7 @@ object FSettings: TFSettings
         AutoSize = False
         MaxLength = 3
         TabOrder = 2
-        Text = '280'
+        Text = '180'
         OnExit = EFrameWidthExit
         OnKeyPress = EProxyPortKeyPress
       end
@@ -200,7 +200,7 @@ object FSettings: TFSettings
         AutoSize = False
         MaxLength = 3
         TabOrder = 3
-        Text = '210'
+        Text = '135'
         OnExit = EFrameWidthExit
         OnKeyPress = EProxyPortKeyPress
       end
@@ -223,12 +223,12 @@ object FSettings: TFSettings
         Width = 181
         Height = 45
         Hint = 
-          'Cut out: New file is everything except cuts. Crop: NEw file is s' +
+          'Cut out: New file is everything except cuts. Crop: New file is s' +
           'um of cuts.'
         Anchors = [akTop, akRight]
         Caption = 'Default Cut Mode'
         Columns = 2
-        ItemIndex = 0
+        ItemIndex = 1
         Items.Strings = (
           'Cut out'
           'Crop')
@@ -289,7 +289,7 @@ object FSettings: TFSettings
       ImageIndex = 1
       DesignSize = (
         554
-        235)
+        250)
       object Label3: TLabel
         Left = 3
         Top = 68
@@ -360,7 +360,7 @@ object FSettings: TFSettings
       ImageIndex = 2
       DesignSize = (
         554
-        235)
+        250)
       object SaveCutlistMode: TRadioGroup
         Left = 3
         Top = 3
@@ -414,7 +414,7 @@ object FSettings: TFSettings
       Constraints.MinHeight = 210
       DesignSize = (
         554
-        235)
+        250)
       object Label4: TLabel
         Left = 66
         Top = 6
@@ -636,7 +636,7 @@ object FSettings: TFSettings
       Caption = 'External cut application'
       DesignSize = (
         554
-        235)
+        250)
       object Label18: TLabel
         Left = 3
         Top = 24
@@ -655,7 +655,7 @@ object FSettings: TFSettings
       end
       object Label20: TLabel
         Left = 42
-        Top = 105
+        Top = 133
         Width = 105
         Height = 13
         Alignment = taRightJustify
@@ -677,19 +677,19 @@ object FSettings: TFSettings
       end
       object Label1: TLabel
         Left = 40
-        Top = 78
+        Top = 106
         Width = 107
         Height = 13
         Alignment = taRightJustify
         Caption = 'Cut MP4 Iso Files with:'
       end
       object Label29: TLabel
-        Left = 5
-        Top = 134
-        Width = 271
+        Left = 2
+        Top = 162
+        Width = 274
         Height = 13
         Alignment = taRightJustify
-        Caption = 'Automatically close cutting window after (use 0 to disable)'
+        Caption = 'Automatically close cutting window after (use 0 to disable):'
       end
       object Label30: TLabel
         Left = 360
@@ -711,6 +711,14 @@ object FSettings: TFSettings
         Font.Pitch = fpVariable
         Font.Style = [fsBold]
         ParentFont = False
+      end
+      object Label31: TLabel
+        Left = 43
+        Top = 79
+        Width = 104
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'Cut HQ-AVI Files with:'
       end
       object CBWmvApp: TComboBox
         Left = 153
@@ -738,19 +746,7 @@ object FSettings: TFSettings
       end
       object CBOtherApp: TComboBox
         Left = 153
-        Top = 102
-        Width = 152
-        Height = 21
-        Style = csDropDownList
-        ItemHeight = 13
-        TabOrder = 2
-        OnChange = cbCutAppChange
-        Items.Strings = (
-          '')
-      end
-      object cbMP4App: TComboBox
-        Left = 153
-        Top = 75
+        Top = 130
         Width = 152
         Height = 21
         Style = csDropDownList
@@ -760,9 +756,21 @@ object FSettings: TFSettings
         Items.Strings = (
           '')
       end
+      object cbMP4App: TComboBox
+        Left = 153
+        Top = 103
+        Width = 152
+        Height = 21
+        Style = csDropDownList
+        ItemHeight = 13
+        TabOrder = 4
+        OnChange = cbCutAppChange
+        Items.Strings = (
+          '')
+      end
       object spnWaitTimeout: TJvSpinEdit
         Left = 314
-        Top = 130
+        Top = 158
         Width = 65
         Height = 21
         CheckMinValue = True
@@ -770,7 +778,7 @@ object FSettings: TFSettings
         ButtonKind = bkStandard
         Decimal = 0
         Value = 20.000000000000000000
-        TabOrder = 16
+        TabOrder = 20
       end
       object cbxCodecWmv: TComboBox
         Left = 314
@@ -779,7 +787,7 @@ object FSettings: TFSettings
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         ItemHeight = 13
-        TabOrder = 4
+        TabOrder = 5
         OnChange = cbxCodecChange
       end
       object btnCodecConfigWmv: TButton
@@ -789,7 +797,7 @@ object FSettings: TFSettings
         Height = 21
         Anchors = [akTop, akRight]
         Caption = 'Config'
-        TabOrder = 5
+        TabOrder = 6
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutWmv: TButton
@@ -799,7 +807,7 @@ object FSettings: TFSettings
         Height = 21
         Anchors = [akTop, akRight]
         Caption = '?'
-        TabOrder = 6
+        TabOrder = 7
         OnClick = btnCodecAboutClick
       end
       object cbxCodecAvi: TComboBox
@@ -809,7 +817,7 @@ object FSettings: TFSettings
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         ItemHeight = 13
-        TabOrder = 7
+        TabOrder = 8
         OnChange = cbxCodecChange
       end
       object btnCodecConfigAvi: TButton
@@ -819,7 +827,7 @@ object FSettings: TFSettings
         Height = 21
         Anchors = [akTop, akRight]
         Caption = 'Config'
-        TabOrder = 8
+        TabOrder = 9
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutAvi: TButton
@@ -829,79 +837,121 @@ object FSettings: TFSettings
         Height = 21
         Anchors = [akTop, akRight]
         Caption = '?'
-        TabOrder = 9
+        TabOrder = 10
         OnClick = btnCodecAboutClick
       end
       object cbxCodecMP4: TComboBox
         Left = 314
-        Top = 75
+        Top = 103
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         ItemHeight = 13
-        TabOrder = 10
+        TabOrder = 14
         OnChange = cbxCodecChange
       end
       object btnCodecConfigMP4: TButton
         Left = 457
-        Top = 75
+        Top = 103
         Width = 65
         Height = 21
         Anchors = [akTop, akRight]
         Caption = 'Config'
-        TabOrder = 11
+        TabOrder = 15
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutMP4: TButton
         Left = 528
+        Top = 103
+        Width = 25
+        Height = 21
+        Anchors = [akTop, akRight]
+        Caption = '?'
+        TabOrder = 16
+        OnClick = btnCodecAboutClick
+      end
+      object cbxCodecOther: TComboBox
+        Left = 314
+        Top = 130
+        Width = 137
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        ItemHeight = 13
+        TabOrder = 17
+        OnChange = cbxCodecChange
+      end
+      object btnCodecConfigOther: TButton
+        Left = 457
+        Top = 130
+        Width = 65
+        Height = 21
+        Anchors = [akTop, akRight]
+        Caption = 'Config'
+        TabOrder = 18
+        OnClick = btnCodecConfigClick
+      end
+      object btnCodecAboutOther: TButton
+        Left = 528
+        Top = 130
+        Width = 25
+        Height = 21
+        Anchors = [akTop, akRight]
+        Caption = '?'
+        TabOrder = 19
+        OnClick = btnCodecAboutClick
+      end
+      object CBHQAviApp: TComboBox
+        Left = 153
+        Top = 76
+        Width = 152
+        Height = 21
+        Style = csDropDownList
+        ItemHeight = 13
+        TabOrder = 2
+        OnChange = cbCutAppChange
+        Items.Strings = (
+          '')
+      end
+      object cbxCodecHQAvi: TComboBox
+        Left = 314
+        Top = 76
+        Width = 137
+        Height = 21
+        Anchors = [akLeft, akTop, akRight]
+        ItemHeight = 13
+        TabOrder = 11
+        OnChange = cbxCodecChange
+      end
+      object btnCodecConfigHQAvi: TButton
+        Left = 457
+        Top = 75
+        Width = 65
+        Height = 21
+        Anchors = [akTop, akRight]
+        Caption = 'Config'
+        TabOrder = 12
+        OnClick = btnCodecConfigClick
+      end
+      object btnCodecAboutHQAvi: TButton
+        Left = 527
         Top = 75
         Width = 25
         Height = 21
         Anchors = [akTop, akRight]
         Caption = '?'
-        TabOrder = 12
-        OnClick = btnCodecAboutClick
-      end
-      object cbxCodecOther: TComboBox
-        Left = 314
-        Top = 102
-        Width = 137
-        Height = 21
-        Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
         TabOrder = 13
-        OnChange = cbxCodecChange
-      end
-      object btnCodecConfigOther: TButton
-        Left = 457
-        Top = 102
-        Width = 65
-        Height = 21
-        Anchors = [akTop, akRight]
-        Caption = 'Config'
-        TabOrder = 14
-        OnClick = btnCodecConfigClick
-      end
-      object btnCodecAboutOther: TButton
-        Left = 528
-        Top = 102
-        Width = 25
-        Height = 21
-        Anchors = [akTop, akRight]
-        Caption = '?'
-        TabOrder = 15
         OnClick = btnCodecAboutClick
       end
     end
     object tsSourceFilter: TTabSheet
       Caption = 'Source Filter'
       ImageIndex = 8
-      Constraints.MinHeight = 220
+      Constraints.MinHeight = 250
       Constraints.MinWidth = 548
       OnShow = tsSourceFilterShow
       DesignSize = (
         554
-        235)
+        250)
       object lblSourceFilter: TLabel
         Left = 3
         Top = 9
@@ -919,7 +969,7 @@ object FSettings: TFSettings
       end
       object Label23: TLabel
         Left = 41
-        Top = 94
+        Top = 120
         Width = 75
         Height = 13
         Alignment = taRightJustify
@@ -927,7 +977,7 @@ object FSettings: TFSettings
       end
       object Label24: TLabel
         Left = 41
-        Top = 122
+        Top = 148
         Width = 75
         Height = 13
         Alignment = taRightJustify
@@ -943,11 +993,19 @@ object FSettings: TFSettings
       end
       object Label15: TLabel
         Left = 52
-        Top = 149
+        Top = 175
         Width = 64
         Height = 13
         Alignment = taRightJustify
         Caption = 'Filter Blacklist'
+      end
+      object Label39: TLabel
+        Left = 44
+        Top = 93
+        Width = 72
+        Height = 13
+        Alignment = taRightJustify
+        Caption = 'for HQ AVI files'
       end
       object pnlPleaseWait: TPanel
         Left = 122
@@ -964,7 +1022,7 @@ object FSettings: TFSettings
         Font.Pitch = fpVariable
         Font.Style = [fsBold]
         ParentFont = False
-        TabOrder = 5
+        TabOrder = 0
         Visible = False
       end
       object cbxSourceFilterListAVI: TComboBox
@@ -981,13 +1039,13 @@ object FSettings: TFSettings
         Font.Style = []
         ItemHeight = 14
         ParentFont = False
-        TabOrder = 0
+        TabOrder = 3
         Text = '(none)'
         OnChange = cbxSourceFilterListChange
       end
       object cbxSourceFilterListMP4: TComboBox
         Left = 122
-        Top = 91
+        Top = 117
         Width = 424
         Height = 22
         Anchors = [akLeft, akTop, akRight]
@@ -999,13 +1057,13 @@ object FSettings: TFSettings
         Font.Style = []
         ItemHeight = 14
         ParentFont = False
-        TabOrder = 1
+        TabOrder = 5
         Text = '(none)'
         OnChange = cbxSourceFilterListChange
       end
       object cbxSourceFilterListOther: TComboBox
         Left = 122
-        Top = 119
+        Top = 145
         Width = 424
         Height = 22
         Anchors = [akLeft, akTop, akRight]
@@ -1017,7 +1075,7 @@ object FSettings: TFSettings
         Font.Style = []
         ItemHeight = 14
         ParentFont = False
-        TabOrder = 2
+        TabOrder = 6
         Text = '(none)'
         OnChange = cbxSourceFilterListChange
       end
@@ -1028,7 +1086,7 @@ object FSettings: TFSettings
         Height = 21
         Anchors = [akTop, akRight]
         Caption = 'Refresh Filter List'
-        TabOrder = 3
+        TabOrder = 1
         OnClick = btnRefreshFilterListClick
       end
       object cbxSourceFilterListWMV: TComboBox
@@ -1045,15 +1103,15 @@ object FSettings: TFSettings
         Font.Style = []
         ItemHeight = 14
         ParentFont = False
-        TabOrder = 4
+        TabOrder = 2
         Text = '(none)'
         OnChange = cbxSourceFilterListChange
       end
       object lbchkBlackList: TCheckListBox
         Left = 122
-        Top = 147
+        Top = 173
         Width = 423
-        Height = 66
+        Height = 67
         OnClickCheck = lbchkBlackListClickCheck
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
@@ -1064,13 +1122,31 @@ object FSettings: TFSettings
         Font.Style = []
         ItemHeight = 14
         ParentFont = False
-        TabOrder = 6
+        TabOrder = 7
+      end
+      object cbxSourceFilterListHQAVI: TComboBox
+        Left = 122
+        Top = 90
+        Width = 424
+        Height = 22
+        Anchors = [akLeft, akTop, akRight]
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Courier New'
+        Font.Pitch = fpVariable
+        Font.Style = []
+        ItemHeight = 14
+        ParentFont = False
+        TabOrder = 4
+        Text = '(none)'
+        OnChange = cbxSourceFilterListChange
       end
     end
   end
   object pnlButtons: TPanel
     Left = 0
-    Top = 266
+    Top = 281
     Width = 562
     Height = 26
     Align = alBottom

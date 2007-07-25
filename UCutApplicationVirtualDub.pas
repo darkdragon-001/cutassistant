@@ -188,6 +188,7 @@ begin
     cas.CodecName := Settings.GetCodecNameByFourCC(cas.CodecFourCC);
     SetCodecSettings(Settings.CutAppSettingsWmv, cas);
     SetCodecSettings(Settings.CutAppSettingsAvi, cas);
+    SetCodecSettings(Settings.CutAppSettingsHQAVI, cas);
     SetCodecSettings(Settings.CutAppSettingsMP4, cas);
     SetCodecSettings(Settings.CutAppSettingsOther, cas);
   end;

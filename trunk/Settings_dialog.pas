@@ -132,6 +132,13 @@ type
     btnCodecConfigOther: TButton;
     btnCodecAboutOther: TButton;
     lblSmartRenderingCodec: TLabel;
+    Label31: TLabel;
+    CBHQAviApp: TComboBox;
+    cbxCodecHQAvi: TComboBox;
+    btnCodecConfigHQAvi: TButton;
+    btnCodecAboutHQAvi: TButton;
+    Label39: TLabel;
+    cbxSourceFilterListHQAVI: TComboBox;
     procedure BCutMovieSaveDirClick(Sender: TObject);
     procedure BCutlistSaveDirClick(Sender: TObject);
     procedure EProxyPortKeyPress(Sender: TObject; var Key: Char);
@@ -150,7 +157,7 @@ type
     procedure cbxSourceFilterListChange(Sender: TObject);
   private
     { Private declarations }
-    AviAppSettings, WmvAppSettings, MP4AppSettings, OtherAppSettings: RCutAppSettings;
+    HQAviAppSettings, AviAppSettings, WmvAppSettings, MP4AppSettings, OtherAppSettings: RCutAppSettings;
     EnumFilters: TSysDevEnum;
     procedure FillBlackList;
     function GetCodecList: TCodecList;
@@ -214,6 +221,7 @@ type
 
     //SourceFilter, CodecSettings
     CutAppSettingsAvi, CutAppSettingsWmv, CutAppSettingsMP4, CutAppSettingsOther: RCutAppSettings;
+    CutAppSettingsHQAvi: RCutAppSettings;
 
     //Blacklist of Filters
     FilterBlackList: TGUIDList;
@@ -359,6 +367,7 @@ begin
 
   CutAppSettingsWmv.PreferredSourceFilter := GUID_NULL;
   CutAppSettingsAvi.PreferredSourceFilter := GUID_NULL;
+  CutAppSettingsHQAvi.PreferredSourceFilter := GUID_NULL;
   CutAppSettingsMP4.PreferredSourceFilter := GUID_NULL;
   CutAppSettingsOther.PreferredSourceFilter := GUID_NULL;
 end;
@@ -404,7 +413,8 @@ begin
   end;
 
   FSettings.SetCutAppSettings(mtWMV, self.CutAppSettingsWmv);
-  FSettings.SetCutAppSettings(mtAvi, self.CutAppSettingsAvi);
+  FSettings.SetCutAppSettings(mtAVI, self.CutAppSettingsAvi);
+  FSettings.SetCutAppSettings(mtHQAVI, self.CutAppSettingsHQAvi);
   FSettings.SetCutAppSettings(mtMP4, self.CutAppSettingsMP4);
   FSettings.SetCutAppSettings(mtUnknown, self.CutAppSettingsOther);
 
@@ -489,7 +499,8 @@ begin
       self.CuttingWaitTimeout := FSettings.spnWaitTimeout.AsInteger;
 
       FSettings.GetCutAppSettings(mtWMV, self.CutAppSettingsWmv);
-      FSettings.GetCutAppSettings(mtAvi, self.CutAppSettingsAvi);
+      FSettings.GetCutAppSettings(mtAVI, self.CutAppSettingsAvi);
+      FSettings.GetCutAppSettings(mtHQAVI, self.CutAppSettingsHQAvi);
       FSettings.GetCutAppSettings(mtMP4, self.CutAppSettingsMP4);
       FSettings.GetCutAppSettings(mtUnknown, self.CutAppSettingsOther);
 
@@ -588,10 +599,11 @@ function TSettings.GetCutAppSettingsByMovieType(
   MovieType: TMovieType): RCutAppSettings;
 begin
   Case MovieType of
-    mtWMV: result := self.CutAppSettingsWmv;
-    mtAVI: result := self.CutAppSettingsAvi;
-    mtMP4: result := self.CutAppSettingsMP4;
-    else result := self.CutAppSettingsOther;
+    mtWMV:   result := self.CutAppSettingsWmv;
+    mtAVI:   result := self.CutAppSettingsAvi;
+    mtHQAVI: result := self.CutAppSettingsHQAvi;
+    mtMP4:   result := self.CutAppSettingsMP4;
+    else     result := self.CutAppSettingsOther;
   end;
 end;
 
@@ -649,8 +661,8 @@ begin
     UserID :=  ini.ReadString(section, 'UserID', '');
 
     section := 'FrameWindow';
-    FramesWidth := ini.ReadInteger(section, 'Width', 280);
-    FramesHeight := ini.ReadInteger(section, 'Height', 210);
+    FramesWidth := ini.ReadInteger(section, 'Width', 180);
+    FramesHeight := ini.ReadInteger(section, 'Height', 135);
     FramesCount := ini.ReadInteger(section, 'Count', 12);
 
     section := 'WMV Files';
@@ -658,6 +670,9 @@ begin
 
     section := 'AVI Files';
     ReadCutAppSettings(ini, section, CutAppSettingsAVI);
+
+    section := 'HQ AVI Files';
+    ReadCutAppSettings(ini, section, CutAppSettingsHQAVI);
 
     section := 'MP4 Files';
     ReadCutAppSettings(ini, section, CutAppSettingsMP4);
@@ -669,6 +684,7 @@ begin
     self.CuttingWaitTimeout := ini.ReadInteger(section, 'CuttingWaitTimeout', 20);
     ReadOldCutAppName(self.CutAppSettingsWmv, 'CutAppWmv', caAsfBin, 'CutAppNameWmv', 'AsfBin');
     ReadOldCutAppName(self.CutAppSettingsAvi, 'CutAppAvi', caVirtualDub, 'CutAppNameAvi', 'VirtualDub');
+    ReadOldCutAppName(self.CutAppSettingsAvi, 'CutAppHQAvi', caVirtualDub, 'CutAppNameHQAvi', 'VirtualDub');
     ReadOldCutAppName(self.CutAppSettingsMP4, '', TCutApp(0), 'CutAppNameMP4', 'MP4Box');
     ReadOldCutAppName(self.CutAppSettingsOther, 'CutAppOther', caVirtualDub, 'CutAppNameOther', 'VirtualDub');
 
@@ -708,7 +724,7 @@ begin
     self.InfoShowMessages := ini.ReadBool(section, 'InfoShowMessages', true);
     self.InfoShowStable := ini.ReadBool(section, 'InfoShowStable', true);
     self.InfoShowBeta := ini.ReadBool(section, 'InfoShowBeta', false);
-    self.DefaultCutMode := ini.ReadInteger(section, 'DefaultCutMode', 0);
+    self.DefaultCutMode := ini.ReadInteger(section, 'DefaultCutMode', integer(clmCrop));
     self.SmallSkipTime := ini.ReadInteger(section, 'SmallSkipTime', 2);
     self.LargeSkipTime := ini.ReadInteger(section, 'LargeSkipTime', 25);
     self.AutoMuteOnSeek := ini.ReadBool(section, 'AutoMuteOnSeek', false);
@@ -775,6 +791,9 @@ begin
 
     section := 'AVI Files';
     WriteCutAppSettings(ini, section, CutAppSettingsAvi);
+
+    section := 'HQ AVI Files';
+    WriteCutAppSettings(ini, section, CutAppSettingsHQAvi);
 
     section := 'MP4 Files';
     WriteCutAppSettings(ini, section, CutAppSettingsMP4);
@@ -1005,6 +1024,7 @@ begin
   if Settings.SourceFilterList.count = 0 then begin
     cbxSourceFilterListWMV.Enabled := false;
     cbxSourceFilterListAVI.Enabled := false;
+    cbxSourceFilterListHQAVI.Enabled := false;
     cbxSourceFilterListMP4.Enabled := false;
     cbxSourceFilterListOther.Enabled := false;
 
@@ -1012,6 +1032,8 @@ begin
     cbxSourceFilterListWMV.ItemIndex := -1;
     cbxSourceFilterListAVI.Items.Clear;
     cbxSourceFilterListAVI.ItemIndex := -1;
+    cbxSourceFilterListHQAVI.Items.Clear;
+    cbxSourceFilterListHQAVI.ItemIndex := -1;
     cbxSourceFilterListMP4.Items.Clear;
     cbxSourceFilterListMP4.ItemIndex := -1;
     cbxSourceFilterListOther.Items.Clear;
@@ -1025,12 +1047,15 @@ begin
     end;
     cbxSourceFilterListWMV.Items.Assign(cbxSourceFilterListOther.Items);
     cbxSourceFilterListAVI.Items.Assign(cbxSourceFilterListOther.Items);
+    cbxSourceFilterListHQAVI.Items.Assign(cbxSourceFilterListOther.Items);
     cbxSourceFilterListMP4.Items.Assign(cbxSourceFilterListOther.Items);
 
     cbxSourceFilterListWMV.ItemIndex := Settings.SourceFilterList.GetFilterIndexByCLSID(Settings.CutAppSettingsWmv.PreferredSourceFilter);
     cbxSourceFilterListChange(cbxSourceFilterListWMV);
     cbxSourceFilterListAVI.ItemIndex := Settings.SourceFilterList.GetFilterIndexByCLSID(Settings.CutAppSettingsAvi.PreferredSourceFilter);
     cbxSourceFilterListChange(cbxSourceFilterListAVI);
+    cbxSourceFilterListHQAVI.ItemIndex := Settings.SourceFilterList.GetFilterIndexByCLSID(Settings.CutAppSettingsHQAvi.PreferredSourceFilter);
+    cbxSourceFilterListChange(cbxSourceFilterListHQAVI);
     cbxSourceFilterListMP4.ItemIndex := Settings.SourceFilterList.GetFilterIndexByCLSID(Settings.CutAppSettingsMP4.PreferredSourceFilter);
     cbxSourceFilterListChange(cbxSourceFilterListMP4);
     cbxSourceFilterListOther.ItemIndex := Settings.SourceFilterList.GetFilterIndexByCLSID(Settings.CutAppSettingsOther.PreferredSourceFilter);
@@ -1038,6 +1063,7 @@ begin
 
     cbxSourceFilterListWMV.Enabled := true;
     cbxSourceFilterListAVI.Enabled := true;
+    cbxSourceFilterListHQAVI.Enabled := true;
     cbxSourceFilterListMP4.Enabled := true;
     cbxSourceFilterListOther.Enabled := true;
   end;
@@ -1055,6 +1081,7 @@ begin
 
     cbxSourceFilterListWMV.Clear;
     cbxSourceFilterListAVI.Clear;
+    cbxSourceFilterListHQAVI.Clear;
     cbxSourceFilterListMP4.Clear;
     cbxSourceFilterListOther.Clear;
 
@@ -1070,22 +1097,27 @@ end;
 
 function TFSettings.GetMovieTypeFromControl(const Sender: TObject; var MovieType: TMovieType): boolean;
 begin
-  if (Sender = CBWmvApp) or (Sender = cbxCodecWmv) or (Sender = btnCodecConfigWmv) or (Sender = btnCodecAboutWmv) then
+  if (Sender = cbxSourceFilterListWMV) or (Sender = CBWmvApp) or (Sender = cbxCodecWmv) or (Sender = btnCodecConfigWmv) or (Sender = btnCodecAboutWmv) then
   begin
     MovieType := mtWMV;
     Result := true;
   end
-  else if (Sender = CBAviApp) or (Sender = cbxCodecAvi) or (Sender = btnCodecConfigAvi) or (Sender = btnCodecAboutAvi) then
+  else if (Sender = cbxSourceFilterListAVI) or (Sender = CBAviApp) or (Sender = cbxCodecAvi) or (Sender = btnCodecConfigAvi) or (Sender = btnCodecAboutAvi) then
   begin
     MovieType := mtAVI;
     Result := true;
   end
-  else if (Sender = CBMP4App) or (Sender = cbxCodecMP4) or (Sender = btnCodecConfigMP4) or (Sender = btnCodecAboutMP4) then
+  else if (Sender = cbxSourceFilterListHQAVI) or (Sender = CBHQAviApp) or (Sender = cbxCodecHQAvi) or (Sender = btnCodecConfigHQAvi) or (Sender = btnCodecAboutHQAvi) then
+  begin
+    MovieType := mtHQAvi;
+    Result := true;
+  end
+  else if (Sender = cbxSourceFilterListMP4) or (Sender = CBMP4App) or (Sender = cbxCodecMP4) or (Sender = btnCodecConfigMP4) or (Sender = btnCodecAboutMP4) then
   begin
     MovieType := mtMP4;
     Result := true;
   end
-  else if (Sender = CBOtherApp) or (Sender = cbxCodecOther) or (Sender = btnCodecConfigOther) or (Sender = btnCodecAboutOther) then
+  else if (Sender = cbxSourceFilterListOther) or (Sender = CBOtherApp) or (Sender = cbxCodecOther) or (Sender = btnCodecConfigOther) or (Sender = btnCodecAboutOther) then
   begin
     MovieType := mtUnknown;
     Result := true;
@@ -1122,6 +1154,12 @@ begin
       btnAbout := btnCodecAboutAvi;
       Result := true;
       end;
+    mtHQAVI: begin
+      cbx := cbxCodecHQAvi;
+      btnConfig := btnCodecConfigHQAvi;
+      btnAbout := btnCodecAboutHQAvi;
+      Result := true;
+      end;
     mtMP4: begin
       cbx := cbxCodecMP4;
       btnConfig := btnCodecConfigMP4;
@@ -1144,21 +1182,25 @@ procedure TFSettings.Init;
 begin
   CBWmvApp.ItemIndex      := CBWmvApp.Items.IndexOf(WmvAppSettings.CutAppName);
   CBAviApp.ItemIndex      := CBAviApp.Items.IndexOf(AviAppSettings.CutAppName);
+  CBHQAviApp.ItemIndex    := CBHQAviApp.Items.IndexOf(HQAviAppSettings.CutAppName);
   CBMP4App.ItemIndex      := CBMP4App.Items.IndexOf(MP4AppSettings.CutAppName);
   CBOtherApp.ItemIndex    := CBOtherApp.Items.IndexOf(OtherAppSettings.CutAppName);
 
   cbxCodecWmv.ItemIndex := CodecList.IndexOfCodec(WmvAppSettings.CodecFourCC);
   cbxCodecAvi.ItemIndex := CodecList.IndexOfCodec(AviAppSettings.CodecFourCC);
+  cbxCodecHQAvi.ItemIndex := CodecList.IndexOfCodec(HQAviAppSettings.CodecFourCC);
   cbxCodecMP4.ItemIndex := CodecList.IndexOfCodec(MP4AppSettings.CodecFourCC);
   cbxCodecOther.ItemIndex := CodecList.IndexOfCodec(OtherAppSettings.CodecFourCC);
 
   cbCutAppChange(CBWmvApp);
   cbCutAppChange(CBAviApp);
+  cbCutAppChange(CBHQAviApp);
   cbCutAppChange(CBMP4App);
   cbCutAppChange(CBOtherApp);
 
   cbxCodecChange(CBWmvApp);
   cbxCodecChange(CBAviApp);
+  cbxCodecChange(CBHQAviApp);
   cbxCodecChange(CBMP4App);
   cbxCodecChange(CBOtherApp);
 end;
@@ -1168,6 +1210,7 @@ begin
   case MovieType of
     mtWMV:      WmvAppSettings := ASettings;
     mtAVI:      AviAppSettings := ASettings;
+    mtHQAVI:    HQAviAppSettings := ASettings;
     mtMP4:      MP4AppSettings := ASettings;
     mtUnknown:  OtherAppSettings := ASettings;
   end;
@@ -1183,6 +1226,10 @@ begin
     mtAVI: begin
       AviAppSettings.CutAppName := CBAviApp.Text;
       ASettings := AviAppSettings;
+    end;
+    mtHQAvi: begin
+      HQAviAppSettings.CutAppName := CBHQAviApp.Text;
+      ASettings := HQAviAppSettings;
     end;
     mtMP4: begin
       MP4AppSettings.CutAppName := CBMP4App.Text;

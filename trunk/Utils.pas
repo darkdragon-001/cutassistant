@@ -130,6 +130,8 @@ procedure ShowExpectedException(const Header: string);
 function iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
 procedure iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
 
+Function MakeFourCC(const a,b,c,d: char): DWord;
+
 //global Vars
 var
   batchmode: boolean;
@@ -141,7 +143,7 @@ implementation
 
 uses
   Messages, Dialogs, ShellAPI, Variants, Classes, Clipbrd, StrUtils, jpeg,
-  Types, DirectShow9;
+  Types, DirectShow9, Math;
 
 
 const ScreenWidthDev  = 1280;
@@ -744,6 +746,14 @@ Var
 Begin
   Move(fcc, Buffer, SizeOf(Buffer));
   Result := Buffer;
+End;
+
+Function MakeFourCC(const a,b,c,d: char): DWord;
+Begin
+  Result := Cardinal(a)
+         or (Cardinal(b) shl 8)
+         or (Cardinal(c) shl 16)
+         or (Cardinal(d) shl 24);
 End;
 
 function SaveBitmapAsJPEG(ABitmap: TBitmap; FileName: string): boolean;

@@ -3,6 +3,7 @@ program cut_assistant;
 {%File 'readme.txt'}
 {%File 'news.txt'}
 {%File 'license.txt'}
+{%File 'cut_assistant_info.xml'}
 
 uses
   madExcept,

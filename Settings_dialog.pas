@@ -914,10 +914,12 @@ begin
 
   CBWmvApp.Items.Assign(CBOtherApp.Items);
   CBAviApp.Items.Assign(CBOtherApp.Items);
+  CBHQAviApp.Items.Assign(CBOtherApp.Items);
   CBMP4App.Items.Assign(CBOtherApp.Items);
 
   cbxCodecWmv.Items := CodecList;
   cbxCodecAvi.Items := CodecList;
+  cbxCodecHQAvi.Items := CodecList;
   cbxCodecMP4.Items := CodecList;
   cbxCodecOther.Items := CodecList;
 end;

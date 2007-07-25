@@ -801,7 +801,6 @@ begin
           if cutlistfile.ValueExists(section, 'DurationFrames') then cutlistfile.DeleteKey(section, 'DurationFrames');
       end;
       cutlistfile.WriteInteger('General', 'NoOfCuts', writtenCuts);
-      cutlistfile.Free;
       result := true;
       self.FHasChanged := false;
       self.SavedToFilename := filename;

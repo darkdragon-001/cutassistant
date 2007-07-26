@@ -2338,12 +2338,10 @@ object FMain: TFMain
     Left = 48
     Top = 192
     object FramePopUpNext12Frames: TMenuItem
-      Caption = 'Next 12 Frames'
-      OnClick = FramePopUpNext12FramesClick
+      Action = ANextFrames
     end
     object FramePopUpPrevious12Frames: TMenuItem
-      Caption = 'Previous 12 Frames'
-      OnClick = FramePopUpPrevious12FramesClick
+      Action = APrevFrames
     end
     object N1: TMenuItem
       Caption = '-'

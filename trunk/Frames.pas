@@ -43,6 +43,7 @@ type
     procedure FormResize(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
     { Private declarations }
     FrameList: TObjectList;
@@ -53,6 +54,7 @@ type
     { Public declarations }
     MainForm: TFMain;
     scan_1, scan_2: integer; //index of CutFrame
+    CanClose: boolean;
     procedure Init(IFrames: Integer; FrameHeight, FrameWidth: Integer);
     property Frame[Index: Integer]: TCutFrame read getCutFrame;
     property Count: Integer read getCount;
@@ -379,6 +381,12 @@ procedure TFFrames.FormShow(Sender: TObject);
 begin
   // Show taskbar button for this form ...
   SetWindowLong(Handle, GWL_ExStyle, WS_Ex_AppWindow);
+  CanClose := true;
+end;
+
+procedure TFFrames.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  CanClose := self.CanClose;
 end;
 
 end.

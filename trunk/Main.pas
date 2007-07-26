@@ -765,6 +765,7 @@ begin
   // Mute sound ?
   if Settings.AutoMuteOnSeek and not CBMute.Checked then
     FilterGraph.Volume := 0;
+  FFrames.CanClose := false;
   try
     for iImage := 0 to endframe - startframe do begin
       Target := FFrames.Frame[iImage];
@@ -784,6 +785,7 @@ begin
       end;
     end;
   finally
+    FFrames.CanClose := true;
     // Restore sound
     if Settings.AutoMuteOnSeek and not CBMute.Checked then
       FilterGraph.Volume := TVolume.Position;
@@ -1366,6 +1368,7 @@ begin
   // Mute sound ?
   if Settings.AutoMuteOnSeek and not CBMute.Checked then
     FilterGraph.Volume := 0;
+  FFrames.CanClose := false;
 
   try
     for iImage := 0 to numberOfFrames-1 do begin
@@ -1384,6 +1387,7 @@ begin
       end;
     end;
   finally
+    FFrames.CanClose := true;
     // Restore sound
     if Settings.AutoMuteOnSeek and not CBMute.Checked then
       FilterGraph.Volume := TVolume.Position;

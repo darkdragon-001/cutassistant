@@ -11,6 +11,7 @@ object FFrames: TFFrames
   Font.Name = 'Small Fonts'
   Font.Style = []
   OldCreateOrder = False
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnResize = FormResize

@@ -1,3 +1,6 @@
+New in 0.9.11.20 (beta)
+- Fixed bug in directory check of configuration settings.
+
 New in 0.9.11.17 (beta)
 - Fixed error in handling of frames window size.
 - Fixed error in handling of preferred source filter.

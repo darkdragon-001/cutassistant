@@ -390,9 +390,9 @@ end;
 destructor TSettings.destroy;
 begin
   FreeAndNil(FCodecList);
-  FilterBlackList.Free;
-  SourceFilterList.Free;
-  CutApplicationList.Free;
+  FreeAndNIL(FilterBlackList);
+  FreeAndNIL(SourceFilterList);
+  FreeAndNIL(CutApplicationList);
   inherited;
 end;
 

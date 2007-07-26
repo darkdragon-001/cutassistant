@@ -159,9 +159,9 @@ end;
 
 destructor TCutApplicationBase.destroy;
 begin
-  FjvcpAppProcess.Free;
-  FCommandLines.Free;
-  FDefaultExeNames.Free;
+  FreeAndNIL(FjvcpAppProcess);
+  FreeAndNIL(FCommandLines);
+  FreeAndNIL(FDefaultExeNames);
   inherited;
 end;
 

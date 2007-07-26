@@ -136,7 +136,7 @@ end;
 
 procedure TFManageFilters.FormDestroy(Sender: TObject);
 begin
-  FilterList.Free;
+  FreeAndNIL(FilterList);
 end;
 
 procedure TFManageFilters.BCopyClick(Sender: TObject);

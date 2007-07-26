@@ -98,7 +98,7 @@ end;
 
 procedure TfrmCutting.FormDestroy(Sender: TObject);
 begin
-  self.CommandLines.Free;
+  FreeAndNIL(self.CommandLines);
 end;
 
 procedure TfrmCutting.SetCutApplication(const Value: TCutApplicationBase);

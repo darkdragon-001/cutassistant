@@ -82,7 +82,7 @@ begin
   try
     FMain.ProcessFileList(FileList, true);
   finally
-    FileList.Free;
+    FreeAndNIL(FileList);
     if BatchMode or exit_after_commandline then
       application.Terminate
     else

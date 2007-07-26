@@ -158,12 +158,12 @@ end;
 
 destructor TCutFrame.Destroy;
 begin
-  //Bstart.Free;
-  //Bstop.Free;
-  //LTime.Free;
-  //LIndex.free;
-  //FImage.Free;
-  //FBorder.Free;
+  //FreeAndNIL(Bstart);
+  //FreeAndNIL(Bstop);
+  //FreeAndNIL(LTime);
+  //FreeAndNIL(LIndex);
+  //FreeAndNIL(FImage);
+  //FreeAndNIL(FBorder);
   inherited;
 end;
 

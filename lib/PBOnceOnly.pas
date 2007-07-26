@@ -258,7 +258,7 @@ begin
     EnumThreadWindows(threadID, @EnumProc, Integer(helper));
     Result := helper.FWnd;
   finally
-    helper.Free;
+    FreeAndNIL(helper);
   end;
 end;
 
@@ -293,7 +293,7 @@ function AlreadyRunning(const aProcessName: string;
           sl.Add(ParamStr(i));
         Result := sl.Text;
       finally
-        sl.free;
+        FreeAndNIL(sl);
       end; { Finally }
     end;
   end;
@@ -364,7 +364,7 @@ begin
       for i := 0 to sl.Count - 1 do
         onParameter(sl[i]);
     finally
-      sl.Free;
+      FreeAndNIL(sl);
     end; { Finally }
   end;
 end;
@@ -380,5 +380,5 @@ end;
 
 initialization
 finalization
-  ProcessInfo.Free;
+  FreeAndNIL(ProcessInfo);
 end.

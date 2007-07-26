@@ -251,7 +251,7 @@ begin
   end else begin
     ConvertedCutlist := self.convert;
     command := ConvertedCutlist.CutCommand;
-    ConvertedCutlist.Free;
+    FreeAndNIL(ConvertedCutlist);
   end;
 
   result := command;
@@ -657,9 +657,9 @@ begin
       saveDlg.options := saveDlg.Options + [ofOverwritePrompt, ofPathMustExist];
       if saveDlg.Execute then begin
         target_file := saveDlg.FileName;
-        saveDlg.Free;
+        FreeAndNIL(saveDlg);
       end else begin
-        saveDlg.Free;
+        FreeAndNIL(saveDlg);
         exit;
       end;
     end;
@@ -865,7 +865,7 @@ begin
       self[iCut].pos_to := Acut.pos_to;
     end;
   end;
-  Acut.Free;
+  FreeAndNIL(Acut);
 end;
 
 function TCutlist.TotalDurationOfCuts: double;

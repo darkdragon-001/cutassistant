@@ -72,7 +72,7 @@ begin
      FilterGraph.Stop;
      FilterGraph.ClearGraph;
      FilterGraph.Active := false;
-     FilterBank.Free;
+     FreeAndNIL(FilterBank);
 end;
 
 procedure TMainForm.LoadAVI(const aviname : TFileName);
@@ -274,7 +274,7 @@ begin
 
    result := sysdev.GetBaseFilter(i); // return 'IBaseFilter' interface
  finally
-   sysdev.Free;
+   FreeAndNIL(sysdev);
  end;//try finally
 end;
 
@@ -479,9 +479,9 @@ try
            end;
 
        finally
-         PinList.Free;
-         OutPinList.Free;
-         InPinList.Free;
+         FreeAndNIL(PinList);
+         FreeAndNIL(OutPinList);
+         FreeAndNIL(InPinList);
        end;
 
        end; // if FFilters[j].FilterAction = faRemove

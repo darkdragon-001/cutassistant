@@ -180,7 +180,7 @@ begin
 
     result := true;
   finally
-    if MustFreeTempCutlist then TempCutlist.Free;
+    if MustFreeTempCutlist then FreeAndNIL(TempCutlist);
     DecimalSeparator := Temp_DecimalSeparator;
 //    ChangeFileExt(SourceFileName, TempFileExt);
   end;
@@ -207,8 +207,8 @@ end;
 
 destructor TCutApplicationMP4Box.destroy;
 begin
-  FTempFileList.Free;
-  FOriginalFileList.Free;
+  FreeAndNIL(FTempFileList);
+  FreeAndNIL(FOriginalFileList);
   inherited;
 end;
 

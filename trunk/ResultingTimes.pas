@@ -99,7 +99,7 @@ begin
   end else begin
     Converted_Cutlist := cutlist.convert;
     self.calculate(COnverted_cutlist);
-    Converted_Cutlist.Free;
+    FreeAndNIL(Converted_Cutlist);
   end;
 end;
 
@@ -185,7 +185,7 @@ begin
       end;
     end;
   finally
-    AvailableFilters.Free;
+    FreeAndNIL(AvailableFilters);
   end;
 
   if not sourceAdded then begin
@@ -197,7 +197,7 @@ begin
         CheckDSError((FilterGraph2 as IGraphBuilder).Render(PinList.Items[iPin]));
       end;
     finally
-      PinList.free;
+      FreeAndNIL(PinList);
     end;
   end;
 
@@ -270,7 +270,7 @@ procedure TFResultingTimes.FormDestroy(Sender: TObject);
 begin
   Settings.PreviewFormBounds := self.BoundsRect;
   Settings.PreviewFormWindowState := self.WindowState;
-  FMovieInfo.Free;
+  FreeAndNIL(FMovieInfo);
 end;
 
 function TFResultingTimes.FilterGraph2SelectedFilter(Moniker: IMoniker;

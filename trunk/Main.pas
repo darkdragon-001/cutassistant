@@ -762,8 +762,9 @@ begin
   FFrames.Show;
 
   JumpTo(temp_pos);
-  // Mute sound
-  FilterGraph.Volume := 0;
+  // Mute sound ?
+  if Settings.AutoMuteOnSeek and not CBMute.Checked then
+    FilterGraph.Volume := 0;
   try
     for iImage := 0 to endframe - startframe do begin
       Target := FFrames.Frame[iImage];
@@ -784,7 +785,7 @@ begin
     end;
   finally
     // Restore sound
-    if not CBMute.Checked then
+    if Settings.AutoMuteOnSeek and not CBMute.Checked then
       FilterGraph.Volume := TVolume.Position;
     JumpTo(pos);
   end;
@@ -954,7 +955,7 @@ begin
             end;
           end;
         finally
-          AvailableFilters.Free;
+          FreeAndNIL(AvailableFilters);
         end;
 
         if not sourceAdded then begin
@@ -966,7 +967,7 @@ begin
               CheckDSError((FilterGraph as IGraphBuilder).Render(PinList.Items[iPin]));
             end;
           finally
-            PinList.free;
+            FreeAndNIL(PinList);
           end;
         end;
 
@@ -1048,7 +1049,7 @@ begin
     if CutlistMode_old <> cutlist.Mode then begin
       newCutlist := cutlist.convert;
       newCutlist.RefreshCallBack := cutlist.RefreshCallBack;
-      cutlist.Free;
+      FreeAndNIL(cutlist);
       cutlist := newCutlist;
       cutlist.RefreshGUI;
     end;
@@ -1362,8 +1363,10 @@ begin
   pos := currentPosition;
   FFrames.Show;
 
-  // Mute sound
-  FilterGraph.Volume := 0;
+  // Mute sound ?
+  if Settings.AutoMuteOnSeek and not CBMute.Checked then
+    FilterGraph.Volume := 0;
+
   try
     for iImage := 0 to numberOfFrames-1 do begin
       Target := FFrames.Frame[iImage];
@@ -1382,7 +1385,7 @@ begin
     end;
   finally
     // Restore sound
-    if not CBMute.Checked then
+    if Settings.AutoMuteOnSeek and not CBMute.Checked then
       FilterGraph.Volume := TVolume.Position;
     JumpTo(pos);
   end;
@@ -1405,7 +1408,7 @@ begin
   if cutlist.Count = 0 then exit;
   newCutlist := cutlist.convert;
   newCutlist.RefreshCallBack := cutlist.RefreshCallBack;
-  cutlist.Free;
+  FreeAndNIL(cutlist);
   cutlist := newCutlist;
   cutlist.RefreshGUI;
 end;
@@ -1497,11 +1500,11 @@ begin
           end;
         end;
       finally
-        filterlist.Free;
+        FreeAndNIL(filterlist);
       end;
     end else begin
       frmMemoDialog.memInfo.Lines.Add('***Could not find interface***');
-      filterlist.Free;
+      FreeAndNIL(filterlist);
     end;
   end;
   frmMemoDialog.ShowModal;
@@ -1542,7 +1545,7 @@ begin
     end;
     ProcessFileList(FileList, false);
   finally
-    FileList.Free;
+    FreeAndNIL(FileList);
   end;
   inherited;
 end;
@@ -1915,7 +1918,7 @@ begin
   reg.WriteString('', '"' + myDir + '" -open:"%1"');
   reg.CloseKey;
 
-  reg.Free;
+  FreeAndNIL(reg);
 end;
 
 procedure TFMain.RemoveRegistryEntriesExecute(Sender: TObject);
@@ -1945,7 +1948,7 @@ begin
   reg.DeleteKey(ProgID);
   reg.CloseKey;
 
-  reg.Free;
+  FreeAndNIL(reg);
 end;
 
 procedure TFMain.RCutModeClick(Sender: TObject);
@@ -1982,12 +1985,12 @@ var
 begin
   if not (FilterGraph.State = gsPaused) then GraphPause;
   if assigned(FrameStep) then begin
-    if settings.AutoMuteOnSeek and not CBMute.Checked then
+    if Settings.AutoMuteOnSeek and not CBMute.Checked then
       FilterGraph.Volume := 0;
     FrameStep.Step(1, nil);
     MediaEvent.WaitForCompletion(500, event);
     TBFilePos.TriggerTimer;
-    if settings.AutoMuteOnSeek and not CBMute.Checked then
+    if Settings.AutoMuteOnSeek and not CBMute.Checked then
       FilterGraph.Volume := TVolume.Position;
   end else
   begin
@@ -2102,9 +2105,9 @@ begin
     selectFileDlg.Title := 'Select File to be repaired:';
     if selectFileDlg.Execute then begin
       filename_temp := selectFileDlg.FileName;
-      selectFileDlg.Free;
+      FreeAndNIL(selectFileDlg);
     end else begin
-      selectFileDlg.Free;
+      FreeAndNIL(selectFileDlg);
       exit;
     end;
   end else begin
@@ -2184,7 +2187,7 @@ begin
       else
         Exit;
     finally
-      selectFileDlg.Free;
+      FreeAndNIL(selectFileDlg);
     end;
   end;
 
@@ -2433,7 +2436,7 @@ begin
       end;
       begin_answer := LastDelimiter(#10, response)+1;
       Answer := midstr(response, begin_answer, length(response)-begin_answer+1); //Last Line
-      lines.Free;
+      FreeAndNIL(lines);
       if not batchmode then
         showmessage('Server responded:' + #13#10 + answer);
     finally
@@ -2600,7 +2603,7 @@ begin
     FileList.Text := param;
     self.ProcessFileList(FileList, false);
   finally
-    FileList.Free;
+    FreeAndNIL(FileList);
   end;
 end;
 
@@ -3043,8 +3046,8 @@ begin
       WaitForFiltergraph;
       ClipBoard.Assign(tempBitmap);
     finally
-      //tempBitmap.Free;
-      tempCutFrame.Free;
+      //FreeAndNIL(tempBitmap);
+      FreeAndNIL(tempCutFrame);
     end;
   end;
   if MenuVideo.PopupComponent is TImage then begin
@@ -3084,7 +3087,7 @@ procedure TFMain.ASnapshotSaveExecute(Sender: TObject);
         if extractFileExt(FileName) <> DefaultExt then FileName := FileName + DefaultExt;
       end;
     finally
-      saveDlg.Free;
+      FreeAndNIL(saveDlg);
     end;
   end;
 
@@ -3122,8 +3125,8 @@ begin
         SaveBitmapAsJPEG(TempBitmap, FileName);
       end;
     finally
-      //tempBitmap.Free;
-      tempCutFrame.Free;
+      //FreeAndNIL(tempBitmap);
+      FreeAndNIL(tempCutFrame);
     end;
   end;
 
@@ -3168,7 +3171,7 @@ begin
       for i := 0 to cutlist_tmp.Count -1 do begin
         writeln(f, floatTostr(cutlist_tmp.Cut[i].pos_from)  + ' ' + floatTostr(cutlist_tmp.Cut[i].pos_to) + ' 0');
       end;
-      cutlist_tmp.Free;
+      FreeAndNIL(cutlist_tmp);
     end;
   finally
     DecimalSeparator := Temp_DecimalSeparator;
@@ -3619,10 +3622,10 @@ end;
 
 finalization
 begin
-  Cutlist.Free;
-  MovieInfo.Free;
+  FreeAndNIL(Cutlist);
+  FreeAndNIL(MovieInfo);
   Settings.save;
-  Settings.Free;
+  FreeAndNIL(Settings);
 end;
 
 end.

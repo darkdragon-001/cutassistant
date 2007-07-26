@@ -767,7 +767,7 @@ begin
     TempJPEG.SaveToFile(FileName);
     result := true;
   finally
-    TempJPEG.Free;
+    FreeAndNIL(TempJPEG);
   end;
 end;
 

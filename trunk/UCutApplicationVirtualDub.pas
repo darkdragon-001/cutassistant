@@ -338,7 +338,7 @@ begin
     self.FCommandLines.Add(CommandLine);
     result := true;
   finally
-    if MustFreeTempCutlist then TempCutlist.Free;
+    if MustFreeTempCutlist then FreeAndNIL(TempCutlist);
   end;
 end;
 

@@ -189,7 +189,7 @@ end;
 
 destructor TDSTrackBarEx.Destroy;
 begin
-  FChannelCanvas.Free;
+  FreeAndNIL(FChannelCanvas);
   inherited;
 end;
 

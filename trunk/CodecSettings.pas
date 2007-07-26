@@ -215,7 +215,7 @@ begin
     end;
   finally
     UpdateControlCaption(progressLabel, 'Checking Filters. Done.');
-    EnumFilters.free;
+    FreeAndNIL(EnumFilters);
     result := self.FFilters.Count;
   end;
 end;
@@ -295,7 +295,10 @@ var
   i: Integer;
 begin
   for i := 0 to self.Count -1 do begin
-    if assigned(self.Objects[i]) then self.Objects[i].Free;
+    if assigned(self.Objects[i]) then begin
+      self.Objects[i].Free;
+      self.Objects[i] := nil;
+    end;
   end;
   self.Clear;
 end;

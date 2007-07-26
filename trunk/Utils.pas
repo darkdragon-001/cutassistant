@@ -533,7 +533,7 @@ end;
 
 function IsPathRooted(const Path: string): boolean;
 begin
-  if ExtractFileDrive(Path) = '' then
+  if ExtractFileDrive(Path) <> '' then
     Result := true
   else
     Result := IsPathDelimiter(Path, 1);

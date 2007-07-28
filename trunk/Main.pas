@@ -2927,7 +2927,7 @@ begin
   end;
 end;
 
-function GetXMLMessage(const Node: TJCLSimpleXMLElem; const LastChecked: TDateTime) : string;
+function GetXMLMessage(const Node: TJCLSimpleXMLElem; const ItemName: string; const LastChecked: TDateTime) : string;
 var
   Msg: TJCLSimpleXMLElems;
   datum: TDateTime;
@@ -2950,7 +2950,7 @@ begin
     Datum
   ) then exit;
   if LastChecked <= Datum then begin
-    Result := '[' + DateToStr(Datum) + '] ' + ItemStr('text');
+    Result := '[' + DateToStr(Datum) + '] ' + ItemStr(ItemName);
   end;
 end;
 
@@ -2964,7 +2964,7 @@ begin
   MsgList := Node.Items.ItemNamed[name].Items;
   if MsgList.Count > 0 then begin
     for idx := 0 to MsgList.Count - 1 do begin
-      s := GetXMLMessage(MsgList.Item[idx], LastChecked);
+      s := GetXMLMessage(MsgList.Item[idx], 'text', LastChecked);
       if Length(s) > 0 then begin
         Result := Result + #13#10#13#10 + s;
       end;
@@ -3005,13 +3005,13 @@ begin
                 ShowMessage('Information: ' + AText);
           end;
           if settings.InfoShowBeta then begin
-            AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['beta'], lastChecked);
+            AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['beta'], 'version_text', lastChecked);
             if Length(AText) > 0 then
               if not batchmode then
                 ShowMessage('Beta-Information: ' + AText);
           end;
           if settings.InfoShowStable then begin
-            AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['stable'], lastChecked);
+            AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['stable'], 'version_text', lastChecked);
             if Length(AText) > 0 then
               if not batchmode then
                 ShowMessage('Stable-Information: ' + AText);

@@ -208,6 +208,8 @@ begin
 end;
 
 procedure TFFrames.FormCreate(Sender: TObject);
+var
+  MainBounds: TRect;
 begin
   FrameList := TObjectlist.Create;
   Init(Settings.FramesCount, Settings.FramesHeight, Settings.FramesWidth);
@@ -216,8 +218,21 @@ begin
     self.BoundsRect := Settings.FramesFormBounds
   else
   begin
-    self.Top := Screen.WorkAreaTop + Max(0, (Screen.WorkAreaHeight - self.Height) div 2);
-    self.Left := Screen.WorkAreaLeft + Max(0, Screen.WorkAreaWidth - self.Width);
+    MainBounds := Settings.MainFormBounds;
+    if ValidRect(MainBounds) then begin
+      // Use top of main form if possible
+      if MainBounds.Top + self.Height <= Screen.DesktopHeight then
+        self.Top := MainBounds.Top
+      else // Center around main form if possible
+        self.Top := Math.Max(0, MainBounds.Top + (MainBounds.Bottom - MainBounds.Top - self.Height) div 2);
+      // force at least visible width of 100 pixels
+      self.Left := Math.Min(MainBounds.Left + MainBounds.Right - MainBounds.Left, Screen.DesktopWidth - 100);
+    end
+    else
+    begin
+      self.Top := Screen.WorkAreaTop + Max(0, (Screen.WorkAreaHeight - self.Height) div 2);
+      self.Left := Screen.WorkAreaLeft + Max(0, Screen.WorkAreaWidth - self.Width);
+    end;
   end;
   self.WindowState := Settings.FramesFormWindowState;
   adjust_frame_position;

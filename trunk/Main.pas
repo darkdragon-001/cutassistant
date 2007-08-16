@@ -1866,7 +1866,19 @@ procedure TFMain.AboutExecute(Sender: TObject);
 begin
   AboutBox.ShowModal();
 end;
-           
+
+procedure ForceOpenRegKey(const reg: TRegistry; const key: string);
+var
+  path: string;
+begin
+  if not reg.OpenKey(key, true) then begin
+    if AnsiStartsStr('\', key) then path := key
+    else path := reg.CurrentPath + '\' + key;
+
+    raise ERegistryException.Create('Unable to open key "' + path + '".');
+  end;
+end;
+
 procedure TFMain.WriteToRegistyExecute(Sender: TObject);
 var
   reg : TRegistry;
@@ -1874,55 +1886,56 @@ var
 begin
   myDir := application.ExeName;
   reg := Tregistry.Create;
-  reg.RootKey := HKEY_CLASSES_ROOT;
-  reg.OpenKey('\' + cutlist_Extension, true);
-  reg.WriteString('', CutlistID);
-  reg.WriteString('Content Type', CUTLIST_CONTENT_TYPE);
-  reg.CloseKey;
+  try
+   try
+    reg.RootKey := HKEY_CLASSES_ROOT;
+    ForceOpenRegKey(reg, '\' + cutlist_Extension);
+    reg.WriteString('', CutlistID);
+    reg.WriteString('Content Type', CUTLIST_CONTENT_TYPE);
+    reg.CloseKey;
 
-  reg.OpenKey('\'+CutlistID, true);
-  reg.WriteString('', 'Cutlist for Cut Assistant');
-  reg.OpenKey('DefaultIcon', true);
-  reg.WriteString('', '"' + myDir+'",0');
-  reg.CloseKey;
+    ForceOpenRegKey(reg, '\'+CutlistID);
+    reg.WriteString('', 'Cutlist for Cut Assistant');
+    ForceOpenRegKey(reg, 'DefaultIcon');
+    reg.WriteString('', '"' + myDir+'",0');
+    reg.CloseKey;
 
-  reg.OpenKey('\'+CutlistID+'\Shell\open', true);
-  reg.WriteString('', 'Open with Cut Assistant');
-  reg.OpenKey('command', true);
-  reg.WriteString('', '"' + myDir + '" -cutlist:"%1"');
-  reg.CloseKey;
+    ForceOpenRegKey(reg, '\'+CutlistID+'\Shell\open');
+    reg.WriteString('', 'Open with Cut Assistant');
+    ForceOpenRegKey(reg, 'command');
+    reg.WriteString('', '"' + myDir + '" -cutlist:"%1"');
+    reg.CloseKey;
 
-  reg.OpenKey('\WMVFile\Shell', true);
-  reg.OpenKey(ShellEditKey, true);
-  reg.WriteString('', 'Edit with Cut Assistant');
-  reg.OpenKey('command', true);
-  reg.WriteString('', '"' + myDir + '" -open:"%1"');
-  reg.CloseKey;
+    ForceOpenRegKey(reg, '\WMVFile\Shell\' + ShellEditKey);
+    reg.WriteString('', 'Edit with Cut Assistant');
+    ForceOpenRegKey(reg, 'command');
+    reg.WriteString('', '"' + myDir + '" -open:"%1"');
+    reg.CloseKey;
 
-  reg.OpenKey('\AVIFile\Shell', true);
-  reg.OpenKey(ShellEditKey, true);
-  reg.WriteString('', 'Edit with Cut Assistant');
-  reg.OpenKey('command', true);
-  reg.WriteString('', '"' + myDir + '" -open:"%1"');
-  reg.CloseKey;
+    ForceOpenRegKey(reg, '\AVIFile\Shell\' + ShellEditKey);
+    reg.WriteString('', 'Edit with Cut Assistant');
+    ForceOpenRegKey(reg, 'command');
+    reg.WriteString('', '"' + myDir + '" -open:"%1"');
+    reg.CloseKey;
 
-  reg.OpenKey('\QuickTime.mp4\Shell', true);
-  reg.OpenKey(ShellEditKey, true);
-  reg.WriteString('', 'Edit with Cut Assistant');
-  reg.OpenKey('command', true);
-  reg.WriteString('', '"' + myDir + '" -open:"%1"');
-  reg.CloseKey;
+    ForceOpenRegKey(reg, '\QuickTime.mp4\Shell\' + ShellEditKey);
+    reg.WriteString('', 'Edit with Cut Assistant');
+    ForceOpenRegKey(reg, 'command');
+    reg.WriteString('', '"' + myDir + '" -open:"%1"');
+    reg.CloseKey;
 
-  reg.OpenKey('\Applications', true);
-  reg.OpenKey(ProgID, true);
-  reg.OpenKey('shell', true);
-  reg.OpenKey('open', true);
-  reg.WriteString('FriendlyAppName', 'Cut Assistant');
-  reg.OpenKey('command', true);
-  reg.WriteString('', '"' + myDir + '" -open:"%1"');
-  reg.CloseKey;
-
-  FreeAndNIL(reg);
+    ForceOpenRegKey(reg, '\Applications\' + ProgID + '\shell\open');
+    reg.WriteString('FriendlyAppName', 'Cut Assistant');
+    ForceOpenRegKey(reg, 'command');
+    reg.WriteString('', '"' + myDir + '" -open:"%1"');
+    reg.CloseKey;
+   finally
+    FreeAndNIL(reg);
+   end;
+  except
+    on ERegistryException do
+      ShowExpectedException('registering application.');
+  end;
 end;
 
 procedure TFMain.RemoveRegistryEntriesExecute(Sender: TObject);
@@ -1932,27 +1945,38 @@ var
 begin
   myDir := application.ExeName;
   reg := Tregistry.Create;
-  reg.RootKey := HKEY_CLASSES_ROOT;
-  reg.DeleteKey('\'+cutlist_Extension);
-  reg.DeleteKey('\'+CutlistID);
+  try
+   try
+    reg.RootKey := HKEY_CLASSES_ROOT;
+    if reg.OpenKey('\WMVFile\Shell', false) then begin
+      reg.DeleteKey(ShellEditKey);
+      reg.CloseKey;
+    end;
 
-  reg.OpenKey('\WMVFile\Shell', true);
-  reg.DeleteKey(ShellEditKey);
-  reg.CloseKey;
+    if reg.OpenKey('\AVIFile\Shell', false) then begin
+      reg.DeleteKey(ShellEditKey);
+      reg.CloseKey;
+    end;
 
-  reg.OpenKey('\AVIFile\Shell', true);
-  reg.DeleteKey(ShellEditKey);
-  reg.CloseKey;
+    if reg.OpenKey('\QuickTime.mp4\Shell', false) then begin
+      reg.DeleteKey(ShellEditKey);
+      reg.CloseKey;
+    end;
 
-  reg.OpenKey('\QuickTime.mp4\Shell', true);
-  reg.DeleteKey(ShellEditKey);
-  reg.CloseKey;
+    if reg.OpenKey('\Applications', false) then begin
+      reg.DeleteKey(ProgID);
+      reg.CloseKey;
+    end;
 
-  reg.OpenKey('\Applications', true);
-  reg.DeleteKey(ProgID);
-  reg.CloseKey;
-
-  FreeAndNIL(reg);
+    reg.DeleteKey('\'+cutlist_Extension);
+    reg.DeleteKey('\'+CutlistID);
+   finally
+     FreeAndNIL(reg);
+   end;
+  except
+    on ERegistryException do
+      ShowExpectedException('unregistering application.');
+  end;
 end;
 
 procedure TFMain.RCutModeClick(Sender: TObject);

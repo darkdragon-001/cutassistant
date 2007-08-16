@@ -71,7 +71,7 @@ object FMain: TFMain
   object Label8: TLabel
     Left = 363
     Top = 317
-    Width = 36
+    Width = 35
     Height = 13
     Anchors = [akRight, akBottom]
     Caption = 'Volume'
@@ -213,15 +213,15 @@ object FMain: TFMain
   object Label4: TLabel
     Left = 376
     Top = 350
-    Width = 24
+    Width = 23
     Height = 13
     Anchors = [akRight, akBottom]
     Caption = 'Rate'
   end
   object LRate: TLabel
-    Left = 532
+    Left = 533
     Top = 350
-    Width = 48
+    Width = 47
     Height = 20
     Hint = 'Frame Rate (Double click to set to 1.0)'
     Alignment = taRightJustify
@@ -237,9 +237,9 @@ object FMain: TFMain
     OnDblClick = LRateDblClick
   end
   object LTrueRate: TLabel
-    Left = 556
+    Left = 557
     Top = 369
-    Width = 24
+    Width = 23
     Height = 13
     Hint = 'Actual Frame Rate'
     Alignment = taRightJustify
@@ -266,28 +266,22 @@ object FMain: TFMain
     AutoSize = False
     Caption = 'N/A'
   end
-  object JvSyncSplitter1: TJvSyncSplitter
-    Left = 0
-    Top = 29
-    Height = 457
-    ResizeStyle = rsPattern
-  end
   object PanelVideoWindow: TPanel
-    Left = 11
+    Left = 4
     Top = 32
-    Width = 338
+    Width = 345
     Height = 358
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelOuter = bvNone
     TabOrder = 1
     OnResize = PanelVideoWindowResize
     DesignSize = (
-      338
+      345
       358)
     object VideoWindow: TVideoWindow
       Left = 0
       Top = 0
-      Width = 338
+      Width = 345
       Height = 358
       FilterGraph = FilterGraph
       VMROptions.Mode = vmrWindowless

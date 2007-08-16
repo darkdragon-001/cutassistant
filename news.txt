@@ -1,5 +1,6 @@
 New in 0.9.11.20 (beta)
 - Fixed bug in directory check of configuration settings.
+- Improved error handling when (un)registering application in registry.
 
 New in 0.9.11.17 (beta)
 - Fixed error in handling of frames window size.

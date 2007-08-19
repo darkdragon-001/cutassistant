@@ -247,9 +247,9 @@ object FMain: TFMain
     Caption = '[ ? x]'
   end
   object lblMovieType: TLabel
-    Left = 614
-    Top = 339
-    Width = 119
+    Left = 613
+    Top = 355
+    Width = 120
     Height = 13
     Alignment = taCenter
     Anchors = [akRight, akBottom]
@@ -258,13 +258,23 @@ object FMain: TFMain
   end
   object lblCutApplication: TLabel
     Left = 613
-    Top = 355
+    Top = 371
     Width = 120
     Height = 13
     Alignment = taCenter
     Anchors = [akRight, akBottom]
     AutoSize = False
     Caption = 'N/A'
+  end
+  object lblMovieFPS: TLabel
+    Left = 613
+    Top = 339
+    Width = 120
+    Height = 13
+    Alignment = taCenter
+    Anchors = [akRight, akBottom]
+    AutoSize = False
+    Caption = '0.000 fps (F)'
   end
   object PanelVideoWindow: TPanel
     Left = 4
@@ -331,15 +341,15 @@ object FMain: TFMain
     Columns = <
       item
         Caption = '#'
-        Width = 41
+        Width = 30
       end
       item
         Caption = 'From'
-        Width = 41
+        Width = 70
       end
       item
         Caption = 'To'
-        Width = 41
+        Width = 70
       end
       item
         AutoSize = True
@@ -347,6 +357,10 @@ object FMain: TFMain
       end>
     GridLines = True
     HideSelection = False
+    Items.Data = {
+      4A0000000100000000000000FFFFFFFFFFFFFFFF030000000000000003313030
+      0B303A30303A30302E3030300B303A30303A30302E3030300B303A30303A3030
+      2E303030FFFFFFFFFFFF}
     ReadOnly = True
     RowSelect = True
     SortType = stText
@@ -644,9 +658,9 @@ object FMain: TFMain
     OnClick = BConvertClick
   end
   object BCutlistInfo: TBitBtn
-    Left = 637
+    Left = 618
     Top = 149
-    Width = 59
+    Width = 76
     Height = 20
     Action = ACutlistInfo
     Anchors = [akRight, akBottom]

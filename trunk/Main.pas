@@ -234,6 +234,7 @@ type
     Makeasupportrequest1: TMenuItem;
     lblMovieType: TLabel;
     lblCutApplication: TLabel;
+    lblMovieFPS: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -455,9 +456,11 @@ procedure TFMain.UpdateMovieInfoControls;
 begin
   if not Assigned(MovieInfo) or not MovieInfo.MovieLoaded then
   begin
+    self.lblMovieFPS.Caption := 'FPS: N/A';
     self.lblMovieType.Caption := '[None]';
     self.lblCutApplication.Caption := 'Cut app.: N/A';
   end else begin
+    self.lblMovieFPS.Caption := Format('%.5f fps (%s)', [1.0 / MovieInfo.frame_duration, MovieInfo.frame_duration_source]);
     self.lblMovieType.Caption := MovieInfo.MovieTypeString;
     self.lblCutApplication.Caption := 'Cut app.: ' + Settings.GetCutAppName(MovieInfo.MovieType);
   end;
@@ -1096,7 +1099,8 @@ begin
       BasicVideo.get_VideoHeight(MovieInfo.nat_h);
       if (MovieInfo.nat_w>0) and (MovieInfo.nat_h >0) then
         MovieInfo.ratio := MovieInfo.nat_w / MovieInfo.nat_h;
-      basicvideo.get_AvgTimePerFrame(MovieInfo.frame_duration);
+      if MovieInfo.frame_duration = 0 then
+        BasicVideo.get_AvgTimePerFrame(MovieInfo.frame_duration);
     end;
 
     if succeeded(filtergraph.QueryInterface(IBasicVideo2, BasicVideo2)) then begin
@@ -1118,34 +1122,36 @@ begin
         VMRWindowlessControl := nil;
       end;
     end;
-    MovieInfo.frame_duration := 0;
-    //dwFourCC := 0;
-    if succeeded(videowindow.QueryInterface(IBaseFilter, filter)) then  begin
-
-      APin := getInPin(filter, 0);
-      APin.ConnectionMediaType(MediaType);
-      if isEqualGUID(MediaType.formattype, FORMAT_VideoInfo2) then begin
-//              self.Label13.Caption := 'Format VideoInfo2';
-        if Mediatype.cbFormat >= sizeof(VIDEOINFOHEADER2) then begin
-          pVIH2 := mediatype.pbFormat;
-          MovieInfo.frame_duration := pVIH2^.AvgTimePerFrame / 10000000;
-          //dwFourCC := pVIH2^.bmiHeader.biCompression;
-        end;
-      end else begin
-        if isEqualGUID(MediaType.formattype, FORMAT_VideoInfo) then begin
-    //            self.Label13.Caption := 'Format VideoInfo';
-          if Mediatype.cbFormat >= sizeof(VIDEOINFOHEADER) then begin
-            pVIH := mediatype.pbFormat;
-            MovieInfo.frame_duration := pVIH^.AvgTimePerFrame / 10000000;
-            //dwFourCC := pVIH^.bmiHeader.biCompression;
+    
+    if MovieInfo.frame_duration = 0 then begin
+      if succeeded(videowindow.QueryInterface(IBaseFilter, filter)) then  begin
+        APin := getInPin(filter, 0);
+        APin.ConnectionMediaType(MediaType);
+        if isEqualGUID(MediaType.formattype, FORMAT_VideoInfo2) then begin
+          // self.Label13.Caption := 'Format VideoInfo2';
+          if Mediatype.cbFormat >= sizeof(VIDEOINFOHEADER2) then begin
+            pVIH2 := mediatype.pbFormat;
+            MovieInfo.frame_duration := pVIH2^.AvgTimePerFrame / 10000000;
+            MovieInfo.frame_duration_source := 'V';
+            //dwFourCC := pVIH2^.bmiHeader.biCompression;
+          end;
+        end else begin
+          if isEqualGUID(MediaType.formattype, FORMAT_VideoInfo) then begin
+            // self.Label13.Caption := 'Format VideoInfo';
+            if Mediatype.cbFormat >= sizeof(VIDEOINFOHEADER) then begin
+              pVIH := mediatype.pbFormat;
+              MovieInfo.frame_duration := pVIH^.AvgTimePerFrame / 10000000;
+              MovieInfo.frame_duration_source := 'v';
+              //dwFourCC := pVIH^.bmiHeader.biCompression;
+            end;
           end;
         end;
-      end;
-//         samplegrabber.SetBMPCompatible(@MediaType, 32);
-      freeMediaType(@MediaType);
-    end
-    else if not batchmode then
-      showmessage('Could not retrieve Renderer Filter.');
+        // samplegrabber.SetBMPCompatible(@MediaType, 32);
+        freeMediaType(@MediaType);
+      end
+      else if not batchmode then
+        showmessage('Could not retrieve Renderer Filter.');
+    end;
 
     if MovieInfo.frame_duration = 0 then begin
       //try calculating
@@ -1155,14 +1161,18 @@ begin
         seeking.GetDuration(_dur_time);
         seeking.SetTimeFormat(TIME_FORMAT_FRAME);
         seeking.GetDuration(_dur_frames);
-        if (_dur_frames > 0) and (_dur_time <> _dur_frames) then
+        if (_dur_frames > 0) and (_dur_time <> _dur_frames) then begin
+          MovieInfo.frame_duration_source := 'C';
           MovieInfo.frame_duration := (_dur_time / 10000000) / _dur_frames
-        else MovieInfo.frame_duration := 0;
+        end;
         seeking.SetTimeFormat(MovieInfo.TimeFormat)
       end;
 
       //deafault if nothing worked so far
-      if MovieInfo.frame_duration = 0 then MovieInfo.frame_duration := 0.04;
+      if MovieInfo.frame_duration = 0 then begin
+        MovieInfo.frame_duration_source := 'F';
+        MovieInfo.frame_duration := 0.04;
+      end;
     end;
 
     self.OpenCutlist.Enabled := true;

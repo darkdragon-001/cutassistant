@@ -32,6 +32,7 @@ type
     ratio: double;
     nat_w, nat_h: integer;
     current_file_duration, frame_duration: double;
+    frame_duration_source: string;
     current_filename, target_filename: string;
     current_filesize: Longint;
     {current_position_seconds: double;
@@ -43,7 +44,8 @@ type
     function MovieTypeString: string;
     function GetStringFromMovieType(aMovieType: TMovieType): string;
     function InitMovie(FileName: String): boolean;
-    function GetAviFourCC(FileName: string): FOURCC;
+  private
+    procedure GetAviInformation;
   end;
 
 implementation
@@ -87,6 +89,8 @@ begin
   end;
 
   MovieType := mtUnknown;
+  frame_duration := 0;
+  frame_duration_source := '?';
   FFourCC := 0;
   Result := true;
 
@@ -114,8 +118,8 @@ begin
   end;
 
   //Try to get Video FourCC from AVI
-  if MovieType in [mtAVI] then begin
-    FFourCC := GetAviFourCC(FileName);
+  if MovieType in [mtAVI, mtHQAVI] then begin
+    GetAviInformation;
     s := fcc2String(FFourCC);
     if FFourCC = 0 then MovieType := mtUnknown
     else if AnsiSameText(s, 'H264') then MovieType := mtHQAVI;
@@ -162,7 +166,7 @@ begin
   FMovieType := Value;
 end;
 
-function TMovieInfo.GetAviFourCC(FileName: string): FOURCC;
+procedure TMovieInfo.GetAviInformation;
 var
   AVIStream: IAVIStream;
   StreamInfo: TAVIStreamInfoW;
@@ -173,16 +177,22 @@ var
   Height, Width: DWord;}
   hr : HRESULT;
 begin
-//  MsgBox := 'AVI Error:';
-//  ErrorMsg := '';
-  result := 0;
+  //  MsgBox := 'AVI Error:';
+  //  ErrorMsg := '';
   // Init VfW API
   AVIFileInit;
   try
-    hr := AVIStreamOpenFromFile(AVIStream, PAnsiChar(FileName), streamtypeVIDEO, 0, OF_READ, nil);
+    hr := AVIStreamOpenFromFile(AVIStream, PAnsiChar(current_filename), streamtypeVIDEO, 0, OF_READ, nil);
     if not succeeded(hr) then exit;
     AVIStream.Info(StreamInfo, sizeof(streamInfo));
-    result := StreamInfo.fccHandler;
+    FFourCC := StreamInfo.fccHandler;
+    if StreamInfo.dwRate <> 0 then begin
+      frame_duration_source := 'A';
+      frame_duration := 1000000.0 / StreamInfo.dwRate;
+    end else begin
+      frame_duration_source := 'a';
+      frame_duration := 0.04;
+    end;
 
     {//AVIFileOpen
     Result := AVIFileOpen(AVIFile,PChar(Filename), OF_READ, nil);

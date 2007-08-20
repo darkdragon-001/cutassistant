@@ -2,6 +2,11 @@ New in 0.9.11.20 (beta)
 - Fixed bug in directory check of configuration settings.
 - Improved error handling when (un)registering application in registry.
 - Show movie rate (fps) in main window. Changed recognition of movie rate.
+- Save frame duration and frame rate in cutlist (visible to user in info dialog). Use own values instead of movieinfo.frame_duration.
+- Ask user which frame rate to use, if frame rates differ too much.
+- Hide frames images when closing Movie.
+- Improve speed of next / prev frames.
+- Make next / prev frames work, if frame stepping is not supported (untested).
 
 New in 0.9.11.17 (beta)
 - Fixed error in handling of frames window size.

@@ -35,6 +35,7 @@ type
     FRefreshCallBack: TCutlistCallBackMethod;
     FMode: TCutlistMode;
     FSuggestedMovieName: string;
+    FFrameDuration, FFrameRate: double;
     function GetCut(iCut: Integer): TCut;
     procedure SetIDOnServer(const Value: string);
     procedure FillCutPosArray(var CutPosArray: array of double);
@@ -42,6 +43,8 @@ type
     procedure SetMode(const Value: TCutlistMode);
     procedure SetSuggestedMovieName(const Value: string);
     function CutApplication: TCutApplicationBase;
+    procedure SetFrameDuration(d: double);
+    procedure SetFrameRate(d: double);
   public
     //Info
     RatingByAuthor: Integer;
@@ -57,6 +60,8 @@ type
     SavedToFilename: string;
     RatingSent: boolean;
     constructor create(Settings: TSettings; MovieInfo: TMovieInfo);
+    property FrameDuration: double read FFrameDuration write SetFrameDuration;
+    property FrameRate: double read FFrameRate write SetFrameRate;
     property RefreshCallBack: TCutlistCallBackMethod read FRefreshCallBack write SetRefreshCallBack;
     procedure RefreshGUI;
     property Cut[iCut: Integer]:TCut read GetCut; default;
@@ -96,6 +101,22 @@ uses
   utils, UCutApplicationAsfbin, UCutApplicationMP4Box;
 
 { TCutlist }
+
+procedure TCutlist.SetFrameDuration(d: double);
+begin
+  if d < 0 then d := 0;
+  FFrameDuration := d;
+  if d > 0 then FFrameRate := 1 / d
+  else FFrameRate := 0;
+end;
+
+procedure TCutlist.SetFrameRate(d: double);
+begin
+  if d < 0 then d := 0;
+  FFrameRate := d;
+  if d > 0 then FFrameDuration := 1 / d
+  else FFrameDuration := 0;
+end;
 
 function TCutlist.AddCut(pos_from, pos_to: double): boolean;
 var
@@ -155,6 +176,8 @@ begin
   self.sort;
   newCutlist := TCutlist.Create(FSettings, FMovieInfo);
   newCutlist.FHasChanged := self.HasChanged;
+  newCutlist.FFrameRate := self.FFrameRate;
+  newCutlist.FFrameDuration := self.FFrameDuration;
   newCutlist.FramesPresent := self.FramesPresent;
   newCutlist.SavedToFilename := self.SavedToFilename;
   newCutlist.Author := self.Author;
@@ -182,27 +205,27 @@ begin
       if dur > 0 then begin
         newCut := TCut.Create;
         newCut.pos_from := pos_prev;
-        newCut.pos_to := self[iCut].pos_from - self.FMovieInfo.frame_duration;
+        newCut.pos_to := self[iCut].pos_from - FrameDuration;
         if self.FramesPresent then begin
           newCut.frame_from := frame_prev;
           newCut.frame_to := self[iCut].frame_from - 1;
         end;
         newCut.index := newCutlist.Add(newCut);
       end;
-      pos_prev := self[iCut].pos_to + self.FMovieInfo.frame_duration;
+      pos_prev := self[iCut].pos_to + FrameDuration;
       frame_prev := self[iCut].frame_to + 1;
     end;
 
     //rest to End of File
-    _pos_From :=  self.FMovieInfo.current_file_duration + self.FMovieInfo.frame_duration;
+    _pos_From :=  self.FMovieInfo.current_file_duration + FrameDuration;
     dur := _pos_From - pos_prev;
     if dur > 0 then begin
         newCut := TCut.Create;
         newCut.pos_from := pos_prev;
-        newCut.pos_to := _pos_From - self.FMovieInfo.frame_duration;
+        newCut.pos_to := _pos_From - FrameDuration;
         if self.FramesPresent then begin
           newCut.frame_from := frame_prev;
-          newCut.frame_to := round(self.FMovieInfo.current_file_duration/self.FMovieInfo.frame_duration);   // this could be more accurate
+          newCut.frame_to := round(self.FMovieInfo.current_file_duration*FrameRate);   // this could be more accurate
         end;
         newCut.index := newCutlist.Add(newCut);
     end;
@@ -313,6 +336,7 @@ function TCutlist.EditInfo: boolean;
 begin
   FCutlistInfo.original_movie_filename := FMovieInfo.current_filename;
   FCutlistInfo.CBFramesPresent.Checked := (self.FramesPresent and not self.HasChanged);
+  FCutlistInfo.lblFrameRate.Caption := FMovieInfo.FormatFrameRate(self.FrameRate, 'C');
   if self.Author = '' then
     FCutlistInfo.LAuthor.Caption := 'Cutlist Author unknown'
   else
@@ -399,6 +423,8 @@ procedure TCutlist.init;
 begin
   self.Clear;
   self.FHasChanged := false;
+  self.FFrameRate := 0;
+  self.FFrameDuration := 0;
   self.FramesPresent := false;
   self.SavedToFilename := '';
   self.Author := Fsettings.UserName;
@@ -417,7 +443,7 @@ begin
   self.IDOnServer := '';
   self.FRatingOnServer := -1;
   self.RatingSent := false;
-  
+
   self.RefreshGUI;
 end;
 
@@ -484,9 +510,37 @@ begin
         end;
       end;
     end;
-    
+
     //Number of Cuts
     cCuts := cutlistfile.ReadInteger(section, 'NoOfCuts', 0);
+    FrameRate := cutlistfile.ReadFloat(section, 'FramesPerSecond', 0);
+
+    if (FrameRate > 0) and (FMovieInfo.frame_duration > 0) then
+    begin
+      if FMovieInfo.FrameCount <> Trunc(FrameRate * FMovieInfo.current_file_duration) then
+      begin
+        message_string := 'The frame rate of the cutlist differs from the frame rate of the movie file.'
+                  +#13#10+'If the rate of the movie file is used, you may get a different result'
+                  +#13#10+'as expected by the author of the cutlist.'
+                  +#13#10
+                  +#13#10+'Frame rate of cutlist:    %.6f'#9'Frame rate of movie file: %.6f'
+                  +#13#10
+                  +#13#10+'Do you want to use the frame rate of the cutlist?'
+                  +#13#10+'(Selecting "No" will use the frame rate of the movie file)';
+        if Application.MessageBox(
+          PChar(Format(message_string, [ FrameRate, 1/FMovieInfo.frame_duration ])),
+          'Frame rate difference',
+          MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2
+          ) = IDNO then
+        begin
+          FrameDuration := FMovieInfo.frame_duration;
+        end;
+      end;
+    end
+    else
+    begin
+      FrameDuration := FMovieInfo.frame_duration;
+    end;
 
     //info
     section := 'Info';
@@ -521,7 +575,7 @@ begin
     for iCut := 0 to cCuts-1 do begin
       section := 'Cut' + inttostr(iCut);
       _pos_from := cutlistfile.ReadFloat(section, 'Start',0);
-      _pos_to := _pos_from + cutlistfile.ReadFloat(section, 'Duration', 0) - FMovieInfo.frame_duration;
+      _pos_to := _pos_from + cutlistfile.ReadFloat(section, 'Duration', 0) - FrameDuration;
       _Frame_from := cutlistfile.ReadInteger(section, 'StartFrame', -1);
       _Frame_to := _frame_from + cutlistfile.ReadInteger(section, 'DurationFrames', -1) - 1;
 
@@ -690,9 +744,8 @@ var
   iCut, writtenCuts : integer;
   temp_DecimalSeparator: char;
   convertedCutlist: TCutlist;
-  fps: double;
   CutApplication: TCutApplicationBase;
-  iCommandLine: Integer;
+  //iCommandLine: Integer;
 begin
   result := false;
   {if self.Count = 0 then begin
@@ -719,9 +772,9 @@ begin
       cutlistfile.WriteString(section, 'comment2', 'All values are given in seconds.');
       cutlistfile.WriteString(section, 'ApplyToFile', extractfilename(FMovieInfo.current_filename));
       cutlistfile.WriteInteger(section, 'OriginalFileSizeBytes', FMovieInfo.current_filesize);
-      if FMovieInfo.frame_duration > 0 then
-        fps := 1/FMovieInfo.Frame_Duration else fps := 0;
-      cutlistfile.WriteFloat(section, 'FramesPerSecond', fps);
+      if (FrameRate = 0) or (FrameDuration = 0) then
+        FrameDuration := FMovieInfo.frame_duration;
+      cutlistfile.WriteFloat(section, 'FramesPerSecond', FrameRate);
 
       CutApplication := FSettings.GetCutApplicationByMovieType(FMovieInfo.MovieType);
       if assigned(CutApplication) then begin

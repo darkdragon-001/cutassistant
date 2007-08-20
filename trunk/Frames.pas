@@ -56,6 +56,7 @@ type
     scan_1, scan_2: integer; //index of CutFrame
     CanClose: boolean;
     procedure Init(IFrames: Integer; FrameHeight, FrameWidth: Integer);
+    procedure HideFrames;
     property Frame[Index: Integer]: TCutFrame read getCutFrame;
     property Count: Integer read getCount;
   end;
@@ -74,6 +75,17 @@ implementation
 {$R *.dfm}
 
 { TFFrames }
+procedure TFFrames.HideFrames;
+var
+  iFrame: integer;
+begin
+  for iFrame := 0 to Framelist.Count-1 do
+    with Frame[iFrame] do begin
+      Image.Visible := false;
+      Position := 0;
+    end;
+end;
+
 function TFFrames.getCount: integer;
 begin
   Result := FrameList.Count;

@@ -35,6 +35,7 @@ type
     Label3: TLabel;
     EMovieName: TEdit;
     BMovieNameCopy: TButton;
+    lblFrameRate: TLabel;
     procedure FormShow(Sender: TObject);
     procedure CBEPGErrorClick(Sender: TObject);
     procedure CBOtherErrorClick(Sender: TObject);

@@ -32,7 +32,7 @@ type
     ratio: double;
     nat_w, nat_h: integer;
     current_file_duration, frame_duration: double;
-    frame_duration_source: string;
+    frame_duration_source: char;
     current_filename, target_filename: string;
     current_filesize: Longint;
     {current_position_seconds: double;
@@ -41,6 +41,8 @@ type
     property MovieType: TMovieType read FMovieType write SetMovieType;
     function FormatPosition(Position: double): String; overload;
     function FormatPosition(Position: double; TimeFormat: TGUID): String; overload;
+    function FormatFrameRate: string; overload;
+    function FormatFrameRate(const frame_duration: double; const frame_duration_source: char): string; overload;
     function MovieTypeString: string;
     function GetStringFromMovieType(aMovieType: TMovieType): string;
     function InitMovie(FileName: String): boolean;
@@ -55,6 +57,22 @@ uses
   DirectShow9, Utils;
 
 { TMovieInfo }
+
+function TMovieInfo.FormatFrameRate(const frame_duration: double; const frame_duration_source: char): string;
+begin
+  if frame_duration <= 0 then
+    Result := 'fps: N/A ('+frame_duration_source+')'
+  else
+    Result := Format('%.5f fps (%s)', [1.0 / frame_duration, frame_duration_source]);
+end;
+
+function TMovieInfo.FormatFrameRate: string;
+begin
+  if not MovieLoaded then
+    Result := FormatFrameRate(-1, '-')
+  else
+    Result := FormatFrameRate(frame_duration, frame_duration_source);
+end;
 
 {function TMovieInfo.current_position_string: string;
 begin
@@ -90,7 +108,7 @@ begin
 
   MovieType := mtUnknown;
   frame_duration := 0;
-  frame_duration_source := '?';
+  frame_duration_source := '-';
   FFourCC := 0;
   Result := true;
 

@@ -52,6 +52,16 @@ object FCutlistInfo: TFCutlistInfo
     Anchors = [akLeft, akBottom]
     Caption = 'Suggested movie file name (without extension):'
   end
+  object lblFrameRate: TLabel
+    Left = 249
+    Top = 12
+    Width = 88
+    Height = 13
+    Alignment = taRightJustify
+    Anchors = [akLeft, akBottom]
+    Caption = 'Frame rate: N/A (-)'
+    Layout = tlCenter
+  end
   object RGRatingByAuthor: TRadioGroup
     Left = 7
     Top = 33

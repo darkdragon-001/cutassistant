@@ -454,13 +454,16 @@ implementation
 
 procedure TFMain.UpdateMovieInfoControls;
 begin
+  if not Assigned(MovieInfo) then
+    self.lblMovieFPS.Caption := 'fps: N/A'
+  else
+    self.lblMovieFPS.Caption := MovieInfo.FormatFrameRate;
+
   if not Assigned(MovieInfo) or not MovieInfo.MovieLoaded then
   begin
-    self.lblMovieFPS.Caption := 'FPS: N/A';
     self.lblMovieType.Caption := '[None]';
     self.lblCutApplication.Caption := 'Cut app.: N/A';
   end else begin
-    self.lblMovieFPS.Caption := Format('%.5f fps (%s)', [1.0 / MovieInfo.frame_duration, MovieInfo.frame_duration_source]);
     self.lblMovieType.Caption := MovieInfo.MovieTypeString;
     self.lblCutApplication.Caption := 'Cut app.: ' + Settings.GetCutAppName(MovieInfo.MovieType);
   end;
@@ -737,63 +740,6 @@ procedure TFMain.TVolumeChange(Sender: TObject);
 begin
   if not CBMute.Checked then
     FilterGraph.Volume := TVolume.Position;
-end;
-
-procedure TFMain.ShowFrames(startframe, endframe: Integer);
-//startframe, endframe relative to current frame
-var
-  iImage, count : integer;
-  pos, temp_pos: double;
-  Target: TCutFrame;
-begin
-  count := FFrames.Count;
-  if endframe < startframe then exit;
-  while endframe - startframe + 1 > count do begin
-    if -startframe > endframe then
-      startframe := startframe+1
-    else
-      endframe := endframe-1;
-  end;
-
-  pos := currentPosition;
-  temp_pos := pos + (startframe - 0) * MovieInfo.frame_duration;
-  if (temp_pos > MovieInfo.current_file_duration) then
-    temp_pos := MovieInfo.current_file_duration;
-  if temp_pos<0 then
-    temp_pos := 0;
-
-  FFrames.Show;
-
-  JumpTo(temp_pos);
-  // Mute sound ?
-  if Settings.AutoMuteOnSeek and not CBMute.Checked then
-    FilterGraph.Volume := 0;
-  FFrames.CanClose := false;
-  try
-    for iImage := 0 to endframe - startframe do begin
-      Target := FFrames.Frame[iImage];
-      if (temp_pos >= 0) and (temp_pos <= MovieInfo.current_file_duration) then begin
-
-        self.StepComplete := false;
-        SampleTarget := Target;  //Set SampleTarget to trigger sampleGrabber.onbuffer method;
-        FrameStep.Step(1, nil);
-        if not WaitForStep(5000) then
-          break;
-
-        temp_pos := currentPosition;
-        Target.image.visible := true;
-      end else begin
-        Target.image.visible := false;
-        Target.position := 0;
-      end;
-    end;
-  finally
-    FFrames.CanClose := true;
-    // Restore sound
-    if Settings.AutoMuteOnSeek and not CBMute.Checked then
-      FilterGraph.Volume := TVolume.Position;
-    JumpTo(pos);
-  end;
 end;
 
 procedure TFMain.TFinePosMouseUp(Sender: TObject; Button: TMouseButton;
@@ -1162,13 +1108,13 @@ begin
         seeking.SetTimeFormat(TIME_FORMAT_FRAME);
         seeking.GetDuration(_dur_frames);
         if (_dur_frames > 0) and (_dur_time <> _dur_frames) then begin
-          MovieInfo.frame_duration_source := 'C';
+          MovieInfo.frame_duration_source := 'D';
           MovieInfo.frame_duration := (_dur_time / 10000000) / _dur_frames
         end;
         seeking.SetTimeFormat(MovieInfo.TimeFormat)
       end;
 
-      //deafault if nothing worked so far
+      //default if nothing worked so far
       if MovieInfo.frame_duration = 0 then begin
         MovieInfo.frame_duration_source := 'F';
         MovieInfo.frame_duration := 0.04;
@@ -1325,10 +1271,14 @@ end;
 function TFMain.WaitForStep(TimeOut: INteger): boolean;
 var
   counter: integer;
-const
-  interval =100;
+  interval: integer;
 begin
   counter := 0;
+  if Settings.AutoMuteOnSeek then
+    interval := 10
+  else
+    interval := Max(10, Trunc(MovieInfo.frame_duration * 1000.0));
+
   application.ProcessMessages;
   while (not self.StepComplete) and (counter < TimeOut) do begin
     sleep(interval);
@@ -1351,6 +1301,69 @@ begin
     self.VideoWindow.Width := self.PanelVideoWindow.Width;
     self.VideoWindow.Height := round(self.VideoWindow.Width / movie_ar);
   end; 
+end;
+
+procedure TFMain.ShowFrames(startframe, endframe: Integer);
+//startframe, endframe relative to current frame
+var
+  iImage, count : integer;
+  pos, temp_pos: double;
+  Target: TCutFrame;
+begin
+  count := FFrames.Count;
+  if endframe < startframe then exit;
+  while endframe - startframe + 1 > count do begin
+    if -startframe > endframe then
+      startframe := startframe+1
+    else
+      endframe := endframe-1;
+  end;
+
+  pos := currentPosition;
+  temp_pos := pos + (startframe - 0) * MovieInfo.frame_duration;
+  if (temp_pos > MovieInfo.current_file_duration) then
+    temp_pos := MovieInfo.current_file_duration;
+  if temp_pos<0 then
+    temp_pos := 0;
+
+  FFrames.Show;
+
+  JumpTo(temp_pos);
+  // Mute sound ?
+  if Settings.AutoMuteOnSeek and not CBMute.Checked then
+    FilterGraph.Volume := 0;
+  FFrames.CanClose := false;
+  try
+    for iImage := 0 to endframe - startframe do begin
+      Target := FFrames.Frame[iImage];
+      if (temp_pos >= 0) and (temp_pos <= MovieInfo.current_file_duration) then begin
+
+        self.StepComplete := false;
+        SampleTarget := Target;  //Set SampleTarget to trigger sampleGrabber.onbuffer method;
+        if Assigned(Framestep) then begin
+          FrameStep.Step(1, nil);
+          if not WaitForStep(5000) then
+            break;
+        end else begin
+          temp_pos := temp_pos + MovieInfo.frame_duration;
+          JumpTo(temp_pos);
+          WaitForFiltergraph;
+        end;
+
+        temp_pos := currentPosition;
+        Target.image.visible := true;
+      end else begin
+        Target.image.visible := false;
+        Target.position := 0;
+      end;
+    end;
+  finally
+    FFrames.CanClose := true;
+    // Restore sound
+    if Settings.AutoMuteOnSeek and not CBMute.Checked then
+      FilterGraph.Volume := TVolume.Position;
+    JumpTo(pos);
+  end;
 end;
 
 procedure TFMain.ShowFramesAbs(startframe, endframe: double;
@@ -2114,6 +2127,9 @@ begin
   MovieInfo.current_filename := '';
   MovieInfo.current_filesize := -1;
   MovieInfo.MovieLoaded := false;
+  if Assigned(FFrames) then begin
+    FFrames.HideFrames;
+  end;
 
   ResetForm;
 end;

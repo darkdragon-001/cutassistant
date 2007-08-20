@@ -274,7 +274,7 @@ object FMain: TFMain
     Alignment = taCenter
     Anchors = [akRight, akBottom]
     AutoSize = False
-    Caption = '0.000 fps (F)'
+    Caption = '0.00000 fps (F)'
   end
   object PanelVideoWindow: TPanel
     Left = 4

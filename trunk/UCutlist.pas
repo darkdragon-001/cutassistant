@@ -336,7 +336,7 @@ function TCutlist.EditInfo: boolean;
 begin
   FCutlistInfo.original_movie_filename := FMovieInfo.current_filename;
   FCutlistInfo.CBFramesPresent.Checked := (self.FramesPresent and not self.HasChanged);
-  FCutlistInfo.lblFrameRate.Caption := FMovieInfo.FormatFrameRate(self.FrameRate, 'C');
+  FCutlistInfo.lblFrameRate.Caption := FMovieInfo.FormatFrameRate(self.FrameDuration, 'C');
   if self.Author = '' then
     FCutlistInfo.LAuthor.Caption := 'Cutlist Author unknown'
   else
@@ -450,7 +450,8 @@ end;
 function TCutlist.LoadFromFile(Filename: String): boolean;
 var
   section: string;
-  apply_to_file, intended_options, intendedCutApp, myCutApp, myOptions: string;
+  apply_to_file, intended_options, intendedCutApp, intendedCutAppVersionStr, myCutApp, myOptions: string;
+  myCutAppVersionWords, intendedCutAppVersionWords: ARFileVersion;
   message_string: string;
   Temp_DecimalSeparator: char;
   cutlistfile: TInifile;
@@ -484,12 +485,25 @@ begin
     //App + version
     if self.CutApplication <> nil then begin
       intendedCutApp := cutlistfile.ReadString(section, 'IntendedCutApplication', '');
-      intendedCutApp := intendedCutApp + ' ' + cutlistfile.ReadString(section, 'IntendedCutApplicationVersion', '');
-      myCutApp := extractfilename(CutApplication.Path) + ' ' + CutApplication.Version;
+      intendedCutAppVersionStr := cutlistfile.ReadString(section, 'IntendedCutApplicationVersion', '');
+      intendedCutAppVersionWords := Parse_File_Version(intendedCutAppVersionStr);
+      myCutApp := extractfilename(CutApplication.Path);
+      myCutAppVersionWords := Parse_File_Version(CutApplication.Version);
+
       if not ansiSameText(intendedCutApp, myCutApp) then begin
         message_string := 'Cut List File is intended for Cut Application:' + #13#10 + IntendedCutApp +#13#10+
                           'However, current Cut Application is: '+ #13#10 + myCutApp +#13#10+
                           'Continue anyway?';
+        if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
+          exit;
+        end;
+      end else if (myCutAppVersionWords[0] <> intendedCutAppVersionWords[0])
+               or (myCutAppVersionWords[1] <> intendedCutAppVersionWords[1])
+               or (myCutAppVersionWords[2] <  intendedCutAppVersionWords[2]) then begin
+        message_string := 'Cut List File is intended for Cut Application:' + #13#10
+                + IntendedCutApp + ' ' + intendedCutAppVersionStr +#13#10+
+                'However, current Cut Application Version is: '+ #13#10 + CutApplication.Version +#13#10+
+                'Continue anyway?';
         if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
           exit;
         end;

@@ -923,6 +923,7 @@ begin
         end;
 
         initVideo;
+
         if SampleGrabber1.FilterGraph = nil then begin
           InsertSampleGrabber;
           if not filtergraph.Active then begin
@@ -936,6 +937,7 @@ begin
           end;
         end;
         FilterGraph.Volume := self.TVolume.Position;
+
         GraphPause;
 
         //SampleGrabber1.SampleGrabber.SetCallback(self, 0);
@@ -1010,6 +1012,7 @@ end;
 procedure TFMain.InitVideo;
 var
   _ARw, _ARh : integer;
+  frame_duration: double;
   _dur_time, _dur_frames: int64;
   APin: IPin;
   MediaType: TAMMediaType;
@@ -1046,7 +1049,10 @@ begin
       if (MovieInfo.nat_w>0) and (MovieInfo.nat_h >0) then
         MovieInfo.ratio := MovieInfo.nat_w / MovieInfo.nat_h;
       if MovieInfo.frame_duration = 0 then
-        BasicVideo.get_AvgTimePerFrame(MovieInfo.frame_duration);
+        if Succeeded(BasicVideo.get_AvgTimePerFrame(frame_duration)) then begin
+          MovieInfo.frame_duration := frame_duration;
+          MovieInfo.frame_duration_source := 'B';
+        end;
     end;
 
     if succeeded(filtergraph.QueryInterface(IBasicVideo2, BasicVideo2)) then begin
@@ -1113,12 +1119,12 @@ begin
         end;
         seeking.SetTimeFormat(MovieInfo.TimeFormat)
       end;
+    end;
 
-      //default if nothing worked so far
-      if MovieInfo.frame_duration = 0 then begin
-        MovieInfo.frame_duration_source := 'F';
-        MovieInfo.frame_duration := 0.04;
-      end;
+    //default if nothing worked so far
+    if MovieInfo.frame_duration = 0 then begin
+      MovieInfo.frame_duration_source := 'F';
+      MovieInfo.frame_duration := 0.04;
     end;
 
     self.OpenCutlist.Enabled := true;

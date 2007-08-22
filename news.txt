@@ -1,4 +1,4 @@
-New in 0.9.11.20 (beta)
+New in 0.9.11.21 (beta)
 - Fixed bug in directory check of configuration settings.
 - Improved error handling when (un)registering application in registry.
 - Show movie rate (fps) in main window. Changed recognition of movie rate.
@@ -7,6 +7,7 @@ New in 0.9.11.20 (beta)
 - Hide frames images when closing Movie.
 - Improve speed of next / prev frames.
 - Make next / prev frames work, if frame stepping is not supported (untested).
+- Improved comparison of intended and own CutApplication.
 
 New in 0.9.11.17 (beta)
 - Fixed error in handling of frames window size.

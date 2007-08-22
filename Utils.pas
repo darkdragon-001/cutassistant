@@ -132,6 +132,11 @@ procedure iniWriteRect(const ini: TIniFile; const section, name: string; const v
 
 Function MakeFourCC(const a,b,c,d: char): DWord;
 
+type
+  ARFileVersion = array[0..3] of WORD;
+
+function Parse_File_Version(const VersionStr: string): ARFileVersion;
+  
 //global Vars
 var
   batchmode: boolean;
@@ -148,6 +153,31 @@ uses
 
 const ScreenWidthDev  = 1280;
       ScreenHeightDev = 1024;
+
+function Parse_File_Version(const VersionStr: string): ARFileVersion;
+var
+  s: string;
+  FUNCTION NextWord(VAR s: STRING): integer;
+  VAR
+    delimPos                  : integer;
+  BEGIN
+    delimPos := Pos('.', s);
+    IF delimPos > 0 THEN BEGIN
+      Result := StrToIntDef(Copy(s, 1, delimPos - 1), -1);
+      Delete(s, 1, delimPos);
+    END
+    ELSE BEGIN
+      Result := 0;
+    END;
+  END;
+begin
+  s := Copy(VersionStr, 1, MaxInt);
+  Result[0] := NextWord(s);
+  Result[1] := NextWord(s);
+  Result[2] := NextWord(s);
+  Result[3] := NextWord(s);
+end;
+
 
 procedure ShowExpectedException(const Header: string);
 var
@@ -400,7 +430,7 @@ begin
   if Win32Platform <> VER_PLATFORM_WIN32_NT then Exit; 
   NTDLL := GetModuleHandle('NTDLL.DLL'); 
   if NTDLL = 0 then Exit; 
-  Address := GetProcAddress(NTDLL, 'DbgBreakPoint'); 
+  Address := GetProcAddress(NTDLL, 'DbgBreakPoint');
   if Address = nil then Exit; 
   try 
     if Char(Address^) <> #$CC then Exit; 
@@ -410,10 +440,10 @@ begin
       (BytesWritten = 1) then 
       FlushInstructionCache(GetCurrentProcess, Address, 1); 
   except
-    //Do not panic if you see an EAccessViolation here, it is perfectly harmless! 
-    on EAccessViolation do ; 
-    else raise; 
-  end; 
+    //Do not panic if you see an EAccessViolation here, it is perfectly harmless!
+    on EAccessViolation do ;
+    else raise;
+  end;
 end;
 
 

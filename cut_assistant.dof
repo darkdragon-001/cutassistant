@@ -111,7 +111,7 @@ AutoIncBuild=1
 MajorVer=0
 MinorVer=9
 Release=11
-Build=20
+Build=21
 Debug=0
 PreRelease=0
 Special=0
@@ -122,7 +122,7 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=
 FileDescription=Cut Assistant (GUI for AsfBin, VirtualDub, AviDemux)
-FileVersion=0.9.11.20
+FileVersion=0.9.11.21
 InternalName=
 LegalCopyright=
 LegalTrademarks=

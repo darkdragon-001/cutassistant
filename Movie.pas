@@ -206,7 +206,8 @@ begin
     FFourCC := StreamInfo.fccHandler;
     if StreamInfo.dwRate <> 0 then begin
       frame_duration_source := 'A';
-      frame_duration := 1000000.0 / StreamInfo.dwRate;
+      frame_duration := StreamInfo.dwScale / StreamInfo.dwRate;
+      //frame_duration := 1000000.0 / StreamInfo.dwRate;
     end else begin
       frame_duration_source := 'a';
       frame_duration := 0.04;

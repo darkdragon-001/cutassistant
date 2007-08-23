@@ -1,10 +1,10 @@
 object FManageFilters: TFManageFilters
-  Left = 471
-  Top = 363
+  Left = 372
+  Top = 359
   AutoScroll = False
   Caption = 'Filters'
   ClientHeight = 221
-  ClientWidth = 442
+  ClientWidth = 666
   Color = clBtnFace
   Constraints.MinHeight = 200
   Constraints.MinWidth = 250
@@ -20,7 +20,7 @@ object FManageFilters: TFManageFilters
   OnDestroy = FormDestroy
   OnShow = FormShow
   DesignSize = (
-    442
+    666
     221)
   PixelsPerInch = 96
   TextHeight = 13
@@ -46,7 +46,7 @@ object FManageFilters: TFManageFilters
     OnClick = BRemoveClick
   end
   object BClose: TButton
-    Left = 377
+    Left = 601
     Top = 192
     Width = 61
     Height = 25
@@ -60,7 +60,7 @@ object FManageFilters: TFManageFilters
   object LFilters: TListBox
     Left = 0
     Top = 0
-    Width = 442
+    Width = 666
     Height = 179
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
@@ -78,7 +78,7 @@ object FManageFilters: TFManageFilters
     OnDblClick = LFiltersDblClick
   end
   object BCopy: TButton
-    Left = 269
+    Left = 493
     Top = 192
     Width = 102
     Height = 25

@@ -19,6 +19,7 @@ type
     FKeyFrame: boolean;
     FBorderVisible: boolean;
     FBorder: TShape;
+    FUpdateLocked: integer;
     procedure setPosition(APosition: Double);
     procedure setKeyFrame(Value: boolean);
     procedure setBorderVisible(Value: boolean);
@@ -29,6 +30,9 @@ type
     property position: double read FPosition write setPosition;
     constructor Create(AParent: TWinControl); reintroduce;
     destructor Destroy; override;
+    procedure DisableUpdate;
+    procedure EnableUpdate;
+    procedure UpdateFrame;
     procedure init(image_height, image_width: INteger);
     procedure Adjust_position(pos_top, pos_left: Integer);
     procedure BStartClick(Sender: TObject);
@@ -336,10 +340,31 @@ begin
   (self.Owner as TFFrames).MainForm.SetStopPosition(_pos);
 end;
 
+procedure TCutFrame.DisableUpdate;
+begin
+  Inc(FUpdateLocked);
+end;
+
+procedure TCutFrame.EnableUpdate;
+begin
+  Dec(FUpdateLocked);
+  if FUpdateLocked > 0 then
+    exit;
+  FUpdateLocked := 0;
+  UpdateFrame;
+end;
+
+procedure TCutFrame.UpdateFrame;
+begin
+  LTime.Caption := MovieInfo.FormatPosition(FPosition);
+end;
+
 procedure TCutFrame.setPosition(APosition: Double);
 begin
   FPosition := APosition;
-  LTime.Caption := MovieInfo.FormatPosition(APosition);
+  if FUpdateLocked > 0 then
+    exit;
+  UpdateFrame;
 end;
 
 procedure TCutFrame.setKeyFrame(Value: boolean);

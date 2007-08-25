@@ -5,9 +5,10 @@ New in 0.9.11.21 (beta)
 - Save frame duration and frame rate in cutlist (visible to user in info dialog). Use own values instead of movieinfo.frame_duration.
 - Ask user which frame rate to use, if frame rates differ too much.
 - Hide frames images when closing Movie.
-- Improve speed of next / prev frames.
 - Make next / prev frames work, if frame stepping is not supported (untested).
 - Improved comparison of intended and own CutApplication.
+- Improve speed of next / prev frames.
+- Fixed performance issues when showing Frames form: Lock update when grabbing sample, since VCL is not thread-safe.
 
 New in 0.9.11.17 (beta)
 - Fixed error in handling of frames window size.

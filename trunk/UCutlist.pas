@@ -834,6 +834,7 @@ begin
                               'by your own User Name?';
             if  (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
               self.Author := Fsettings.UserName;
+              RefreshGUI;
             end;
           end;
         end;

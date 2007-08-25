@@ -1276,19 +1276,22 @@ end;
 
 function TFMain.WaitForStep(TimeOut: INteger): boolean;
 var
-  counter: integer;
   interval: integer;
+  startTick, nowTick, lastTick: Cardinal;
 begin
-  counter := 0;
+  lastTick := GetTickCount;
+  startTick := lastTick;
+
   if Settings.AutoMuteOnSeek then
     interval := 10
   else
     interval := Max(10, Trunc(MovieInfo.frame_duration * 1000.0));
 
-  application.ProcessMessages;
-  while (not self.StepComplete) and (counter < TimeOut) do begin
+  while (not self.StepComplete) do begin
     sleep(interval);
-    counter := counter + Interval;
+    nowTick := GetTickCount;
+    if (self.StepComplete) or (Abs(startTick - nowTick) > TimeOut) then
+      break;
     application.ProcessMessages;
   end;
   result := self.StepComplete;
@@ -1345,19 +1348,25 @@ begin
       if (temp_pos >= 0) and (temp_pos <= MovieInfo.current_file_duration) then begin
 
         self.StepComplete := false;
-        SampleTarget := Target;  //Set SampleTarget to trigger sampleGrabber.onbuffer method;
-        if Assigned(Framestep) then begin
-          FrameStep.Step(1, nil);
-          if not WaitForStep(5000) then
-            break;
-        end else begin
-          temp_pos := temp_pos + MovieInfo.frame_duration;
-          JumpTo(temp_pos);
-          WaitForFiltergraph;
-        end;
+        Target.DisableUpdate;
+        try
+          SampleTarget := Target;  //Set SampleTarget to trigger sampleGrabber.onbuffer method;
+          if Assigned(Framestep) then begin
+            if not Succeeded(FrameStep.Step(1, nil)) then
+              break;
+            if not WaitForStep(5000) then
+              break;
+          end else begin
+            temp_pos := temp_pos + MovieInfo.frame_duration;
+            JumpTo(temp_pos);
+            WaitForFiltergraph;
+          end;
 
-        temp_pos := currentPosition;
-        Target.image.visible := true;
+          temp_pos := currentPosition;
+          Target.image.visible := true;
+        finally
+          Target.EnableUpdate;
+        end;
       end else begin
         Target.image.visible := false;
         Target.position := 0;
@@ -2444,7 +2453,7 @@ begin
   if SampleTarget = nil then exit;
   Target := (SampleTarget as TCutFrame);
   try
-//    SampleGrabber1.GetBitmap(Target.Image.Picture.Bitmap, pBuffer, BufferLen);
+    //SampleGrabber1.GetBitmap(Target.Image.Picture.Bitmap, pBuffer, BufferLen);
     self.CustomGetSampleGrabberBitmap(Target.Image.Picture.Bitmap, pBuffer, BufferLen);
     Target.position := SampleTime;
   finally

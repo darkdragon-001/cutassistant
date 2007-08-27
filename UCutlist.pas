@@ -131,10 +131,44 @@ begin
   cut.pos_to := pos_to;
   cut.index := self.Add(cut);
   self.FHasChanged := true;
+  self.IDOnServer := '';
   self.FramesPresent := false;
   result := true;
 
   self.sort;
+  self.RefreshGUI;
+end;
+
+function TCutlist.ReplaceCut(pos_from, pos_to: double;
+  CutToReplace: integer): boolean;
+var
+  icut: integer;
+begin
+  if cut_times_valid(pos_from, pos_to, CutToReplace, iCut) then begin
+    self[CutToReplace].pos_from := pos_from;
+    self[CutToReplace].pos_to := pos_to;
+    self.FHasChanged := true;
+    self.IDOnServer := '';
+    self.FramesPresent := false;
+    result := true;
+    self.sort;
+    self.RefreshGUI;
+  end else begin
+    result := false;
+  end;
+end;
+
+function TCutlist.DeleteCut(dCut: Integer): boolean;
+var
+  iCut: Integer;
+begin
+  self.Delete(dCut);
+  self.FHasChanged := true;
+  self.IDOnServer := '';
+  for icut := 0 to self.Count-1 do begin
+    self.Cut[iCut].index := iCut;
+  end;
+  result := true;
   self.RefreshGUI;
 end;
 
@@ -175,7 +209,6 @@ var
 begin
   self.sort;
   newCutlist := TCutlist.Create(FSettings, FMovieInfo);
-  newCutlist.FHasChanged := self.HasChanged;
   newCutlist.FFrameRate := self.FFrameRate;
   newCutlist.FFrameDuration := self.FFrameDuration;
   newCutlist.FramesPresent := self.FramesPresent;
@@ -234,6 +267,7 @@ begin
     newcutlist.FMode := clmCrop
   else
     newcutlist.FMode := clmCutOut;
+  newCutlist.FHasChanged := self.HasChanged;
 
   result := newcutlist;
 end;
@@ -243,7 +277,6 @@ begin
   inherited create;
   FSettings := Settings;
   FMovieInfo := MovieInfo;
-  FRatingOnServer := -1;
   self.init;
 end;
 
@@ -319,19 +352,6 @@ begin
   result := true;
 end;
 
-function TCutlist.DeleteCut(dCut: Integer): boolean;
-var
-  iCut: Integer;
-begin
-  self.Delete(dCut);
-  self.FHasChanged := true;
-  for icut := 0 to self.Count-1 do begin
-    self.Cut[iCut].index := iCut;
-  end;
-  result := true;
-  self.RefreshGUI;
-end;
-
 function TCutlist.EditInfo: boolean;
 begin
   FCutlistInfo.original_movie_filename := FMovieInfo.current_filename;
@@ -364,13 +384,14 @@ begin
 
   if FCutlistInfo.ShowModal = mrOK then begin
     self.FHasChanged := true;
+    self.IDOnServer := '';
     if FCutlistInfo.RGRatingByAuthor.ItemIndex = -1 then begin
       self.RatingByAuthorPresent := false;
       result := false;
-      exit;
     end else begin
       self.RatingByAuthorPresent := true;
       self.RatingByAuthor := FCutlistInfo.RGRatingByAuthor.ItemIndex;
+      result := true;
     end;
     self.EPGError := FCutlistInfo.CBEPGError.Checked;
     if self.EPGError then
@@ -388,7 +409,7 @@ begin
       self.OtherErrorDescription := '';
     self.UserComment := FCutlistInfo.EUserComment.Text;
     self.SuggestedMovieName := FCutlistInfo.EMovieName.Text;
-    result := true;
+
     self.RefreshGUI;
   end else begin
     result := false;
@@ -422,7 +443,6 @@ end;
 procedure TCutlist.init;
 begin
   self.Clear;
-  self.FHasChanged := false;
   self.FFrameRate := 0;
   self.FFrameDuration := 0;
   self.FramesPresent := false;
@@ -443,6 +463,7 @@ begin
   self.IDOnServer := '';
   self.FRatingOnServer := -1;
   self.RatingSent := false;
+  self.FHasChanged := false;
 
   self.RefreshGUI;
 end;
@@ -659,24 +680,6 @@ begin
   if assigned(self.FRefreshCallBack) then RefreshCallBack(self);
 end;
 
-function TCutlist.ReplaceCut(pos_from, pos_to: double;
-  CutToReplace: integer): boolean;
-var
-  icut: integer;
-begin
-  if cut_times_valid(pos_from, pos_to, CutToReplace, iCut) then begin
-    self[CutToReplace].pos_from := pos_from;
-    self[CutToReplace].pos_to := pos_to;
-    self.FHasChanged := true;
-    self.FramesPresent := false;
-    result := true;
-    self.sort;
-    self.RefreshGUI;
-  end else begin
-    result := false;
-  end;
-end;
-
 function TCutlist.Save(AskForPath: boolean): boolean;
 var
   cutlist_path, target_file : string;
@@ -826,9 +829,10 @@ begin
 
       section := 'Info';
       if self.HasChanged then begin
-        if self.Author = '' then
-          self.Author := Fsettings.UserName
-        else begin
+        if self.Author = '' then begin
+          self.Author := Fsettings.UserName ;
+          RefreshGUI;
+        end else begin
           if self.Author <> Fsettings.UserName then begin
             message_string := 'Do you want to replace the Author name of this cutlist' + #13#10 + '"' + self.Author +'"'+#13#10+
                               'by your own User Name?';
@@ -840,7 +844,8 @@ begin
         end;
       end;
       cutlistfile.WriteString(section, 'Author', self.Author);
-      if self.RatingByAuthorPresent then cutlistfile.WriteInteger(section, 'RatingByAuthor', self.RatingByAuthor);
+      if self.RatingByAuthorPresent then
+        cutlistfile.WriteInteger(section, 'RatingByAuthor', self.RatingByAuthor);
       cutlistfile.WriteBool(section, 'EPGError', self.EPGError);
       cutlistfile.WriteString(section, 'ActualContent', self.ActualContent);
       cutlistfile.WriteBool(section, 'MissingBeginning', self.MissingBeginning);
@@ -860,13 +865,13 @@ begin
         cutlistfile.WriteFloat(section, 'Start', self[iCut].pos_from);
         if self.FramesPresent then
           cutlistfile.WriteInteger(section, 'StartFrame', self[iCut].frame_from)
-        else
-          if cutlistfile.ValueExists(section, 'StartFrame') then cutlistfile.DeleteKey(section, 'StartFrame');
+        else if cutlistfile.ValueExists(section, 'StartFrame') then
+          cutlistfile.DeleteKey(section, 'StartFrame');
         cutlistfile.WriteFloat(section, 'Duration', self[iCut].pos_to - self[iCut].pos_from + FMovieInfo.frame_duration);
         if self.FramesPresent then
           cutlistfile.WriteInteger(section, 'DurationFrames', self[iCut].DurationFrames)
-        else
-          if cutlistfile.ValueExists(section, 'DurationFrames') then cutlistfile.DeleteKey(section, 'DurationFrames');
+        else if cutlistfile.ValueExists(section, 'DurationFrames') then
+          cutlistfile.DeleteKey(section, 'DurationFrames');
       end;
       cutlistfile.WriteInteger('General', 'NoOfCuts', writtenCuts);
       result := true;
@@ -953,7 +958,6 @@ begin
 end;
 
 { Tcut }
-
 
 function Tcut.DurationFrames: integer;
 begin

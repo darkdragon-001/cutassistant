@@ -309,28 +309,22 @@ object FMain: TFMain
     Top = 283
     Width = 28
     Height = 27
-    Hint = 'Stop'
+    Action = AStop
     Anchors = [akRight, akBottom]
-    Caption = '[ ]'
-    Enabled = False
     ParentShowHint = False
     ShowHint = True
     TabOrder = 22
-    OnClick = BStopClick
   end
   object BPlayPause: TButton
     Left = 396
     Top = 283
     Width = 28
     Height = 27
-    Hint = 'Play'
+    Action = APlayPause
     Anchors = [akRight, akBottom]
-    Caption = '>'
-    Enabled = False
     ParentShowHint = False
     ShowHint = True
     TabOrder = 19
-    OnClick = BPlayPauseClick
   end
   object Lcutlist: TListView
     Left = 360
@@ -2747,6 +2741,18 @@ object FMain: TFMain
       Visible = False
       OnExecute = ASupportRequestExecute
     end
+    object AStop: TAction
+      Category = 'Navigation'
+      Caption = '[ ]'
+      Hint = 'Stop movie'
+      OnExecute = AStopExecute
+    end
+    object APlayPause: TAction
+      Category = 'Navigation'
+      Caption = '>'
+      Hint = 'Play / pause movie'
+      OnExecute = APlayPauseExecute
+    end
   end
   object MainMenu: TMainMenu
     Images = ImageList1
@@ -2814,6 +2820,17 @@ object FMain: TFMain
     end
     object Navigation1: TMenuItem
       Caption = '&Navigation'
+      object N14: TMenuItem
+        Action = APlayPause
+        Enabled = False
+      end
+      object N15: TMenuItem
+        Action = AStop
+        Enabled = False
+      end
+      object N16: TMenuItem
+        Caption = '-'
+      end
       object II1: TMenuItem
         Action = AStepForward
       end

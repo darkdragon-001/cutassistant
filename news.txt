@@ -1,3 +1,10 @@
+New in 0.9.11.25 (beta)
+- Fixed data not applied bug when editing cutlist properties.
+- Refresh GUI when author changes on saving.
+- Added Actions for play/pause and stop movie.
+- Fixed possible exceptions in program when no movie is loaded (e.g. JumpTo-buttons).
+- Disable more controls when no movie is loaded.
+
 New in 0.9.11.21 (beta)
 - Fixed bug in directory check of configuration settings.
 - Improved error handling when (un)registering application in registry.

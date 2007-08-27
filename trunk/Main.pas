@@ -235,14 +235,16 @@ type
     lblMovieType: TLabel;
     lblCutApplication: TLabel;
     lblMovieFPS: TLabel;
+    AStop: TAction;
+    APlayPause: TAction;
+    N14: TMenuItem;
+    N15: TMenuItem;
+    N16: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-
-    procedure BPlayPauseClick(Sender: TObject);
-    procedure BStopClick(Sender: TObject);
     procedure BSetFromClick(Sender: TObject);
     procedure BSetToClick(Sender: TObject);
     procedure BFromStartClick(Sender: TObject);
@@ -348,6 +350,8 @@ type
     procedure RequestProgressDialogCancel(Sender: TObject);
     procedure IdHTTP1Work(Sender: TObject; AWorkMode: TWorkMode;
       const AWorkCount: Integer);
+    procedure AStopExecute(Sender: TObject);
+    procedure APlayPauseExecute(Sender: TObject);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -475,18 +479,6 @@ begin
     Exit;
   AAction.Caption := AnsiReplaceText(AAction.Caption, '$$', s);
   AAction.Hint    := AnsiReplaceText(AAction.Hint   , '$$', s);
-end;
-
-procedure TFMain.BPlayPauseClick(Sender: TObject);
-begin
-  GraphPlayPause;
-end;
-
-procedure TFMain.BStopClick(Sender: TObject);
-begin
-  GraphPause; //Set Play/Pause Button Caption
-  jumpto(0);
-  filtergraph.Stop;
 end;
 
 procedure TFMain.BSetFromClick(Sender: TObject);
@@ -763,10 +755,7 @@ var
   total_cutoff, resulting_duration: Double;
 begin
   self.Lcutlist.Clear;
-  if cutlist.IDOnServer = '' then
-    self.ASendRating.Enabled := false
-  else
-    self.ASendRating.Enabled := true;
+  self.ASendRating.Enabled := cutlist.IDOnServer <> '';
 
   if cutlist.Count = 0 then begin
     self.AStartCutting.Enabled := false;
@@ -1146,6 +1135,8 @@ var
   _pos: int64;
   event: INteger;
 begin
+  if not MovieInfo.MovieLoaded then
+    exit;
   if isEqualGUID(MovieInfo.TimeFormat, TIME_FORMAT_MEDIA_TIME) then
     _pos := round(NewPosition * 10000000)
   else
@@ -1812,6 +1803,8 @@ procedure TFMain.ANextFramesExecute(Sender: TObject);
 var
   c: TCursor;
 begin
+  if not MovieInfo.MovieLoaded then
+    exit;
   c := self.Cursor;
   try
     EnableMovieControls(false);
@@ -1828,6 +1821,8 @@ procedure TFMain.APrevFramesExecute(Sender: TObject);
 var
   c: TCursor;
 begin
+  if not MovieInfo.MovieLoaded then
+    exit;
   c := self.Cursor;
   try
     EnableMovieControls(false);
@@ -1846,6 +1841,8 @@ var
   pos1, pos2: double;
   c: TCursor;
 begin
+  if not MovieInfo.MovieLoaded then
+    exit;
   i1 := FFrames.scan_1;
   i2 := FFrames.scan_2;
 
@@ -2698,8 +2695,8 @@ begin
     FrameStep.Step(1, nil);
     MediaEvent.WaitForCompletion(500, event);
   end;              }
-  self.BPlayPause.Caption := CaptionPlay;
-  self.BPlayPause.Hint := HintPlay;
+  self.APlayPause.Caption := CaptionPlay;
+  self.APlayPause.Hint := HintPlay;
   self.BFF.Enabled := false;
   TBFilePos.TriggerTimer;
 end;
@@ -2711,18 +2708,17 @@ const
 begin
   result := filtergraph.Play;
   if result then begin
-    self.BPlayPause.Caption := CaptionPause;
-    self.BPlayPause.Hint := HintPause;
+    self.APlayPause.Caption := CaptionPause;
+    self.APlayPause.Hint := HintPause;
     self.BFF.Enabled := true;
   end;
 end;
 
 procedure TFMain.VideoWindowClick(Sender: TObject);
 begin
-  self.BPlayPauseClick(self);
+  if self.APlayPause.Enabled then
+    self.APlayPause.Execute;
 end;
-
-
 
 procedure TFMain.TBRateChange(Sender: TObject);
 var
@@ -3296,13 +3292,19 @@ begin
     self.AStepBackward.Enabled := value;
     self.ASmallSkipBackward.Enabled := value;
     self.ALargeSkipBackward.Enabled := value;
-    self.BPlayPause.Enabled := value;
-    self.BStop.Enabled:= value;
+    self.APlayPause.Enabled := value;
+    self.AStop.Enabled:= value;
     if value and MovieInfo.CanStepForward then begin
       self.AStepForward.Enabled := true;
     end else begin
       self.AStepForward.Enabled := false;
     end;
+    self.BJumpFrom.Enabled := value;
+    self.BJumpTo.Enabled := value;
+    self.BSetFrom.Enabled := value;
+    self.BSetTo.Enabled := value;
+    self.BFromStart.Enabled := value;
+    self.BToEnd.Enabled := value;
 end;
 
 function TFMain.BuildFilterGraph(FileName: String;
@@ -3677,6 +3679,18 @@ begin
     AException.MailBody := AMemo.OutputName + #13#10 + StringOfChar('-', Length(AMemo.OutputName)) + #13#10 + AMemo.Text;
     SendBugReport(ABugReport, AScreenShot, self.Handle, AException);
   end;
+end;
+
+procedure TFMain.AStopExecute(Sender: TObject);
+begin
+  GraphPause; //Set Play/Pause Button Caption
+  jumpto(0);
+  filtergraph.Stop;
+end;
+
+procedure TFMain.APlayPauseExecute(Sender: TObject);
+begin
+  GraphPlayPause;
 end;
 
 initialization

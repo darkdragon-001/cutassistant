@@ -10,10 +10,12 @@ object FFrames: TFFrames
   Font.Height = -9
   Font.Name = 'Small Fonts'
   Font.Style = []
+  KeyPreview = True
   OldCreateOrder = False
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnKeyUp = FormKeyUp
   OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 96

@@ -48,6 +48,8 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormKeyUp(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     { Private declarations }
     FrameList: TObjectList;
@@ -439,6 +441,31 @@ end;
 procedure TFFrames.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 begin
   CanClose := self.CanClose;
+end;
+
+procedure TFFrames.FormKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  case Key of
+    VK_PRIOR:
+      begin
+        self.MainForm.JumpTo(self.Frame[0].position);
+        self.MainForm.APrevFrames.Execute;
+      end;
+    VK_NEXT:
+      begin
+        self.MainForm.JumpTo(self.Frame[self.Count - 1].position);
+        self.MainForm.ANextFrames.Execute;
+      end;
+    VK_ESCAPE:
+      begin
+        Hide;
+      end;
+    VK_RETURN:
+      begin
+        self.MainForm.BringToFront;
+      end;
+  end;
 end;
 
 end.

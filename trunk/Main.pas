@@ -2754,7 +2754,7 @@ procedure TFMain.ANextCutExecute(Sender: TObject);
 var
   NewPos: double;
 begin
-  NewPos := cutlist.NextCutPos(currentPosition);
+  NewPos := cutlist.NextCutPos(currentPosition + MovieInfo.frame_duration);
   if NewPos >= 0 then jumpTo(NewPos);
 end;
 
@@ -2762,7 +2762,7 @@ procedure TFMain.APrevCutExecute(Sender: TObject);
 var
   NewPos: double;
 begin
-  NewPos := cutlist.PreviousCutPos(currentPosition);
+  NewPos := cutlist.PreviousCutPos(currentPosition - MovieInfo.frame_duration);
   if NewPos >= 0 then jumpTo(NewPos);
 end;
 

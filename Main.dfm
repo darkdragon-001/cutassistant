@@ -2508,6 +2508,7 @@ object FMain: TFMain
       Enabled = False
       Hint = 'Show next $$ frames from current position'
       ImageIndex = 11
+      ShortCut = 16417
       OnExecute = ANextFramesExecute
     end
     object APrevFrames: TAction
@@ -2517,6 +2518,7 @@ object FMain: TFMain
       Enabled = False
       Hint = 'Show last $$ frames before current position'
       ImageIndex = 10
+      ShortCut = 16418
       OnExecute = APrevFramesExecute
     end
     object AScanInterval: TAction
@@ -2647,6 +2649,8 @@ object FMain: TFMain
       Enabled = False
       Hint = 'Next Cut'
       ShortCut = 16423
+      SecondaryShortCuts.Strings = (
+        'BildAb')
       OnExecute = ANextCutExecute
     end
     object APrevCut: TAction
@@ -2656,6 +2660,8 @@ object FMain: TFMain
       Enabled = False
       Hint = 'Previous Cut'
       ShortCut = 16421
+      SecondaryShortCuts.Strings = (
+        'BildAuf')
       OnExecute = APrevCutExecute
     end
     object AFullScreen: TAction

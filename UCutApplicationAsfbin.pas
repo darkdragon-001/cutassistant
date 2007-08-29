@@ -59,7 +59,7 @@ implementation
 
 uses
   FileCtrl, StrUtils,
-  UCutlist, UfrmCutting;
+  UCutlist, UfrmCutting, Utils;
 
 
 { TCutApplicationAsfbin }
@@ -109,10 +109,7 @@ var
   TempCutlist: TCutlist;
   iCut: Integer;
   MustFreeTempCutlist: boolean;
-  myFormatSettings: TFormatSettings;
-  temp_DecimalSeparator: char;
   CommandLine, ExeName: string;
-  ExitCode: Cardinal;
 begin
   result := false;
   if not fileexists(self.Path) then begin
@@ -129,26 +126,24 @@ begin
 
   CommandLine := '-i "' + SourceFileName + '" -o "' + DestFileName + '" ';
 
-  Temp_DecimalSeparator := DecimalSeparator;
   if TempCutlist.Mode <> clmCrop then begin
     TempCutlist := TempCutlist.convert;
     MustFreeTempCutlist := True;
   end;
   try
-    DecimalSeparator := '.';
     TempCutlist.sort;
     for iCut := 0 to TempCutlist.Count-1 do begin
-      CommandLine := CommandLine + ' -start ' + floattostr(TempCutlist[iCut].pos_from);
-      CommandLine := CommandLine + ' -duration ' + floattostr(TempCutlist[iCut].pos_to - TempCutlist[iCut].pos_from);
+      CommandLine := CommandLine + ' -start ' + FloatToStrInvariant(TempCutlist[iCut].pos_from);
+      CommandLine := CommandLine + ' -duration ' + FloatToStrInvariant(TempCutlist[iCut].pos_to - TempCutlist[iCut].pos_from);
     end;
 
     CommandLine := CommandLine +  ' ' + self.CommandLineOptions;
     self.FCommandLines.Add(CommandLine);
     result := true;
   finally
-    if MustFreeTempCutlist then FreeAndNIL(TempCutlist);
-    DecimalSeparator := Temp_DecimalSeparator;
-  end;         
+    if MustFreeTempCutlist then
+      FreeAndNIL(TempCutlist);
+  end;
 end;
 
 

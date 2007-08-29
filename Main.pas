@@ -1133,10 +1133,15 @@ end;
 procedure TFMain.JumpTo(NewPosition: double);
 var
   _pos: int64;
-  event: INteger;
+  event: Integer;
 begin
   if not MovieInfo.MovieLoaded then
     exit;
+  if NewPosition < 0 then
+    NewPosition := 0;
+  if NewPosition > MovieInfo.current_file_duration then
+    NewPosition := MovieInfo.current_file_duration;
+
   if isEqualGUID(MovieInfo.TimeFormat, TIME_FORMAT_MEDIA_TIME) then
     _pos := round(NewPosition * 10000000)
   else
@@ -2675,7 +2680,6 @@ end;
 
 function TFMain.GraphPlayPause: boolean;
 begin
-  result := false;
   if filtergraph.State = gsPlaying then begin
     result := GraphPause;
   end else begin
@@ -3217,29 +3221,25 @@ var
   f: Textfile;
   i: integer;
   cutlist_tmp: TCutlist;
-  temp_DecimalSeparator: char;
 begin
-  result := false;
-  if scriptfile = '' then scriptfile := Inputfile + '.edl';
+  if scriptfile = '' then
+    scriptfile := Inputfile + '.edl';
   assignfile(f, scriptfile);
-  Temp_DecimalSeparator := DecimalSeparator;
-  DecimalSeparator := '.';
+  rewrite(f);
   try
-    rewrite(f);
     if cutlist.Mode = clmCutOut then begin
       cutlist.sort;
-      for i := 0 to cutlist.Count -1 do begin
-        writeln(f, floatTostr(cutlist.Cut[i].pos_from)  + ' ' + floatTostr(cutlist.Cut[i].pos_to) + ' 0');
+      for i := 0 to cutlist.Count - 1 do begin
+        writeln(f, FloatToStrInvariant(cutlist.Cut[i].pos_from)  + ' ' + FloatToStrInvariant(cutlist.Cut[i].pos_to) + ' 0');
       end;
     end else begin
       cutlist_tmp := cutlist.convert;
-      for i := 0 to cutlist_tmp.Count -1 do begin
-        writeln(f, floatTostr(cutlist_tmp.Cut[i].pos_from)  + ' ' + floatTostr(cutlist_tmp.Cut[i].pos_to) + ' 0');
+      for i := 0 to cutlist_tmp.Count - 1 do begin
+        writeln(f, FloatToStrInvariant(cutlist_tmp.Cut[i].pos_from)  + ' ' + FloatToStrInvariant(cutlist_tmp.Cut[i].pos_to) + ' 0');
       end;
       FreeAndNIL(cutlist_tmp);
     end;
   finally
-    DecimalSeparator := Temp_DecimalSeparator;
     closefile(f);
   end;
   result := true;

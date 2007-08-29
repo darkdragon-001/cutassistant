@@ -136,7 +136,9 @@ type
   ARFileVersion = array[0..3] of WORD;
 
 function Parse_File_Version(const VersionStr: string): ARFileVersion;
-  
+
+function FloatToStrInvariant(Value: Extended): string;
+
 //global Vars
 var
   batchmode: boolean;
@@ -153,6 +155,14 @@ uses
 
 const ScreenWidthDev  = 1280;
       ScreenHeightDev = 1024;
+
+var
+  invariantFormat: TFormatSettings;
+
+function FloatToStrInvariant(Value: Extended): string;
+begin
+  Result := FloatToStr(Value, invariantFormat);
+end;
 
 function Parse_File_Version(const VersionStr: string): ARFileVersion;
 var
@@ -903,9 +913,10 @@ begin
 end;
 
 initialization
+  GetLocaleFormatSettings($007F, invariantFormat);
 
-// nur wenn ein Debugger vorhanden, den Patch ausführen 
-//if DebugHook<>0 then PatchINT3; 
+// nur wenn ein Debugger vorhanden, den Patch ausführen
+//if DebugHook<>0 then PatchINT3;
 
 end.
 

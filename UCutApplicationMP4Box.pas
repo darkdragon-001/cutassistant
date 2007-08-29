@@ -57,7 +57,7 @@ implementation
 
 uses
   FileCtrl, StrUtils,
-  UCutlist, UfrmCutting;
+  UCutlist, UfrmCutting, Utils;
 
 
 { TCutApplicationMP4Box }
@@ -108,10 +108,8 @@ var
   TempCutlist: TCutlist;
   iCut: Integer;
   MustFreeTempCutlist: boolean;
-  myFormatSettings: TFormatSettings;
-  temp_DecimalSeparator: char;
-  CommandLine, TempFileName, TempFileExt, ExeName: string;
-  ExitCode: Cardinal;
+  CommandLine, ExeName: string;
+  //TempFileName, TempFileExt: string;
   SearchRec: TSearchRec;
 begin
   result := false;
@@ -135,17 +133,16 @@ begin
   self.FSourceFile := SourceFileName;
   self.FDestFile := DestFileName;
 
-  Temp_DecimalSeparator := DecimalSeparator;
   if TempCutlist.Mode <> clmCrop then begin
     TempCutlist := TempCutlist.convert;
     MustFreeTempCutlist := True;
   end;
+
   try
-    DecimalSeparator := '.';
     TempCutlist.sort;
     if tempCutlist.Count = 1 then begin
       CommandLine := '"'+ SourceFileName + '"';
-      CommandLine := CommandLine + ' -splitx ' + floattostr(TempCutlist[0].pos_from) + ':'  + floattostr(TempCutlist[0].pos_to);
+      CommandLine := CommandLine + ' -splitx ' + FloatToStrInvariant(TempCutlist[0].pos_from) + ':'  + FloatToStrInvariant(TempCutlist[0].pos_to);
 
       //-out Parameter does not seem to work with -slitx. Maybe a bug in mp4box :(
       //That's why we have to work around this and detect what files are new. see below.
@@ -159,7 +156,7 @@ begin
       for iCut := 0 to tempCutlist.Count -1 do begin
    //     TempFileName := 'Part_1_' + extractFileName(SourceFileName);
         CommandLine := '"'+ SourceFileName + '"';
-        CommandLine := CommandLine + ' -splitx ' + floattostr(TempCutlist[iCut].pos_from) + ':'  + floattostr(TempCutlist[iCut].pos_to);
+        CommandLine := CommandLine + ' -splitx ' + FloatToStrInvariant(TempCutlist[iCut].pos_from) + ':'  + FloatToStrInvariant(TempCutlist[iCut].pos_to);
         self.FCommandLines.Add(CommandLine);
       end;
     end;
@@ -180,8 +177,8 @@ begin
 
     result := true;
   finally
-    if MustFreeTempCutlist then FreeAndNIL(TempCutlist);
-    DecimalSeparator := Temp_DecimalSeparator;
+    if MustFreeTempCutlist then
+      FreeAndNIL(TempCutlist);
 //    ChangeFileExt(SourceFileName, TempFileExt);
   end;
 
@@ -234,7 +231,6 @@ var
   SearchRec: TSearchRec;
   i: Integer;
   NewCommandLine: String;
-  TempFileName: string;
   EndsSeconds: Integer;
   posUnderscore, posDot: Integer;
 begin

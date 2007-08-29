@@ -7,6 +7,8 @@ New in 0.9.11.25 (beta)
 - Added shortcuts for next/prev frames actions.
 - Next/prev cut did not always work due to rounding errors.
 - Added some shortcuts to frames window: Page-Up => Prev frames, Page-Down => Next frames, Enter => Show main window, Escape => Hide form.
+- Added shortcuts to several commands in main window.
+- Several minor improvements.
 
 New in 0.9.11.21 (beta)
 - Fixed bug in directory check of configuration settings.

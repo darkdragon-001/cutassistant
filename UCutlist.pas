@@ -491,6 +491,8 @@ begin
   if not self.clear_after_confirm then exit;
 
   cutlistfile := TInifile.Create(filename);
+  Temp_DecimalSeparator := DecimalSeparator;
+  DecimalSeparator := '.';
   try
     section := 'General';
     apply_to_file := cutlistfile.ReadString(section, 'ApplyToFile', '(Not found)');
@@ -602,9 +604,6 @@ begin
     self.SuggestedMovieName := cutlistfile.ReadString(section, 'SuggestedMovieName', '');
     self.UserComment := cutlistfile.ReadString(section, 'UserComment', '');
 
-    Temp_DecimalSeparator := DecimalSeparator;
-    DecimalSeparator := '.';
-
     self.FramesPresent := true;
 
     for iCut := 0 to cCuts-1 do begin
@@ -628,8 +627,8 @@ begin
       end;
     end;
 
-    DecimalSeparator := Temp_DecimalSeparator;
   finally
+    DecimalSeparator := Temp_DecimalSeparator;
     FreeAndNil(cutlistfile);
   end;
 
@@ -878,8 +877,8 @@ begin
       self.FHasChanged := false;
       self.SavedToFilename := filename;
 
-      DecimalSeparator := Temp_DecimalSeparator;
     finally
+      DecimalSeparator := Temp_DecimalSeparator;
       FreeAndNil(cutlistfile);
     end;
   end else begin

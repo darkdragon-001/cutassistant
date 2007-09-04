@@ -1899,7 +1899,7 @@ end;
 procedure TFMain.UsedFiltersExecute(Sender: TObject);
 begin
   FManageFilters.SourceGraph := FilterGraph;
-  FManageFilters.show;
+  FManageFilters.ShowModal;
 end;
 
 procedure TFMain.AboutExecute(Sender: TObject);

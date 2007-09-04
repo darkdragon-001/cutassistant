@@ -143,6 +143,35 @@ function FloatToStrInvariant(Value: Extended): string;
 var
   batchmode: boolean;
 
+type
+  TIniFileEx = class(TMemIniFile)
+  private
+    FFormatSettings: TFormatSettings;
+  public
+    constructor Create(const FileName: string); overload;
+    constructor Create(const FileName: string; const formatSettings: TFormatSettings); overload;
+
+    function ReadInteger(const Section, Ident: String; Default: Longint): Longint; override;
+    procedure WriteInteger(const Section, Ident: String; Value: Longint); override;
+    function ReadFloat(const Section, Ident: String; Default: Double): Double; override;
+    procedure WriteFloat(const Section, Ident: String; Value: Double); override;
+
+    function ReadDate (const Section, Ident: String; Default: TDateTime): TDateTime; override;
+    procedure WriteDate(const Section, Ident: String; Value: TDateTime); override;
+    function ReadTime (const Section, Ident: String; Default: TDateTime): TDateTime; override;
+    procedure WriteTime(const Section, Ident: String; Value: TDateTime); override;
+    function ReadDateTime (const Section, Ident: String; Default: TDateTime): TDateTime; override;
+    procedure WriteDateTime(const Section, Ident: String; Value: TDateTime); override;
+
+    function ReadRect(const Section, Ident: String; const Default: TRect): TRect; virtual;
+    procedure WriteRect(const Section, Ident: string; const Value: TRect); virtual;
+
+    function ReadGuid(const Section, Ident: String; const Default: TGUID): TGUID; virtual;
+    procedure WriteGuid(const Section, Ident: string; const Value: TGUID); virtual;
+
+    procedure ReadCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
+    procedure WriteCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
+  end;
 
 implementation
 
@@ -158,6 +187,141 @@ const ScreenWidthDev  = 1280;
 
 var
   invariantFormat: TFormatSettings;
+
+constructor TIniFileEx.Create(const FileName: string);
+begin
+  inherited Create(FileName);
+  GetLocaleFormatSettings($007F, FFormatSettings);
+end;
+
+constructor TIniFileEx.Create(const FileName: string; const formatSettings: TFormatSettings);
+begin
+  inherited Create(FileName);
+  FFormatSettings := formatSettings;
+end;
+
+function TIniFileEx.ReadFloat(const Section, Ident: String; Default: Double): Double; 
+begin
+  Result := inherited ReadFloat(Section, Ident, Default);
+end;
+
+function TIniFileEx.ReadDate(const Section, Ident: String; Default: TDateTime): TDateTime;
+begin
+  Result := inherited ReadDate(Section, Ident, Default);
+end;
+
+function TIniFileEx.ReadDateTime(const Section, Ident: String; Default: TDateTime): TDateTime;
+begin
+  Result := inherited ReadDateTime(Section, Ident, Default);
+end;
+
+function TIniFileEx.ReadInteger(const Section, Ident: String; Default: Longint): Longint;
+begin
+  Result := inherited ReadInteger(Section, Ident, Default);
+end;
+
+function TIniFileEx.ReadTime(const Section, Ident: String; Default: TDateTime): TDateTime;
+begin
+  Result := inherited ReadTime(Section, Ident, Default);
+end;
+
+procedure TIniFileEx.WriteDate(const Section, Ident: String; Value: TDateTime);
+begin
+  inherited WriteDate(Section, Ident, Value);
+end;
+
+procedure TIniFileEx.WriteDateTime(const Section, Ident: String; Value: TDateTime);
+begin
+  inherited WriteDateTime(Section, Ident, Value);
+end;
+
+procedure TIniFileEx.WriteFloat(const Section, Ident: String; Value: Double);
+begin
+  inherited WriteFloat(Section, Ident, Value);
+end;
+
+procedure TIniFileEx.WriteInteger(const Section, Ident: String; Value: Longint);
+begin
+  inherited WriteInteger(Section, Ident, Value);
+end;
+
+procedure TIniFileEx.WriteTime(const Section, Ident: String; Value: TDateTime);
+begin
+  inherited WriteTime(Section, Ident, Value);
+end;
+
+function TIniFileEx.ReadRect(const Section, Ident: String; const Default: TRect): TRect;
+begin
+  Result.Left := ReadInteger(Section, Ident + '_Left', Default.Left);
+  Result.Top := ReadInteger(Section, Ident + '_Top', Default.Top);
+  Result.Right := Result.Left + ReadInteger(Section, Ident + '_Width', Default.Right - Default.Left);
+  Result.Bottom := Result.Top + ReadInteger(Section, Ident + '_Height', Default.Bottom - Default.Top);
+end;
+
+procedure TIniFileEx.WriteRect(const Section, Ident: string; const Value: TRect);
+begin
+  WriteInteger(Section, Ident + '_Left', Value.Left);
+  WriteInteger(Section, Ident + '_Top', Value.Top);
+  WriteInteger(Section, Ident + '_Width', Value.Right - Value.Left);
+  WriteInteger(Section, Ident + '_Height', Value.Bottom - Value.Top);
+end;
+
+function TIniFileEx.ReadGuid(const Section, Ident: String; const Default: TGUID): TGUID;
+var
+  GuidStr: string;
+begin
+  GuidStr := ReadString(Section, Ident, '');
+  Result := Default;
+  if GuidStr <> '' then
+  try
+    Result := StringToGUID(GuidStr);
+  except
+    on EConvertError do
+      // ignore EConvertError exceptions
+    else
+      raise
+  end;
+end;
+
+procedure TIniFileEx.WriteGuid(const Section, Ident: string; const Value: TGUID);
+begin
+  WriteString(Section, Ident, GUIDToString(Value));
+end;
+
+procedure TIniFileEx.ReadCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
+var
+  StrValue: string;
+  BufferSize: integer;
+begin
+  CutAppSettings.CutAppName := ReadString(Section, 'AppName', '');
+  CutAppSettings.PreferredSourceFilter := ReadGuid(Section, 'PreferredSourceFilter', GUID_NULL);
+  CutAppSettings.CodecName := ReadString(Section, 'CodecName', '');
+  CutAppSettings.CodecFourCC := ReadInteger(Section, 'CodecFourCC', 0);
+  CutAppSettings.CodecVersion := ReadInteger(Section, 'CodecVersion', 0);
+  CutAppSettings.CodecSettingsSize := ReadInteger(Section, 'CodecSettingsSize', 0);
+  CutAppSettings.CodecSettings := ReadString(Section, 'CodecSettings', '');
+
+  BufferSize := CutAppSettings.CodecSettingsSize div 3;
+  if (CutAppSettings.CodecSettingsSize mod 3) > 0 then
+    Inc(BufferSize);
+  BufferSize := BufferSize * 4 + 1;        //+1 for terminating #0
+  if Length(CutAppSettings.CodecSettings) <> BufferSize - 1 then
+  begin
+     CutAppSettings.CodecSettings := '';
+     CutAppSettings.CodecSettingsSize := 0;
+  end;
+end;
+
+procedure TIniFileEx.WriteCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
+begin
+  WriteString(Section, 'AppName', CutAppSettings.CutAppName);
+  WriteGuid(Section, 'PreferredSourceFilter', CutAppSettings.PreferredSourceFilter);
+  WriteString(Section, 'CodecName', CutAppSettings.CodecName);
+  WriteInteger(Section, 'CodecFourCC', CutAppSettings.CodecFourCC);
+  WriteInteger(Section, 'CodecVersion', CutAppSettings.CodecVersion);
+  WriteInteger(Section, 'CodecSettingsSize', CutAppSettings.CodecSettingsSize);
+  WriteString(Section, 'CodecSettings', CutAppSettings.CodecSettings);
+end;
 
 function FloatToStrInvariant(Value: Extended): string;
 begin

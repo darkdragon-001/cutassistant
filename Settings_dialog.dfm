@@ -786,7 +786,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 5
         OnChange = cbxCodecChange
       end
@@ -816,7 +816,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 8
         OnChange = cbxCodecChange
       end
@@ -846,7 +846,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 14
         OnChange = cbxCodecChange
       end
@@ -876,7 +876,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 17
         OnChange = cbxCodecChange
       end
@@ -918,7 +918,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 11
         OnChange = cbxCodecChange
       end
@@ -1037,7 +1037,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 3
         Text = '(none)'
@@ -1055,7 +1055,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 5
         Text = '(none)'
@@ -1073,7 +1073,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 6
         Text = '(none)'
@@ -1101,7 +1101,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
@@ -1136,7 +1136,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 4
         Text = '(none)'
@@ -1156,7 +1156,7 @@ object FSettings: TFSettings
       562
       26)
     object Cancel: TButton
-      Left = 380
+      Left = 471
       Top = 0
       Width = 85
       Height = 21
@@ -1164,10 +1164,10 @@ object FSettings: TFSettings
       Cancel = True
       Caption = '&Cancel'
       ModalResult = 2
-      TabOrder = 0
+      TabOrder = 1
     end
     object OK: TButton
-      Left = 471
+      Left = 380
       Top = 0
       Width = 85
       Height = 21
@@ -1175,7 +1175,7 @@ object FSettings: TFSettings
       Caption = '&OK'
       Default = True
       ModalResult = 1
-      TabOrder = 1
+      TabOrder = 0
     end
   end
 end

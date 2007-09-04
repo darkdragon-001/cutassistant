@@ -47,7 +47,7 @@ end;
 procedure TFManageFilters.FormShow(Sender: TObject);
 begin
   // Show taskbar button for this form ...
-  SetWindowLong(Handle, GWL_ExStyle, WS_Ex_AppWindow);
+  // SetWindowLong(Handle, GWL_ExStyle, WS_Ex_AppWindow);
   Refresh_Filterlist(self.SourceGraph);
 end;
 

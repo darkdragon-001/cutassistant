@@ -439,6 +439,7 @@ object AboutBox: TAboutBox
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'MS Sans Serif'
+      Font.Pitch = fpVariable
       Font.Style = []
       ParentFont = False
       IsControl = True
@@ -453,6 +454,7 @@ object AboutBox: TAboutBox
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'MS Sans Serif'
+      Font.Pitch = fpVariable
       Font.Style = []
       ParentFont = False
       IsControl = True
@@ -467,6 +469,7 @@ object AboutBox: TAboutBox
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'MS Sans Serif'
+      Font.Pitch = fpVariable
       Font.Style = []
       ParentFont = False
       IsControl = True
@@ -687,16 +690,17 @@ object AboutBox: TAboutBox
       Font.Color = clWindowText
       Font.Height = -13
       Font.Name = 'MS Sans Serif'
+      Font.Pitch = fpVariable
       Font.Style = []
       ParentFont = False
     end
   end
   object OKButton: TButton
-    Left = 183
+    Left = 359
     Top = 187
     Width = 75
     Height = 25
-    Anchors = [akBottom]
+    Anchors = [akRight, akBottom]
     Caption = 'OK'
     Default = True
     ModalResult = 1

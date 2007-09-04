@@ -9,6 +9,7 @@ New in 0.9.11.25 (beta)
 - Added some shortcuts to frames window: Page-Up => Prev frames, Page-Down => Next frames, Enter => Show main window, Escape => Hide form.
 - Added shortcuts to several commands in main window.
 - Several minor improvements.
+- Fixed Bug 1787080: Look&Feel for Windows (order of OK, Cancel buttons)
 
 New in 0.9.11.21 (beta)
 - Fixed bug in directory check of configuration settings.

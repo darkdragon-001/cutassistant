@@ -289,7 +289,6 @@ function TCutApplicationVirtualDub.PrepareCutting(SourceFileName: string;
 var
   TempCutlist: TCutlist;
   MustFreeTempCutlist: boolean;
-  myFormatSettings: TFormatSettings;
   CommandLine, ExeName, message_string: string;
   success: boolean;
 begin

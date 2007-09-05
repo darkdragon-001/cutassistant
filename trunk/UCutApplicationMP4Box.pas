@@ -196,7 +196,6 @@ function TCutApplicationMP4Box.WriteCutlistInfo(CutlistFile: TIniFile;
 begin
   result := inherited WriteCutlistInfo(CutlistFile, section);
   if result then begin
-    result := false;
     cutlistfile.WriteString(section, 'IntendedCutApplicationOptions', self.CommandLineOptions);
     result := true;
   end;
@@ -220,9 +219,9 @@ end;
   begin
     int1 := Integer(List.Objects[Index1]);
     int2 := Integer(List.Objects[Index2]);
-    if int1>int2 then result := 1;
-    if int1<int2 then result := -1;
-    if int1=int2 then result := 0;
+    if int1>int2 then result := 1
+    else if int1<int2 then result := -1
+    else { if int1=int2 then } result := 0;
   end;
 
 procedure TCutApplicationMP4Box.CommandLineTerminate(Sender: TObject;

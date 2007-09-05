@@ -235,7 +235,7 @@ begin
   if State <>'' then begin
     //set old state
     Base64ToBuffer(State, StateBuffer, SizeFromDecoding);
-    assert(SizeFromDecoding = SizeDecoded, 'Invalid Codec Settings.');
+    assert(long(SizeFromDecoding) = long(SizeDecoded), 'Invalid Codec Settings.');
     BufferSize := SizeFromDecoding;
     ICSetState(Codec, StateBuffer, BufferSize);
   end else begin

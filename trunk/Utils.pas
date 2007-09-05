@@ -3,14 +3,29 @@ unit Utils;
 interface
 
 uses
-  Forms, StdCtrls, Windows, Graphics,
+  Classes, Forms, StdCtrls, Windows, Graphics,
   SysUtils, IniFiles, MMSystem, DSUtil, madExcept,
   IdMultipartFormData;
 
 const
   Application_name ='Cut_assistant.exe';   //for use in cutlist files etc.
 
+//global Vars
+var
+  batchmode: boolean;
+
 type
+  ARFileVersion = array[0..3] of WORD;
+
+  RCutAppSettings = record
+    CutAppName: string;
+    PreferredSourceFilter: TGUID;
+    CodecName: string;
+    CodecFourCC: FOURCC;
+    CodecVersion: DWORD;
+    CodecSettingsSize: integer;
+    CodecSettings: string;
+  end;
 
   THttpRequest = class(TObject)
   private
@@ -33,6 +48,8 @@ type
     property ErrorMessage: string read FErrorMessage write FErrorMessage;
     property PostData: TIdMultiPartFormDataStream read FPostData;
   end;
+
+  { TGUIDList - A strong typed list for TGUID }
 
   TGUIDList = class
   private
@@ -59,6 +76,48 @@ type
     property Count: Integer read FCount;
   end;
 
+  { TMemIniFileEx - An enhanced version of TMemIniFile that has more
+    strong typed read and write methods. If FileName is empty, the file
+    will not get saved to disk. }
+
+  TMemIniFileEx = class(TMemIniFile)
+  private
+    FFormatSettings: TFormatSettings;
+    FVolatile: boolean;
+    function GetIsVolatile: boolean;
+  published
+    property Volatile: boolean read FVolatile write FVolatile default false;
+    property IsVolatile: boolean read GetIsVolatile;
+  public
+    constructor Create(const FileName: string); overload;
+    constructor Create(const FileName: string; const formatSettings: TFormatSettings); overload;
+
+    function ReadFloat(const Section, Name: String; Default: Double): Double; override;
+    procedure WriteFloat(const Section, Name: String; Value: Double); override;
+
+    function ReadDate (const Section, Name: String; Default: TDateTime): TDateTime; override;
+    procedure WriteDate(const Section, Name: String; Value: TDateTime); override;
+    function ReadTime (const Section, Name: String; Default: TDateTime): TDateTime; override;
+    procedure WriteTime(const Section, Name: String; Value: TDateTime); override;
+    function ReadDateTime (const Section, Name: String; Default: TDateTime): TDateTime; override;
+    procedure WriteDateTime(const Section, Name: String; Value: TDateTime); override;
+
+    function ReadRect(const Section, Prefix: String; const Default: TRect): TRect; virtual;
+    procedure WriteRect(const Section, Prefix: string; const Value: TRect); virtual;
+
+    function ReadGuid(const Section, Name: String; const Default: TGUID): TGUID; virtual;
+    procedure WriteGuid(const Section, Name: string; const Value: TGUID); virtual;
+
+    procedure ReadCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
+    procedure WriteCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
+
+    procedure UpdateFile; override;
+
+    function GetDataString: string;
+
+    procedure LoadFromStream(const Stream: TStream);
+    procedure SaveToStream(const Stream: TStream);
+  end;
 
   procedure PatchINT3;
 
@@ -96,96 +155,41 @@ type
   // Fix Borland QC Report 13832: Constraints don't obey form Scaled property
   procedure AdjustFormConstraints (form : TForm);
 
-//ini.ReadString does work only up to 2047 characters due to restrictions in iniFiles.pas
-function iniReadLargeString(
+  //ini.ReadString does work only up to 2047 characters due to restrictions in iniFiles.pas
+  function iniReadLargeString(
     const ini: TIniFile;
     const BufferSize: integer;
     const section, name, default: string): string;
 
-type
-  RCutAppSettings = record
-    CutAppName: string;
-    PreferredSourceFilter: TGUID;
-    CodecName: string;
-    CodecFourCC: FOURCC;
-    CodecVersion: DWORD;
-    CodecSettingsSize: integer;
-    CodecSettings: string;
-  end;
+  procedure ReadCutAppSettings(
+    const ini: TIniFile;
+    const section: string;
+    var CutAppSettings: RCutAppSettings);
+  procedure WriteCutAppSettings(
+    const ini: TIniFile;
+    const section: string;
+    var CutAppSettings: RCutAppSettings);
 
-procedure ReadCutAppSettings(
-  const ini: TIniFile;
-  const section: string;
-  var CutAppSettings: RCutAppSettings);
-procedure WriteCutAppSettings(
-  const ini: TIniFile;
-  const section: string;
-  var CutAppSettings: RCutAppSettings);
+  function FilterInfoToString(const filterInfo: TFilCatNode): string;
+  function StringToFilterGUID(const s: string): TGUID;
 
-function FilterInfoToString(const filterInfo: TFilCatNode): string;
-function StringToFilterGUID(const s: string): TGUID;
+  procedure ShowExpectedException(const Header: string);
 
-procedure ShowExpectedException(const Header: string);
+  function iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
+  procedure iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
 
-function iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
-procedure iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
+  Function MakeFourCC(const a,b,c,d: char): DWord;
 
-Function MakeFourCC(const a,b,c,d: char): DWord;
+  function Parse_File_Version(const VersionStr: string): ARFileVersion;
 
-type
-  ARFileVersion = array[0..3] of WORD;
-
-function Parse_File_Version(const VersionStr: string): ARFileVersion;
-
-function FloatToStrInvariant(Value: Extended): string;
-
-//global Vars
-var
-  batchmode: boolean;
-
-type
-
-  { TMemIniFileEx - An enhanced version of TMemIniFile that has more
-    strong typed read and write methods. If FileName is empty, the file
-    will not get saved to disk. }
-
-  TMemIniFileEx = class(TMemIniFile)
-  private
-    FFormatSettings: TFormatSettings;
-  public
-    constructor Create(const FileName: string); overload;
-    constructor Create(const FileName: string; const formatSettings: TFormatSettings); overload;
-
-    function ReadFloat(const Section, Name: String; Default: Double): Double; override;
-    procedure WriteFloat(const Section, Name: String; Value: Double); override;
-
-    function ReadDate (const Section, Name: String; Default: TDateTime): TDateTime; override;
-    procedure WriteDate(const Section, Name: String; Value: TDateTime); override;
-    function ReadTime (const Section, Name: String; Default: TDateTime): TDateTime; override;
-    procedure WriteTime(const Section, Name: String; Value: TDateTime); override;
-    function ReadDateTime (const Section, Name: String; Default: TDateTime): TDateTime; override;
-    procedure WriteDateTime(const Section, Name: String; Value: TDateTime); override;
-
-    function ReadRect(const Section, Prefix: String; const Default: TRect): TRect; virtual;
-    procedure WriteRect(const Section, Prefix: string; const Value: TRect); virtual;
-
-    function ReadGuid(const Section, Name: String; const Default: TGUID): TGUID; virtual;
-    procedure WriteGuid(const Section, Name: string; const Value: TGUID); virtual;
-
-    procedure ReadCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
-    procedure WriteCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
-
-    procedure UpdateFile; override;
-
-    function GetDataString: string;
-  end;
+  function FloatToStrInvariant(Value: Extended): string;
 
 implementation
 
 {$I jedi.inc}
 
 uses
-  Messages, Dialogs, ShellAPI, Variants, Classes, Clipbrd, StrUtils, jpeg,
+  Messages, Dialogs, ShellAPI, Variants, Clipbrd, StrUtils, jpeg,
   Types, DirectShow9, Math;
 
 
@@ -198,13 +202,26 @@ var
 constructor TMemIniFileEx.Create(const FileName: string);
 begin
   inherited Create(FileName);
+  FVolatile := false;
   GetLocaleFormatSettings($007F, FFormatSettings);
 end;
 
 constructor TMemIniFileEx.Create(const FileName: string; const formatSettings: TFormatSettings);
 begin
   inherited Create(FileName);
+  FVolatile := false;
   FFormatSettings := formatSettings;
+end;
+
+function TMemIniFileEx.GetIsVolatile: boolean;
+begin
+  Result := FVolatile or (FileName = '');
+end;
+
+procedure TMemIniFileEx.UpdateFile;
+begin
+  if (not Volatile) and (FileName <> '') then
+    inherited UpdateFile;
 end;
 
 function TMemIniFileEx.ReadFloat(const Section, Name: String; Default: Double): Double;
@@ -368,12 +385,6 @@ begin
   WriteString(Section, 'CodecSettings', CutAppSettings.CodecSettings);
 end;
 
-procedure TMemIniFileEx.UpdateFile;
-begin
-  if FileName <> '' then
-    inherited UpdateFile;
-end;
-
 function TMemIniFileEx.GetDataString: string;
 var
   List: TStringList;
@@ -382,6 +393,32 @@ begin
   try
     GetStrings(List);
     Result := List.Text;
+  finally
+    FreeAndNil(List);
+  end;
+end;
+
+procedure TMemIniFileEx.LoadFromStream(const Stream: TStream);
+var
+  List: TStringList;
+begin
+  List := TStringList.Create;
+  try
+    List.LoadFromStream(Stream);
+    SetStrings(List);
+  finally
+    FreeAndNil(List);
+  end;
+end;
+
+procedure TMemIniFileEx.SaveToStream(const Stream: TStream);
+var
+  List: TStringList;
+begin
+  List := TStringList.Create;
+  try
+    GetStrings(List);
+    List.SaveToStream(Stream);
   finally
     FreeAndNil(List);
   end;

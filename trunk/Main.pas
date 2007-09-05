@@ -1592,12 +1592,13 @@ procedure TFMain.ProcessFileList(FileList: TStringList; IsMyOwnCommandLine: bool
 var
   iString: INteger;
   Pstring, filename_movie, filename_cutlist, filename_upload_cutlist: string;
-  upload_cutlist, found_movie, found_cutlist, try_cutlist_download, get_empty_cutlist: boolean;
+  upload_cutlist, found_movie, found_cutlist, get_empty_cutlist: boolean;
+  //try_cutlist_download: boolean;
 begin
   found_movie := false;
   found_cutlist := false;
   upload_cutlist := false;
-  try_cutlist_download := false;
+  //try_cutlist_download := false;
   Batchmode := false;
   TryCutting := false;
   get_empty_cutlist := false;

@@ -144,33 +144,40 @@ var
   batchmode: boolean;
 
 type
-  TIniFileEx = class(TMemIniFile)
+
+  { TMemIniFileEx - An enhanced version of TMemIniFile that has more
+    strong typed read and write methods. If FileName is empty, the file
+    will not get saved to disk. }
+
+  TMemIniFileEx = class(TMemIniFile)
   private
     FFormatSettings: TFormatSettings;
   public
     constructor Create(const FileName: string); overload;
     constructor Create(const FileName: string; const formatSettings: TFormatSettings); overload;
 
-    function ReadInteger(const Section, Ident: String; Default: Longint): Longint; override;
-    procedure WriteInteger(const Section, Ident: String; Value: Longint); override;
-    function ReadFloat(const Section, Ident: String; Default: Double): Double; override;
-    procedure WriteFloat(const Section, Ident: String; Value: Double); override;
+    function ReadFloat(const Section, Name: String; Default: Double): Double; override;
+    procedure WriteFloat(const Section, Name: String; Value: Double); override;
 
-    function ReadDate (const Section, Ident: String; Default: TDateTime): TDateTime; override;
-    procedure WriteDate(const Section, Ident: String; Value: TDateTime); override;
-    function ReadTime (const Section, Ident: String; Default: TDateTime): TDateTime; override;
-    procedure WriteTime(const Section, Ident: String; Value: TDateTime); override;
-    function ReadDateTime (const Section, Ident: String; Default: TDateTime): TDateTime; override;
-    procedure WriteDateTime(const Section, Ident: String; Value: TDateTime); override;
+    function ReadDate (const Section, Name: String; Default: TDateTime): TDateTime; override;
+    procedure WriteDate(const Section, Name: String; Value: TDateTime); override;
+    function ReadTime (const Section, Name: String; Default: TDateTime): TDateTime; override;
+    procedure WriteTime(const Section, Name: String; Value: TDateTime); override;
+    function ReadDateTime (const Section, Name: String; Default: TDateTime): TDateTime; override;
+    procedure WriteDateTime(const Section, Name: String; Value: TDateTime); override;
 
-    function ReadRect(const Section, Ident: String; const Default: TRect): TRect; virtual;
-    procedure WriteRect(const Section, Ident: string; const Value: TRect); virtual;
+    function ReadRect(const Section, Prefix: String; const Default: TRect): TRect; virtual;
+    procedure WriteRect(const Section, Prefix: string; const Value: TRect); virtual;
 
-    function ReadGuid(const Section, Ident: String; const Default: TGUID): TGUID; virtual;
-    procedure WriteGuid(const Section, Ident: string; const Value: TGUID); virtual;
+    function ReadGuid(const Section, Name: String; const Default: TGUID): TGUID; virtual;
+    procedure WriteGuid(const Section, Name: string; const Value: TGUID); virtual;
 
     procedure ReadCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
     procedure WriteCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
+
+    procedure UpdateFile; override;
+
+    function GetDataString: string;
   end;
 
 implementation
@@ -188,89 +195,127 @@ const ScreenWidthDev  = 1280;
 var
   invariantFormat: TFormatSettings;
 
-constructor TIniFileEx.Create(const FileName: string);
+constructor TMemIniFileEx.Create(const FileName: string);
 begin
   inherited Create(FileName);
   GetLocaleFormatSettings($007F, FFormatSettings);
 end;
 
-constructor TIniFileEx.Create(const FileName: string; const formatSettings: TFormatSettings);
+constructor TMemIniFileEx.Create(const FileName: string; const formatSettings: TFormatSettings);
 begin
   inherited Create(FileName);
   FFormatSettings := formatSettings;
 end;
 
-function TIniFileEx.ReadFloat(const Section, Ident: String; Default: Double): Double; 
+function TMemIniFileEx.ReadFloat(const Section, Name: String; Default: Double): Double;
+var
+  FloatStr: string;
 begin
-  Result := inherited ReadFloat(Section, Ident, Default);
+  FloatStr := ReadString(Section, Name, '');
+  Result := Default;
+  if FloatStr <> '' then
+  try
+    Result := StrToFloat(FloatStr, FFormatSettings);
+  except
+    on EConvertError do
+      // Ignore EConvertError exceptions
+    else
+      raise;
+  end;
 end;
 
-function TIniFileEx.ReadDate(const Section, Ident: String; Default: TDateTime): TDateTime;
+function TMemIniFileEx.ReadDate(const Section, Name: String; Default: TDateTime): TDateTime;
+var
+  DateStr: string;
 begin
-  Result := inherited ReadDate(Section, Ident, Default);
+  DateStr := ReadString(Section, Name, '');
+  Result := Default;
+  if DateStr <> '' then
+  try
+    Result := StrToDate(DateStr, FFormatSettings);
+  except
+    on EConvertError do
+      // Ignore EConvertError exceptions
+    else
+      raise;
+  end;
 end;
 
-function TIniFileEx.ReadDateTime(const Section, Ident: String; Default: TDateTime): TDateTime;
+function TMemIniFileEx.ReadDateTime(const Section, Name: String; Default: TDateTime): TDateTime;
+var
+  DateStr: string;
 begin
-  Result := inherited ReadDateTime(Section, Ident, Default);
+  DateStr := ReadString(Section, Name, '');
+  Result := Default;
+  if DateStr <> '' then
+  try
+    Result := StrToDateTime(DateStr, FFormatSettings);
+  except
+    on EConvertError do
+      // Ignore EConvertError exceptions
+    else
+      raise;
+  end;
 end;
 
-function TIniFileEx.ReadInteger(const Section, Ident: String; Default: Longint): Longint;
+function TMemIniFileEx.ReadTime(const Section, Name: String; Default: TDateTime): TDateTime;
+var
+  TimeStr: string;
 begin
-  Result := inherited ReadInteger(Section, Ident, Default);
+  TimeStr := ReadString(Section, Name, '');
+  Result := Default;
+  if TimeStr <> '' then
+  try
+    Result := StrToTime(TimeStr, FFormatSettings);
+  except
+    on EConvertError do
+      // Ignore EConvertError exceptions
+    else
+      raise;
+  end;
 end;
 
-function TIniFileEx.ReadTime(const Section, Ident: String; Default: TDateTime): TDateTime;
+procedure TMemIniFileEx.WriteDate(const Section, Name: String; Value: TDateTime);
 begin
-  Result := inherited ReadTime(Section, Ident, Default);
+  WriteString(Section, Name, DateToStr(Value, FFormatSettings));
 end;
 
-procedure TIniFileEx.WriteDate(const Section, Ident: String; Value: TDateTime);
+procedure TMemIniFileEx.WriteDateTime(const Section, Name: String; Value: TDateTime);
 begin
-  inherited WriteDate(Section, Ident, Value);
+  WriteString(Section, Name, DateTimeToStr(Value, FFormatSettings));
 end;
 
-procedure TIniFileEx.WriteDateTime(const Section, Ident: String; Value: TDateTime);
+procedure TMemIniFileEx.WriteFloat(const Section, Name: String; Value: Double);
 begin
-  inherited WriteDateTime(Section, Ident, Value);
+  WriteString(Section, Name, FloatToStr(Value, FFormatSettings));
 end;
 
-procedure TIniFileEx.WriteFloat(const Section, Ident: String; Value: Double);
+procedure TMemIniFileEx.WriteTime(const Section, Name: String; Value: TDateTime);
 begin
-  inherited WriteFloat(Section, Ident, Value);
+  WriteString(Section, Name, TimeToStr(Value, FFormatSettings));
 end;
 
-procedure TIniFileEx.WriteInteger(const Section, Ident: String; Value: Longint);
+function TMemIniFileEx.ReadRect(const Section, Prefix: String; const Default: TRect): TRect;
 begin
-  inherited WriteInteger(Section, Ident, Value);
+  Result.Left := ReadInteger(Section, Prefix + '_Left', Default.Left);
+  Result.Top := ReadInteger(Section, Prefix + '_Top', Default.Top);
+  Result.Right := Result.Left + ReadInteger(Section, Prefix + '_Width', Default.Right - Default.Left);
+  Result.Bottom := Result.Top + ReadInteger(Section, Prefix + '_Height', Default.Bottom - Default.Top);
 end;
 
-procedure TIniFileEx.WriteTime(const Section, Ident: String; Value: TDateTime);
+procedure TMemIniFileEx.WriteRect(const Section, Prefix: string; const Value: TRect);
 begin
-  inherited WriteTime(Section, Ident, Value);
+  WriteInteger(Section, Prefix + '_Left', Value.Left);
+  WriteInteger(Section, Prefix + '_Top', Value.Top);
+  WriteInteger(Section, Prefix + '_Width', Value.Right - Value.Left);
+  WriteInteger(Section, Prefix + '_Height', Value.Bottom - Value.Top);
 end;
 
-function TIniFileEx.ReadRect(const Section, Ident: String; const Default: TRect): TRect;
-begin
-  Result.Left := ReadInteger(Section, Ident + '_Left', Default.Left);
-  Result.Top := ReadInteger(Section, Ident + '_Top', Default.Top);
-  Result.Right := Result.Left + ReadInteger(Section, Ident + '_Width', Default.Right - Default.Left);
-  Result.Bottom := Result.Top + ReadInteger(Section, Ident + '_Height', Default.Bottom - Default.Top);
-end;
-
-procedure TIniFileEx.WriteRect(const Section, Ident: string; const Value: TRect);
-begin
-  WriteInteger(Section, Ident + '_Left', Value.Left);
-  WriteInteger(Section, Ident + '_Top', Value.Top);
-  WriteInteger(Section, Ident + '_Width', Value.Right - Value.Left);
-  WriteInteger(Section, Ident + '_Height', Value.Bottom - Value.Top);
-end;
-
-function TIniFileEx.ReadGuid(const Section, Ident: String; const Default: TGUID): TGUID;
+function TMemIniFileEx.ReadGuid(const Section, Name: String; const Default: TGUID): TGUID;
 var
   GuidStr: string;
 begin
-  GuidStr := ReadString(Section, Ident, '');
+  GuidStr := ReadString(Section, Name, '');
   Result := Default;
   if GuidStr <> '' then
   try
@@ -283,14 +328,13 @@ begin
   end;
 end;
 
-procedure TIniFileEx.WriteGuid(const Section, Ident: string; const Value: TGUID);
+procedure TMemIniFileEx.WriteGuid(const Section, Name: string; const Value: TGUID);
 begin
-  WriteString(Section, Ident, GUIDToString(Value));
+  WriteString(Section, Name, GUIDToString(Value));
 end;
 
-procedure TIniFileEx.ReadCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
+procedure TMemIniFileEx.ReadCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
 var
-  StrValue: string;
   BufferSize: integer;
 begin
   CutAppSettings.CutAppName := ReadString(Section, 'AppName', '');
@@ -312,8 +356,9 @@ begin
   end;
 end;
 
-procedure TIniFileEx.WriteCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
+procedure TMemIniFileEx.WriteCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
 begin
+  EraseSection(Section);
   WriteString(Section, 'AppName', CutAppSettings.CutAppName);
   WriteGuid(Section, 'PreferredSourceFilter', CutAppSettings.PreferredSourceFilter);
   WriteString(Section, 'CodecName', CutAppSettings.CodecName);
@@ -321,6 +366,25 @@ begin
   WriteInteger(Section, 'CodecVersion', CutAppSettings.CodecVersion);
   WriteInteger(Section, 'CodecSettingsSize', CutAppSettings.CodecSettingsSize);
   WriteString(Section, 'CodecSettings', CutAppSettings.CodecSettings);
+end;
+
+procedure TMemIniFileEx.UpdateFile;
+begin
+  if FileName <> '' then
+    inherited UpdateFile;
+end;
+
+function TMemIniFileEx.GetDataString: string;
+var
+  List: TStringList;
+begin
+  List := TStringList.Create;
+  try
+    GetStrings(List);
+    Result := List.Text;
+  finally
+    FreeAndNil(List);
+  end;
 end;
 
 function FloatToStrInvariant(Value: Extended): string;
@@ -813,6 +877,7 @@ var
   BytesRead : DWord;
 begin
   result := false;
+  Buffer := nil;
   if Assigned(AMemo) then begin
     With Security do begin
       nlength := SizeOf(TSecurityAttributes) ;
@@ -964,12 +1029,11 @@ function SaveBitmapAsJPEG(ABitmap: TBitmap; FileName: string): boolean;
 var
   tempJPEG: TJPEGImage;
 begin
-  Result := false;
   TempJPEG := TJPEGImage.Create;
   try
     TempJPEG.Assign(ABitmap);
     TempJPEG.SaveToFile(FileName);
-    result := true;
+    Result := true;
   finally
     FreeAndNIL(TempJPEG);
   end;

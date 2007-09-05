@@ -68,10 +68,10 @@ end;
 procedure TDSTrackBarEx.CNNotify(var Message: TWMNotify);
 var
   Info: PNMCustomDraw;
-  R: TRect;
+//  R: TRect;
 //  Rgn: HRGN;
 //  Details: TThemedElementDetails;
-  Offset: Integer;
+//  Offset: Integer;
 begin
   with Message do begin
     if NMHdr.code = NM_CUSTOMDRAW then begin

@@ -26,7 +26,7 @@ type
   private
     { Private declarations }
     FTerminateTime: TDateTime;
-    FCommandLineCounter: Integer;
+    //FCommandLineCounter: Integer;
     FCutApplication: TCutApplicationBase;
     procedure SetCutApplication(const Value: TCutApplicationBase);
   public

@@ -129,9 +129,8 @@ function TCutApplicationAviDemux.PrepareCutting(SourceFileName: string;
 var
   TempCutlist: TCutlist;
   MustFreeTempCutlist: boolean;
-  myFormatSettings: TFormatSettings;
   CommandLine, ExeName, message_string: string;
-  ExitCode: Cardinal;
+  //ExitCode: Cardinal;
   success: boolean;
 begin
   result := false;

@@ -1,10 +1,7 @@
 New in 0.9.11.25 (beta)
 - Fixed data not applied bug when editing cutlist properties.
 - Refresh GUI when author changes on saving.
-- Added Actions for play/pause and stop movie.
 - Fixed possible exceptions in program when no movie is loaded (e.g. JumpTo-buttons).
-- Disable more controls when no movie is loaded.
-- Added shortcuts for next/prev frames actions.
 - Next/prev cut did not always work due to rounding errors.
 - Added some shortcuts to frames window: Page-Up => Prev frames, Page-Down => Next frames, Enter => Show main window, Escape => Hide form.
 - Added shortcuts to several commands in main window.

@@ -2428,7 +2428,7 @@ object FMain: TFMain
       Enabled = False
       Hint = 'Upload Cutlist to internet'
       ImageIndex = 16
-      ShortCut = 119
+      ShortCut = 118
       OnExecute = CutlistUploadExecute
     end
     object AStartCutting: TAction
@@ -2515,7 +2515,7 @@ object FMain: TFMain
       Enabled = False
       Hint = 'Show next $$ frames from current position'
       ImageIndex = 11
-      ShortCut = 16417
+      ShortCut = 119
       OnExecute = ANextFramesExecute
     end
     object APrevFrames: TAction
@@ -2525,7 +2525,7 @@ object FMain: TFMain
       Enabled = False
       Hint = 'Show last $$ frames before current position'
       ImageIndex = 10
-      ShortCut = 16418
+      ShortCut = 8311
       OnExecute = APrevFramesExecute
     end
     object AScanInterval: TAction

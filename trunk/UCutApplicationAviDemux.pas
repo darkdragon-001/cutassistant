@@ -47,10 +47,10 @@ type
 
     //TempDir: string;
     constructor create; override;
-    function LoadSettings(IniFile: TIniFile): boolean; override;
-    function SaveSettings(IniFile: TIniFile): boolean; override;
+    function LoadSettings(IniFile: TCustomIniFile): boolean; override;
+    function SaveSettings(IniFile: TCustomIniFile): boolean; override;
     function InfoString: string; override;
-    function WriteCutlistInfo(CutlistFile: TIniFile; section: string): boolean; override;
+    function WriteCutlistInfo(CutlistFile: TCustomIniFile; section: string): boolean; override;
     function PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean; override;
     function CleanUpAfterCutting: boolean; override;
   end;
@@ -81,7 +81,7 @@ begin
   ShowAppWindow := true;
 end;
 
-function TCutApplicationAviDemux.LoadSettings(IniFile: TIniFile): boolean;
+function TCutApplicationAviDemux.LoadSettings(IniFile: TCustomIniFile): boolean;
 var
   section: string;
   success: boolean;
@@ -105,7 +105,7 @@ begin
   result := success;
 end;
 
-function TCutApplicationAviDemux.SaveSettings(IniFile: TIniFile): boolean;
+function TCutApplicationAviDemux.SaveSettings(IniFile: TCustomIniFile): boolean;
 var
   section: string;
   success: boolean;
@@ -194,7 +194,7 @@ begin
           + 'Smart Copy: ' + booltostr(self.SmartCopy, true) + #13#10;
 end;
 
-function TCutApplicationAviDemux.WriteCutlistInfo(CutlistFile: TIniFile;
+function TCutApplicationAviDemux.WriteCutlistInfo(CutlistFile: TCustomIniFile;
   section: string): boolean;
 begin
   result := inherited WriteCutlistInfo(CutlistFile, section);

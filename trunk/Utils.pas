@@ -157,16 +157,16 @@ type
 
   //ini.ReadString does work only up to 2047 characters due to restrictions in iniFiles.pas
   function iniReadLargeString(
-    const ini: TIniFile;
+    const ini: TCustomIniFile;
     const BufferSize: integer;
     const section, name, default: string): string;
 
   procedure ReadCutAppSettings(
-    const ini: TIniFile;
+    const ini: TCustomIniFile;
     const section: string;
     var CutAppSettings: RCutAppSettings);
   procedure WriteCutAppSettings(
-    const ini: TIniFile;
+    const ini: TCustomIniFile;
     const section: string;
     var CutAppSettings: RCutAppSettings);
 
@@ -175,8 +175,8 @@ type
 
   procedure ShowExpectedException(const Header: string);
 
-  function iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
-  procedure iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
+  function iniReadRect(const ini: TCustomIniFile; const section, name: string; const default: TRect): TRect;
+  procedure iniWriteRect(const ini: TCustomIniFile; const section, name: string; const value: TRect);
 
   Function MakeFourCC(const a,b,c,d: char): DWord;
 
@@ -476,7 +476,7 @@ begin
   end;
 end;
 
-function iniReadRect(const ini: TIniFile; const section, name: string; const default: TRect): TRect;
+function iniReadRect(const ini: TCustomIniFile; const section, name: string; const default: TRect): TRect;
 begin
   Result.Left := ini.ReadInteger(section, name + '_Left', default.Left);
   Result.Top := ini.ReadInteger(section, name + '_Top', default.Top);
@@ -484,7 +484,7 @@ begin
   Result.Bottom := Result.Top + ini.ReadInteger(section, name + '_Height', default.Bottom - default.Top);
 end;
 
-procedure iniWriteRect(const ini: TIniFile; const section, name: string; const value: TRect);
+procedure iniWriteRect(const ini: TCustomIniFile; const section, name: string; const value: TRect);
 begin
   ini.WriteInteger(section, name + '_Left', value.Left);
   ini.WriteInteger(section, name + '_Top', value.Top);
@@ -513,7 +513,7 @@ begin
 end;
 
 procedure WriteCutAppSettings(
-  const ini: TIniFile;
+  const ini: TCustomIniFile;
   const section: string;
   var CutAppSettings: RCutAppSettings);
 begin
@@ -527,7 +527,7 @@ begin
 end;
 
 procedure ReadCutAppSettings(
-  const ini: TIniFile;
+  const ini: TCustomIniFile;
   const section: string;
   var CutAppSettings: RCutAppSettings);
 var
@@ -562,7 +562,7 @@ end;
 
 //ini.ReadString does work only up to 2047 characters due to restrictions in iniFiles.pas
 function iniReadLargeString(
-    const ini: TIniFile;
+    const ini: TCustomIniFile;
     const BufferSize: integer;
     const section, name, default: string): string;
 var

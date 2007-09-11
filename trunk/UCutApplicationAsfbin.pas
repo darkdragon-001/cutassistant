@@ -41,10 +41,10 @@ type
     CommandLineOptions: string;
     //TempDir: string;
     constructor create; override;
-    function LoadSettings(IniFile: TIniFile): boolean; override;
-    function SaveSettings(IniFile: TIniFile): boolean; override;
+    function LoadSettings(IniFile: TCustomIniFile): boolean; override;
+    function SaveSettings(IniFile: TCustomIniFile): boolean; override;
     function InfoString: string; override;
-    function WriteCutlistInfo(CutlistFile: TIniFile; section: string): boolean; override;
+    function WriteCutlistInfo(CutlistFile: TCustomIniFile; section: string): boolean; override;
     function PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean; override;
   end;
 
@@ -75,7 +75,7 @@ begin
   ShowAppWindow := false;
 end;
 
-function TCutApplicationAsfbin.LoadSettings(IniFile: TIniFile): boolean;
+function TCutApplicationAsfbin.LoadSettings(IniFile: TCustomIniFile): boolean;
 var
   section: string;
   success: boolean;
@@ -91,7 +91,7 @@ begin
   result := success;
 end;
 
-function TCutApplicationAsfbin.SaveSettings(IniFile: TIniFile): boolean;
+function TCutApplicationAsfbin.SaveSettings(IniFile: TCustomIniFile): boolean;
 var
   section: string;
   success: boolean;
@@ -153,7 +153,7 @@ begin
           + 'Options: ' + self.CommandLineOptions + #13#10;
 end;
 
-function TCutApplicationAsfbin.WriteCutlistInfo(CutlistFile: TIniFile;
+function TCutApplicationAsfbin.WriteCutlistInfo(CutlistFile: TCustomIniFile;
   section: string): boolean;
 begin
   result := inherited WriteCutlistInfo(CutlistFile, section);

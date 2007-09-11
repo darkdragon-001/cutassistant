@@ -55,10 +55,10 @@ type
     function CanDoSmartRendering: boolean;
     function UseSmartRendering: boolean;
 
-    function LoadSettings(IniFile: TIniFile): boolean; override;
-    function SaveSettings(IniFile: TIniFile): boolean; override;
+    function LoadSettings(IniFile: TCustomIniFile): boolean; override;
+    function SaveSettings(IniFile: TCustomIniFile): boolean; override;
     function InfoString: string; override;
-    function WriteCutlistInfo(CutlistFile: TIniFile; section: string): boolean; override;
+    function WriteCutlistInfo(CutlistFile: TCustomIniFile; section: string): boolean; override;
     function PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean; override;
     function StartCutting: boolean; override;
     function CleanUpAfterCutting: boolean; override;
@@ -122,7 +122,7 @@ begin
 end;
 
 
-function TCutApplicationVirtualDub.LoadSettings(IniFile: TIniFile): boolean;
+function TCutApplicationVirtualDub.LoadSettings(IniFile: TCustomIniFile): boolean;
   procedure SetCodecSettings(var s1, s2: RCutAppSettings);
   begin
     if s1.CutAppName <> s2.CutAppName then
@@ -196,7 +196,7 @@ begin
   result := success;
 end;
 
-function TCutApplicationVirtualDub.SaveSettings(IniFile: TIniFile): boolean;
+function TCutApplicationVirtualDub.SaveSettings(IniFile: TCustomIniFile): boolean;
 var
   section: string;
   success: boolean;
@@ -352,7 +352,7 @@ begin
           + inttostr(HiWord(CutAppSettings.CodecVersion)) +'.' + inttostr(LoWord(CutAppSettings.CodecVersion)) + #13#10;
 end;
 
-function TCutApplicationVirtualDub.WriteCutlistInfo(CutlistFile: TIniFile;
+function TCutApplicationVirtualDub.WriteCutlistInfo(CutlistFile: TCustomIniFile;
   section: string): boolean;
 begin
   result := inherited WriteCutlistInfo(CutlistFile, section);

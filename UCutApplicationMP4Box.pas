@@ -38,10 +38,10 @@ type
     //TempDir: string;
     constructor create; override;
     destructor destroy; override;
-    function LoadSettings(IniFile: TIniFile): boolean; override;
-    function SaveSettings(IniFile: TIniFile): boolean; override;
+    function LoadSettings(IniFile: TCustomIniFile): boolean; override;
+    function SaveSettings(IniFile: TCustomIniFile): boolean; override;
     function InfoString: string; override;
-    function WriteCutlistInfo(CutlistFile: TIniFile; section: string): boolean; override;
+    function WriteCutlistInfo(CutlistFile: TCustomIniFile; section: string): boolean; override;
     function PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean; override;
     function CleanUpAfterCutting: boolean; override;
   end;
@@ -77,7 +77,7 @@ begin
   FTempFileList := TStringList.Create;
 end;
 
-function TCutApplicationMP4Box.LoadSettings(IniFile: TIniFile): boolean;
+function TCutApplicationMP4Box.LoadSettings(IniFile: TCustomIniFile): boolean;
 var
   section: string;
   success: boolean;
@@ -88,7 +88,7 @@ begin
   result := success;
 end;
 
-function TCutApplicationMP4Box.SaveSettings(IniFile: TIniFile): boolean;
+function TCutApplicationMP4Box.SaveSettings(IniFile: TCustomIniFile): boolean;
 var
   section: string;
   success: boolean;
@@ -191,7 +191,7 @@ begin
           + 'Options: ' + self.CommandLineOptions + #13#10;
 end;
 
-function TCutApplicationMP4Box.WriteCutlistInfo(CutlistFile: TIniFile;
+function TCutApplicationMP4Box.WriteCutlistInfo(CutlistFile: TCustomIniFile;
   section: string): boolean;
 begin
   result := inherited WriteCutlistInfo(CutlistFile, section);

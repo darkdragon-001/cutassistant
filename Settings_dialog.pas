@@ -632,7 +632,7 @@ end;
 
 procedure TSettings.load;
 var
-  ini: TIniFile;
+  ini: TCustomIniFile;
   FileName: String;
   section: string;
   iFilter, iCutApplication: integer;
@@ -764,7 +764,7 @@ end;
 
 procedure TSettings.save;
 var
-  ini: TIniFile;
+  ini: TCustomIniFile;
   FileName: string;
   section: String;
   iCutApplication: integer;

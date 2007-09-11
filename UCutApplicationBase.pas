@@ -103,10 +103,10 @@ type
 
     constructor create; virtual;
     destructor Destroy; override;
-    function LoadSettings(IniFile: TIniFile): boolean; virtual;
-    function SaveSettings(IniFile: TIniFile): boolean; virtual;
+    function LoadSettings(IniFile: TCustomIniFile): boolean; virtual;
+    function SaveSettings(IniFile: TCustomIniFile): boolean; virtual;
     function InfoString: string; virtual;
-    function WriteCutlistInfo(CutlistFile: TIniFile; section: string): boolean; virtual;
+    function WriteCutlistInfo(CutlistFile: TCustomIniFile; section: string): boolean; virtual;
 
     function PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean; virtual; abstract;
     property CommandLines: TStringList read FCommandLines;
@@ -265,7 +265,7 @@ begin
   end;
 end;
 
-function TCutApplicationBase.LoadSettings(IniFile: TIniFile): boolean;
+function TCutApplicationBase.LoadSettings(IniFile: TCustomIniFile): boolean;
 const
   TEMP_DIR = 'temp';
 var
@@ -286,7 +286,7 @@ begin
   result := true;
 end;
 
-function TCutApplicationBase.SaveSettings(IniFile: TIniFile): boolean;
+function TCutApplicationBase.SaveSettings(IniFile: TCustomIniFile): boolean;
 var
   section: string;
 begin
@@ -472,7 +472,7 @@ begin
 end;
 
 function TCutApplicationBase.WriteCutlistInfo(
-  CutlistFile: TIniFile; section: string): boolean;
+  CutlistFile: TCustomIniFile; section: string): boolean;
 begin
   cutlistfile.WriteString(section, 'IntendedCutApplicationName', Name);
   cutlistfile.WriteString(section, 'IntendedCutApplication', extractfilename(Path));

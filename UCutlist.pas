@@ -268,6 +268,7 @@ begin
   else
     newcutlist.FMode := clmCutOut;
   newCutlist.FHasChanged := self.HasChanged;
+  newCutlist.FIDOnServer := self.FIDOnServer;
 
   result := newcutlist;
 end;
@@ -384,7 +385,6 @@ begin
 
   if FCutlistInfo.ShowModal = mrOK then begin
     self.FHasChanged := true;
-    self.IDOnServer := '';
     if FCutlistInfo.RGRatingByAuthor.ItemIndex = -1 then begin
       self.RatingByAuthorPresent := false;
       result := false;
@@ -475,7 +475,7 @@ var
   myCutAppVersionWords, intendedCutAppVersionWords: ARFileVersion;
   message_string: string;
   Temp_DecimalSeparator: char;
-  cutlistfile: TInifile;
+  cutlistfile: TCustomIniFile;
   iCUt, cCuts, ACut : integer;
   cut : TCut;
   _pos_from, _pos_to: double;
@@ -513,22 +513,24 @@ begin
       myCutApp := extractfilename(CutApplication.Path);
       myCutAppVersionWords := Parse_File_Version(CutApplication.Version);
 
-      if not ansiSameText(intendedCutApp, myCutApp) then begin
-        message_string := 'Cut List File is intended for Cut Application:' + #13#10 + IntendedCutApp +#13#10+
-                          'However, current Cut Application is: '+ #13#10 + myCutApp +#13#10+
-                          'Continue anyway?';
-        if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
-          exit;
-        end;
-      end else if (myCutAppVersionWords[0] <> intendedCutAppVersionWords[0])
-               or (myCutAppVersionWords[1] <> intendedCutAppVersionWords[1])
-               or (myCutAppVersionWords[2] <  intendedCutAppVersionWords[2]) then begin
-        message_string := 'Cut List File is intended for Cut Application:' + #13#10
-                + IntendedCutApp + ' ' + intendedCutAppVersionStr +#13#10+
-                'However, current Cut Application Version is: '+ #13#10 + CutApplication.Version +#13#10+
-                'Continue anyway?';
-        if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
-          exit;
+      if (not batchmode) then begin
+        if not ansiSameText(intendedCutApp, myCutApp) then begin
+          message_string := 'Cut List File is intended for Cut Application:' + #13#10 + IntendedCutApp +#13#10+
+                            'However, current Cut Application is: '+ #13#10 + myCutApp +#13#10+
+                            'Continue anyway?';
+          if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
+            exit;
+          end;
+        end else if (myCutAppVersionWords[0] <> intendedCutAppVersionWords[0])
+                 or (myCutAppVersionWords[1] <> intendedCutAppVersionWords[1])
+                 or (myCutAppVersionWords[2] <  intendedCutAppVersionWords[2]) then begin
+          message_string := 'Cut List File is intended for Cut Application:' + #13#10
+                  + IntendedCutApp + ' ' + intendedCutAppVersionStr +#13#10+
+                  'However, current Cut Application Version is: '+ #13#10 + CutApplication.Version +#13#10+
+                  'Continue anyway?';
+          if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
+            exit;
+          end;
         end;
       end;
 
@@ -554,7 +556,7 @@ begin
 
     if (FrameRate > 0) and (FMovieInfo.frame_duration > 0) then
     begin
-      if FMovieInfo.FrameCount <> Trunc(FrameRate * FMovieInfo.current_file_duration) then
+      if (not batchmode) and (FMovieInfo.FrameCount <> Trunc(FrameRate * FMovieInfo.current_file_duration)) then
       begin
         message_string := 'The frame rate of the cutlist differs from the frame rate of the movie file.'
                   +#13#10+'If the rate of the movie file is used, you may get a different result'
@@ -755,7 +757,7 @@ end;
 function TCutlist.SaveAs(Filename: String): boolean;
 //true if saved successfully
 var
-  cutlistfile: TIniFile;
+  cutlistfile: TCustomIniFile;
   section, cutApp, cutAppVer, cutAppOptions, cutCommand, message_string, OutputFileName : string;
   iCut, writtenCuts : integer;
   temp_DecimalSeparator: char;
@@ -764,10 +766,6 @@ var
   //iCommandLine: Integer;
 begin
   result := false;
-  {if self.Count = 0 then begin
-    showmessage('No cuts defined.');
-    exit;
-  end; }
 
   if (not self.RatingByAuthorPresent) then begin
     if not self.EditInfo then exit;
@@ -776,10 +774,26 @@ begin
   if self.Mode = clmCrop then begin
     self.sort;
 
+    if self.HasChanged then begin
+      if self.Author = '' then begin
+        self.Author := Fsettings.UserName ;
+        RefreshGUI;
+      end else begin
+        if self.Author <> Fsettings.UserName then begin
+          message_string := 'Do you want to replace the Author name of this cutlist' + #13#10 + '"' + self.Author +'"'+#13#10+
+                            'by your own User Name?';
+          if (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
+            self.Author := Fsettings.UserName;
+            RefreshGUI;
+          end;
+        end;
+      end;
+    end;
+
     Temp_DecimalSeparator := DecimalSeparator;
     DecimalSeparator := '.';
 
-    cutlistfile := TInifile.Create(Filename);
+    cutlistfile := TIniFile.Create(Filename);
     try
       section := 'General';
       cutlistfile.WriteString(section, 'Application', Application_name);
@@ -827,21 +841,6 @@ begin
       end;
 
       section := 'Info';
-      if self.HasChanged then begin
-        if self.Author = '' then begin
-          self.Author := Fsettings.UserName ;
-          RefreshGUI;
-        end else begin
-          if self.Author <> Fsettings.UserName then begin
-            message_string := 'Do you want to replace the Author name of this cutlist' + #13#10 + '"' + self.Author +'"'+#13#10+
-                              'by your own User Name?';
-            if  (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
-              self.Author := Fsettings.UserName;
-              RefreshGUI;
-            end;
-          end;
-        end;
-      end;
       cutlistfile.WriteString(section, 'Author', self.Author);
       if self.RatingByAuthorPresent then
         cutlistfile.WriteInteger(section, 'RatingByAuthor', self.RatingByAuthor);
@@ -874,7 +873,12 @@ begin
       end;
       cutlistfile.WriteInteger('General', 'NoOfCuts', writtenCuts);
       result := true;
-      self.FHasChanged := false;
+
+      if self.FHasChanged then
+      begin
+        self.FIDOnServer := '';
+        self.FHasChanged := false;
+      end;
       self.SavedToFilename := filename;
 
     finally
@@ -887,6 +891,7 @@ begin
       result := ConvertedCutlist.SaveAs(filename);
       self.FHasChanged := ConvertedCutlist.HasChanged;
       self.SavedToFilename := ConvertedCutlist.SavedToFilename;
+      self.IDOnServer := convertedCutlist.IDOnServer;
     finally
       FreeAndNil(ConvertedCutlist);
     end;

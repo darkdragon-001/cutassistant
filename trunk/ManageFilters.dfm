@@ -16,6 +16,7 @@ object FManageFilters: TFManageFilters
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnShow = FormShow
@@ -54,6 +55,7 @@ object FManageFilters: TFManageFilters
     Cancel = True
     Caption = 'Close'
     Default = True
+    ModalResult = 1
     TabOrder = 1
     OnClick = BCloseClick
   end

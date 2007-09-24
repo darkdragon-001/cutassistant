@@ -899,7 +899,7 @@ begin
         end;
 
         if not sourceAdded then begin
-          FilterGraph.RenderFile(FileName);
+          CheckDSError(FilterGraph.RenderFile(FileName));
         end else begin
           PinLIst := TPinLIst.Create(SourceFilter);
           try

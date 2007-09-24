@@ -14,9 +14,9 @@ type
     BClose: TButton;
     Panel1: TPanel;
     Label1: TLabel;
-    PanelVideoWindow2: TPanel;
-    VideoWindow2: TVideoWindow;
-    FilterGraph2: TFilterGraph;
+    PanelVideoWindow: TPanel;
+    VideoWindow: TVideoWindow;
+    FilterGraph: TFilterGraph;
     TVolume: TTrackBar;
     Label8: TLabel;
     BPause: TButton;
@@ -28,7 +28,7 @@ type
     UDSeconds: TUpDown;
     procedure BCloseClick(Sender: TObject);
     procedure LTimeListDblClick(Sender: TObject);
-    procedure PanelVideoWindow2Resize(Sender: TObject);
+    procedure PanelVideoWindowResize(Sender: TObject);
     procedure TVolumeChange(Sender: TObject);
     procedure BPlayClick(Sender: TObject);
     procedure BPauseClick(Sender: TObject);
@@ -37,7 +37,7 @@ type
     procedure FormCreate(Sender: TObject);
     procedure UDSecondsChanging(Sender: TObject; var AllowChange: Boolean);
     procedure FormDestroy(Sender: TObject);
-    function FilterGraph2SelectedFilter(Moniker: IMoniker;
+    function FilterGraphSelectedFilter(Moniker: IMoniker;
       FilterName: WideString; ClassID: TGUID): Boolean;
     procedure FormShow(Sender: TObject);
   private
@@ -112,41 +112,52 @@ procedure TFResultingTimes.LTimeListDblClick(Sender: TObject);
 var
   target_Time: double;
 begin
-  if filtergraph2.Active then begin
+  if filtergraph.Active then begin
     if self.LTimeList.ItemIndex < 0 then exit;
     target_Time := self.To_array[self.LTimeList.ItemIndex] - FOffset;
     if target_time > MovieInfo.current_file_duration then exit;
     if target_time < 0 then target_time := 0;
     JumpTo(Target_time);
-    FilterGraph2.Play;
+    FilterGraph.Play;
   end;
 end;
 
 procedure TFResultingTimes.JumpTo(NewPosition: double);
 var
   _pos: int64;
+  event: Integer;
 begin
   if assigned(seeking) then  begin
-    _pos := round(NewPosition * 10000000);
+    if NewPosition < 0 then
+      NewPosition := 0;
+    if NewPosition > MovieInfo.current_file_duration then
+      NewPosition := MovieInfo.current_file_duration;
+
+    if isEqualGUID(MovieInfo.TimeFormat, TIME_FORMAT_MEDIA_TIME) then
+      _pos := round(NewPosition * 10000000)
+    else
+      _pos := round(NewPosition);
     seeking.SetPositions(_pos, AM_SEEKING_AbsolutePositioning,
                          _pos, AM_SEEKING_NoPositioning);
+    //filtergraph.State
+    MediaEvent.WaitForCompletion(500, event);
   end;
 end;
 
 
-procedure TFResultingTimes.PanelVideoWindow2Resize(Sender: TObject);
-const
-  AR = 4/3;
+procedure TFResultingTimes.PanelVideoWindowResize(Sender: TObject);
 var
+  movie_ar: double;
   my_ar: double;
 begin
-  my_ar := self.PanelVideoWindow2.Width / self.PanelVideoWindow2.Height;
-  if my_ar > AR then begin
-    self.VideoWindow2.Height := self.PanelVideoWindow2.Height;
-    self.VideoWindow2.Width := round (self.videowindow2.Height * AR);
+  movie_ar := MovieInfo.ratio;
+  my_ar := self.PanelVideoWindow.Width / self.PanelVideoWindow.Height;
+  if my_ar > movie_ar then begin
+    self.VideoWindow.Height := self.PanelVideoWindow.Height;
+    self.VideoWindow.Width := round (self.videowindow.Height * movie_ar);
   end else begin
-    self.VideoWindow2.Width := self.PanelVideoWindow2.Width;
-    self.VideoWindow2.Height := round(self.VideoWindow2.Width / AR);
+    self.VideoWindow.Width := self.PanelVideoWindow.Width;
+    self.VideoWindow.Height := round(self.VideoWindow.Width / movie_ar);
   end; 
 end;
 
@@ -160,10 +171,11 @@ var
 begin
   result := false;
 
+  FMovieInfo.target_filename := '';
   if not FMovieInfo.InitMovie(filename) then
     Exit;
 
-  filtergraph2.Active := true;
+  filtergraph.Active := true;
 
   AvailableFilters := TSysDevEnum.Create(CLSID_LegacyAmFilterCategory); //DirectShow Filters
   try
@@ -171,7 +183,7 @@ begin
     if (MovieInfo.MovieType in [mtMP4]) then begin
       AviDecompressorFilter := AvailableFilters.GetBaseFilter(CLSID_AVIDec); //Avi Decompressor
       if assigned(AviDecompressorFilter) then begin
-        CheckDSError((FilterGraph2 as IGraphBuilder).AddFilter(AviDecompressorFilter, 'Avi Decompressor'));
+        CheckDSError((FilterGraph as IGraphBuilder).AddFilter(AviDecompressorFilter, 'Avi Decompressor'));
       end;
     end;
 
@@ -180,7 +192,7 @@ begin
       SourceFilter := AvailableFilters.GetBaseFilter(Settings.GetPreferredSourceFilterByMovieType(MovieInfo.MovieType));
       if assigned(SourceFilter) then begin
         CheckDSError((SourceFilter as IFileSourceFilter).Load(StringToOleStr(FileName), nil));
-        CheckDSError((FilterGraph2 as IGraphBuilder).AddFilter(SourceFilter, StringToOleStr('Source Filter [' + extractFileName(FileName) + ']')));
+        CheckDSError((FilterGraph as IGraphBuilder).AddFilter(SourceFilter, StringToOleStr('Source Filter [' + extractFileName(FileName) + ']')));
         SourceAdded := true;
       end;
     end;
@@ -189,27 +201,27 @@ begin
   end;
 
   if not sourceAdded then begin
-    FilterGraph2.RenderFile(FileName);
+    CheckDSError(FilterGraph.RenderFile(FileName));
   end else begin
     PinLIst := TPinLIst.Create(SourceFilter);
     try
       for iPin := 0 to PinList.Count-1 do begin
-        CheckDSError((FilterGraph2 as IGraphBuilder).Render(PinList.Items[iPin]));
+        CheckDSError((FilterGraph as IGraphBuilder).Render(PinList.Items[iPin]));
       end;
     finally
       FreeAndNIL(PinList);
     end;
   end;
 
-  if FilterGraph2.Active then begin
-    if not succeeded(filtergraph2.QueryInterface(IMediaSeeking, Seeking)) then begin
+  if FilterGraph.Active then begin
+    if not succeeded(FilterGraph.QueryInterface(IMediaSeeking, Seeking)) then begin
       seeking := nil;
-      filtergraph2.Active := false;
+      filtergraph.Active := false;
       result := false;
       exit;
     end;
-    filtergraph2.Pause;
-    filtergraph2.Volume := self.TVolume.Position;
+    filtergraph.Pause;
+    filtergraph.Volume := self.TVolume.Position;
     current_filename := filename;
     self.DSTrackBar1.Position := 0;
     result := true;
@@ -218,27 +230,27 @@ end;
 
 procedure TFResultingTimes.TVolumeChange(Sender: TObject);
 begin
-  filtergraph2.Volume := self.TVolume.Position;
+  FilterGraph.Volume := self.TVolume.Position;
 end;
 
 procedure TFResultingTimes.BPlayClick(Sender: TObject);
 begin
-  if filtergraph2.Active then
-    filtergraph2.Play;
+  if FilterGraph.Active then
+    FilterGraph.Play;
 end;
 
 procedure TFResultingTimes.BPauseClick(Sender: TObject);
 begin
-  if filtergraph2.Active then
-    filtergraph2.Pause
+  if FilterGraph.Active then
+    FilterGraph.Pause
 end;
 
 procedure TFResultingTimes.FormClose(Sender: TObject;
   var Action: TCloseAction);
 begin
-  filtergraph2.Stop;
-  filtergraph2.ClearGraph;
-  filtergraph2.Active := false;
+  FilterGraph.Stop;
+  FilterGraph.ClearGraph;
+  FilterGraph.Active := false;
   settings.OffsetSecondsCutChecking := FOffset;
 end;
 
@@ -273,7 +285,7 @@ begin
   FreeAndNIL(FMovieInfo);
 end;
 
-function TFResultingTimes.FilterGraph2SelectedFilter(Moniker: IMoniker;
+function TFResultingTimes.FilterGraphSelectedFilter(Moniker: IMoniker;
   FilterName: WideString; ClassID: TGUID): Boolean;
 begin
   result := not settings.FilterIsInBlackList(ClassID);

@@ -157,7 +157,7 @@ object FResultingTimes: TFResultingTimes
       Anchors = [akLeft, akTop, akRight]
       Frequency = 300
       TabOrder = 4
-      FilterGraph = FilterGraph2
+      FilterGraph = FilterGraph
     end
     object ESeconds: TEdit
       Left = 423
@@ -181,7 +181,7 @@ object FResultingTimes: TFResultingTimes
       OnChanging = UDSecondsChanging
     end
   end
-  object PanelVideoWindow2: TPanel
+  object PanelVideoWindow: TPanel
     Left = 0
     Top = 0
     Width = 360
@@ -189,25 +189,25 @@ object FResultingTimes: TFResultingTimes
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
-    OnResize = PanelVideoWindow2Resize
+    OnResize = PanelVideoWindowResize
     DesignSize = (
       360
       352)
-    object VideoWindow2: TVideoWindow
+    object VideoWindow: TVideoWindow
       Left = 0
       Top = 0
       Width = 355
       Height = 262
-      FilterGraph = FilterGraph2
-      VMROptions.Mode = vmrWindowed
+      FilterGraph = FilterGraph
+      VMROptions.Mode = vmrWindowless
       Color = clBlack
       Anchors = [akLeft, akTop, akRight, akBottom]
     end
   end
-  object FilterGraph2: TFilterGraph
+  object FilterGraph: TFilterGraph
     GraphEdit = True
     LinearVolume = True
-    OnSelectedFilter = FilterGraph2SelectedFilter
+    OnSelectedFilter = FilterGraphSelectedFilter
     Left = 144
     Top = 160
   end

@@ -21,6 +21,7 @@ type
     procedure FormDestroy(Sender: TObject);
     procedure BCopyClick(Sender: TObject);
     procedure LFiltersDblClick(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     FilterList: TFIlterList;
     { Private declarations }
@@ -155,6 +156,13 @@ begin
   if Index >= 0 then begin
     ShowFilterPropertyPage(self.Handle, FilterList.Items[Index]);
   end;
+end;
+
+procedure TFManageFilters.FormClose(Sender: TObject;
+  var Action: TCloseAction);
+begin
+  Action := caHide;
+  ModalResult := mrOk;
 end;
 
 end.

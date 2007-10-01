@@ -1,3 +1,9 @@
+New in 0.9.12.0
+- New stable version, based on 0.9.11.25
+- Fixed close behaviour of filter info dialog.
+- Do not remove decouple cutlist when editing cutlist info, but after save when cutlist is changed.
+- Changed shortcuts for next/prev frames to F8/Shift-F8 due to conflicts with other control behaviour.
+
 New in 0.9.11.25 (beta)
 - Fixed data not applied bug when editing cutlist properties.
 - Refresh GUI when author changes on saving.

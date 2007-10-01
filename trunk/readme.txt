@@ -1,4 +1,4 @@
-    Cut_assistant V0.9.11 (beta)
+    Cut_assistant V0.9.12
 
     _________________________________________________________________________
 
@@ -12,12 +12,11 @@
     _________________________________________________________________________
 
     REQUIREMENTS: 
-    DirectShow installed (uses InfinitePinTee, VideoRenderer, SampleGrabber, 
-    NullRenderer).
+    DirectShow installed (uses InfinitePinTee, VideoRenderer, SampleGrabber, NullRenderer).
     Codecs for the movie files to edit.
 
     For wmv-Files: asfbin.exe or asfcut.exe
-    For Avi-Files: vdub.exe or virtualdub.exe V.1.6.16. or Avidemux2.exe
+    For Avi-Files: virtualdub.exe V.1.6.16. or Avidemux2.exe
 
     _________________________________________________________________________
 

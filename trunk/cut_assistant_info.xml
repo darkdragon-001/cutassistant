@@ -41,16 +41,30 @@ beim Abrufen der Update-Informationen und Kommunikation mit dem
 Cutlist-Server.
 </text>
 		</message>
+		<message>
+			<id>4</id>
+			<date_day>1</date_day>
+			<date_month>10</date_month>
+			<date_year>2007</date_year>
+			<text>
+Neue Version 0.9.12.0:
+- Viele Verbesserungen in der Oberfläche.
+- Fortschrittsdialog und Transfer im Hintergrund für Netz-Anfragen.
+- Beseitigung von gemeldeten Fehlern (Danke an alle Melder).
+- Die Geschwindigkeit der Frames-Anzeige wurde verbessert.
+- Einzelne Codec-Einstellungen für die verschiedenen Film-Typen.
+</text>
+		</message>
 	</messages>
 	<stable>
-		<date_day>10</date_day>
-		<date_month>07</date_month>
+		<date_day>1</date_day>
+		<date_month>10</date_month>
 		<date_year>2007</date_year>
-		<version>0x0000000900090008</version>
+		<version>0x00000009000C0000</version>
 		<version_text>
-Letzte stabile Version: 0.9.9.8
+Letzte stabile Version: 0.9.12.0
 
-Last stable version 0.9.9.8
+Last stable version 0.9.12.0
 
 Download: http://sourceforge.net/projects/cutassistant/
 or        http://www.cutlist.de/</version_text>
@@ -59,7 +73,7 @@ or        http://www.cutlist.de/</version_text>
 		<date_day>07</date_day>
 		<date_month>09</date_month>
 		<date_year>2007</date_year>
-		<version>0x0000000900110025</version>
+		<version>0x00000009000B0019</version>
 		<version_text>
 Letzte Entwicklungs-Version: 0.9.11.25 (RC für 0.9.12.0)
 

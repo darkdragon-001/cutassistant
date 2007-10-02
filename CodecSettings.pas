@@ -11,25 +11,33 @@ type
 
   TICInfoObject = class
   private
+    FIsDummy: boolean;
+    FICInfo: TICInfo;
+    FHasAboutBox,
+    FHasConfigureBox: boolean;
     function GetInfos: boolean;
+  protected
+    constructor Create;
   public
-    ICInfo: TICInfo;
-    HasAboutBox,
-    HasConfigureBox: boolean;
-    constructor createFromICInfo(FromICInfo: TICInfo);
-    constructor create;
+    constructor CreateDummy;
+    constructor CreateFromICInfo(FromICInfo: TICInfo);
     function HandlerFourCCString: string;
     function Name: string;
     function Description: string;
     function Driver: string;
     function Config(ParentWindow: THandle; var State: string; var SizeDecoded: Integer): boolean;
     function About(ParentWindow: THandle): boolean;
+    property IsDummy: boolean read FIsDummy;
+    property ICInfo: TICInfo read FICInfo;
+    property HasAboutBox: boolean read FHasAboutBox;
+    property HasConfigureBox: boolean read FHasConfigureBox;
   end;
 
   TCodecList = class(TStringList)
   private
     function GetCodecInfo(i: Integer): TICInfo;
     function GetCodecInfoObject(i: Integer): TICInfoObject;
+    //function CompareByInfoName(List: TStringList; Index1, Index2: Integer): Integer;
   public
     constructor create;
     destructor Destroy; override;
@@ -314,9 +322,34 @@ begin
   inherited;
 end;
 
+function CompareByInfoName(List: TStringList; Index1, Index2: Integer): Integer;
+var
+  CodecList: TCodecList;
+  InfoObject1: TICInfoObject;
+  InfoObject2: TICInfoObject;
+begin
+  if List is TCodecList then begin
+    CodecList := List as TCodecList;
+    InfoObject1 := CodecList.CodecInfoObject[Index1];
+    InfoObject2 := CodecList.CodecInfoObject[Index2];
+    if Assigned(InfoObject1) and Assigned(InfoObject2) then begin
+      if InfoObject1.IsDummy then
+      begin
+        if InfoObject2.IsDummy then Result := 0
+        else Result := -1;
+      end
+      else if InfoObject2.IsDummy then Result := 1
+      else Result := AnsiCompareText(InfoObject1.Name, InfoObject2.Name);
+      Exit;
+    end;
+  end;
+  if List.CaseSensitive then
+    Result := AnsiCompareStr(List[Index1], List[Index2])
+  else
+    Result := AnsiCompareText(List[Index1], List[Index2]);
+end;
+
 function TCodecList.Fill: Integer;
-const
-  fccTypeString = 'VIDC';
 var
   Infos: TICInfoArray;
   InfoObject: TICInfoObject;
@@ -326,15 +359,15 @@ begin
   self.ClearAndFreeObjects;
   self.InsertDummy;
 
-  if not EnumCodecs(mmioStringToFourcc(fccTypeString, MMIO_TOUPPER), Infos) then exit;
-  for i := 0 to length(Infos)-1 do begin
-{    FillCodecInfo(Infos[i]);
-    InfoObject := TICInfoObject.Create;
-    InfoObject.ICInfo := Infos[i];   }
+  if not EnumCodecs(ICTYPE_VIDEO, Infos) then
+    exit;
+  for i := 0 to length(Infos)-1 do
+  begin
     InfoObject := TICInfoObject.createFromICInfo(Infos[i]);
     self.AddObject('['+ InfoObject.HandlerFourCCString + '] '
                    + InfoObject.Name, InfoObject);
   end;
+  self.CustomSort(CompareByInfoName);
 end;
 
 function TCodecList.GetCodecInfo(i: Integer): TICInfo;
@@ -364,37 +397,36 @@ procedure TCodecList.InsertDummy;
 var
   InfoObject: TICInfoObject;
 begin
-  InfoObject := TICInfoObject.create;
-  InfoObject.ICInfo.fccType := ICTYPE_VIDEO;
-  InfoObject.ICInfo.fccHandler := 0;
-  InfoObject.ICInfo.dwVersion := 0;
-  StringToWideChar('(none)', InfoObject.ICInfo.szName, 16);
-  StringToWideChar('(Do not include Codec information)', InfoObject.ICInfo.szDescription, 128);
+  InfoObject := TICInfoObject.CreateDummy;
   self.AddObject(InfoObject.Name + ' use default', InfoObject);
 end;
 
 { TICInfoObject }
 
+constructor TICInfoObject.create;
+begin
+  inherited create;
+  FHasAboutBox := false;
+  FHasConfigureBox := false;
+  FIsDummy := true;
+end;
+
+constructor TICInfoObject.CreateDummy;
+begin
+  Create;
+  self.FICInfo.fccType := ICTYPE_VIDEO;
+  self.FICInfo.fccHandler := 0;
+  self.FICInfo.dwVersion := 0;
+  StringToWideChar('(none)', self.FICInfo.szName, 16);
+  StringToWideChar('(Do not include Codec information)', self.FICInfo.szDescription, 128);
+end;
+
 constructor TICInfoObject.createFromICInfo(FromICInfo: TICInfo);
 begin
   create;
-  self.ICInfo := FromICInfo;
+  FIsDummy := false;
+  self.FICInfo := FromICInfo;
   self.GetInfos;
-end;
-
-function TICInfoObject.Description: string;
-begin
-  result := WideCharToString(ICInfo.szDescription)
-end;
-
-function TICInfoObject.Driver: string;
-begin
-  result := WideCharToString(ICInfo.szDriver)
-end;
-
-function TICInfoObject.HandlerFourCCString: string;
-begin
-  result := fcc2String(ICInfo.fccHandler)
 end;
 
 function TICInfoObject.GetInfos: boolean;
@@ -403,13 +435,13 @@ var
   returnedInfoSize: Cardinal;
 begin
   result := false;
-  Codec := ICOpen(ICInfo.fccType, ICInfo.fccHandler, ICMODE_QUERY);
+  Codec := ICOpen(FICInfo.fccType, FICInfo.fccHandler, ICMODE_QUERY);
   if codec=0 then exit;
   try
-    HasAboutBox := ICQueryAbout(Codec);
-    HasConfigureBox  := ICQueryConfigure(Codec);
-    returnedInfoSize := ICGetInfo(Codec, @ICInfo, sizeof(ICInfo));
-    result := (returnedInfoSize= sizeof(ICInfo));
+    FHasAboutBox := ICQueryAbout(Codec);
+    FHasConfigureBox  := ICQueryConfigure(Codec);
+    returnedInfoSize := ICGetInfo(Codec, @FICInfo, sizeof(FICInfo));
+    result := (returnedInfoSize= sizeof(FICInfo));
   finally
     assert(ICClose(Codec) = ICERR_OK, 'Could not close Compressor.');
   end;
@@ -417,7 +449,22 @@ end;
 
 function TICInfoObject.Name: string;
 begin
-  result := WideCharToString(ICInfo.szName)
+  result := WideCharToString(FICInfo.szName)
+end;
+
+function TICInfoObject.Description: string;
+begin
+  result := WideCharToString(FICInfo.szDescription)
+end;
+
+function TICInfoObject.Driver: string;
+begin
+  result := WideCharToString(FICInfo.szDriver)
+end;
+
+function TICInfoObject.HandlerFourCCString: string;
+begin
+  result := fcc2String(FICInfo.fccHandler)
 end;
 
 function TICInfoObject.Config(ParentWindow: THandle; var State: string;
@@ -425,7 +472,7 @@ function TICInfoObject.Config(ParentWindow: THandle; var State: string;
 begin
   result := false;
   if not self.HasConfigureBox then exit;
-  result := ConfigCodec(ParentWindow, ICInfo, State, SizeDecoded);
+  result := ConfigCodec(ParentWindow, FICInfo, State, SizeDecoded);
 end;
 
 function TICInfoObject.About(ParentWindow: THandle): boolean;
@@ -434,20 +481,13 @@ var
 begin
   result := false;
   if not self.HasAboutBox then exit;
-  Codec := ICOpen(ICInfo.fccType, ICInfo.fccHandler, ICMODE_QUERY);
+  Codec := ICOpen(FICInfo.fccType, FICInfo.fccHandler, ICMODE_QUERY);
   if codec=0 then exit;
   try
     if (ICAbout(Codec, ParentWindow) = ICERR_OK) then result := true;
   finally
     assert(ICClose(Codec) = ICERR_OK, 'Could not close Compressor.');
   end;
-end;
-
-constructor TICInfoObject.create;
-begin
-  inherited create;
-  HasAboutBox := false;
-  HasConfigureBox := false;
 end;
 
 end.

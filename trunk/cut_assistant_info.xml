@@ -55,16 +55,27 @@ Neue Version 0.9.12.0:
 - Einzelne Codec-Einstellungen für die verschiedenen Film-Typen.
 </text>
 		</message>
+		<message>
+			<id>5</id>
+			<date_day>3</date_day>
+			<date_month>10</date_month>
+			<date_year>2007</date_year>
+			<text>
+Neue Version 0.9.12.1:
+- Verbesserte Unterstützung von einigen Windows-Versionen (z.B. Win98).
+- Fehler in Codec-Konfiguration behoben (möglicher Programmabsturz).
+</text>
+		</message>
 	</messages>
 	<stable>
-		<date_day>1</date_day>
+		<date_day>3</date_day>
 		<date_month>10</date_month>
 		<date_year>2007</date_year>
-		<version>0x00000009000C0000</version>
+		<version>0x00000009000C0001</version>
 		<version_text>
-Letzte stabile Version: 0.9.12.0
+Letzte stabile Version: 0.9.12.1
 
-Last stable version 0.9.12.0
+Last stable version 0.9.12.1
 
 Download: http://sourceforge.net/projects/cutassistant/
 or        http://www.cutlist.de/</version_text>

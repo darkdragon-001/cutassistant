@@ -18,6 +18,7 @@ type
     function GetInfos: boolean;
   protected
     constructor Create;
+    function ConfigCodec(ParentWindow: THandle; ICInfo: TICInfo; var State: string; var SizeDecoded: Integer): boolean;
   public
     constructor CreateDummy;
     constructor CreateFromICInfo(FromICInfo: TICInfo);
@@ -35,9 +36,9 @@ type
 
   TCodecList = class(TStringList)
   private
+    function EnumCodecs(fccType: FOURCC; var ICInfoArray: TICInfoArray): boolean;
     function GetCodecInfo(i: Integer): TICInfo;
     function GetCodecInfoObject(i: Integer): TICInfoObject;
-    //function CompareByInfoName(List: TStringList; Index1, Index2: Integer): Integer;
   public
     constructor create;
     destructor Destroy; override;
@@ -65,10 +66,6 @@ type
     function GetFilterIndexByCLSID(CLSID: TGUID): Integer;
   end;
 
-
-function ConfigCodec(ParentWindow: THandle; ICInfo: TICInfo; var State: string; var SizeDecoded: Integer): boolean;
-function FillCodecInfo(var Info: TICInfo): boolean;
-function EnumCodecs(fccType: FOURCC; var ICInfoArray: TICInfoArray): boolean;
 
 implementation
 
@@ -228,85 +225,6 @@ begin
   end;
 end;
 
-{ TSourceFilterList }
-
-function ConfigCodec(ParentWindow: THandle; ICInfo: TICInfo; var State: string; var SizeDecoded: Integer): boolean;
-var
-  Codec: HIC;
-  BufferSize: DWORD;
-  StateData: string;
-  StateBuffer: Pointer;
-begin
-  result := false;
-  StateBuffer := nil;
-  Codec := ICOpen(ICInfo.fccType, ICInfo.fccHandler, ICMODE_COMPRESS);
-  if Codec = 0 then exit;
-
-  if (Length(State) > 0) and (Length(State) mod 4 = 0) then begin
-    StateData := Base64ToStr(State);
-    BufferSize := Length(StateData);
-    // set old state
-    try
-      StringToBuffer(StateData, StateBuffer, BufferSize);
-      ICSetState(Codec, StateBuffer, BufferSize);
-    finally
-      if Assigned(StateBuffer) then
-        FreeMem(StateBuffer, BufferSize);
-      StateBuffer := nil;
-    end;
-  end;
-
-  if (ICConfigure(Codec, ParentWindow) = ICERR_OK) then begin
-    BufferSize := ICGetStateSize(Codec);
-    GetMem(StateBuffer, BufferSize);
-    try
-      if (ICGetState(Codec, StateBuffer, BufferSize) = ICERR_OK) then begin
-        StateData := BufferToString(StateBuffer, BufferSize);
-        State := StrTobase64(StateData);
-        SizeDecoded := Length(StateData);
-      end else begin
-        State := '';
-        SizeDecoded := 0;
-      end;
-    finally
-      if Assigned(StateBuffer) then
-        FreeMem(StateBuffer, BufferSize);
-      StateBuffer := nil;
-    end;
-  end;
-  assert(ICClose(Codec) = ICERR_OK, 'Could not close Compressor.');
-  result := true;
-end;
-
-function FillCodecInfo(var Info: TICInfo): boolean;
-var
-  Codec: HIC;
-begin
-  result := false;
-  Codec := ICOpen(Info.fccType, Info.fccHandler, ICMODE_QUERY);
-  if codec=0 then exit;
-  try
-    result := (ICGetInfo(Codec, @Info, sizeof(Info)) = sizeof(Info));
-  finally
-    assert(ICClose(Codec) = ICERR_OK, 'Could not close Compressor.');
-  end;
-end;
-
-function EnumCodecs(fccType: FOURCC; var ICInfoArray: TICInfoArray): boolean;
-var
-  i: integer;
-begin
-  result := false;
-  i := 0;
-  while true do begin
-    setlength(ICInfoArray, i+1);
-    if not ICInfo(fccType, DWord(i), @ICInfoArray[i]) then break;
-    inc(i)
-  end;
-  setlength(ICInfoArray, i);       
-  if i>0 then result := true;
-end;
-
 { TCodecList }
 
 procedure TCodecList.ClearAndFreeObjects;
@@ -358,6 +276,21 @@ begin
     Result := AnsiCompareStr(List[Index1], List[Index2])
   else
     Result := AnsiCompareText(List[Index1], List[Index2]);
+end;
+
+function TCodecList.EnumCodecs(fccType: FOURCC; var ICInfoArray: TICInfoArray): boolean;
+var
+  i: integer;
+begin
+  result := false;
+  i := 0;
+  while true do begin
+    setlength(ICInfoArray, i+1);
+    if not ICInfo(fccType, DWord(i), @ICInfoArray[i]) then break;
+    inc(i)
+  end;
+  setlength(ICInfoArray, i);
+  if i>0 then result := true;
 end;
 
 function TCodecList.Fill: Integer;
@@ -484,6 +417,54 @@ begin
   result := false;
   if not self.HasConfigureBox then exit;
   result := ConfigCodec(ParentWindow, FICInfo, State, SizeDecoded);
+end;
+
+function TICInfoObject.ConfigCodec(ParentWindow: THandle; ICInfo: TICInfo; var State: string; var SizeDecoded: Integer): boolean;
+var
+  Codec: HIC;
+  BufferSize: DWORD;
+  StateData: string;
+  StateBuffer: Pointer;
+begin
+  result := false;
+  StateBuffer := nil;
+  Codec := ICOpen(ICInfo.fccType, ICInfo.fccHandler, ICMODE_COMPRESS);
+  if Codec = 0 then exit;
+
+  if (Length(State) > 0) and (Length(State) mod 4 = 0) then begin
+    StateData := Base64ToStr(State);
+    BufferSize := Length(StateData);
+    // set old state
+    try
+      StringToBuffer(StateData, StateBuffer, BufferSize);
+      ICSetState(Codec, StateBuffer, BufferSize);
+    finally
+      if Assigned(StateBuffer) then
+        FreeMem(StateBuffer, BufferSize);
+      StateBuffer := nil;
+    end;
+  end;
+
+  if (ICConfigure(Codec, ParentWindow) = ICERR_OK) then begin
+    BufferSize := ICGetStateSize(Codec);
+    GetMem(StateBuffer, BufferSize);
+    try
+      if (ICGetState(Codec, StateBuffer, BufferSize) = ICERR_OK) then begin
+        StateData := BufferToString(StateBuffer, BufferSize);
+        State := StrTobase64(StateData);
+        SizeDecoded := Length(StateData);
+      end else begin
+        State := '';
+        SizeDecoded := 0;
+      end;
+    finally
+      if Assigned(StateBuffer) then
+        FreeMem(StateBuffer, BufferSize);
+      StateBuffer := nil;
+    end;
+  end;
+  assert(ICClose(Codec) = ICERR_OK, 'Could not close Compressor.');
+  result := true;
 end;
 
 function TICInfoObject.About(ParentWindow: THandle): boolean;

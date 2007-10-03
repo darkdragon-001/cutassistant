@@ -233,35 +233,46 @@ end;
 function ConfigCodec(ParentWindow: THandle; ICInfo: TICInfo; var State: string; var SizeDecoded: Integer): boolean;
 var
   Codec: HIC;
-  BufferSize, SizeFromDecoding: DWORD;
+  BufferSize: DWORD;
+  StateData: string;
   StateBuffer: Pointer;
 begin
   result := false;
+  StateBuffer := nil;
   Codec := ICOpen(ICInfo.fccType, ICInfo.fccHandler, ICMODE_COMPRESS);
   if Codec = 0 then exit;
 
-  if State <>'' then begin
-    //set old state
-    Base64ToBuffer(State, StateBuffer, SizeFromDecoding);
-    assert(long(SizeFromDecoding) = long(SizeDecoded), 'Invalid Codec Settings.');
-    BufferSize := SizeFromDecoding;
-    ICSetState(Codec, StateBuffer, BufferSize);
-  end else begin
-    bufferSize := ICGetStateSize(Codec);
-    Getmem(StateBuffer, BufferSize);
+  if (Length(State) > 0) and (Length(State) mod 4 = 0) then begin
+    StateData := Base64ToStr(State);
+    BufferSize := Length(StateData);
+    // set old state
+    try
+      StringToBuffer(StateData, StateBuffer, BufferSize);
+      ICSetState(Codec, StateBuffer, BufferSize);
+    finally
+      if Assigned(StateBuffer) then
+        FreeMem(StateBuffer, BufferSize);
+      StateBuffer := nil;
+    end;
   end;
 
-  try
-    if (ICCOnfigure(Codec, ParentWindow) = ICERR_OK) then begin
+  if (ICConfigure(Codec, ParentWindow) = ICERR_OK) then begin
+    BufferSize := ICGetStateSize(Codec);
+    GetMem(StateBuffer, BufferSize);
+    try
       if (ICGetState(Codec, StateBuffer, BufferSize) = ICERR_OK) then begin
-        state := BufferToBase64(StateBuffer, BufferSize);
-        SizeDecoded := Integer(BufferSize);
+        StateData := BufferToString(StateBuffer, BufferSize);
+        State := StrTobase64(StateData);
+        SizeDecoded := Length(StateData);
       end else begin
-        state := '';
+        State := '';
+        SizeDecoded := 0;
       end;
+    finally
+      if Assigned(StateBuffer) then
+        FreeMem(StateBuffer, BufferSize);
+      StateBuffer := nil;
     end;
-  finally
-    freemem(StateBuffer, BufferSize);
   end;
   assert(ICClose(Codec) = ICERR_OK, 'Could not close Compressor.');
   result := true;

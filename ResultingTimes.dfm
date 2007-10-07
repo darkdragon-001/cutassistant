@@ -1,6 +1,6 @@
 object FResultingTimes: TFResultingTimes
-  Left = 340
-  Top = 318
+  Left = 373
+  Top = 377
   ActiveControl = BClose
   AutoScroll = False
   Caption = 'Check cuts after cutting'
@@ -15,7 +15,6 @@ object FResultingTimes: TFResultingTimes
   Font.Name = 'Microsoft Sans Serif'
   Font.Pitch = fpVariable
   Font.Style = []
-  FormStyle = fsStayOnTop
   OldCreateOrder = False
   OnClose = FormClose
   OnCreate = FormCreate

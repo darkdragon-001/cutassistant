@@ -16,7 +16,7 @@ const
 
 type
 
-  TMovieType = (mtUnknown, mtWMV, mtAVI, mtMP4, mtHQAVI);
+  TMovieType = (mtUnknown, mtWMV, mtAVI, mtMP4, mtHQAVI, mtNone);
 
   TMovieInfo = class
   private
@@ -61,9 +61,11 @@ uses
 function TMovieInfo.FormatFrameRate(const frame_duration: double; const frame_duration_source: char): string;
 begin
   if frame_duration <= 0 then
-    Result := 'fps: N/A ('+frame_duration_source+')'
+    Result := 'fps: N/A'
   else
-    Result := Format('%.5f fps (%s)', [1.0 / frame_duration, frame_duration_source]);
+    Result := Format('%.5f fps', [1.0 / frame_duration]);
+  if frame_duration_source <> #0 then
+    Result := Result + ' (' + frame_duration_source + ')';
 end;
 
 function TMovieInfo.FormatFrameRate: string;

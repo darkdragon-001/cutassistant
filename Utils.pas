@@ -184,6 +184,9 @@ type
 
   function FloatToStrInvariant(Value: Extended): string;
 
+  function FilterStringFromExtArray(ExtArray: array of string): string;
+  function MakeFilterString(const description: string; const extensions: string): string;
+
 implementation
 
 {$I jedi.inc}
@@ -198,6 +201,22 @@ const ScreenWidthDev  = 1280;
 
 var
   invariantFormat: TFormatSettings;
+
+function MakeFilterString(const description: string; const extensions: string): string;
+begin
+  Result := Format('%s (%s)|%s', [ description, extensions, extensions ]);
+end;
+
+function FilterStringFromExtArray(ExtArray: array of string): string;
+var
+  i: Integer;
+begin
+  result := '';
+  for i := 0 to length(ExtArray) - 1 do begin
+    if i> 0 then result := result + ';';
+    result := result + '*' + ExtArray[i];
+  end;
+end;
 
 constructor TMemIniFileEx.Create(const FileName: string);
 begin

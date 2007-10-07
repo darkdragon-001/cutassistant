@@ -39,7 +39,8 @@ uses
   DateTools in 'DateTools.pas',
   ULogging in 'ULogging.pas' {FLogging},
   UDSAStorage in 'UDSAStorage.pas',
-  UAbout in 'UAbout.pas' {AboutBox};
+  UAbout in 'UAbout.pas' {AboutBox},
+  CAResources in 'CAResources.pas';
 
 {$R *.res}
 const

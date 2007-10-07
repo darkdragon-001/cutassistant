@@ -451,7 +451,7 @@ var
 implementation
   uses madExcept, madNVBitmap, madNVAssistant, Frames, CutlistRate_Dialog, ResultingTimes, CutlistSearchResults,
     PBOnceOnly, UfrmCutting, UCutApplicationBase, UCutApplicationAsfbin, UCutApplicationMP4Box, UMemoDialog,
-    DateTools, UAbout, ULogging, UDSAStorage, IdResourceStrings;
+    DateTools, UAbout, ULogging, UDSAStorage, IdResourceStrings, CAResources;
 
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
@@ -459,17 +459,17 @@ implementation
 procedure TFMain.UpdateMovieInfoControls;
 begin
   if not Assigned(MovieInfo) then
-    self.lblMovieFPS.Caption := 'fps: N/A'
+    self.lblMovieFPS.Caption := MovieInfo.FormatFrameRate(0, #0)
   else
     self.lblMovieFPS.Caption := MovieInfo.FormatFrameRate;
 
   if not Assigned(MovieInfo) or not MovieInfo.MovieLoaded then
   begin
-    self.lblMovieType.Caption := '[None]';
-    self.lblCutApplication.Caption := 'Cut app.: N/A';
+    self.lblMovieType.Caption := MovieInfo.GetStringFromMovieType(mtNone);
+    self.lblCutApplication.Caption := Format(CAResources.RsCaptionCutApplication, [ CAResources.RsNotAvailable ]);
   end else begin
     self.lblMovieType.Caption := MovieInfo.MovieTypeString;
-    self.lblCutApplication.Caption := 'Cut app.: ' + Settings.GetCutAppName(MovieInfo.MovieType);
+    self.lblCutApplication.Caption := Format(CAResources.RsCaptionCutApplication, [ Settings.GetCutAppName(MovieInfo.MovieType) ]);
   end;
 end;
 
@@ -539,15 +539,6 @@ begin
   DragAcceptFiles(self.Handle, true);
   ExitCode := 0;
 
-  //Init Filtergraph
-  {FilterGraph := TFiltergraph.Create(self);
-  FilterGraph.GraphEdit := true;
-  FilterGraph.LinearVolume := true;
-  FilterGraph.OnGraphStepComplete := FilterGraphGraphStepComplete;
-  //SampleGrabber1.FilterGraph := FilterGraph;
-  VideoWindow.FilterGraph := FilterGraph;
-  TBFilePos.FilterGraph := FilterGraph;   }
-
   UploadDataEntries := TStringList.Create;
   UploadDataEntries := TStringList.Create;
   if fileexists(UploadData_Path(true)) then
@@ -560,7 +551,7 @@ begin
   InitHttpProperties;
 
   self.RCutMode.ItemIndex := settings.DefaultCutMode;
-  
+
   Cutlist.RefreshCallBack := self.refresh_Lcutlist;
   cutlist.RefreshGUI;
 
@@ -568,8 +559,6 @@ begin
   TVolume.PageSize := TVOlume.Frequency;
   TVOlume.LineSize := round(TVolume.PageSize /10);
   TVolume.Position := filtergraph.Volume;
-
-  //self.WindowState := wsMaximized;
 end;
 
 procedure TFMain.FormDestroy(Sender: TObject);
@@ -621,12 +610,12 @@ var
   sourcefile, sourceExtension, targetfile, targetpath: string;
   AskForPath: boolean;
   saveDlg: TSaveDialog;
-//  exitCode: DWord;
   CutApplication: TCutApplicationBase;
 begin
   result := false;
   if cutlist.Count = 0 then begin
-    if not batchmode then showmessage('No cuts defined.');
+    if not batchmode then
+      ShowMessage(CAResources.RsNoCutsDefined);
     exit;
   end;
 
@@ -639,7 +628,7 @@ begin
     targetfile := trim(cutlist.SuggestedMovieName) + SourceExtension
   else
     targetfile := changefileExt(sourcefile, Settings.CutMovieExtension + SourceExtension);
-    
+
   case Settings.SaveCutMovieMode of
     smWithSource: begin    //with source
          targetpath := extractFilePath(MovieInfo.current_filename);
@@ -669,7 +658,7 @@ begin
   if not ForceDirectories(targetpath) then
   begin
       if not batchmode then
-        showmessage('Could not create target file path ' + targetpath + '. Abort.');
+        ShowMessageFmt(CAResources.RsCouldNotCreateTargetPath, [ targetpath ]);
       exit;
   end;
 
@@ -678,13 +667,13 @@ begin
 
 
   if fileexists(MovieInfo.target_FileName) AND (NOT AskForPath) and (not batchmode) then begin
-    message_string := 'Target file already exists:' + #13#10 + #13#10 + MovieInfo.target_filename + #13#10 +  #13#10 + 'Overwrite?' ;
-    if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_DEFBUTTON2 + MB_ICONWARNING) <> IDYES then AskForPath := true;
+    message_string := Format(CAResources.RsTargetMovieAlreadyExists, [ MovieInfo.target_filename ]);
+    if Application.MessageBox(PChar(message_string), nil, MB_YESNO + MB_DEFBUTTON2 + MB_ICONWARNING) <> IDYES then AskForPath := true;
   end;
   if AskForPath and (not batchmode) then begin
     saveDlg := TSaveDialog.Create(self);
     saveDlg.Filter := '*' + SourceExtension + '|*' + SourceExtension;
-    saveDlg.Title := 'Save cut movie as...';
+    saveDlg.Title := CAResources.RsSaveCutMovieAs;
     saveDlg.InitialDir := targetpath;
     saveDlg.filename := targetfile;
     saveDlg.options := saveDlg.Options + [ofOverwritePrompt, ofPathMustExist];
@@ -699,7 +688,8 @@ begin
 
   if fileexists(MovieInfo.target_FileName) then begin
     if not deletefile(MovieInfo.target_filename) then begin
-      if not batchmode then showmessage('Could not delete existing file ' + MovieInfo.target_filename + '. Abort.');
+      if not batchmode then
+        ShowMessageFmt(CAResources.RsCouldNotDeleteFile, [ MovieInfo.target_filename ]);
       exit;
     end;
   end;
@@ -801,8 +791,9 @@ begin
     resulting_duration := cutlist.TotalDurationOfCuts;
     total_cutoff := MovieInfo.current_file_duration - resulting_duration;
   end;
-  LTotalCutoff.Caption := 'Total cutoff: ' + secondstotimestring(total_cutoff);
-  self.LResultingDuration.Caption := 'Resulting movie duration: ' + secondsToTimeString(resulting_duration);
+  LTotalCutoff.Caption := Format(CAResources.RsCaptionTotalCutoff, [ secondsToTimeString(total_cutoff) ]);
+  self.LResultingDuration.Caption := Format(CAResources.RsCaptionTotalCutoff, [ secondsToTimeString(resulting_duration) ]);
+
 
   //Cuts in Trackbar are taken from global var "cutlist"!
   self.TBFilePos.Perform(CM_RECREATEWND, 0, 0);    //Show Cuts in Trackbar
@@ -917,7 +908,7 @@ begin
           InsertSampleGrabber;
           if not filtergraph.Active then begin
             if not batchmode then
-              showmessage('Could not insert sample grabber.');
+              ShowMessage(CAResources.RsCouldNotInsertSampleGrabber);
             MovieInfo.current_filename := '';
             MovieInfo.MovieLoaded := false;
             MovieInfo.current_filesize := -1;
@@ -928,8 +919,6 @@ begin
         FilterGraph.Volume := self.TVolume.Position;
 
         GraphPause;
-
-        //SampleGrabber1.SampleGrabber.SetCallback(self, 0);
 
         TBFilePos.TriggerTimer;
         self.PanelVideoWindowResize(self);
@@ -943,12 +932,12 @@ begin
     except
       on E: Exception do
         if not batchmode then
-          ShowMessage('Could not open Movie!'#13#10'Error: '+ E.Message);
+          ShowMessageFmt(CAResources.RsErrorOpenMovie, [ E.Message ]);
     end;
     screen.Cursor := TempCursor;
   end else begin
     if not batchmode then
-      ShowMessage('File not found: ' + #13#10 + filename);
+      ShowMessageFmt(CAResources.RsErrorFileNotFound, [ filename ]);
     MovieInfo.current_filename := '';
     MovieInfo.MovieLoaded := false;
   end;
@@ -963,7 +952,7 @@ var
 begin
   if MovieInfo.current_filename = '' then begin
     if not batchmode then
-      showmessage('Please load movie first.');
+      showmessage(CAResources.RsCannotLoadCutlist);
     exit;
   end;
 
@@ -1063,13 +1052,12 @@ begin
         VMRWindowlessControl := nil;
       end;
     end;
-    
+
     if MovieInfo.frame_duration = 0 then begin
       if succeeded(videowindow.QueryInterface(IBaseFilter, filter)) then  begin
         APin := getInPin(filter, 0);
         APin.ConnectionMediaType(MediaType);
         if isEqualGUID(MediaType.formattype, FORMAT_VideoInfo2) then begin
-          // self.Label13.Caption := 'Format VideoInfo2';
           if Mediatype.cbFormat >= sizeof(VIDEOINFOHEADER2) then begin
             pVIH2 := mediatype.pbFormat;
             MovieInfo.frame_duration := pVIH2^.AvgTimePerFrame / 10000000;
@@ -1078,7 +1066,6 @@ begin
           end;
         end else begin
           if isEqualGUID(MediaType.formattype, FORMAT_VideoInfo) then begin
-            // self.Label13.Caption := 'Format VideoInfo';
             if Mediatype.cbFormat >= sizeof(VIDEOINFOHEADER) then begin
               pVIH := mediatype.pbFormat;
               MovieInfo.frame_duration := pVIH^.AvgTimePerFrame / 10000000;
@@ -1188,7 +1175,6 @@ begin
       self.LPos.Caption := IntToStr(Trunc(self.TBFilePos.position / MovieInfo.frame_duration)) + ' / '
                          + MovieInfo.FormatPosition(self.TBFilePos.position);
   end;
-//  else self.LPos.Caption := FormatPosition(currentPosition);
 end;
 
 procedure TFMain.FilterGraphGraphStepComplete(Sender: TObject);
@@ -1455,7 +1441,6 @@ procedure TFMain.ShowMetaData;
 const
   stream = $0;
 var
-//    MetaEditor: IWMMetadataEditor;
   HeaderInfo : IWMHeaderInfo;
   _text: string;
   value: packed array of byte;
@@ -1471,78 +1456,79 @@ var
 begin
   if (MovieInfo.current_filename = '')  or (not MovieInfo.MovieLoaded) then exit;
 
-  frmMemoDialog.Caption := 'Movie Meta Data';
-  frmMemoDialog.memInfo.Clear;
-  frmMemoDialog.memInfo.Lines.Add('Filetype: ' + MovieInfo.MovieTypeString);
-  frmMemoDialog.memInfo.Lines.Add('Cut application: ' + Settings.GetCutAppName(MovieInfo.MovieType));
-  frmMemoDialog.memInfo.Lines.Add('Filename: ' + MovieInfo.current_filename);
-  frmMemoDialog.memInfo.Lines.Add('Frame Rate: ' + FloatToStrF(1/MovieInfo.frame_duration, ffFixed, 15, 4));
+  frmMemoDialog.Caption := CAResources.RsTitleMovieMetaData;
+  with frmMemoDialog.memInfo do begin
+    Clear;
+    Lines.Add(Format(CAResources.RsMovieMetaDataMovietype , [ MovieInfo.MovieTypeString ]));
+    Lines.Add(Format(CAResources.RsMovieMetaDataCutApplication , [ Settings.GetCutAppName(MovieInfo.MovieType) ]));
+    Lines.Add(Format(CAResources.RsMovieMetaDataFilename , [ MovieInfo.current_filename ]));
+    Lines.Add(Format(CAResources.RsMovieMetaDataFrameRate , [ FloatToStrF(1/MovieInfo.frame_duration, ffFixed, 15, 4) ]));
 
-  if MovieInfo.MovieType in [mtAVI, mtHQAvi] then begin
-    frmMemoDialog.memInfo.Lines.Add('Video FourCC: ' + fcc2string(MovieInfo.FFourCC));
-  end;
-  if MovieInfo.MovieType in [ mtWMV ] then begin
-    filterlist := tfilterlist.Create;
-    filterlist.Assign(filtergraph as IFiltergraph);
-    found := false;
-    for iFilter := 0 to filterlist.Count-1 do begin
-      if string(filterlist.FilterInfo[iFilter].achName) = MovieInfo.current_filename then begin
-        sourcefilter := filterlist.Items[iFilter];
-        found := true;
-        break;
-      end;
-    end;
-    if found then begin
-      try
-     //   wmcreateeditor
-     //   (FIltergraph as IFiltergraph).FindFilterByName(pwidechar(current_filename), sourceFilter);
-     //   (sourceFIlter as iammediacontent).get_AuthorName(pwidechar(author));
-        if succeeded(sourcefilter.QueryInterface(IwmHeaderInfo, HEaderINfo)) then begin
-          HeaderInfo := (sourceFilter as IwmHeaderInfo);
-          HeaderInfo.GetAttributeCount(stream, CAttributes);
-          _stream := stream;
-          for iAttr := 0 to CAttributes-1 do begin
-            HeaderInfo.GetAttributeByIndex(iAttr, _stream, nil, name_len, attr_datatype, nil, attr_len);
-            setlength(_name, name_len);
-            setlength(value, attr_len);
-            HeaderInfo.GetAttributeByIndex(iAttr, _stream, pwidechar(_name), name_len, attr_datatype, PByte(value), attr_len);
-            case attr_datatype of
-              WMT_TYPE_STRING: _text := WideChartoString(PWideChar(value));
-              WMT_TYPE_WORD: begin
-                  _text := inttostr(word(PWord(addr(value[0]))^));
-                end;
-              WMT_TYPE_DWORD: begin
-                  _text := intTostr(dword(PDWord(addr(value[0]))^));
-                end;
-              WMT_TYPE_QWORD: begin
-                   _text := intTostr(int64(PULargeInteger(addr(value[0]))^));
-                end;
-              WMT_TYPE_BOOL: begin
-                  if LongBool(PDword(addr(value[0]))^) then _text := 'true' else _text := 'false';
-                end;
-              WMT_TYPE_BINARY: begin
-                  _text := #13#10;
-                  for iByte := 0 to attr_len-1 do begin
-                    _text := _text + inttohex(value[iByte],2)+' ';
-                    if iByte mod 8 = 7 then _text := _text + ' ';
-                    if iByte mod 16 = 15 then _text := _text + #13#10;
-                  end;
-                end;
-              WMT_TYPE_GUID: begin
-                  _text := GuidToString(PGUID(value[0])^);
-                end;
-              else _text := '***unknown data format***';
-            end;
-            _text := widechartoString(PWidechar(_name)) +': ' + _text;
-            frmMemoDialog.memInfo.Lines.Add(_text);
-          end;
+    if MovieInfo.MovieType in [mtAVI, mtHQAvi] then
+      Lines.Add(Format(CAResources.RsMovieMetaDataVideoFourCC , [ fcc2string(MovieInfo.FFourCC) ]));
+
+    if MovieInfo.MovieType in [ mtWMV ] then begin
+      filterlist := tfilterlist.Create;
+      filterlist.Assign(filtergraph as IFiltergraph);
+      found := false;
+      for iFilter := 0 to filterlist.Count-1 do begin
+        if string(filterlist.FilterInfo[iFilter].achName) = MovieInfo.current_filename then begin
+          sourcefilter := filterlist.Items[iFilter];
+          found := true;
+          break;
         end;
-      finally
+      end;
+      if found then begin
+        try
+          //   wmcreateeditor
+          //   (FIltergraph as IFiltergraph).FindFilterByName(pwidechar(current_filename), sourceFilter);
+          //   (sourceFIlter as iammediacontent).get_AuthorName(pwidechar(author));
+          if succeeded(sourcefilter.QueryInterface(IwmHeaderInfo, HEaderINfo)) then begin
+            HeaderInfo := (sourceFilter as IwmHeaderInfo);
+            HeaderInfo.GetAttributeCount(stream, CAttributes);
+            _stream := stream;
+            for iAttr := 0 to CAttributes-1 do begin
+              HeaderInfo.GetAttributeByIndex(iAttr, _stream, nil, name_len, attr_datatype, nil, attr_len);
+              setlength(_name, name_len);
+              setlength(value, attr_len);
+              HeaderInfo.GetAttributeByIndex(iAttr, _stream, pwidechar(_name), name_len, attr_datatype, PByte(value), attr_len);
+              case attr_datatype of
+                WMT_TYPE_STRING: _text := WideChartoString(PWideChar(value));
+                WMT_TYPE_WORD: begin
+                    _text := inttostr(word(PWord(addr(value[0]))^));
+                  end;
+                WMT_TYPE_DWORD: begin
+                    _text := intTostr(dword(PDWord(addr(value[0]))^));
+                  end;
+                WMT_TYPE_QWORD: begin
+                     _text := intTostr(int64(PULargeInteger(addr(value[0]))^));
+                  end;
+                WMT_TYPE_BOOL: begin
+                    if LongBool(PDword(addr(value[0]))^) then _text := 'true' else _text := 'false';
+                  end;
+                WMT_TYPE_BINARY: begin
+                    _text := #13#10;
+                    for iByte := 0 to attr_len-1 do begin
+                      _text := _text + inttohex(value[iByte],2)+' ';
+                      if iByte mod 8 = 7 then _text := _text + ' ';
+                      if iByte mod 16 = 15 then _text := _text + #13#10;
+                    end;
+                  end;
+                WMT_TYPE_GUID: begin
+                    _text := GuidToString(PGUID(value[0])^);
+                  end;
+                else _text := CAResources.RsMovieMetaDataUnknownDataFormat;
+              end;
+              Lines.Add(Format('%s: %s', [ WideCharToString(PWidechar(_name)), _text ]));
+            end;
+          end;
+        finally
+          FreeAndNIL(filterlist);
+        end;
+      end else begin
+        Lines.Add(CAResources.RsMovieMetaDataNoInterface);
         FreeAndNIL(filterlist);
       end;
-    end else begin
-      frmMemoDialog.memInfo.Lines.Add('***Could not find interface***');
-      FreeAndNIL(filterlist);
     end;
   end;
   frmMemoDialog.ShowModal;
@@ -1680,7 +1666,7 @@ begin
       {end;}
     end else begin
       if not batchmode then
-        showmessage('Can not load Cutlist. Please load movie first.');
+        showmessage(CAResources.RsCannotLoadCutlist);
     end;
   end;
 
@@ -1696,25 +1682,32 @@ procedure TFMain.SaveCutlistAsExecute(Sender: TObject);
 begin
     if cutlist.Save(true) then
       if not batchmode then
-        ShowMessage('Cutlist saved successfully to' +#13#10 + cutlist.SavedToFilename);
+        ShowMessageFmt(CAResources.RsCutlistSavedAs, [ cutlist.SavedToFilename ]);
 end;
 
 procedure TFMain.OpenMovieExecute(Sender: TObject);
-
-  function FilterStringFromExtArray(ExtArray: array of string): string;
-  var
-    i: Integer;
-  begin
-    result := '';
-    for i := 0 to length(ExtArray) - 1 do begin
-      if i> 0 then result := result + ';';
-      result := result + '*' + ExtArray[i];
-    end;
-  end;
-
 var
   OpenDialog: TOpenDialog;
   ExtList, ExtListAllSupported: string;
+  procedure AppendFilterString(const description: string; const extensions: string); overload;
+  var
+    filter: string;
+  begin
+    filter := MakeFilterString(description, extensions);
+    if OpenDialog.Filter <> '' then
+      OpenDialog.Filter := OpenDialog.Filter + '|' + filter
+    else
+      OpenDialog.Filter := filter
+  end;
+  procedure AppendFilterString(const description: string; const ExtArray: array of string); overload;
+  begin
+    ExtList := FilterStringFromExtArray(ExtArray);
+    AppendFilterString(description, ExtList);
+    if ExtListAllSupported <> '' then
+      ExtListAllSupported := ExtListAllSupported + ';' + ExtList
+    else
+      ExtListAllSupported := ExtList;
+  end;
 begin
   //if not AskForUserRating(cutlist) then exit;
   //if not cutlist.clear_after_confirm then exit;
@@ -1722,19 +1715,17 @@ begin
   OpenDialog := TOpenDialog.Create(self);
   try
     OpenDialog.Options := OpenDialog.Options + [ofPathMustExist, ofFileMustExist];
+    ExtListAllSupported := '';
+    OpenDialog.Filter := '';
 
     // Make Filter List
-    ExtList := FilterStringFromExtArray(WMV_EXTENSIONS);
-    ExtListAllSupported := extList;
-    OpenDialog.Filter := 'Windows Media Files ('+ExtList+')|' + ExtList;
-    ExtList := FilterStringFromExtArray(AVI_EXTENSIONS);
-    ExtListAllSupported := ExtListAllSupported + ';' + extList;
-    OpenDialog.Filter := OpenDialog.Filter + '|AVI Files ('+ExtList+')|' + ExtList;
-    ExtList := FilterStringFromExtArray(MP4_EXTENSIONS);
-    ExtListAllSupported := ExtListAllSupported + ';' + extList;
-    OpenDialog.Filter := OpenDialog.Filter + '|MP4 Files ('+ExtList+')|' + ExtList;
-    OpenDialog.Filter := 'All Supported Files ('+ExtListAllSupported+')|' + ExtListAllSupported + '|' + OpenDialog.Filter;
-    OpenDialog.Filter := OpenDialog.Filter + '|All Files|*.*';
+    AppendFilterString(CAResources.RsFilterDescriptionWmv, WMV_EXTENSIONS);
+    AppendFilterString(CAResources.RsFilterDescriptionAvi, AVI_EXTENSIONS);
+    AppendFilterString(CAResources.RsFilterDescriptionMp4, MP4_EXTENSIONS);
+    AppendFilterString(CAResources.RsFilterDescriptionAll, '*.*');
+    OpenDialog.Filter := MakeFilterString(CAResources.RsFilterDescriptionAllSupported, ExtListAllSupported)+
+                         '|' + OpenDialog.Filter;
+
     OpenDialog.InitialDir := settings.CurrentMovieDir;
     if OpenDialog.Execute then begin
       settings.CurrentMovieDir := ExtractFilePath(openDialog.FileName);
@@ -1916,7 +1907,7 @@ begin
     if AnsiStartsStr('\', key) then path := key
     else path := reg.CurrentPath + '\' + key;
 
-    raise ERegistryException.Create('Unable to open key "' + path + '".');
+    raise ERegistryException.CreateResFmt(@CAResources.RsExUnableToOpenKey, [ path ]);
   end;
 end;
 
@@ -1936,31 +1927,31 @@ begin
     reg.CloseKey;
 
     ForceOpenRegKey(reg, '\'+CutlistID);
-    reg.WriteString('', 'Cutlist for Cut Assistant');
+    reg.WriteString('', CAResources.RsRegDescCutlist);
     ForceOpenRegKey(reg, 'DefaultIcon');
     reg.WriteString('', '"' + myDir+'",0');
     reg.CloseKey;
 
     ForceOpenRegKey(reg, '\'+CutlistID+'\Shell\open');
-    reg.WriteString('', 'Open with Cut Assistant');
+    reg.WriteString('', CAResources.RsRegDescCutlistOpen);
     ForceOpenRegKey(reg, 'command');
     reg.WriteString('', '"' + myDir + '" -cutlist:"%1"');
     reg.CloseKey;
 
     ForceOpenRegKey(reg, '\WMVFile\Shell\' + ShellEditKey);
-    reg.WriteString('', 'Edit with Cut Assistant');
+    reg.WriteString('', CAResources.RsRegDescMovieOpen);
     ForceOpenRegKey(reg, 'command');
     reg.WriteString('', '"' + myDir + '" -open:"%1"');
     reg.CloseKey;
 
     ForceOpenRegKey(reg, '\AVIFile\Shell\' + ShellEditKey);
-    reg.WriteString('', 'Edit with Cut Assistant');
+    reg.WriteString('', CAResources.RsRegDescMovieOpen);
     ForceOpenRegKey(reg, 'command');
     reg.WriteString('', '"' + myDir + '" -open:"%1"');
     reg.CloseKey;
 
     ForceOpenRegKey(reg, '\QuickTime.mp4\Shell\' + ShellEditKey);
-    reg.WriteString('', 'Edit with Cut Assistant');
+    reg.WriteString('', CAResources.RsRegDescMovieOpen);
     ForceOpenRegKey(reg, 'command');
     reg.WriteString('', '"' + myDir + '" -open:"%1"');
     reg.CloseKey;
@@ -1975,7 +1966,7 @@ begin
    end;
   except
     on ERegistryException do
-      ShowExpectedException('registering application.');
+      ShowExpectedException(CAResources.RsErrorRegisteringApplication);
   end;
 end;
 
@@ -2016,7 +2007,7 @@ begin
    end;
   except
     on ERegistryException do
-      ShowExpectedException('unregistering application.');
+      ShowExpectedException(CAResources.RsErrorUnRegisteringApplication);
   end;
 end;
 
@@ -2038,9 +2029,7 @@ begin
 
 	if not fileexists(cutlist.SavedToFilename) then exit;
 
-  message_string := 'Your Cutlist ' + #13#10 + cutlist.SavedToFilename +#13#10+
-                    'will now be uploaded to the following site: '+ #13#10 + settings.url_cutlists_upload +#13#10+
-                    'Continue?';
+  message_string := Format(CAResources.RsMsgUploadCutlist, [ cutlist.SavedToFilename, settings.url_cutlists_upload]);
   if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
     exit;
   end;
@@ -2111,8 +2100,8 @@ var
   message_string: string;
 begin
   if cutlist.HasChanged then begin
-    message_string := 'Save changes in current cutlist?';
-    case application.messagebox(PChar(message_string), 'Cutlist not saved', MB_YESNOCANCEL + MB_DEFBUTTON3 + MB_ICONQUESTION) of
+    message_string := CAResources.RsMsgSaveChangedCutlist;
+    case application.messagebox(PChar(message_string), PChar(CAResources.RsTitleSaveChangedCutlist), MB_YESNOCANCEL + MB_DEFBUTTON3 + MB_ICONQUESTION) of
       IDYES: begin
           CanClose := cutlist.Save(false);      //Can Close if saved successfully
         end;
@@ -2166,15 +2155,15 @@ begin
   CutApplication := Settings.GetCutApplicationByName('Asfbin') as TCutApplicationAsfbin;
   if not assigned (CutApplication) then begin
     if not batchmode then
-      showmessage('Could not get Object CutApplication Asfbin.');
+      ShowMessage(CAResources.RsCutAppAsfBinNotFound);
     exit;
   end;
 
   if MovieInfo.current_filename = '' then begin
     selectFileDlg := TOpenDialog.Create(self);
-    selectFileDlg.Filter := 'Asf Movie files|*.wmv;*.asf|All files|*.*';
+    selectFileDlg.Filter := CAResources.RsFilterDescriptionAsf+'|*.wmv;*.asf|'+CAResources.RsFilterDescriptionAll+'|*.*';
     selectFileDlg.Options := selectFileDlg.Options + [ofPathMustExist, ofFileMustExist, ofNoChangeDir];
-    selectFileDlg.Title := 'Select File to be repaired:';
+    selectFileDlg.Title := CAResources.RsTitleRepairMovie;
     if selectFileDlg.Execute then begin
       filename_temp := selectFileDlg.FileName;
       FreeAndNIL(selectFileDlg);
@@ -2189,9 +2178,7 @@ begin
   file_ext := extractfileExt(filename_temp);
   filename_damaged := changeFileExt(filename_temp, '.damaged' + file_ext);
 
-  message_string := 'Current movie will be repaired using ' + extractFileName(CutApplication.Path) + '.' + #13#10 +
-                    'Original file will be saved as ' +#13#10+ filename_damaged + #13#10 +
-                    'Continue?';
+  message_string := Format(CAResources.RsMsgRepairMovie, [ extractFileName(CutApplication.Path), filename_damaged ]);
   if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
     exit;
   end;
@@ -2200,7 +2187,7 @@ begin
 
   if not renameFile(filename_temp, filename_damaged) then begin
     if not batchmode then
-      showmessage('Could not rename original file. Abort.');
+      ShowMessage(CAResources.RsMsgRepairMovieRenameFailed);
     exit;
   end;
 
@@ -2218,8 +2205,7 @@ begin
     end;
 
     if result then begin
-      message_string := 'Finished repairing movie. Open repaired movie now?';
-      if (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
+      if (application.messagebox(PChar(CAResources.RsMsgRepairMovieFinished), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
         self.OpenFile(filename_temp);
       end;
     end;
@@ -2240,7 +2226,7 @@ procedure TFMain.ASaveCutlistExecute(Sender: TObject);
 begin
   if cutlist.Save(false) then
     if not batchmode then
-      showmessage('Cutlist saved successfully to' +#13#10 + cutlist.SavedToFilename);
+      ShowMessageFmt(CAResources.RsCutlistSavedAs, [ cutlist.SavedToFilename ]);
 end;
 
 procedure TFMain.ACalculateResultingTimesExecute(Sender: TObject);
@@ -2250,9 +2236,14 @@ begin
   if (MovieInfo.target_filename = '') then begin
     selectFileDlg := TOpenDialog.Create(self);
     try
-      selectFileDlg.Filter := 'Supported Movie files|*.wmv;*.asf;*.avi|All files|*.*';
+      selectFileDlg.Filter := MakeFilterString(CAResources.RsFilterDescriptionAllSupported,
+                                FilterStringFromExtArray(WMV_EXTENSIONS)+';'+
+                                FilterStringFromExtArray(AVI_EXTENSIONS)+';'+
+                                FilterStringFromExtArray(MP4_EXTENSIONS))
+                              +'|'+MakeFilterString(CAResources.RsFilterDescriptionAll,'*.*');
+
       selectFileDlg.Options := selectFileDlg.Options + [ofPathMustExist, ofFileMustExist, ofNoChangeDir];
-      selectFileDlg.Title := 'Select File to check:';
+      selectFileDlg.Title := CAResources.RsTitleCheckCutMovie;
       selectFileDlg.InitialDir := settings.CutMovieSaveDir;
       if selectFileDlg.Execute then
         MovieInfo.target_filename := selectFileDlg.FileName
@@ -2265,12 +2256,12 @@ begin
 
   if not fileexists(MovieInfo.target_filename) then begin
     if not batchmode then
-      showmessage('Movie File not found.');
+      showmessage(CAResources.RsErrorMovieNotFound);
   end else begin
     try
       if not FResultingTimes.loadMovie(MovieInfo.target_filename) then begin
         if not batchmode then
-          showmessage('Could not load cut movie.');
+          showmessage(CAResources.RsErrorCouldNotLoadMovie);
         exit;
       end;
       FResultingTimes.calculate(cutlist);
@@ -2278,11 +2269,13 @@ begin
     except
       on E: Exception do
         if not batchmode then
-          ShowMessage('Could not load cut movie!'#13#10'Error: '+ E.Message);
+          ShowMessageFmt(CAResources.RsErrorCouldNotLoadCutMovie, [ E.Message ]);
     end;
 
   end;
 end;
+
+{ ToDO: Extract resource strings }
 
 procedure TFMain.AAsfbinInfoExecute(Sender: TObject);
 var

@@ -2275,8 +2275,6 @@ begin
   end;
 end;
 
-{ ToDO: Extract resource strings }
-
 procedure TFMain.AAsfbinInfoExecute(Sender: TObject);
 var
   info: string;
@@ -2286,36 +2284,35 @@ begin
 
   CutApplication := Settings.GetCutApplicationByMovieType(mtWMV);
   if assigned(CutApplication) then begin
-    info := info + 'WMV Cut Application' + #13#10;
+    info := info + CAResources.RsCutApplicationWmv + #13#10;
     info := info + CutApplication.InfoString + #13#10;
   end;
 
   CutApplication := Settings.GetCutApplicationByMovieType(mtAVI);
   if assigned(CutApplication) then begin
-    info := info + 'AVI Cut Application' + #13#10;
+    info := info + CAResources.RsCutApplicationAvi + #13#10;
     info := info + CutApplication.InfoString + #13#10;
   end;
 
   CutApplication := Settings.GetCutApplicationByMovieType(mtHQAVI);
   if assigned(CutApplication) then begin
-    info := info + 'HQ AVI Cut Application' + #13#10;
+    info := info + CAResources.RsCutApplicationHqAvi + #13#10;
     info := info + CutApplication.InfoString + #13#10;
   end;
 
   CutApplication := Settings.GetCutApplicationByMovieType(mtMP4);
   if assigned(CutApplication) then begin
-    info := info + 'MP4 Cut Application' + #13#10;
+    info := info + CAResources.RsCutApplicationMp4 + #13#10;
     info := info + CutApplication.InfoString + #13#10;
   end;
 
   CutApplication := Settings.GetCutApplicationByMovieType(mtUnknown);
   if assigned(CutApplication) then begin
-    info := info + 'Other Cut Application' + #13#10;
+    info := info + CAResources.RsCutApplicationOther + #13#10;
     info := info + CutApplication.InfoString + #13#10;
   end;
 
-  //showmessage(info);
-  frmMemoDialog.Caption := 'Cut Application Settings';
+  frmMemoDialog.Caption := CAResources.RsTitleCutApplicationSettings;
   frmMemoDialog.memInfo.Clear;
   frmMemoDialog.memInfo.Text := info;
   frmMemoDialog.ShowModal;
@@ -2334,7 +2331,7 @@ begin
   result := false;
   if (MovieInfo.current_filesize = 0) or (MovieInfo.current_filename = '') then
     exit;
-  Error_message := 'Unknown error.';
+  Error_message := CAResources.RsErrorUnknown;
 
   url := settings.url_cutlists_home + php_name + command + inttostr(MovieInfo.current_filesize) +'&version=' + Application_Version;
   Result := DoHttpGet(url, false, error_message, Response);
@@ -2371,13 +2368,12 @@ begin
           end;
       end else begin
         if not batchmode then
-          showmessage('Search Cutlist by File Size: No Cutlist found.');
+          showmessage(CAResources.RsMsgSearchCutlistNoneFound);
       end;
     except
     on E: EJclSimpleXMLError do begin
-        Error_message := 'XML-Error while getting cutlist infos.'#13#10 + E.Message;
         if not batchmode then
-          ShowMessage(Error_Message);
+          ShowMessageFmt(CAresources.RsErrorSearchCutlistXml, [ E.Message ]);
       end;
     end;
 end;
@@ -2386,7 +2382,6 @@ procedure TFMain.ASearchCutlistByFileSizeExecute(Sender: TObject);
 begin
   self.SearchCutlistsByFileSize_XML;
 end;
-
 
 function TFMain.SendRating(Cutlist: TCutlist): boolean;
 const
@@ -2399,7 +2394,7 @@ begin
   if cutlist.IDOnServer = '' then begin
     ASendRating.Enabled := false;
     if not batchmode then
-      Showmessage('Current cutlist was not downloaded. Rating not possible.');
+      Showmessage(CAResources.RsMsgSendRatingNotPossible);
     exit;
   end else begin
     if (cutlist.RatingOnServer >= 0.0) and cutlist.RatingByAuthorPresent then
@@ -2412,7 +2407,7 @@ begin
       FCutlistRate.SelectedRating := -1;
     if FCutlistRate.ShowModal = mrOK then
     begin
-      Error_message := 'Unknown error.';
+      Error_message := CAResources.RsErrorUnknown;
       url := settings.url_cutlists_home
            + php_name + command +cutlist.IDOnServer
            +'&rating=' + inttostr(FCutlistRate.SelectedRating)
@@ -2424,16 +2419,15 @@ begin
         if AnsiContainsText(Response, '<html>') then begin
           cutlist.RatingSent := true;
           if not batchmode then
-            showmessage ('Rating done.');
+            showmessage (CAResources.RsMsgSendRatingDone);
         end else begin
           if not batchmode then
-            showmessage('Answer from Server:' + #13#10 + leftstr(response, 255));
+            ShowMessageFmt(CAResources.RsMsgAnswerFromServer, [ LeftStr(response, 255) ]);
         end;
       end;
     end;
   end;
 end;
-
 
 procedure TFMain.ASendRatingExecute(Sender: TObject);
 begin
@@ -2476,7 +2470,7 @@ begin
     Request := THttpRequest.Create(
                   settings.url_cutlists_upload,
                   true,
-                  'Error uploading cutlist: ');
+                  CAResources.RsErrorUploadCutlist);
     Request.IsPostRequest := true;
     try
       with Request.PostData do
@@ -2492,18 +2486,21 @@ begin
       Response := Request.Response;
 
       lines := TStringList.Create;
-      lines.Delimiter := #10;
-      lines.NameValueSeparator := '=';
-      lines.DelimitedText := Response;
-      if TryStrToInt(lines.values['id'], Cutlist_id) then begin
-        AddUploadDataEntry(Now, extractFileName(filename), Cutlist_id);
-        UploadDataEntries.SaveToFile(UploadData_Path(true));
+      try
+        lines.Delimiter := #10;
+        lines.NameValueSeparator := '=';
+        lines.DelimitedText := Response;
+        if TryStrToInt(lines.values['id'], Cutlist_id) then begin
+          AddUploadDataEntry(Now, extractFileName(filename), Cutlist_id);
+          UploadDataEntries.SaveToFile(UploadData_Path(true));
+        end;
+        begin_answer := LastDelimiter(#10, response)+1;
+        Answer := midstr(response, begin_answer, length(response)-begin_answer+1); //Last Line
+      finally
+        FreeAndNIL(lines);
       end;
-      begin_answer := LastDelimiter(#10, response)+1;
-      Answer := midstr(response, begin_answer, length(response)-begin_answer+1); //Last Line
-      FreeAndNIL(lines);
       if not batchmode then
-        showmessage('Server responded:' + #13#10 + answer);
+        ShowMessageFmt(CAResources.RsMsgAnswerFromServer, [ answer ]);
     finally
       FreeAndNil(Request);
     end;
@@ -2550,6 +2547,8 @@ begin
   end;
 end;
 
+{ ToDO: Extract resource strings }
+
 function TFMain.DeleteCutlistFromServer(const cutlist_id: string): boolean;
 const
   php_name = 'delete_cutlist.php';
@@ -2560,7 +2559,7 @@ begin
   result := false;
   if cutlist_id='' then exit;
 
-  Error_message := 'Unknown error.';
+  Error_message := CAResources.RsErrorUnknown;
   url := settings.url_cutlists_home + php_name + '?'
        + 'cutlistid=' + cutlist_id
        + '&userid=' + settings.UserID

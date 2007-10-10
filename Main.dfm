@@ -320,11 +320,13 @@ object FMain: TFMain
     Top = 283
     Width = 28
     Height = 27
-    Action = APlayPause
+    Hint = 'Play / pause movie'
     Anchors = [akRight, akBottom]
+    Caption = '>/||'
     ParentShowHint = False
     ShowHint = True
     TabOrder = 19
+    OnClick = APlayPauseExecute
   end
   object Lcutlist: TListView
     Left = 360
@@ -2766,10 +2768,24 @@ object FMain: TFMain
     end
     object APlayPause: TAction
       Category = 'Navigation'
-      Caption = '>'
+      Caption = '>/||'
       Hint = 'Play / pause movie'
       ShortCut = 114
       OnExecute = APlayPauseExecute
+    end
+    object APlay: TAction
+      Category = 'Navigation'
+      Caption = '>'
+      Enabled = False
+      Hint = 'Play'
+      OnExecute = APlayExecute
+    end
+    object APause: TAction
+      Category = 'Navigation'
+      Caption = '||'
+      Enabled = False
+      Hint = 'Pause'
+      OnExecute = APauseExecute
     end
   end
   object MainMenu: TMainMenu
@@ -2841,6 +2857,12 @@ object FMain: TFMain
       object N14: TMenuItem
         Action = APlayPause
         Enabled = False
+      end
+      object N17: TMenuItem
+        Action = APlay
+      end
+      object N18: TMenuItem
+        Action = APause
       end
       object N15: TMenuItem
         Action = AStop

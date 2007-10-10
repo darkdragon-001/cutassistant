@@ -90,6 +90,18 @@ RESOURCESTRING
   RsMsgAnswerFromServer            = 'Answer from Server:'#13#10'%s';
 
   RsErrorUploadCutlist             = 'Error uploading cutlist: ';
+
+  RsMsgCutlistDeleteUnexpected     = 'Delete command sent to server, but received unexpected response from server.';
+  RsMsgCutlistDeleteEntryRemoved   = 'Database entry removed.';
+  RsMsgCutlistDeleteEntryNotRemoved= 'Database entry NOT removed.';
+  RsMsgCutlistDeleteFileRemoved    = 'File removed.';
+  RsMsgCutlistDeleteFileNotRemoved = 'File NOT removed.';
+
+  RsMsgAskUserForRating            = 'Please send a rating for the current cutlist.'#13#10
+                                   + 'Would you like to do that now?';
+
+  RsCutAssistantSupportRequest     = 'CutAssistant %s support request';
+
 IMPLEMENTATION
 
 END.

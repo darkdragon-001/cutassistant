@@ -240,6 +240,10 @@ type
     N14: TMenuItem;
     N15: TMenuItem;
     N16: TMenuItem;
+    APlay: TAction;
+    APause: TAction;
+    N17: TMenuItem;
+    N18: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -352,6 +356,8 @@ type
       const AWorkCount: Integer);
     procedure AStopExecute(Sender: TObject);
     procedure APlayPauseExecute(Sender: TObject);
+    procedure APlayExecute(Sender: TObject);
+    procedure APauseExecute(Sender: TObject);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -2547,13 +2553,12 @@ begin
   end;
 end;
 
-{ ToDO: Extract resource strings }
-
 function TFMain.DeleteCutlistFromServer(const cutlist_id: string): boolean;
 const
   php_name = 'delete_cutlist.php';
 var
-  url, Response, Error_message, Answer, val: string;
+  url, Response, Error_message, val: string;
+  fileRemoved, entryRemoved: boolean;
   lines: TStringList;
 begin
   result := false;
@@ -2579,26 +2584,20 @@ begin
       begin
         Result := false;
         if not batchmode then
-          ShowMessage ('Delete command sent to server, but received unexpected response from server.');
+          ShowMessage(CAResources.RsMsgCutlistDeleteUnexpected);
       end
       else
       begin
-        if val = '1' then
-        begin
-          answer := answer + 'File removed.' + #13#10;
-        end else
-        begin
-          answer := answer + 'File NOT removed.' + #13#10;
-          result := false;
-        end;
-        if lines.Values['removedentry'] = '1' then begin
-          answer := answer + 'Database entry removed.' + #13#10;
-        end else begin
-          answer := answer + 'Database entry NOT removed.' + #13#10;
-          result := false;
-        end;
+        fileRemoved := val = '1';
+        entryRemoved := lines.Values['removedentry'] = '1';
+
+        Result := fileRemoved and entryRemoved;
+
         if not batchmode then
-          ShowMessage(answer);
+          ShowMessageFmt('%s'#13#10'%s', [
+            IfThen(fileRemoved, CAResources.RsMsgCutlistDeleteEntryRemoved, CAResources.RsMsgCutlistDeleteEntryNotRemoved),
+            IfThen(entryRemoved, CAResources.RsMsgCutlistDeleteFileRemoved, CAResources.RsMsgCutlistDeleteFileNotRemoved)
+          ]);
       end;
     finally
       FreeAndNil(lines);
@@ -2632,14 +2631,12 @@ function TFMain.AskForUserRating(Cutlist: TCutlist): boolean;
 //true = user rated or decided not to rate, or no rating necessary
 //false = abort operation
 var
-  message_string: String;
   userIsAuthor: boolean;
 begin
   result := false;
   userIsAuthor := Cutlist.Author = settings.UserName;
   if (Cutlist.UserShouldSendRating) and not userIsAuthor then begin
-    message_string := 'Please send a rating for the current cutlist. Would you like to do that now?';
-    case (application.messagebox(PChar(message_string), nil, MB_YESNOCANCEL + MB_ICONQUESTION)) of
+    case (application.MessageBox(PChar(CAResources.RsMsgAskUserForRating), nil, MB_YESNOCANCEL + MB_ICONQUESTION)) of
       IDYES: begin
           result := self.SendRating(Cutlist);
         end;
@@ -2681,9 +2678,6 @@ begin
 end;
 
 function TFMain.GraphPause: boolean;
-const
-  CaptionPlay = '>';
-  HintPlay = 'Play';
 {var
   event: integer;  }
 begin
@@ -2692,21 +2686,22 @@ begin
     FrameStep.Step(1, nil);
     MediaEvent.WaitForCompletion(500, event);
   end;              }
-  self.APlayPause.Caption := CaptionPlay;
-  self.APlayPause.Hint := HintPlay;
-  self.BFF.Enabled := false;
-  TBFilePos.TriggerTimer;
+  if Result then begin
+    BPlayPause.Caption := APlay.Caption;
+    BPlayPause.Hint := APlay.Hint;
+    BPlayPause.Enabled := APlay.Enabled;
+    self.BFF.Enabled := false;
+    TBFilePos.TriggerTimer;
+  end;
 end;
 
 function TFMain.GraphPlay: boolean;
-const
-  CaptionPause= '||';
-  HintPause = 'Pause';
 begin
   result := filtergraph.Play;
   if result then begin
-    self.APlayPause.Caption := CaptionPause;
-    self.APlayPause.Hint := HintPause;
+    BPlayPause.Caption := APause.Caption;
+    BPlayPause.Hint := APause.Hint;
+    BPlayPause.Enabled := APause.Enabled;
     self.BFF.Enabled := true;
   end;
 end;
@@ -2784,22 +2779,6 @@ procedure TFMain.BFFMouseUp(Sender: TObject; Button: TMouseButton;
 begin
   self.FF_Stop;
 end;
-{
-function TFMain.SampleCB(SampleTime: double;
-  MediaSample: IMediaSample): HRESULT;
-begin
-  if assigned(SampleTarget) then begin
-    (SampleTarget as TCutFrame).IsKeyFrame := succeeded(MediaSample.IsSyncPoint);
-  end;
-  Result := S_OK;
-end;
-
-function TFMain.BufferCB(SampleTime: Double; pBuffer: PByte;
-  BufferLen: Integer): HResult;
-begin
-  Result := S_OK;
-end;
-}
 
 procedure TFMain.VideoWindowDblClick(Sender: TObject);
 begin
@@ -2840,6 +2819,8 @@ begin
   if movieInfo.MovieLoaded then CloseMovie;
   result := true;
 end;
+
+{ ToDO: Extract resource strings }
 
 function TFMain.DownloadCutlistByID(cutlist_id, TargetFileName: string): boolean;
 const
@@ -3286,6 +3267,8 @@ begin
     self.ASmallSkipBackward.Enabled := value;
     self.ALargeSkipBackward.Enabled := value;
     self.APlayPause.Enabled := value;
+    self.APlay.Enabled := value;
+    self.APause.Enabled := value;
     self.AStop.Enabled:= value;
     if value and MovieInfo.CanStepForward then begin
       self.AStepForward.Enabled := true;
@@ -3298,6 +3281,7 @@ begin
     self.BSetTo.Enabled := value;
     self.BFromStart.Enabled := value;
     self.BToEnd.Enabled := value;
+    self.BPlayPause.Enabled := APlayPause.Enabled;
 end;
 
 function TFMain.BuildFilterGraph(FileName: String;
@@ -3662,7 +3646,8 @@ begin
   AException := NewException(etHidden);
   AException.ListThreads := false;
   //AException.MailAddr := 'cutassistant-help@lists.sourceforge.net';
-  AException.MailSubject := 'CutAssistant ' + Application_Version + ' support request';
+  AException.MailSubject := Format(CAResources.RsCutAssistantSupportRequest, [ Application_Version ]);
+
   AAssistant := AException.GetAssistant('SupportAssistant');
   AMemo := AAssistant.Form['SupportDetailsForm'].nvEdit('DetailsMemo');
   AScreenShot := AException.ScreenShot;
@@ -3684,6 +3669,16 @@ end;
 procedure TFMain.APlayPauseExecute(Sender: TObject);
 begin
   GraphPlayPause;
+end;
+
+procedure TFMain.APlayExecute(Sender: TObject);
+begin
+  GraphPlay;
+end;
+
+procedure TFMain.APauseExecute(Sender: TObject);
+begin
+  GraphPause;
 end;
 
 initialization

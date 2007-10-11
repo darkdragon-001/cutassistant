@@ -102,6 +102,21 @@ RESOURCESTRING
 
   RsCutAssistantSupportRequest     = 'CutAssistant %s support request';
 
+  RsDownloadCutlistWarnChanged     = 'Trying to download this cutlist:'#13#10
+                                   + '%s [ID=%s]'#13#10
+                                   + 'Existing cutlist is not saved and changes will be lost.'#13#10
+                                   + 'Continue?';
+
+  RsMsgOpenHomepage                = 'Open cutlist homepage in webbrowser?';
+  RsDownloadCutlistInvalidData     = 'Server did not return any valid data (%d bytes). Abort.';
+  RsErrorCreatePathFailedAbort     = 'Could not create cutlist path %s. Abort.';
+
+  RsWarnTargetExistsOverwrite      = 'Target File exists already:'#13#10
+                                   + '%s'#13#10
+                                   + 'Overwrite?';
+
+  RsErrorDeleteFileFailedAbort     = 'Could not delete existing file %s. Abort.';
+
 IMPLEMENTATION
 
 END.

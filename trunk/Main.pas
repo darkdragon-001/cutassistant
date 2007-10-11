@@ -20,7 +20,7 @@ uses
   CodecSettings, JvComponentBase, JvSimpleXml, JclSimpleXML, IdAntiFreezeBase,
   IdAntiFreeze, JvGIF, JvSpeedbar, JvExExtCtrls, JvExtComponent, JvExControls,
   JvXPCore, JvXPBar, ActnList, IdThreadComponent, JvBaseDlg,
-  JvProgressDialog;
+  JvProgressDialog, JvAppCommand;
 
 const
   //Registry Keys
@@ -244,6 +244,7 @@ type
     APause: TAction;
     N17: TMenuItem;
     N18: TMenuItem;
+    JvAppCommand: TJvAppCommand;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -358,6 +359,8 @@ type
     procedure APlayPauseExecute(Sender: TObject);
     procedure APlayExecute(Sender: TObject);
     procedure APauseExecute(Sender: TObject);
+    procedure JvAppCommandAppCommand(Handle: Cardinal; Cmd: Word;
+      Device: TJvAppCommandDevice; KeyState: Word; var Handled: Boolean);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -2089,17 +2092,48 @@ end;
 
 procedure TFMain.FormKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-const
-  VK_MEDIA_PLAY_PAUSE=$B3;
+var
+  done: boolean;
 begin
-//  showmessage(inttostr(key));
-  case key of
-    ord('K'), ord(' '), VK_MEDIA_PLAY_PAUSE: begin
-        GraphPlayPause;
-        Key := 0;
-      end;
+  done := false;
+  if Shift = [ ] then
+    case key of
+      ord('K'), ord(' '), VK_MEDIA_PLAY_PAUSE:
+          done := APlayPause.Execute;
+      VK_MEDIA_STOP:
+          done := AStop.Execute;
+      VK_MEDIA_NEXT_TRACK:
+          done := ANextCut.Execute;
+      VK_MEDIA_PREV_TRACK:
+          done := APrevCut.Execute;
+      VK_BROWSER_BACK:
+          done := AStepBackward.Execute;
+      VK_BROWSER_FORWARD:
+          done := AStepForward.Execute;
+  end;
+  if done then
+    Key := 0;
+end;
+
+procedure TFMain.JvAppCommandAppCommand(Handle: Cardinal; Cmd: Word;
+  Device: TJvAppCommandDevice; KeyState: Word; var Handled: Boolean);
+begin
+  case Cmd of // Force Handled for specific commands ...
+    APPCOMMAND_BROWSER_BACKWARD:
+      Handled := AStepBackward.Execute or true;
+    APPCOMMAND_BROWSER_FORWARD:
+      Handled := AStepForward.Execute or true;
+    APPCOMMAND_MEDIA_PLAY_PAUSE:
+      Handled := APlayPause.Execute or true;
+    APPCOMMAND_MEDIA_STOP:
+      Handled := AStop.Execute or true;
+    APPCOMMAND_MEDIA_NEXTTRACK:
+      Handled := ANextCut.Execute or true;
+    APPCOMMAND_MEDIA_PREVIOUSTRACK:
+      Handled := APrevCut.Execute or true;
   end;
 end;
+
 
 procedure TFMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
 var
@@ -2687,9 +2721,9 @@ begin
     MediaEvent.WaitForCompletion(500, event);
   end;              }
   if Result then begin
-    BPlayPause.Caption := APlay.Caption;
-    BPlayPause.Hint := APlay.Hint;
-    BPlayPause.Enabled := APlay.Enabled;
+    //BPlayPause.Caption := APlay.Caption;
+    //BPlayPause.Hint := APlay.Hint;
+    //BPlayPause.Enabled := APlay.Enabled;
     self.BFF.Enabled := false;
     TBFilePos.TriggerTimer;
   end;
@@ -2699,9 +2733,9 @@ function TFMain.GraphPlay: boolean;
 begin
   result := filtergraph.Play;
   if result then begin
-    BPlayPause.Caption := APause.Caption;
-    BPlayPause.Hint := APause.Hint;
-    BPlayPause.Enabled := APause.Enabled;
+    //BPlayPause.Caption := APause.Caption;
+    //BPlayPause.Hint := APause.Hint;
+    //BPlayPause.Enabled := APause.Enabled;
     self.BFF.Enabled := true;
   end;
 end;
@@ -2805,7 +2839,6 @@ begin
   end;
 end;
 
-
 procedure TFMain.ACloseMovieExecute(Sender: TObject);
 begin
   self.CloseMovieAndCutlist;
@@ -2819,8 +2852,6 @@ begin
   if movieInfo.MovieLoaded then CloseMovie;
   result := true;
 end;
-
-{ ToDO: Extract resource strings }
 
 function TFMain.DownloadCutlistByID(cutlist_id, TargetFileName: string): boolean;
 const
@@ -2846,22 +2877,20 @@ begin
   target_file := cutlist_path + TargetFileName;
 
   if cutlist.HasChanged and (not batchmode) then begin
-    message_string := 'Trying to download this cutlist:' + #13#10 + TargetFileName + '[ID='+ cutlist_id + ']' +#13#10+
-                      'Existing cutlist is not saved and will be overwritten.' +#13#10+
-                      'Continue?';
+    message_string := Format(CAResources.RsDownloadCutlistWarnChanged, [ TargetFileName, cutlist_id ]);
     if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
       exit;
     end;
   end;
 
-  Error_message := 'Unknown error.';
+  Error_message := CAResources.RsErrorUnknown;
   url := settings.url_cutlists_home + php_name + command + cleanurl(cutlist_id);
 
   if not DoHttpGet(url, false, error_message, Response) then
   begin
     if not batchmode then
     begin
-      message_string := Error_message + #13#10 +  'Open cutlist homepage in webbrowser?';
+      message_string := Error_message + #13#10 + CAResources.RsMsgOpenHomepage;
       if (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONQUESTION) = IDYES) then
       begin
         ShellExecute(0, nil, PChar(settings.url_cutlists_home), '', '', SW_SHOWNORMAL);
@@ -2872,21 +2901,20 @@ begin
     if (Length(Response) < 5) then
     begin
       if not batchmode then
-        ShowMessage('Server did not return any valid data (' + inttostr(Length(Response)) + ' bytes). Abort.');
+        ShowMessageFmt(CAResources.RsDownloadCutlistInvalidData, [ Length(Response) ]);
       Exit;
     end;
     if not ForceDirectories(cutlist_path) then
     begin
       if not batchmode then
-        ShowMessage('Could not create cutlist path ' + cutlist_path + '. Abort.');
+        ShowMessageFmt(CAResources.RsErrorCreatePathFailedAbort, [ cutlist_path ]);
       exit;
     end;
     if fileexists(target_file) then
     begin
       if not batchmode then
       begin
-        message_string := 'Target File exists already:' + #13#10 + target_file +#13#10+
-                          'Overwrite?';
+        message_string := Format(CAResources.RsWarnTargetExistsOverwrite, [ target_file ]);
         if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONQUESTION) = IDYES) then
         begin
           exit;
@@ -2895,7 +2923,7 @@ begin
       if not DeleteFile(target_file) then
       begin
         if not batchmode then
-          ShowMessage('Could not delete existing file ' + target_file + '. Abort.');
+          ShowMessageFmt(CAResources.RsErrorDeleteFileFailedAbort, [ target_file ]);
         exit;
       end;
     end;
@@ -2911,6 +2939,8 @@ begin
     Result := true;
   end;
 end;
+
+{ ToDO: Extract resource strings }
 
 function TFMain.ConvertUploadData: boolean;
 var
@@ -3281,7 +3311,7 @@ begin
     self.BSetTo.Enabled := value;
     self.BFromStart.Enabled := value;
     self.BToEnd.Enabled := value;
-    self.BPlayPause.Enabled := APlayPause.Enabled;
+    //self.BPlayPause.Enabled := APlayPause.Enabled;
 end;
 
 function TFMain.BuildFilterGraph(FileName: String;

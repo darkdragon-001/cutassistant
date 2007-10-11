@@ -320,13 +320,11 @@ object FMain: TFMain
     Top = 283
     Width = 28
     Height = 27
-    Hint = 'Play / pause movie'
+    Action = APlayPause
     Anchors = [akRight, akBottom]
-    Caption = '>/||'
     ParentShowHint = False
     ShowHint = True
     TabOrder = 19
-    OnClick = APlayPauseExecute
   end
   object Lcutlist: TListView
     Left = 360
@@ -3016,5 +3014,10 @@ object FMain: TFMain
     OnRun = RequestWorkerRun
     Left = 207
     Top = 192
+  end
+  object JvAppCommand: TJvAppCommand
+    OnAppCommand = JvAppCommandAppCommand
+    Left = 48
+    Top = 252
   end
 end

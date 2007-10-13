@@ -117,6 +117,28 @@ RESOURCESTRING
 
   RsErrorDeleteFileFailedAbort     = 'Could not delete existing file %s. Abort.';
 
+  RsErrorConvertUploadData         = 'XML-Error while converting upload infos.'#13#10
+                                   + '%s';
+
+  RsErrorDownloadInfo              = 'Error while checking for Information and new Versions on Server.'#13#10;
+  RsErrorDownloadInfoXml           = '%sXML-Error: %s';
+
+  RsMsgInfoMessage                 = 'Information: %s';
+  RsMsgInfoDevelopment             = 'Development Version Information: %s';
+  RsMsgInfoStable                  = 'Stable Version Information: %s';
+
+  RsTitleSaveSnapshot              = 'Save Snapshot as...';
+
+  RsErrorExternalCall              = 'Error while calling %s: %s';
+
+  RsErrorHttpFileNotFound          = 'File not found on server: %s';
+
+  RsProgressTransferAborted        = 'Transfer aborted ...';
+  RsErrorTransferAborting          = 'Transfer error. Aborting ...';
+
+  RsProgressReadData               = 'Read %5d bytes from host.';
+  RsProgressWroteData              = 'Wrote %5d bytes to host.';
+
 IMPLEMENTATION
 
 END.

@@ -226,6 +226,7 @@ type
 
   function FilterStringFromExtArray(ExtArray: array of string): string;
   function MakeFilterString(const description: string; const extensions: string): string;
+  function AppendFilterString(const filter: string; const description: string; const extensions: string): string;
 
 implementation
 
@@ -241,6 +242,14 @@ const ScreenWidthDev  = 1280;
 
 var
   invariantFormat: TFormatSettings;
+
+function AppendFilterString(const filter: string; const description: string; const extensions: string): string;
+begin
+  Result := filter;
+  if filter <> '' then
+    Result := Result + '|';
+  Result := Result + MakeFilterString(description, extensions);
+end;
 
 function MakeFilterString(const description: string; const extensions: string): string;
 begin

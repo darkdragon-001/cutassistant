@@ -2940,8 +2940,6 @@ begin
   end;
 end;
 
-{ ToDO: Extract resource strings }
-
 function TFMain.ConvertUploadData: boolean;
 var
   RowDataNode, RowNode: TJCLSimpleXMLElem;
@@ -2949,7 +2947,6 @@ var
   CutlistID: integer;
   CutlistDate: TDateTime;
   CutlistIDStr, CutlistName, CutlistDateStr: string;
-  Error_message: string;
 begin
   Result := false;
   if not FileExists(UploadData_Path(false)) then
@@ -2989,9 +2986,8 @@ begin
     end;
   except
   on E: EJclSimpleXMLError do begin
-      Error_message := 'XML-Error while converting upload infos.'#13#10 + E.Message;
       if not batchmode then
-        ShowMessage(Error_Message);
+        ShowMessageFmt(CAResources.RsErrorConvertUploadData, [ E.Message ]);
     end;
   end;
 end;
@@ -3055,10 +3051,10 @@ begin
   if ShowAll then
     lastChecked := 0;
 
-  Error_message := 'Unknown error.';
+  Error_message := CAResources.RsErrorUnknown;
   url := settings.url_info_file;
 
-  Error_message := 'Error while checking for Information and new Versions on Server.' +#13#10;
+  Error_message := CAResources.RsErrorDownloadInfo;
   Result := DoHttpGet(url, false, Error_message, ResponseText);
 
   if Result then begin
@@ -3071,19 +3067,19 @@ begin
             AText := GetXMLMessages(XMLResponse.Root, lastChecked, 'messages');
             if Length(AText) > 0 then
               if not batchmode then
-                ShowMessage('Information: ' + AText);
+                ShowMessageFmt(CAResources.RsMsgInfoMessage, [ AText ]);
           end;
           if settings.InfoShowBeta then begin
             AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['beta'], 'version_text', lastChecked);
             if Length(AText) > 0 then
               if not batchmode then
-                ShowMessage('Beta-Information: ' + AText);
+                ShowMessageFmt(CAResources.RsMsgInfoDevelopment, [ AText ]);
           end;
           if settings.InfoShowStable then begin
             AText := GetXMLMessage(XMLResponse.Root.Items.ItemNamed['stable'], 'version_text', lastChecked);
             if Length(AText) > 0 then
               if not batchmode then
-                ShowMessage('Stable-Information: ' + AText);
+                ShowMessageFmt(CAResources.RsMsgInfoStable, [ AText ]);
           end;
           Result := true;
         end;
@@ -3091,9 +3087,8 @@ begin
       settings.InfoLastChecked := sysutils.Date;
     except
       on E: EJclSimpleXMLError do begin
-        Error_message := Error_message + 'XML-Error: ' + E.Message;
         if not batchmode then
-          ShowMessage(Error_Message);
+          ShowMessageFmt(CAResources.RsErrorDownloadInfoXml, [ error_message, E.Message ]);
       end;
       else begin
         raise;
@@ -3129,6 +3124,9 @@ begin
 end;
 
 procedure TFMain.ASnapshotSaveExecute(Sender: TObject);
+const
+  BMP_EXTENSION = '.bmp';
+  JPG_EXTENSION = '.jpg';
 
   function AskForFileName(var FileName: string; var FileType: Integer): boolean;
   var
@@ -3138,9 +3136,11 @@ procedure TFMain.ASnapshotSaveExecute(Sender: TObject);
     result := false;
     saveDlg := TSaveDialog.Create(Application.MainForm);
     try
-      saveDlg.Filter := 'Bitmap|*.bmp|JPEG|*.jpg|All Files|*.*';
+      saveDlg.Filter := MakeFilterString('Bitmap', '*'+BMP_EXTENSION) + '|'
+                      + MakeFilterString('JPEG', '*'+JPG_EXTENSION) + '|'
+                      + MakeFilterString(CAResources.RsFilterDescriptionAll, '*.*');
       saveDlg.FilterIndex := 2;
-      saveDlg.Title := 'Save Snapshot as...';
+      saveDlg.Title := CAResources.RsTitleSaveSnapshot;
       //saveDlg.InitialDir := '';
       saveDlg.filename := fileName;
       saveDlg.options := saveDlg.Options + [ofOverwritePrompt, ofPathMustExist];
@@ -3150,11 +3150,11 @@ procedure TFMain.ASnapshotSaveExecute(Sender: TObject);
         FileType := saveDlg.FilterIndex;
         case FileType of
           1: begin
-               DefaultExt := '.bmp';
+               DefaultExt := BMP_EXTENSION;
              end;
           else begin
             FileType := 2;
-            DefaultExt := '.jpg';
+            DefaultExt := JPG_EXTENSION;
           end;
         end;
         if extractFileExt(FileName) <> DefaultExt then FileName := FileName + DefaultExt;
@@ -3221,13 +3221,15 @@ end;
 
 function TFMain.CreateMPlayerEDL(cutlist: TCutlist; Inputfile,
   Outputfile: String; var scriptfile: string): boolean;
+const
+  EDL_EXTENSION = '.edl';
 var
   f: Textfile;
   i: integer;
   cutlist_tmp: TCutlist;
 begin
   if scriptfile = '' then
-    scriptfile := Inputfile + '.edl';
+    scriptfile := Inputfile + EDL_EXTENSION;
   assignfile(f, scriptfile);
   rewrite(f);
   try
@@ -3264,8 +3266,8 @@ begin
   end;
   if not CallApplication(AppPath, Command, message_string) then begin
     if not batchmode then
-      showmessage('Error while calling ' + extractFilename(AppPath) + ': ' + message_string);
-  end;   
+      ShowMessageFmt(CAResources.RsErrorExternalCall, [ extractFilename(AppPath), message_string ]);
+  end;
 end;
 
 procedure TFMain.ResetForm;
@@ -3281,7 +3283,7 @@ begin
   self.EnableMovieControls(false);
   self.AStepForward.Enabled := false;
 
-  self.LDuration.Caption := '0 / 0:00:00.000';
+  self.LDuration.Caption := IntToStr(0) + ' / ' + MovieInfo.FormatPosition(0);
   self.UpdateMovieInfoControls;
 end;
 
@@ -3459,7 +3461,7 @@ end;
 
 procedure TFMain.ATestExceptionHandlingExecute(Sender: TObject);
 begin
-  raise Exception.Create('This is a exception handling test at ' + FormatDateTime('', Now));
+  raise Exception.Create('Exception handling test at ' + FormatDateTime('', Now));
 end;
 
 procedure TFMain.ACheckInfoOnServerExecute(Sender: TObject);
@@ -3542,7 +3544,7 @@ begin
           idx := Pos('?', url);
           if idx < 1 then idx := Length(url)
           else Dec(idx);
-          msg := 'File not found on server: ' + Copy(url, 1, idx) + '.';
+          msg := Format(CAResources.RsErrorHttpFileNotFound, [ Copy(url, 1, idx) ]);
         end;
       end;
     end;
@@ -3620,11 +3622,11 @@ begin
   Assert(Assigned(Sender));
   if not Assigned(Sender.Data) then
   begin
-    RequestProgressDialog.Text := 'Transfer aborted ...';
+    RequestProgressDialog.Text := CAResources.RsProgressTransferAborted;
   end
   else begin
     data := Sender.Data as THttpRequest;
-    RequestProgressDialog.Text := 'Transfer error. Aborting ...';
+    RequestProgressDialog.Text := CAResources.RsErrorTransferAborting;
     data.Response := '';
   end;
 
@@ -3658,9 +3660,9 @@ procedure TFMain.IdHTTP1Work(Sender: TObject; AWorkMode: TWorkMode;
 begin
   case AWorkMode of
     wmRead:
-      RequestProgressDialog.Text := Format('Read %5d bytes from host.', [AWorkCount]);
+      RequestProgressDialog.Text := Format(CAResources.RsProgressReadData, [AWorkCount]);
     wmWrite:
-      RequestProgressDialog.Text := Format('Wrote %5d bytes to host.', [AWorkCount]);
+      RequestProgressDialog.Text := Format(CAResources.RsProgressWroteData, [AWorkCount]);
   end;
 end;
 

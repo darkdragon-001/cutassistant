@@ -3,6 +3,8 @@ UNIT CAResources;
 INTERFACE
 
 RESOURCESTRING
+
+  { Main }
   RsNotAvailable                   = 'N/A';
   RsCaptionCutApplication          = 'Cut app.: %s';
   RsNoCutsDefined                  = 'No cuts defined.';
@@ -138,6 +140,25 @@ RESOURCESTRING
 
   RsProgressReadData               = 'Read %5d bytes from host.';
   RsProgressWroteData              = 'Wrote %5d bytes to host.';
+
+  { CodecSettings }
+  RsCheckingSourceFilterStart      = 'Checking Filters. Please wait ...';
+  RsSourceFilterNone               = 'none';
+  RsCheckingSourceFilter           = 'Checking Filter (%3d/%3d)';
+  RsErrorCheckingSourceFilter      = 'Error while checking Filter %s'#13#10
+                                   + 'ClassID: %s'#13#10
+                                   + 'Error: %s';
+  RsCheckingSourceFilterEnd        = 'Checking Filters. Done.';
+  RsCodecUseDefault                = '%s use default';
+  RsCodecDummyName                 = 'none';
+  RsCodecDummyDesc                 = '(Do not include Codec information)';
+  RsErrorCloseCodec                = 'Could not close Compressor.';
+
+  { CutlistRate-dialog }
+  RsTitleConfirmRating             = 'Please confirm preselected rating ...';
+  RsMsgConfirmRating               = 'Do you want to use the proposed rating for the cutlist?'#13#10
+                                   + #13#10
+                                   + '  %s';
 
 IMPLEMENTATION
 

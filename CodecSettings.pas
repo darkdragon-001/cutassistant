@@ -72,7 +72,7 @@ implementation
 uses
   Forms, Controls, StdCtrls, Dialogs,
   Windows, Types, SysUtils, Base64,
-  DirectShow9;
+  DirectShow9, CAResources;
 
 { TSourceFilterList }
 
@@ -188,7 +188,7 @@ var
 begin
   self.ClearFilterList;
   newFilterInfo := self.Add;
-  newFilterINfo^.FriendlyName := '(none)';
+  newFilterINfo^.FriendlyName := '(' + CAResources.RsSourceFilterNone + ')';
   newFilterInfo^.CLSID := GUID_NULL;
   result := 1;
 
@@ -199,27 +199,29 @@ begin
   while (ParentForm <> nil) and not (ParentForm is TCustomForm) do
     ParentForm := ParentForm.Parent;
 
-  UpdateControlCaption(progressLabel, 'Checking Filters. Please wait ...');
+  UpdateControlCaption(progressLabel, CAResources.RsCheckingSourceFilterStart);
   filterCount := EnumFilters.CountFilters;
   try
     For i := 0 to filterCount - 1 do
     begin
       try
-        UpdateControlCaption(progressLabel, SysUtils.Format('Checking Filter (%3d/%3d)', [i+1, filterCount]));
+        UpdateControlCaption(progressLabel, SysUtils.Format(CAResources.RsCheckingSourceFilter, [i+1, filterCount]));
         CheckFilter(EnumFilters, i, FilterBlackList);
       except
       on E: exception do
         begin
-        showmessage('Error while checking Filter '+EnumFilters.Filters[i].FriendlyName +#13#10
-                   +'ClassID: ' + GUIDTOString(EnumFilters.Filters[i].CLSID)+#13#10
-                   +'Error: ' + E.Message);
-        if ParentForm <> nil then ParentForm.Refresh;
-        //raise;
+          ShowMessageFmt(CAResources.RsErrorCheckingSourceFilter, [
+            EnumFilters.Filters[i].FriendlyName,
+            GUIDTOString(EnumFilters.Filters[i].CLSID),
+            E.Message ]);
+          if ParentForm <> nil then
+            ParentForm.Refresh;
+          //raise;
         end;
       end;
     end;
   finally
-    UpdateControlCaption(progressLabel, 'Checking Filters. Done.');
+    UpdateControlCaption(progressLabel, CAResources.RsCheckingSourceFilterEnd);
     FreeAndNIL(EnumFilters);
     result := self.FFilters.Count;
   end;
@@ -308,10 +310,17 @@ begin
   for i := 0 to length(Infos)-1 do
   begin
     InfoObject := TICInfoObject.createFromICInfo(Infos[i]);
-    self.AddObject('['+ InfoObject.HandlerFourCCString + '] '
-                   + InfoObject.Name, InfoObject);
+    self.AddObject(Format('[%s] %s', [ InfoObject.HandlerFourCCString, InfoObject.Name] ), InfoObject);
   end;
   self.CustomSort(CompareByInfoName);
+end;
+
+procedure TCodecList.InsertDummy;
+var
+  InfoObject: TICInfoObject;
+begin
+  InfoObject := TICInfoObject.CreateDummy;
+  self.AddObject(Format('(%s) %s', [ CAResources.RsCodecUseDefault, InfoObject.Name] ), InfoObject);
 end;
 
 function TCodecList.GetCodecInfo(i: Integer): TICInfo;
@@ -337,14 +346,6 @@ begin
   end;
 end;
 
-procedure TCodecList.InsertDummy;
-var
-  InfoObject: TICInfoObject;
-begin
-  InfoObject := TICInfoObject.CreateDummy;
-  self.AddObject(InfoObject.Name + ' use default', InfoObject);
-end;
-
 { TICInfoObject }
 
 constructor TICInfoObject.create;
@@ -361,8 +362,8 @@ begin
   self.FICInfo.fccType := ICTYPE_VIDEO;
   self.FICInfo.fccHandler := 0;
   self.FICInfo.dwVersion := 0;
-  StringToWideChar('(none)', self.FICInfo.szName, 16);
-  StringToWideChar('(Do not include Codec information)', self.FICInfo.szDescription, 128);
+  StringToWideChar(CAResources.RsCodecDummyName, self.FICInfo.szName, 16);
+  StringToWideChar(CAResources.RsCodecDummyDesc, self.FICInfo.szDescription, 128);
 end;
 
 constructor TICInfoObject.createFromICInfo(FromICInfo: TICInfo);
@@ -387,7 +388,7 @@ begin
     returnedInfoSize := ICGetInfo(Codec, @FICInfo, sizeof(FICInfo));
     result := (returnedInfoSize= sizeof(FICInfo));
   finally
-    assert(ICClose(Codec) = ICERR_OK, 'Could not close Compressor.');
+    assert(ICClose(Codec) = ICERR_OK, CAResources.RsErrorCloseCodec);
   end;
 end;
 
@@ -463,7 +464,7 @@ begin
       StateBuffer := nil;
     end;
   end;
-  assert(ICClose(Codec) = ICERR_OK, 'Could not close Compressor.');
+  assert(ICClose(Codec) = ICERR_OK, CAResources.RsErrorCloseCodec);
   result := true;
 end;
 
@@ -478,7 +479,7 @@ begin
   try
     if (ICAbout(Codec, ParentWindow) = ICERR_OK) then result := true;
   finally
-    assert(ICClose(Codec) = ICERR_OK, 'Could not close Compressor.');
+    assert(ICClose(Codec) = ICERR_OK, CAResources.RsErrorCloseCodec);
   end;
 end;
 

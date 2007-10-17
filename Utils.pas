@@ -151,6 +151,9 @@ type
     procedure ReadCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
     procedure WriteCutAppSettings(const Section: string; var CutAppSettings: RCutAppSettings);
 
+    procedure WriteStrings(const section, name: string; const writeCount: boolean; const value: string); overload;
+    procedure WriteStrings(const section, name: string; const writeCount: boolean; const value: TStrings); overload;
+
     procedure UpdateFile; override;
 
     function GetDataString: string;
@@ -217,6 +220,9 @@ type
 
   function iniReadRect(const ini: TCustomIniFile; const section, name: string; const default: TRect): TRect;
   procedure iniWriteRect(const ini: TCustomIniFile; const section, name: string; const value: TRect);
+
+  procedure iniWriteStrings(const ini: TCustomIniFile; const section, name: string; const writeCount: boolean; const value: string); overload;
+  procedure iniWriteStrings(const ini: TCustomIniFile; const section, name: string; const writeCount: boolean; const value: TStrings); overload;
 
   Function MakeFourCC(const a,b,c,d: char): DWord;
 
@@ -453,6 +459,34 @@ begin
   WriteString(Section, 'CodecSettings', CutAppSettings.CodecSettings);
 end;
 
+procedure TMemIniFileEx.WriteStrings(const section, name: string; const writeCount: boolean; const value: string);
+var
+  sl: TStringList;
+begin
+  sl := TStringList.Create;
+  try
+    sl.Text := value;
+    WriteStrings(section, name, writeCount, sl);
+  finally
+    FreeAndNil(sl);
+  end;
+end;
+
+procedure TMemIniFileEx.WriteStrings(const section, name: string; const writeCount: boolean; const value: TStrings);
+var
+  idx, cnt: integer;
+begin
+  if not Assigned(value) then cnt := 0
+  else cnt := value.Count;
+  if writeCount then
+    WriteInteger(section, name + 'Count', cnt);
+  for idx := 0 to cnt - 1 do
+  begin
+    WriteString(section, name + IntToStr(idx+1), value.Strings[idx]);
+  end;
+end;
+
+
 function TMemIniFileEx.GetDataString: string;
 var
   List: TStringList;
@@ -560,6 +594,32 @@ begin
   ini.WriteInteger(section, name + '_Height', value.Bottom - value.Top);
 end;
 
+procedure iniWriteStrings(const ini: TCustomIniFile; const section, name: string; const writeCount: boolean; const value: string);
+var
+  sl: TStringList;
+begin
+  sl := TStringList.Create;
+  try
+    sl.Text := value;
+    iniWriteStrings(ini, section, name, writeCount, sl);
+  finally
+    FreeAndNil(sl);
+  end;
+end;
+
+procedure iniWriteStrings(const ini: TCustomIniFile; const section, name: string; const writeCount: boolean; const value: TStrings);
+var
+  idx, cnt: integer;
+begin
+  if not Assigned(value) then cnt := 0
+  else cnt := value.Count;
+  if writeCount then
+    ini.WriteInteger(section, name + 'Count', cnt);
+  for idx := 0 to cnt - 1 do
+  begin
+    ini.WriteString(section, name + IntToStr(idx+1), value.Strings[idx]);
+  end;
+end;
 
 function FilterInfoToString(const filterInfo: TFilCatNode): string;
 begin

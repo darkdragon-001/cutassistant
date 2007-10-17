@@ -39,6 +39,8 @@ RESOURCESTRING
   RsFilterDescriptionMp4           = 'MP4 Files';
   RsFilterDescriptionAllSupported  = 'All Supported Movie Files';
   RsFilterDescriptionAll           = 'All Files';
+  RsFilterDescriptionBitmap        = 'Bitmap Files';
+  RsFilterDescriptionJpeg          = 'Jpeg Files';
 
   RsFilterDescriptionAsf           = 'Asf Movie Files';
 
@@ -113,8 +115,10 @@ RESOURCESTRING
   RsDownloadCutlistInvalidData     = 'Server did not return any valid data (%d bytes). Abort.';
   RsErrorCreatePathFailedAbort     = 'Could not create cutlist path %s. Abort.';
 
-  RsWarnTargetExistsOverwrite      = 'Target File exists already:'#13#10
+  RsWarnTargetExistsOverwrite      = 'Target File already exists :'#13#10
+                                   + #13#10
                                    + '%s'#13#10
+                                   + #13#10
                                    + 'Overwrite?';
 
   RsErrorDeleteFileFailedAbort     = 'Could not delete existing file %s. Abort.';
@@ -159,6 +163,53 @@ RESOURCESTRING
   RsMsgConfirmRating               = 'Do you want to use the proposed rating for the cutlist?'#13#10
                                    + #13#10
                                    + '  %s';
+
+  { UCutlist }
+  RsMsgCutlistSaveChanges          = 'Save changes in current cutlist?';
+  RsTitleCutlistSaveChanges        = 'Cutlist not saved';
+  RsMsgCutlistNoCutsDefined        = 'No cuts defined.';
+  RsErrorCutlistCutOverlap         = 'Planned Cut is overlapping with cut #%d. Cut cannot be added.';
+  RsCaptionCutlistAuthorUnknown    = 'Cutlist Author unknown';
+  RsCaptionCutlistAuthor           = 'Cutlist by %s';
+  RsCutlistTargetUnknown           = 'Not found';
+  RsMsgCutlistTargetMismatch       = 'Cut List File is intended for file:'#13#10
+                                   + '%s'#13#10
+                                   + 'However, current file is: '#13#10
+                                   + '%s'#13#10
+                                   + 'Continue anyway?';
+  RsMsgCutlistCutAppMismatch       = 'Cut List File is intended for Cut Application:'#13#10
+                                   + '%s'#13#10
+                                   + 'However, current Cut Application is: '#13#10
+                                   + '%s'#13#10
+                                   + 'Continue anyway?';
+  RsMsgCutlistCutAppVerMismatch    = 'Cut List File is intended for Cut Application:'#13#10
+                                   + '%s %s'#13#10
+                                   + 'However, current Cut Application version is: '#13#10
+                                   + '%s'#13#10
+                                   + 'Continue anyway?';
+  RsMsgCutlistAsfbinOptionMismatch = 'Loaded options for external cut application are:'#13#10
+                                   + '%s'#13#10
+                                   + 'However, current options are:'#13#10
+                                   + '%s'#13#10
+                                   + 'Replace current options by loaded options?';
+
+  RsTitleCutlistFrameRateMismatch  = 'Frame rate difference';
+  RsMsgCutlistFrameRateMismatch    = 'The frame rate of the cutlist differs from the frame rate of the movie file.'#13#10
+                                   + 'If the rate of the movie file is used, you may get a different result'#13#10
+                                   + 'as expected by the author of the cutlist.'#13#10
+                                   + #13#10
+                                   + 'Frame rate of cutlist:    %.6f'#9'Frame rate of movie file: %.6f'#13#10
+                                   + #13#10
+                                   + 'Do you want to use the frame rate of the cutlist?'#13#10
+                                   + '(Selecting "No" will use the frame rate of the movie file)';
+  RsMsgCutlistLoaded               = '%d of %d Cuts loaded.';
+  RsSaveCutlistAs                  = 'Save cutlist as...';
+  RsFilterDescriptionCutlists      = 'Cutlists';
+  RsMsgCutlistReplaceAuthor        = 'Do you want to replace the Author name of this cutlist'#13#10
+                                   + '"%s"'#13#10
+                                   + 'by your own User Name?';
+  RsCutlistInternalComment         = 'The following parts of the movie will be kept, the rest will be cut out.'
+                                   + 'All values are given in seconds.';
 
 IMPLEMENTATION
 

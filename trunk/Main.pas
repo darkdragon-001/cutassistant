@@ -3136,8 +3136,8 @@ const
     result := false;
     saveDlg := TSaveDialog.Create(Application.MainForm);
     try
-      saveDlg.Filter := MakeFilterString('Bitmap', '*'+BMP_EXTENSION) + '|'
-                      + MakeFilterString('JPEG', '*'+JPG_EXTENSION) + '|'
+      saveDlg.Filter := MakeFilterString(CAResources.RsFilterDescriptionBitmap, '*'+BMP_EXTENSION) + '|'
+                      + MakeFilterString(CAResources.RsFilterDescriptionJpeg, '*'+JPG_EXTENSION) + '|'
                       + MakeFilterString(CAResources.RsFilterDescriptionAll, '*.*');
       saveDlg.FilterIndex := 2;
       saveDlg.Title := CAResources.RsTitleSaveSnapshot;

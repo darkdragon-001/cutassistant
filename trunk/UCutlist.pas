@@ -6,7 +6,7 @@ uses
   Contnrs, Settings_dialog, Movie, UCutApplicationBase;
 
 const
-  cutlist_Extension= '.cutlist';
+  CUTLIST_EXTENSION = '.cutlist';
 
 type
   TCutlist = class;
@@ -97,8 +97,8 @@ type
 implementation
 
 uses
-  Forms, windows, dialogs, sysutils, cutlistINfo_dialog, controls, iniFiles, strutils,
-  utils, UCutApplicationAsfbin, UCutApplicationMP4Box;
+  Classes, Forms, windows, dialogs, sysutils, cutlistINfo_dialog, controls, iniFiles, strutils,
+  utils, UCutApplicationAsfbin, UCutApplicationMP4Box, CAResources;
 
 { TCutlist }
 
@@ -175,13 +175,11 @@ end;
 function TCutlist.clear_after_confirm: boolean;
 //true if cleared, false if cancelled
 var
-  message_string: string;
   CanClear: boolean;
 begin
   canClear := true;
   if self.HasChanged then begin
-    message_string := 'Save changes in current cutlist?';
-    case application.messagebox(PChar(message_string), 'Cutlist not saved', MB_YESNOCANCEL + MB_DEFBUTTON3 + MB_ICONQUESTION) of
+    case application.messagebox(PChar(CAResources.RsMsgCutlistSaveChanges), PChar(CAResources.RsTitleCutlistSaveChanges), MB_YESNOCANCEL + MB_DEFBUTTON3 + MB_ICONQUESTION) of
       IDYES: begin
           CanClear := self.Save(false);      //Can Clear if saved successfully
         end;
@@ -293,7 +291,7 @@ var
   ConvertedCutlist: TCutlist;
 begin
   if self.Count = 0 then begin
-    showmessage('No cuts defined.');
+    ShowMessage(CAResources.RsMsgCutlistNoCutsDefined);
     result := '';
     exit;
   end;
@@ -335,19 +333,12 @@ begin
     AND (pos_from <= (self[iCut] as TCut).pos_to))
     OR ((pos_to >= (self[iCut] as TCut).pos_from)
     AND (pos_to <= (self[iCut] as TCut).pos_to)) then begin }
-      showmessage('Planned Cut is overlapping with cut # ' + inttostr(iCut)+'. Cut cannot be added.');
+      ShowMessageFmt(CAResources.RsErrorCutlistCutOverlap, [ icut ]);
       interfering_cut := icut;
 //      self.Lcutlist.Selected := self.Lcutlist.items[iCut];
 //      self.DeleteCut.Enabled := true;
       exit;
     end;
-    {if ((pos_from <= (self[iCut] as TCut).pos_from)
-    AND (pos_to >= (self[iCut] as TCut).pos_to)) then begin
-      showmessage('Planned Cut is overlapping with cut # ' + inttostr(iCut)+'. Cut cannot be added.');
-      self.Lcutlist.Selected := self.Lcutlist.items[iCut];
-      self.DeleteCut.Enabled := true;
-      exit;
-    end; }
    end;
   end;
   result := true;
@@ -359,9 +350,9 @@ begin
   FCutlistInfo.CBFramesPresent.Checked := (self.FramesPresent and not self.HasChanged);
   FCutlistInfo.lblFrameRate.Caption := FMovieInfo.FormatFrameRate(self.FrameDuration, 'C');
   if self.Author = '' then
-    FCutlistInfo.LAuthor.Caption := 'Cutlist Author unknown'
+    FCutlistInfo.LAuthor.Caption := CAResources.RsCaptionCutlistAuthorUnknown
   else
-    FCutlistInfo.LAuthor.Caption := 'Cutlist by ' + self.Author;
+    FCutlistInfo.LAuthor.Caption := Format(CAResources.RsCaptionCutlistAuthor, [ self.Author ]);
   if self.RatingByAuthorPresent then
     FCutlistInfo.RGRatingByAuthor.ItemIndex := self.RatingByAuthor
   else
@@ -471,7 +462,7 @@ end;
 function TCutlist.LoadFromFile(Filename: String): boolean;
 var
   section: string;
-  apply_to_file, intended_options, intendedCutApp, intendedCutAppVersionStr, myCutApp, myOptions: string;
+  apply_to_file, my_file, intended_options, intendedCutApp, intendedCutAppVersionStr, myCutApp, myOptions: string;
   myCutAppVersionWords, intendedCutAppVersionWords: ARFileVersion;
   message_string: string;
   Temp_DecimalSeparator: char;
@@ -484,7 +475,7 @@ var
 begin
   result := false;
   if not fileexists(filename) then begin
-      showmessage('File not found:' + #13#10 + filename);
+      ShowMessageFmt(CAResources.RsErrorFileNotFound, [ filename ]);
       exit;
   end;
 
@@ -495,11 +486,10 @@ begin
   DecimalSeparator := '.';
   try
     section := 'General';
-    apply_to_file := cutlistfile.ReadString(section, 'ApplyToFile', '(Not found)');
-    if (not ansiSameText(apply_to_file, extractfilename(FMovieInfo.current_filename))) and (not batchmode) then begin
-      message_string := 'Cut List File is intended for file:' + #13#10 + apply_to_file +#13#10+
-                        'However, current file is: '+ #13#10 + extractfilename(FMovieInfo.current_filename) +#13#10+
-                        'Continue anyway?';
+    apply_to_file := cutlistfile.ReadString(section, 'ApplyToFile', Format('(%s)', [ CAResources.RsCutlistTargetUnknown ]));
+    my_file := extractfilename(FMovieInfo.current_filename);
+    if (not ansiSameText(apply_to_file, my_file)) and (not batchmode) then begin
+      message_string := Format(CAResources.RsMsgCutlistTargetMismatch, [ apply_to_file, my_file ]);
       if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
         exit;
       end;
@@ -515,19 +505,14 @@ begin
 
       if (not batchmode) then begin
         if not ansiSameText(intendedCutApp, myCutApp) then begin
-          message_string := 'Cut List File is intended for Cut Application:' + #13#10 + IntendedCutApp +#13#10+
-                            'However, current Cut Application is: '+ #13#10 + myCutApp +#13#10+
-                            'Continue anyway?';
+          message_string := Format(CAResources.RsMsgCutlistCutAppMismatch, [ IntendedCutApp, myCutApp ]);
           if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
             exit;
           end;
         end else if (myCutAppVersionWords[0] <> intendedCutAppVersionWords[0])
                  or (myCutAppVersionWords[1] <> intendedCutAppVersionWords[1])
                  or (myCutAppVersionWords[2] <  intendedCutAppVersionWords[2]) then begin
-          message_string := 'Cut List File is intended for Cut Application:' + #13#10
-                  + IntendedCutApp + ' ' + intendedCutAppVersionStr +#13#10+
-                  'However, current Cut Application Version is: '+ #13#10 + CutApplication.Version +#13#10+
-                  'Continue anyway?';
+          message_string := Format(CAResources.RsMsgCutlistCutAppVerMismatch, [ IntendedCutApp, intendedCutAppVersionStr, CutApplication.Version ]);
           if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
             exit;
           end;
@@ -540,9 +525,7 @@ begin
         myOptions := CutAppAsfBin.CommandLineOptions;
         intended_options := cutlistfile.ReadString(section, 'IntendedCutApplicationOptions', myOptions);
         if not ansiSameText(intended_options, myOptions) and (not batchmode) then begin
-          message_string := 'Loaded options for external cut application are:' + #13#10 + intended_options +#13#10+
-                            'However, current options are: '+ #13#10 + myOptions +#13#10+
-                            'Replace current options by loaded options?';
+          message_string := Format(CAResources.RsMsgCutlistAsfbinOptionMismatch, [ intended_options, myOptions ]);
           if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES then begin
             CutAppAsfBin.CommandLineOptions := intended_options;
           end;
@@ -558,17 +541,10 @@ begin
     begin
       if (not batchmode) and (FMovieInfo.FrameCount <> Trunc(FrameRate * FMovieInfo.current_file_duration)) then
       begin
-        message_string := 'The frame rate of the cutlist differs from the frame rate of the movie file.'
-                  +#13#10+'If the rate of the movie file is used, you may get a different result'
-                  +#13#10+'as expected by the author of the cutlist.'
-                  +#13#10
-                  +#13#10+'Frame rate of cutlist:    %.6f'#9'Frame rate of movie file: %.6f'
-                  +#13#10
-                  +#13#10+'Do you want to use the frame rate of the cutlist?'
-                  +#13#10+'(Selecting "No" will use the frame rate of the movie file)';
+        message_string := Format(CAResources.RsMsgCutlistFrameRateMismatch, [ FrameRate, 1/FMovieInfo.frame_duration ]);
         if Application.MessageBox(
-          PChar(Format(message_string, [ FrameRate, 1/FMovieInfo.frame_duration ])),
-          'Frame rate difference',
+          PChar(message_string),
+          PChar(CAResources.RsTitleCutlistFrameRateMismatch),
           MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2
           ) = IDNO then
         begin
@@ -639,7 +615,7 @@ begin
   self.SavedToFilename := filename;
   result := true;
   if not batchmode then begin
-    showmessage(inttostr(self.Count) + ' of ' + inttostr(cCuts) + ' Cuts loaded.');
+    ShowMessageFmt(CAResources.RsMsgCutlistLoaded, [ self.Count, cCuts]);
   end;
   self.RefreshGUI;
 end;
@@ -689,7 +665,7 @@ var
 begin
   result := false;
   if self.Count = 0 then begin
-    showmessage('No cuts defined.');
+    ShowMessage(CAResources.RsNoCutsDefined);
     exit;
   end;
 
@@ -714,16 +690,17 @@ begin
     //Display Save Dialog?
     AskForPath := AskForPath or FSettings.CutlistNameAlwaysConfirm;
     if fileexists(target_File) AND (NOT AskForPath) then begin
-      message_string := 'Target file already exists:' + #13#10 + #13#10 + target_file + #13#10 +  #13#10 + 'Overwrite?' ;
+      message_string := Format(CAResources.RsWarnTargetExistsOverwrite, [ target_file ]);
       if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_DEFBUTTON2 + MB_ICONWARNING) <> IDYES then begin
         AskForPath := true;
       end;
     end;
     if AskForPath then begin
       saveDlg := TSaveDialog.Create(Application.MainForm);
-      saveDlg.Filter := 'Cutlists|*' + cutlist_Extension + '|All Files|*.*';
+      saveDlg.Filter := MakeFilterString(CAResources.RsFilterDescriptionCutlists, '*'+cutlist_Extension) + '|'
+                      + MakeFilterString(CAResources.RsFilterDescriptionAll, '*.*');
       saveDlg.FilterIndex := 1;
-      saveDlg.Title := 'Save cutlist as...';
+      saveDlg.Title := CAResources.RsSaveCutlistAs;
       saveDlg.InitialDir := cutlist_path;
       saveDlg.filename := self.FilenameSuggestion;
       saveDlg.options := saveDlg.Options + [ofOverwritePrompt, ofPathMustExist];
@@ -740,12 +717,12 @@ begin
     if not ForceDirectories(cutlist_path) then
     begin
         if not batchmode then
-          showmessage('Could not create cutlist path ' + cutlist_path + '. Abort.');
+          ShowMessageFmt(CAResources.RsErrorCreatePathFailedAbort, [ cutlist_path ]);
         exit;
     end;
     if fileexists(target_File) then begin
       if not deletefile(target_file) then begin
-        showmessage('Could not delete existing file ' + target_file + '. Abort.');
+        ShowMessageFmt(CAResources.RsCouldNotDeleteFile, [ target_file ]);
         exit;
       end;
     end;
@@ -780,8 +757,7 @@ begin
         RefreshGUI;
       end else begin
         if self.Author <> Fsettings.UserName then begin
-          message_string := 'Do you want to replace the Author name of this cutlist' + #13#10 + '"' + self.Author +'"'+#13#10+
-                            'by your own User Name?';
+          message_string := Format(CAResources.RsMsgCutlistReplaceAuthor, [ self.Author ]);
           if (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
             self.Author := Fsettings.UserName;
             RefreshGUI;
@@ -798,8 +774,7 @@ begin
       section := 'General';
       cutlistfile.WriteString(section, 'Application', Application_name);
       cutlistfile.WriteString(section, 'Version', Application_version);
-      cutlistfile.WriteString(section, 'comment1', 'The following parts of the movie will be kept, the rest will be cut out.');
-      cutlistfile.WriteString(section, 'comment2', 'All values are given in seconds.');
+      iniWriteStrings(cutlistfile, section, 'comment', false, CAResources.RsCutlistInternalComment);
       cutlistfile.WriteString(section, 'ApplyToFile', extractfilename(FMovieInfo.current_filename));
       cutlistfile.WriteInteger(section, 'OriginalFileSizeBytes', FMovieInfo.current_filesize);
       if (FrameRate = 0) or (FrameDuration = 0) then

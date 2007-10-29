@@ -240,7 +240,7 @@ implementation
 
 uses
   Messages, Dialogs, ShellAPI, Variants, Clipbrd, StrUtils, jpeg,
-  Types, DirectShow9, Math;
+  Types, DirectShow9, Math, CAResources;
 
 
 const ScreenWidthDev  = 1280;
@@ -572,9 +572,9 @@ begin
 //    FocusedButton := bContinueApplication;
 
     if Header <> '' then
-      msg := 'Error while ' + Header + ':'#10#13#10#13;
+      msg := Format(CAResources.RsExpectedErrorHeader, [ Header ]);
 
-    ShowMessage(msg + '(' + ExceptClass + ') ' + ExceptMessage);
+    ShowMessageFmt(CAResources.RsExpectedErrorFormat, [ msg, ExceptClass, ExceptMessage ]);
   end;
 end;
 
@@ -1122,6 +1122,9 @@ begin
 
   if return_value <= 32 then begin
     result := false;
+    return_value := GetLastError;
+    ErrorString := SysErrorMessage(return_value);
+{
     case return_value of
       0: m := 'The operating system is out of memory or resources.';
       //ERROR_FILE_NOT_FOUND: m := 'The specified file was not found.';    //not necessary, is the same as SE_ERR_FNF
@@ -1141,6 +1144,7 @@ begin
       else m:= 'Unknown Error.';
     end;
     ErrorString := m;
+}
   end else begin
     ErrorString := '';
     result := true;

@@ -1,6 +1,7 @@
 object FCutlistSearchResults: TFCutlistSearchResults
   Left = 175
   Top = 316
+  ActiveControl = LLinklist
   AutoScroll = False
   Caption = 'Cutlist Search Results'
   ClientHeight = 288
@@ -44,6 +45,24 @@ object FCutlistSearchResults: TFCutlistSearchResults
       ModalResult = 2
       ParentFont = False
       TabOrder = 0
+    end
+    object BOk: TButton
+      Left = 729
+      Top = 6
+      Width = 95
+      Height = 25
+      Anchors = [akTop, akRight]
+      Cancel = True
+      Caption = '&OK'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -11
+      Font.Name = 'Microsoft Sans Serif'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 1
+      OnClick = BOkClick
     end
   end
   object LLinklist: TListView

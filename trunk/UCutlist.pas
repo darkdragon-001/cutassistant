@@ -468,6 +468,7 @@ var
   Temp_DecimalSeparator: char;
   cutlistfile: TCustomIniFile;
   iCUt, cCuts, ACut : integer;
+  iFramesDifference : integer;
   cut : TCut;
   _pos_from, _pos_to: double;
   _frame_from, _frame_to: integer;
@@ -539,9 +540,10 @@ begin
 
     if (FrameRate > 0) and (FMovieInfo.frame_duration > 0) then
     begin
-      if (not batchmode) and (FMovieInfo.FrameCount <> Trunc(FrameRate * FMovieInfo.current_file_duration)) then
+      iFramesDifference := FMovieInfo.FrameCount - Trunc(FrameRate * FMovieInfo.current_file_duration);
+      if (not batchmode) and (Abs(iFramesDifference) > 1) then
       begin
-        message_string := Format(CAResources.RsMsgCutlistFrameRateMismatch, [ FrameRate, 1/FMovieInfo.frame_duration ]);
+        message_string := Format(CAResources.RsMsgCutlistFrameRateMismatch, [ FrameRate, 1/FMovieInfo.frame_duration, Abs(iFramesDifference) ]);
         if Application.MessageBox(
           PChar(message_string),
           PChar(CAResources.RsTitleCutlistFrameRateMismatch),

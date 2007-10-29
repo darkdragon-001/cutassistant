@@ -283,7 +283,7 @@ uses
   UCutApplicationVirtualDub,
   UCutApplicationAviDemux,
   UCutApplicationMP4Box,
-  UCutlist, VFW;
+  UCutlist, VFW, CAResources;
 
 var
   EmptyRect: TRect;
@@ -322,7 +322,7 @@ begin
   currentDir := self.CutMovieSaveDir.Text;
   if not IsPathRooted(currentDir) then
     currentDir := '';
-  if selectdirectory('Destination directory for cut movies:', currentDir, newDir) then
+  if SelectDirectory(CAResources.RSTitleCutMovieDestinationDirectory, currentDir, newDir) then
     self.CutMovieSaveDir.Text := newDir;
 end;
 
@@ -335,13 +335,14 @@ begin
   currentDir := self.CutlistSaveDir.Text;
   if not IsPathRooted(currentDir) then
     currentDir := '';
-  if selectdirectory('Destination directory for cutlists:', currentDir, newDir) then
+  if SelectDirectory(CAResources.RSTitleCutlistDestinationDirectory, currentDir, newDir) then
     self.CutlistSaveDir.Text := newDir;
 end;
 
 procedure TFSettings.EProxyPortKeyPress(Sender: TObject; var Key: Char);
 begin
-  if not (key in [#0 .. #31, '0'..'9']) then key := chr(0);
+  if not (key in [#0 .. #31, '0'..'9']) then
+    key := chr(0);
 end;
 
 { TSettings }
@@ -470,7 +471,7 @@ begin
     begin
       if IsPathRooted(FSettings.CutMovieSaveDir.Text) and (not DirectoryExists(FSettings.CutMovieSaveDir.Text)) then
       begin
-        message_string := 'Cut movie directory does not exist:' + #13#10 + #13#10 + FSettings.CutMovieSaveDir.Text + #13#10 +  #13#10 + 'Create?' ;
+        message_string := Format(CAResources.RsCutMovieDirectoryMissing, [ FSettings.CutMovieSaveDir.Text ]);
         if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then begin
           Data_Valid := forceDirectories(FSettings.CutMovieSaveDir.Text);
         end else begin
@@ -484,7 +485,7 @@ begin
     begin
       if IsPathRooted(FSettings.CutlistSaveDir.Text) and (not DirectoryExists(FSettings.CutlistSaveDir.Text)) then
       begin
-        message_string := 'Cutlist save directory does not exist:' + #13#10 + #13#10 + FSettings.CutlistSaveDir.Text + #13#10 +  #13#10 + 'Create?' ;
+        message_string := Format(CAResources.RsCutlistDirectoryMissing, [ FSettings.CutlistSaveDir.Text ]);
         if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then begin
           Data_Valid := forceDirectories(FSettings.CutlistSaveDir.Text);
         end else begin
@@ -947,7 +948,7 @@ begin
   val := StrToIntDef(Edit.Text, -1);
   if val < 1 then begin
     ActiveControl := Edit;
-    raise EConvertError.Create('Invalid value: ' + Edit.Text);
+    raise EConvertError.CreateFmt(CAResources.RsErrorInvalidValue, [ Edit.Text ]);
   end
 end;
 

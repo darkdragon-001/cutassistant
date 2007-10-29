@@ -54,18 +54,18 @@ implementation
 
 uses
   Windows, SysUtils, StrUtils, VfW,
-  DirectShow9, Utils;
+  DirectShow9, Utils, CAResources;
 
 { TMovieInfo }
 
 function TMovieInfo.FormatFrameRate(const frame_duration: double; const frame_duration_source: char): string;
 begin
   if frame_duration <= 0 then
-    Result := 'fps: N/A'
+    Result := CAResources.RsMovieFrameRateNotAvailable
   else
-    Result := Format('%.5f fps', [1.0 / frame_duration]);
+    Result := Format(CAResources.RsMovieFrameRateAvailable, [1.0 / frame_duration]);
   if frame_duration_source <> #0 then
-    Result := Result + ' (' + frame_duration_source + ')';
+    Result := Format(CAResources.RsMovieFrameRateSource, [Result, string(frame_duration_source)]);
 end;
 
 function TMovieInfo.FormatFrameRate: string;
@@ -76,11 +76,6 @@ begin
     Result := FormatFrameRate(frame_duration, frame_duration_source);
 end;
 
-{function TMovieInfo.current_position_string: string;
-begin
-  result := secondsToTimeString(self.current_position_seconds);
-end;     }
-
 function TMovieInfo.GetFrameCount: Int64;
 begin
   Result := Trunc(current_file_duration / frame_duration);
@@ -89,7 +84,7 @@ end;
 function TMovieInfo.InitMovie(FileName: String): boolean;
 var
   FileData: array [0..63] of byte;
-  s: string;
+  s, file_ext: string;
   f: file of byte;
 begin
   result := false;
@@ -117,24 +112,31 @@ begin
  //detect Avi File
   setstring(s, Pchar(@FileData[0]), 4);
   if s = 'RIFF' then begin
-    setstring(s, Pchar(@FileData[8]), 4);
-    if s = 'AVI ' then MovieType  := mtAVI;
+    SetString(s, Pchar(@FileData[8]), 4);
+    if s = 'AVI ' then
+      MovieType  := mtAVI;
   end;
 
   //detect ISO FIle
-  setstring(s, Pchar(@FileData[4]), 4);
-  if s = 'ftyp' then MovieType  := mtMP4;
+  SetString(s, Pchar(@FileData[4]), 4);
+  if s = 'ftyp' then
+    MovieType  := mtMP4;
 
   //for OTR
   if MovieType = mtUnknown then begin
-    if AnsiEndsText('.hq.avi', FileName) then MovieType := mtHQAVI;
+    if AnsiEndsText('.hq.avi', FileName) then
+      MovieType := mtHQAVI;
   end;
 
    //Try to detect MovieType from file extension
   if MovieType = mtUnknown then begin
-    if ansiMatchText(extractFileExt(FileName), WMV_EXTENSIONS) then MovieType  := mtWMV;
-    if ansiMatchText(extractFileExt(FileName), AVI_EXTENSIONS) then MovieType  := mtAVI;
-    if ansiMatchText(extractFileExt(FileName), MP4_EXTENSIONS) then MovieType  := mtMP4;
+    file_ext := ExtractFileExt(FileName);
+    if AnsiMatchText(file_ext, WMV_EXTENSIONS) then
+      MovieType  := mtWMV
+    else if AnsiMatchText(file_ext, AVI_EXTENSIONS) then
+      MovieType  := mtAVI
+    else if AnsiMatchText(file_ext, MP4_EXTENSIONS) then
+      MovieType  := mtMP4;
   end;
 
   //Try to get Video FourCC from AVI
@@ -167,12 +169,12 @@ end;
 function TMovieInfo.GetStringFromMovieType(aMovieType: TMovieType): string;
 begin
   case aMovieType of
-    mtUnknown: result := '[Unknown]';
-    mtWMV: result := 'Windows Media File';
-    mtAVI: result := 'AVI File';
-    mtMP4: result := 'MP4 Iso File';
-    mtHQAVI: result := 'HQ AVI File';
-    else result := '[None]';
+    mtUnknown: result := CAResources.RsMovieTypeUnknown;
+    mtWMV: result := CAResources.RsMovieTypeWmf;
+    mtAVI: result := CAResources.RsMovieTypeAvi;
+    mtMP4: result := CAResources.RsMovieTypeMp4;
+    mtHQAVI: result := CAResources.RsMovieTypeHqAvi;
+    else result := CAResources.RsMovieTypeNone;
   end;
 end;
 
@@ -197,8 +199,6 @@ var
   Height, Width: DWord;}
   hr : HRESULT;
 begin
-  //  MsgBox := 'AVI Error:';
-  //  ErrorMsg := '';
   // Init VfW API
   AVIFileInit;
   try

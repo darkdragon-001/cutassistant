@@ -199,6 +199,7 @@ RESOURCESTRING
                                    + 'as expected by the author of the cutlist.'#13#10
                                    + #13#10
                                    + 'Frame rate of cutlist:    %.6f'#9'Frame rate of movie file: %.6f'#13#10
+                                   + 'Using the frame rate of the movie file can result up to a difference of %d frames.'#13#10
                                    + #13#10
                                    + 'Do you want to use the frame rate of the cutlist?'#13#10
                                    + '(Selecting "No" will use the frame rate of the movie file)';
@@ -211,6 +212,47 @@ RESOURCESTRING
   RsCutlistInternalComment         = 'The following parts of the movie will be kept, the rest will be cut out.'
                                    + 'All values are given in seconds.';
 
+  { Movie }
+  RsMovieFrameRateNotAvailable     = 'fps: N/A';
+  RsMovieFrameRateAvailable        = '%.5f fps';
+  RsMovieFrameRateSource           = '%s (%s)';
+  RsMovieTypeUnknown               = '[Unknown]';
+  RsMovieTypeWmf                   = 'Windows Media File';
+  RsMovieTypeAvi                   = 'AVI File';
+  RsMovieTypeMp4                   = 'MP4 Iso File';
+  RsMovieTypeHqAvi                 = 'HQ AVI File';
+  RsMovieTypeNone                  = '[None]';
+
+  { Settings_dialog }
+  RsTitleCutMovieDestinationDirectory = 'Destination directory for cut movies:';
+  RsTitleCutlistDestinationDirectory  = 'Destination directory for cutlists:';
+  RsCutMovieDirectoryMissing          = 'Cut movie directory does not exist:'#13#10
+                                      + #13#10
+                                      + '%s'#13#10
+                                      + #13#10
+                                      + 'Create?';
+  RsCutlistDirectoryMissing           = 'Cutlist save directory does not exist:'#13#10
+                                      + #13#10
+                                      + '%s'#13#10
+                                      + #13#10
+                                      + 'Create?';
+  RsErrorInvalidValue                 = 'Invalid value: %s';
+
+  { UfrmCutting }
+  RsErrorCleanUpCutting               = 'Error while cleaning up after cutting.';
+  RsMsgWarnOnTerminateCutApplication  = 'The Cut Application will be terminated immediately!'#13#10
+                                      + 'This may result in unexpected behaviour of the Cut Application.'#13#10
+                                      + #13#10
+                                      + 'Do you really want to terminate the Application?';
+  RsTitleWarning                      = 'Warning.';
+  RsCaptionCuttingClose               = '&Close';
+  RsCaptionCuttingAutoClose           = '&Close (%d)';
+
+  { Utils }
+  RsExpectedErrorHeader               = 'Error while %s:'#10#13
+                                      + #10#13;
+  RsExpectedErrorFormat               = '%s(%s) %s';
+    
 IMPLEMENTATION
 
 END.

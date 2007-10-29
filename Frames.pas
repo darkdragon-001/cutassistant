@@ -297,7 +297,7 @@ begin
   //LTime.ParentFont := false;
   //LTime.Font.Assign(FFrames.Font);
   //LTime.Font.Size := Round(image_width / 40);
-  LTIme.Caption := '0:00:00.000';
+  LTIme.Caption := secondsToTimeString(0);
   LTime.Height := Button_height;
 
   BStart.Caption := '[<-';

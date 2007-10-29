@@ -11,7 +11,9 @@ type
     Panel1: TPanel;
     LLinklist: TListView;
     BCancel: TButton;
+    BOk: TButton;
     procedure LLinklistClick(Sender: TObject);
+    procedure BOkClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -47,6 +49,12 @@ procedure TFCutlistSearchResults.LLinklistClick(Sender: TObject);
 begin
   if self.LLinklist.ItemIndex < 0 then exit;
   self.ModalResult := mrOK;
+end;
+
+procedure TFCutlistSearchResults.BOkClick(Sender: TObject);
+begin
+  if LLinklist.ItemIndex >= 0 then
+    ModalResult := mrOk;
 end;
 
 end.

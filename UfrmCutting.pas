@@ -41,7 +41,7 @@ var
 
 implementation
 
-uses Clipbrd, DateTools, DateUtils, Main;
+uses Clipbrd, DateTools, DateUtils, Utils, Main, CAResources;
 
 {$R *.dfm}
 
@@ -55,12 +55,15 @@ begin
   btnEmergencyExit.Enabled := true;
   btnClose.Enabled := false;
   timAutoClose.Enabled := false;
+  btnClose.Caption := CAResources.RsCaptionCuttingClose;
 
   CutApplication.StartCutting;
   self.ShowModal;
-  if CutApplication.CleanUp then begin
+  if CutApplication.CleanUp then
+  begin
     if not CutApplication.CleanUpAfterCutting then
-      Showmessage('Error while cleaning up after cutting.');
+      if not batchmode then
+        ShowMessage(CAResources.RsErrorCleanUpCutting);
   end;
 end;
 
@@ -114,13 +117,8 @@ begin
 end;
 
 procedure TfrmCutting.btnEmergencyExitClick(Sender: TObject);
-var
-  message_string: string;
 begin
-  message_string := 'The Cut Application will be terminated immediately!'+#13#10
-                  + 'This may result in unexpected behaviour of the Cut Application.'+#13#10#13#10
-                  + 'Do you really want to terminate the Application?';
-  if (application.messagebox(PChar(message_string), 'Application warning.', MB_YESNO + MB_ICONQUESTION + MB_DEFBUTTON2) = IDYES) then
+  if (application.messagebox(PChar(CAResources.RsMsgWarnOnTerminateCutApplication), PChar(CAResources.RsTitleWarning), MB_YESNO + MB_ICONQUESTION + MB_DEFBUTTON2) = IDYES) then
   begin
     CutApplication.EmergencyTerminateProcess;
     self.CutAppTerminate(self, Cardinal(-1));
@@ -139,7 +137,7 @@ begin
   end
   else
   begin
-    btnClose.Caption := '&Close (' + IntToStr(secsToWait) + ')';
+    btnClose.Caption := Format(CAResources.RsCaptionCuttingAutoClose, [ secsToWait ]);
   end;
 end;
 
@@ -148,7 +146,7 @@ begin
   if timAutoClose.Enabled then
   begin
     timAutoClose.Enabled := false;
-    btnClose.Caption := '&Close';
+    btnClose.Caption := CAResources.RsCaptionCuttingClose;
   end;
 end;
 

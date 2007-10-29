@@ -86,6 +86,7 @@ object frmCutting: TfrmCutting
     Font.Color = clRed
     Font.Height = -11
     Font.Name = 'MS Sans Serif'
+    Font.Pitch = fpVariable
     Font.Style = []
     ParentFont = False
     TabOrder = 4

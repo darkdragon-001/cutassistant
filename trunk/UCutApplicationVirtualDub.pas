@@ -8,8 +8,7 @@ uses
   ExtCtrls;
 
 const
-  VIRTUALDUB_DEFAULT_EXENAME_1 = 'virtualdub.exe';
-  //VIRTUALDUB_DEFAULT_EXENAME_2 = 'vdub.exe';
+  VIRTUALDUB_DEFAULT_EXENAME = 'virtualdub.exe';
 
 type
   TCutApplicationVirtualDub = class;
@@ -43,15 +42,9 @@ type
 
     function CreateScript(aCutlist: TObjectList; Inputfile, Outputfile: String; var scriptfile: string): boolean;
   public
-    //CommandLineOptions: string;
-
     constructor Create; override;
     destructor Destroy; override;
     property ShowProgressWindow: boolean read FShowProgressWindow write SetShowProgressWindow;
-    //property UseCodec: FOURCC read FUseCodec;
-    //function UseCodecString: string;
-    //property UseCodecVersion: DWord read FCodecVersion;
-    //function UseCodecVersionString: string;
     function CanDoSmartRendering: boolean;
     function UseSmartRendering: boolean;
 
@@ -75,7 +68,8 @@ implementation
 
 uses
   FileCtrl, StrUtils, JvCreateProcess,
-  DirectShow9, 
+  DirectShow9,
+  CAResources,
   Utils, UCutlist, UfrmCutting, Main;
 
 type
@@ -95,9 +89,8 @@ begin
   FCodecList := TCodecList.Create;
   FCodecList.Fill;
   FrameClass := TfrmCutApplicationVirtualDub;
+  DefaultExeNames.Add(VIRTUALDUB_DEFAULT_EXENAME);
   Name := 'VirtualDub';
-  DefaultExeNames.Add(VIRTUALDUB_DEFAULT_EXENAME_1);
-  //DefaultExeNames.Add(VIRTUALDUB_DEFAULT_EXENAME_2);
   RedirectOutput := true;
   ShowAppWindow := true;
   FNotClose := false;
@@ -155,7 +148,6 @@ begin
 
   success := inherited LoadSettings(IniFile);
   section := GetIniSectionName;
-  //CommandLineOptions := IniFile.ReadString(section, 'CommandLineOptions', CommandLineOptions);
   self.FNotClose := IniFile.ReadBool(section, 'NotClose', FNotClose);
   self.FUseSmartRendering := IniFile.ReadBool(section, 'UseSmartRendering', FUseSmartRendering);
   self.FShowProgressWindow := IniFile.ReadBool(section, 'ShowProgressWindow', FShowProgressWindow);
@@ -204,14 +196,9 @@ begin
   success := inherited SaveSettings(IniFile);
 
   section := GetIniSectionName;
-  //IniFile.WriteString(section, 'CommandLineOptions', CommandLineOptions);
   IniFile.WriteBool(section, 'NotClose', self.FNotClose);
   IniFile.WriteBool(section, 'UseSmartRendering', self.FUseSmartRendering);
   IniFile.WriteBool(section, 'ShowProgressWindow', self.FShowProgressWindow);
-  //IniFile.WriteString(section, 'CodecFourCC', '0x' + IntToHex(self.FUseCodec, 8));
-  //IniFile.WriteString(section, 'CodecVersion', '0x' + IntToHex(self.FCodecVersion, 8));
-  //IniFile.WriteString(section, 'CodecSettings', FCodecSettings);
-  //IniFile.WriteInteger(section, 'CodecSettingsSize', self.FCodecSettingsSize);
   // Remove old settings ...
   IniFile.DeleteKey(section, 'CodecFourCC');
   IniFile.DeleteKey(section, 'CodecVersion');
@@ -289,22 +276,16 @@ function TCutApplicationVirtualDub.PrepareCutting(SourceFileName: string;
 var
   TempCutlist: TCutlist;
   MustFreeTempCutlist: boolean;
-  CommandLine, ExeName, message_string: string;
-  success: boolean;
+  CommandLine, message_string: string;
 begin
-  result := false;
-  if not fileexists(self.Path) then begin
-    ExeName := ExtractFileName(Path);
-    if ExeName ='' then ExeName := DefaultExeNames[0];
-    if ExeName ='' then ExeName := 'Application';
-    showmessage(ExeName + ' not found. Please check settings.');
-    exit;
-  end;
+  result := inherited PrepareCutting(SourceFileName, DestFileName, Cutlist);
+  If not Result then
+    Exit;
 
+  self.FCommandLines.Clear;
   MustFreeTempCutlist := false;
   TempCutlist := (Cutlist as TCutlist);
-  self.FCommandLines.Clear;
-
+  
   if TempCutlist.Mode <> clmCrop then begin
     TempCutlist := TempCutlist.convert;
     MustFreeTempCutlist := True;
@@ -312,16 +293,19 @@ begin
 
   try
     FScriptFileName := '';
-    if self.TempDir <>'' then begin
-      if (not DirectoryExists(TempDir)) then begin
-        message_string := 'Directory does not exist:' + #13#10 + #13#10 + TempDir + #13#10 +  #13#10 + 'Create?' ;
-        if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then begin
-          success := forceDirectories(TempDir);
-          if success then FScriptFileName := IncludeTrailingPathDelimiter(TempDir) + extractFileName(SourceFileName) + '.syl';
-        end;
-      end else begin
-        FScriptFileName := IncludeTrailingPathDelimiter(TempDir) + extractFileName(SourceFileName) + '.syl';
+    if self.TempDir = '' then
+    begin
+      FScriptFileName := SourceFileName + '.syl';
+    end else begin
+      if not DirectoryExists(TempDir) then begin
+        message_string := Format(CAResources.RsMsgCutAppTempDirMissing, [ TempDir ]);
+        if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then
+          ForceDirectories(TempDir);
       end;
+      if not DirectoryExists(TempDir) then
+        Exit;
+
+      FScriptFileName := IncludeTrailingPathDelimiter(TempDir) + ExtractFileName(SourceFileName) + '.syl';
     end;
 
     CreateScript(TempCutlist, SourceFileName, DestFileName, FScriptFileName);
@@ -332,24 +316,27 @@ begin
     if not self.FNotClose then
       CommandLine := CommandLine + ' /x';
 
-//    CommandLine := CommandLine +  ' ' + self.CommandLineOptions;
-
     self.FCommandLines.Add(CommandLine);
     result := true;
   finally
-    if MustFreeTempCutlist then FreeAndNIL(TempCutlist);
+    if MustFreeTempCutlist then
+      FreeAndNIL(TempCutlist);
   end;
 end;
 
 
 function TCutApplicationVirtualDub.InfoString: string;
+var
+  HiVer, LoVer: integer;
 begin
-  result := inherited InfoString
-         // + 'Options: ' + self.CommandLineOptions + #13#10
-          + 'Smart Rendering: ' + booltostr(UseSmartRendering, true) + #13#10
-          + 'Codec for Smart Rendering: ' + CutAppSettings.CodecName + #13#10
-          + 'Codec Version: '
-          + inttostr(HiWord(CutAppSettings.CodecVersion)) +'.' + inttostr(LoWord(CutAppSettings.CodecVersion)) + #13#10;
+  HiVer := HiWord(CutAppSettings.CodecVersion);
+  LoVer := LoWord(CutAppSettings.CodecVersion);
+  Result := Format( CAResources.RsCutAppInfoVirtualDub, [
+                    inherited InfoString,
+                    BoolToStr(UseSmartRendering, true),
+                    CutAppSettings.CodecName,
+                    IntToStr(HiVer)+'.'+IntToStr(LoVer)
+                    ]);
 end;
 
 function TCutApplicationVirtualDub.WriteCutlistInfo(CutlistFile: TCustomIniFile;
@@ -357,7 +344,6 @@ function TCutApplicationVirtualDub.WriteCutlistInfo(CutlistFile: TCustomIniFile;
 begin
   result := inherited WriteCutlistInfo(CutlistFile, section);
   if result then begin
-    //cutlistfile.WriteString(section, 'IntendedCutApplicationOptions', self.CommandLineOptions);
     cutlistfile.WriteBool(section, 'VDUseSmartRendering', self.UseSmartRendering);
     if UseSmartRendering then begin
       cutlistfile.WriteString(section, 'VDSmartRenderingCodecFourCC', '0x' + IntToHex(CutAppSettings.CodecFourCC, 8));
@@ -387,7 +373,6 @@ end;
 procedure TfrmCutApplicationVirtualDub.Init;
 begin
   inherited;
-  //self.edtCommandLineOptions.Text := CutApplication.CommandLineOptions;
   cbNotClose.Checked := CutApplication.FNotClose;
   cbUseSmartRendering.Checked := CutApplication.FUseSmartRendering;
   cbShowProgressWindow.Checked := CutApplication.ShowProgressWindow;
@@ -396,7 +381,6 @@ end;
 procedure TfrmCutApplicationVirtualDub.Apply;
 begin
   inherited;
-  //CutApplication.CommandLineOptions := edtCommandLineOptions.Text;
   CutApplication.FNotClose := cbNotClose.Checked;
   CutApplication.FUseSmartRendering := cbUseSmartRendering.Checked;
   CutApplication.ShowProgressWindow := self.cbShowProgressWindow.Checked;
@@ -467,7 +451,8 @@ begin
   end;
 
   writeln(f, 'VirtualDub.SaveAVI(U"'+OutputFile+'");');   //For OUTPUT use undecorated string!
-  if not FNotClose then writeln(f, 'VirtualDub.Close();');
+  if not FNotClose then
+    writeln(f, 'VirtualDub.Close();');
 
   closefile(f);
   result := true;

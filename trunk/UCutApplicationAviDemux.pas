@@ -65,6 +65,7 @@ implementation
 {$WARN UNIT_PLATFORM OFF}
 
 uses
+  CAResources,
   FileCtrl, StrUtils,
   Utils, UCutlist, UfrmCutting, Main;
 
@@ -89,7 +90,6 @@ begin
   //This part only for compatibility issues for versions below 0.9.9
   //This Setting may be overwritten below
   self.TempDir := IniFile.ReadString('AviDemux', 'ScriptsPath', '');
-
 
   success := inherited LoadSettings(IniFile);
   section := GetIniSectionName;
@@ -129,69 +129,70 @@ function TCutApplicationAviDemux.PrepareCutting(SourceFileName: string;
 var
   TempCutlist: TCutlist;
   MustFreeTempCutlist: boolean;
-  CommandLine, ExeName, message_string: string;
-  //ExitCode: Cardinal;
-  success: boolean;
+  CommandLine, message_string: string;
 begin
-  result := false;
-  if not fileexists(self.Path) then begin
-    ExeName := ExtractFileName(Path);
-    if ExeName ='' then ExeName := DefaultExeNames[0];
-    if ExeName ='' then ExeName := 'Application';
-    showmessage(ExeName + ' not found. Please check settings.');
-    exit;
-  end;
+  result := inherited PrepareCutting(SourceFileName, DestFileName, Cutlist);
+  If not Result then
+    Exit;
 
+  self.FCommandLines.Clear;
   MustFreeTempCutlist := false;
   TempCutlist := (Cutlist as TCutlist);
-  self.FCommandLines.Clear;
-
+  
   if TempCutlist.Mode <> clmCrop then begin
     TempCutlist := TempCutlist.convert;
     MustFreeTempCutlist := True;
   end;
+
   try
     FScriptFileName := '';
-    if self.TempDir <>'' then begin
-      if (not DirectoryExists(TempDir)) then begin
-        message_string := 'Directory does not exist:' + #13#10 + #13#10 + TempDir + #13#10 +  #13#10 + 'Create?' ;
-        if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then begin
-          success := forceDirectories(TempDir);
-        end else begin
-          success := false;
-        end;
-      end else begin
-        success := true;
+    if self.TempDir = '' then
+    begin
+      FScriptFileName := SourceFileName + '.avidemux';
+    end else begin
+      if not DirectoryExists(TempDir) then begin
+        message_string := Format(CAResources.RsMsgCutAppTempDirMissing, [ TempDir ]);
+        if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then
+          ForceDirectories(TempDir);
       end;
-      if success then
-        FScriptFileName := IncludeTrailingPathDelimiter(TempDir) + extractFileName(SourceFileName) + '.avidemux';
+      if not DirectoryExists(TempDir) then
+        Exit;
+
+      FScriptFileName := IncludeTrailingPathDelimiter(TempDir) + ExtractFileName(SourceFileName) + '.avidemux';
     end;
 
     CreateADScript(TempCutlist, SourceFileName, DestFileName, FScriptFileName);
 
     CommandLine := '';
-    if NoGUI then CommandLine := '--nogui ';
+    if NoGUI then
+      CommandLine := '--nogui ';
     CommandLine := CommandLine + '--run "'+FScriptFileName+'"';
-    if SmartCopy then CommandLine := CommandLine + ' --force-smart ';
-    if AutoSave then CommandLine := CommandLine + ' --save "' + DestFileName + '"';
-    if (not NotClose) and AutoSave then CommandLine := CommandLine + ' --quit';
+    if SmartCopy then
+      CommandLine := CommandLine + ' --force-smart ';
+    if AutoSave then
+      CommandLine := CommandLine + ' --save "' + DestFileName + '"';
+    if (not NotClose) and AutoSave then
+      CommandLine := CommandLine + ' --quit';
     CommandLine := CommandLine +  ' ' + self.CommandLineOptions;
 
     self.FCommandLines.Add(CommandLine);
     result := true;
   finally
-    if MustFreeTempCutlist then FreeAndNIL(TempCutlist);
+    if MustFreeTempCutlist then
+      FreeAndNIL(TempCutlist);
   end;
 end;
 
 
 function TCutApplicationAviDemux.InfoString: string;
 begin
-  result := inherited InfoString
-          + 'Options: ' + self.CommandLineOptions + #13#10
-          + 'Rebuild Movie Index: ' + booltostr(self.RebuildIndex, true) + #13#10
-          + 'Scan Audio for VBR: ' + booltostr(self.ScanVBR, true) + #13#10
-          + 'Smart Copy: ' + booltostr(self.SmartCopy, true) + #13#10;
+  Result := Format( CAResources.RsCutAppInfoAviDemux, [
+                    inherited InfoString,
+                    self.CommandLineOptions,
+                    BoolToStr(self.RebuildIndex, true),
+                    BoolToStr(self.ScanVBR, true),
+                    BoolToStr(self.SmartCopy, true)
+                    ]);
 end;
 
 function TCutApplicationAviDemux.WriteCutlistInfo(CutlistFile: TCustomIniFile;
@@ -222,8 +223,9 @@ var
   vdubStart, vdubLength: string;
   cutlist_tmp: TCutlist;
 begin
-  cutlist_tmp := TCutlist(cutlist);
-  if scriptfile = '' then scriptfile := Inputfile + '.avidemux';
+  cutlist_tmp := cutlist as TCutlist;
+  if scriptfile = '' then
+    scriptfile := Inputfile + '.avidemux';
   assignfile(f, scriptfile);
   rewrite(f);
   writeln(f, '//AD  <- Needed to identify//');
@@ -247,7 +249,8 @@ begin
     writeln(f, 'app.addSegment(0,' + vdubstart + ', ' + vdubLength + ');');
   end;
 
-  if RebuildIndex then  writeln(f, 'app.rebuildIndex();');
+  if RebuildIndex then
+    writeln(f, 'app.rebuildIndex();');
   writeln(f, '');
   writeln(f, '//** Postproc **');
   writeln(f, 'app.video.setPostProc(3,3,0);');
@@ -258,10 +261,12 @@ begin
   writeln(f, 'app.audio.codec("copy",128);');
   writeln(f, 'app.audio.normalize=false;');
   writeln(f, 'app.audio.delay=0;');
-  if ScanVBR then writeln(f, 'app.audio.scanVBR();');
+  if ScanVBR then
+    writeln(f, 'app.audio.scanVBR();');
   writeln(f, '');
   writeln(f, 'app.setContainer("AVI");');
-  if SmartCopy then writeln(f, 'app.smartCopyMode();');
+  if SmartCopy then
+    writeln(f, 'app.smartCopyMode();');
   if AutoSave then begin
     writeln(f, 'setSuccess(app.save("' + EscapeString(Outputfile) + '"));');
   end else begin

@@ -39,7 +39,6 @@ type
   protected
   public
     CommandLineOptions: string;
-    //TempDir: string;
     constructor create; override;
     function LoadSettings(IniFile: TCustomIniFile): boolean; override;
     function SaveSettings(IniFile: TCustomIniFile): boolean; override;
@@ -58,6 +57,7 @@ implementation
 {$WARN UNIT_PLATFORM OFF}
 
 uses
+  CAResources,
   FileCtrl, StrUtils,
   UCutlist, UfrmCutting, Utils;
 
@@ -109,27 +109,23 @@ var
   TempCutlist: TCutlist;
   iCut: Integer;
   MustFreeTempCutlist: boolean;
-  CommandLine, ExeName: string;
+  CommandLine: string;
 begin
-  result := false;
-  if not fileexists(self.Path) then begin
-    ExeName := ExtractFileName(Path);
-    if ExeName ='' then ExeName := DefaultExeNames[0];
-    if ExeName ='' then ExeName := 'Application';
-    showmessage(ExeName + ' not found. Please check settings.');
-    exit;
-  end;
+  result := inherited PrepareCutting(SourceFileName, DestFileName, Cutlist);
+  If not Result then
+    Exit;
 
+  self.FCommandLines.Clear;
   MustFreeTempCutlist := false;
   TempCutlist := (Cutlist as TCutlist);
-  self.FCommandLines.Clear;
-
-  CommandLine := '-i "' + SourceFileName + '" -o "' + DestFileName + '" ';
 
   if TempCutlist.Mode <> clmCrop then begin
     TempCutlist := TempCutlist.convert;
     MustFreeTempCutlist := True;
   end;
+
+  CommandLine := '-i "' + SourceFileName + '" -o "' + DestFileName + '" ';
+
   try
     TempCutlist.sort;
     for iCut := 0 to TempCutlist.Count-1 do begin
@@ -149,8 +145,10 @@ end;
 
 function TCutApplicationAsfbin.InfoString: string;
 begin
-  result := inherited InfoString
-          + 'Options: ' + self.CommandLineOptions + #13#10;
+  Result := Format( CAResources.RsCutAppInfoAsfBin, [
+                    inherited InfoString,
+                    self.CommandLineOptions
+                    ]);
 end;
 
 function TCutApplicationAsfbin.WriteCutlistInfo(CutlistFile: TCustomIniFile;

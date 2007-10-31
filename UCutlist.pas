@@ -25,7 +25,7 @@ type
 
   TCutlistCallBackMethod = procedure(cutlist: TCutlist) of object;
 
-  TCutlist = class(TObjectLIst)
+  TCutlist = class(TObjectList)
   private
     FSettings: TSettings;
     FMovieInfo: TMovieInfo;

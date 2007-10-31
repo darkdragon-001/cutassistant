@@ -108,7 +108,7 @@ type
     function InfoString: string; virtual;
     function WriteCutlistInfo(CutlistFile: TCustomIniFile; section: string): boolean; virtual;
 
-    function PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean; virtual; abstract;
+    function PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean; virtual;
     property CommandLines: TStringList read FCommandLines;
     function StartCutting: boolean; virtual;
     function CleanUpAfterCutting: boolean; virtual;
@@ -119,11 +119,81 @@ implementation
 {$WARN UNIT_PLATFORM OFF}
 
 uses
+  CAResources,
   FileCtrl;
 
 {$R *.dfm}
 
-{ TBaseCutApplication }
+{TfrmCutApplicationBase}
+
+procedure TfrmCutApplicationBase.Apply;
+begin
+  if fileexists(edtPath.Text) then CutApplication.Path := edtPath.Text;
+  CutApplication.TempDir := self.edtTempDir.Text;
+  CutApplication.RedirectOutput := self.cbRedirectOutput.Checked;
+  CutApplication.ShowAppWindow := self.cbShowAppWindow.Checked;
+  CutApplication.CleanUp := self.cbCleanUp.Checked;
+end;
+
+procedure TfrmCutApplicationBase.btnBrowsePathClick(Sender: TObject);
+var
+  i: Integer;
+begin
+    for i := 0 to CutApplication.DefaultExeNames.Count-1 do begin
+      selectFileDlg.Filter := CutApplication.DefaultExeNames.Strings[i] + '|'
+                            + CutApplication.DefaultExeNames.Strings[i] + '|'
+                            + selectFileDlg.Filter;
+    end;
+    selectFileDlg.Title := Format(CAResources.RsTitleSelectCutApplication, [ CutApplication.Name ]);
+    selectFileDlg.InitialDir := ExtractFilePath(self.edtPath.Text);
+    selectFileDlg.FileName := ExtractFileName(self.edtPath.Text);
+    if selectFileDlg.Execute then begin
+      edtPath.Text := selectFileDlg.FileName;
+    end else begin
+      exit;
+    end;
+end;
+
+procedure TfrmCutApplicationBase.Init;
+begin
+  self.edtPath.Text := CutApplication.Path;
+  self.edtTempDir.Text := CutApplication.TempDir;
+  self.cbRedirectOutput.Checked := CutApplication.RedirectOutput;
+  self.cbShowAppWindow.Checked := CutApplication.ShowAppWindow;
+  self.cbCleanUp.Checked := CutApplication.CleanUp;
+end;
+
+procedure TfrmCutApplicationBase.SetCutApplication(
+  const Value: TCutApplicationBase);
+var
+  i: INteger;
+  lbl: string;
+  exeNames: TStrings;
+  cnt: integer;
+begin
+  FCutApplication := Value;
+  exeNames := FCutApplication.DefaultExeNames;
+  cnt := exeNames.Count;
+  if cnt = 0 then
+    lbl := Format(CAResources.RsCutAppPathTo, [ self.Name ])
+  else
+    lbl := Format(CAResources.RsCutAppPathTo, [ exeNames[0] ]);
+
+  for i := 0 to cnt - 1 do begin
+    lbl := Format(CAResources.RsCutAppPathToMore, [ lbl, exeNames[i] ]);
+  end;
+end;
+
+procedure TfrmCutApplicationBase.btnBrowseTempDirClick(Sender: TObject);
+var
+  newDir: String;
+begin
+  newDir := self.edtTempDir.Text;
+  if SelectDirectory(CAResources.RsTitleSelectTemporaryDirectory, '', newDir) then
+    self.edtTempDir.Text := newDir;
+end;
+
+{ TCutApplicationBase }
 
 procedure TCutApplicationBase.AbortCutProcess;
 begin
@@ -165,6 +235,17 @@ begin
   inherited;
 end;
 
+function TCutApplicationBase.PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean;
+begin
+  Result := false;
+  if not FileExists(self.Path) then begin
+    ShowMessageFmt(CAResources.RsCutAppNotFound, [ self.Name, self.Path ]);
+    exit;
+  end;
+
+  Result := true;
+end;
+
 procedure TCutApplicationBase.EmergencyTerminateProcess;
 begin
   if self.FjvcpAppProcess.State <> psReady then begin
@@ -183,7 +264,7 @@ begin
   begin
     FOutputMemo.Clear;
     if not FRedirectOutput then
-      FOutputMemo.Lines.Add('Output redirection not activated.');
+      FOutputMemo.Lines.Add(CAResources.RsCutAppOutNoOutputRedirection);
   end;
 
   FCommandLineCounter := 0;
@@ -206,9 +287,11 @@ end;
 
 function TCutApplicationBase.InfoString: string;
 begin
-  result := 'Name: ' + self.Name + #13#10
-          + 'Path: ' + self.Path + #13#10
-          + 'Version: ' + self.Version + #13#10;
+  Result := Format( CAResources.RsCutAppInfoBase, [
+                    self.Name,
+                    self.Path,
+                    self.Version
+                    ]);
 end;
 
 procedure TCutApplicationBase.jvcpAppProcessRawRead(Sender: TObject;
@@ -244,18 +327,21 @@ begin
    or FProcessAborted then  begin
 
     if ExitCode=0 then begin
-      if assigned(FOutputMemo) then FOutputMemo.Lines.Add('Finished.');
+      if assigned(FOutputMemo) then
+        FOutputMemo.Lines.Add(CAResources.RsCutAppOutFinished);
     end else begin
       if assigned(FOutputMemo) then begin
-        FOutputMemo.Lines.Add('Error. Last started Command Line was:');
+        FOutputMemo.Lines.Add(CAResources.RsCutAppOutErrorCommand);
         FOutputMemo.Lines.Add(FCommandLines[FCommandLineCounter-1]);
       end;
     end;
     if FProcessAborted then begin
-      if assigned(FOutputMemo) then FOutputMemo.Lines.Add('Aborted by User.');
+      if assigned(FOutputMemo) then
+        FOutputMemo.Lines.Add(CAResources.RsCutAppOutUserAbort);
       ExitCode := Cardinal(-1);
     end;
-    if assigned(FOnCuttingTerminate) then FOnCuttingTerminate(Sender, ExitCode);
+    if assigned(FOnCuttingTerminate) then
+      FOnCuttingTerminate(Sender, ExitCode);
 
   end else begin
     //Next Command Line
@@ -274,11 +360,11 @@ begin
   section := GetIniSectionName;
   if Path = '' then begin
     if DefaultExeNames.Count > 0 then
-      Path := includetrailingPathDelimiter(extractfilepath(application.ExeName)) + DefaultExeNames.Strings[0];
+      Path := IncludeTrailingPathDelimiter(ExtractFilePath(Application.ExeName)) + DefaultExeNames.Strings[0];
   end;
   Path := IniFile.ReadString(section, 'Path', Path);
   if TempDir = '' then
-    TempDir := includetrailingPathDelimiter(extractfilepath(application.ExeName)) + TEMP_DIR + PathDelim;
+    TempDir := IncludeTrailingPathDelimiter(IncludeTrailingPathDelimiter(ExtractFilePath(application.ExeName)) + TEMP_DIR);
   TempDir := IniFile.ReadString(section, 'TempDir', TempDir);
   RedirectOutput := iniFile.ReadBool(Section, 'RedirectOutput', RedirectOutput);
   ShowAppWindow := iniFile.ReadBool(Section, 'ShowAppWindow', ShowAppWindow);
@@ -299,16 +385,19 @@ begin
   result := true;
 end;
 
+function TCutApplicationBase.WriteCutlistInfo(
+  CutlistFile: TCustomIniFile; section: string): boolean;
+begin
+  cutlistfile.WriteString(section, 'IntendedCutApplicationName', Name);
+  cutlistfile.WriteString(section, 'IntendedCutApplication', extractfilename(Path));
+  cutlistfile.WriteString(section, 'IntendedCutApplicationVersion', Version);
+  result := true;
+end;
+
 procedure TCutApplicationBase.SetCleanUp(const Value: boolean);
 begin
   FCleanUp := Value;
 end;
-
-{procedure TCutApplicationBase.SetDefaultExeName(const Value: string);
-begin
-  FDefaultExeName := Value;
-end;    }
-
 
 procedure TCutApplicationBase.SetName(const Value: string);
 begin
@@ -362,60 +451,6 @@ begin
   end;
 end;
 
-{TfrmCutApplicationBase}
-
-procedure TfrmCutApplicationBase.Apply;
-begin
-  if fileexists(edtPath.Text) then CutApplication.Path := edtPath.Text;
-  CutApplication.TempDir := self.edtTempDir.Text;
-  CutApplication.RedirectOutput := self.cbRedirectOutput.Checked;
-  CutApplication.ShowAppWindow := self.cbShowAppWindow.Checked;
-  CutApplication.CleanUp := self.cbCleanUp.Checked;
-end;
-
-procedure TfrmCutApplicationBase.btnBrowsePathClick(Sender: TObject);
-var
-  i: Integer;
-begin
-    for i := 0 to CutApplication.DefaultExeNames.Count-1 do begin
-      selectFileDlg.Filter := CutApplication.DefaultExeNames.Strings[i] + '|'
-                            + CutApplication.DefaultExeNames.Strings[i] + '|'
-                            + selectFileDlg.Filter;
-    end;
-    selectFileDlg.Title := 'Select '+CutApplication.Name+' Application:';
-    selectFileDlg.InitialDir := ExtractFilePath(self.edtPath.Text);
-    selectFileDlg.FileName := ExtractFileName(self.edtPath.Text);
-    if selectFileDlg.Execute then begin
-      edtPath.Text := selectFileDlg.FileName;
-    end else begin
-      exit;
-    end;
-end;
-
-procedure TfrmCutApplicationBase.Init;
-begin
-  self.edtPath.Text := CutApplication.Path;
-  self.edtTempDir.Text := CutApplication.TempDir;
-  self.cbRedirectOutput.Checked := CutApplication.RedirectOutput;
-  self.cbShowAppWindow.Checked := CutApplication.ShowAppWindow;
-  self.cbCleanUp.Checked := CutApplication.CleanUp;
-end;
-
-procedure TfrmCutApplicationBase.SetCutApplication(
-  const Value: TCutApplicationBase);
-var
-  i: INteger;
-begin
-  FCutApplication := Value;
-  for i := 0 to FCutApplication.DefaultExeNames.Count -1 do begin
-    if i = 0 then begin
-      self.lblAppPath.Caption := 'Path to ' + FCutApplication.DefaultExeNames[i];
-    end else begin
-      self.lblAppPath.Caption := self.lblAppPath.Caption + ' or ' + FCutApplication.DefaultExeNames[i];
-    end;
-  end;
-end;
-
 procedure TCutApplicationBase.SetRawRead(const Value: boolean);
 begin
   FRawRead := Value;
@@ -457,27 +492,9 @@ begin
   FTempDir := Value;
 end;
 
-procedure TfrmCutApplicationBase.btnBrowseTempDirClick(Sender: TObject);
-var
-  newDir: String;
-begin
-  newDir := self.edtTempDir.Text;
-  if SelectDirectory('Destination directory for temporary files:', '', newDir) then
-    self.edtTempDir.Text := newDir;
-end;
-
 function TCutApplicationBase.StartCutting: boolean;
 begin
   result := ExecuteCutProcess;
-end;
-
-function TCutApplicationBase.WriteCutlistInfo(
-  CutlistFile: TCustomIniFile; section: string): boolean;
-begin
-  cutlistfile.WriteString(section, 'IntendedCutApplicationName', Name);
-  cutlistfile.WriteString(section, 'IntendedCutApplication', extractfilename(Path));
-  cutlistfile.WriteString(section, 'IntendedCutApplicationVersion', Version);
-  result := true;
 end;
 
 end.

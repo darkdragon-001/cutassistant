@@ -252,7 +252,47 @@ RESOURCESTRING
   RsExpectedErrorHeader               = 'Error while %s:'#10#13
                                       + #10#13;
   RsExpectedErrorFormat               = '%s(%s) %s';
-    
+  RsErrorFileVersionGetFileVersion    = '[Error getting file version: %s]';
+  RsErrorFileVersionFileNotFound      = '[File not found: %s]';
+
+  { UCutApplicationBase }
+  RsCutAppNotFound                    = '%s not found (%s). Please check settings.';
+  RsMsgCutAppTempDirMissing           = 'Directory for temporary files does not exist:'#13#10
+                                      + #13#10
+                                      + '%s'
+                                      + #13#10
+                                      + #13#10
+                                      + 'Create it?';
+  RsCutAppOutNoOutputRedirection      = 'Output redirection not activated.';
+  RsCutAppInfoBase                    = 'Name: %s'#13#10
+                                      + 'Path: %s'#13#10
+                                      + 'Version: %s'#13#10;
+  RsCutAppOutFinished                 = 'Finished.';
+  RsCutAppOutErrorCommand             = 'Error. Last started Command Line was:';
+  RsCutAppOutUserAbort                = 'Aborted by User.';
+  RsTitleSelectCutApplication         = 'Select %s application:';
+  RsCutAppPathTo                      = 'Path to %s';
+  RsCutAppPathToMore                  = '%s or %s';
+  RsTitleSelectTemporaryDirectory     = 'Destination directory for temporary files:';
+
+  { UCutApplicationVirtualDub }
+  RsCutAppInfoVirtualDub              = '%sSmart Rendering: %s'#13#10
+                                      + 'Codec for Smart Rendering: %s'#13#10
+                                      + 'Codec Version: %s'#13#10;
+
+  { UCutApplicationMP4Box }
+  RsCutAppInfoMP4Box                  = '%sOptions: %s'#13#10;
+
+  { UCutApplicationAviDemux }
+  RsCutAppInfoAviDemux                = '%sOptions: %s'#13#10
+                                      + 'Rebuild Movie Index: %s'#13#10
+                                      + 'Scan Audio for VBR: %s'#13#10
+                                      + 'Smart Copy: %s'#13#10;
+
+  { UCutApplicationAsfBin }
+  RsCutAppInfoAsfBin                  = '%sOptions: %s'#13#10;
+
+
 IMPLEMENTATION
 
 END.

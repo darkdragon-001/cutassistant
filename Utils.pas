@@ -865,9 +865,9 @@ var
  dwFileVersionMS, dwFileVersionLS: DWORD;
 begin
 { If filename is not valid, return a string saying so and exit}
- if not fileExists(filename) then
+ if not FileExists(FileName) then
  begin
-   result := '[File not found]';
+   result := Format(CAResources.RsErrorFileVersionFileNotFound, [ FileName ]);
    exit;
  end;
 
@@ -878,7 +878,7 @@ begin
    Result := Result + '.' + IntToStr(HiWord(dwFileVersionLS));
    Result := Result + '.' + IntToStr(LoWord(dwFileVersionLS));
  end else begin
-   Result := '[Error]';
+   Result := Format(CAResources.RsErrorFileVersionGetFileVersion, [ FileName ]);
  end;
 end;
 
@@ -1116,7 +1116,7 @@ end;
 function CallApplication(AppPath, Command: string; var ErrorString: String): boolean;
 var
   return_value: cardinal;
-  m: string;
+  //m: string;
 begin
   return_value := shellexecute(Application.MainForm.Handle, 'open', pointer(AppPath), pointer(command), '', sw_shownormal);
 

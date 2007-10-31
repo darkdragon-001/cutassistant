@@ -35,7 +35,6 @@ type
     procedure CommandLineTerminate(Sender: TObject; const CommandLineIndex: Integer; const CommandLine: string);
   public
     CommandLineOptions: string;
-    //TempDir: string;
     constructor create; override;
     destructor destroy; override;
     function LoadSettings(IniFile: TCustomIniFile): boolean; override;
@@ -56,6 +55,7 @@ implementation
 {$WARN UNIT_PLATFORM OFF}
 
 uses
+  CAResources,
   FileCtrl, StrUtils,
   UCutlist, UfrmCutting, Utils;
 
@@ -108,28 +108,22 @@ var
   TempCutlist: TCutlist;
   iCut: Integer;
   MustFreeTempCutlist: boolean;
-  CommandLine, ExeName: string;
-  //TempFileName, TempFileExt: string;
+  CommandLine: string;
   SearchRec: TSearchRec;
 begin
-  result := false;
-  if not fileexists(self.Path) then begin
-    ExeName := ExtractFileName(Path);
-    if ExeName ='' then ExeName := DefaultExeNames[0];
-    if ExeName ='' then ExeName := 'Application';
-    showmessage(ExeName + ' not found. Please check settings.');
-    exit;
-  end;
+  result := inherited PrepareCutting(SourceFileName, DestFileName, Cutlist);
+  If not Result then
+    Exit;
 
-  MustFreeTempCutlist := false;
-
-  //Rename Files to MP4
-//  TempFileExt := ExtractFileExt(SourceFileName);
-//  ChangeFileExt(SourceFileName, ForcedFileExt);
-//  ChangeFileExt(DestFileName, ForcedFileExt);
-  TempCutlist := (Cutlist as TCutlist);
+  // Rename Files to MP4
+  // TempFileExt := ExtractFileExt(SourceFileName);
+  // ChangeFileExt(SourceFileName, ForcedFileExt);
+  // ChangeFileExt(DestFileName, ForcedFileExt);
 
   self.FCommandLines.Clear;
+  MustFreeTempCutlist := false;
+  TempCutlist := (Cutlist as TCutlist);
+
   self.FSourceFile := SourceFileName;
   self.FDestFile := DestFileName;
 
@@ -140,25 +134,10 @@ begin
 
   try
     TempCutlist.sort;
-    if tempCutlist.Count = 1 then begin
+    for iCut := 0 to tempCutlist.Count - 1 do begin
       CommandLine := '"'+ SourceFileName + '"';
-      CommandLine := CommandLine + ' -splitx ' + FloatToStrInvariant(TempCutlist[0].pos_from) + ':'  + FloatToStrInvariant(TempCutlist[0].pos_to);
-
-      //-out Parameter does not seem to work with -slitx. Maybe a bug in mp4box :(
-      //That's why we have to work around this and detect what files are new. see below.
-
-      //CommandLine := CommandLine + ' -out "' + DestFileName+ '"';
-
+      CommandLine := CommandLine + ' -splitx ' + FloatToStrInvariant(TempCutlist[iCut].pos_from) + ':'  + FloatToStrInvariant(TempCutlist[iCut].pos_to);
       self.FCommandLines.Add(CommandLine);
-
-    end else begin
-      self.FCommandLines.Clear;
-      for iCut := 0 to tempCutlist.Count -1 do begin
-   //     TempFileName := 'Part_1_' + extractFileName(SourceFileName);
-        CommandLine := '"'+ SourceFileName + '"';
-        CommandLine := CommandLine + ' -splitx ' + FloatToStrInvariant(TempCutlist[iCut].pos_from) + ':'  + FloatToStrInvariant(TempCutlist[iCut].pos_to);
-        self.FCommandLines.Add(CommandLine);
-      end;
     end;
 
     //Workaround for not working -out parameter
@@ -179,7 +158,6 @@ begin
   finally
     if MustFreeTempCutlist then
       FreeAndNIL(TempCutlist);
-//    ChangeFileExt(SourceFileName, TempFileExt);
   end;
 
 end;
@@ -187,8 +165,10 @@ end;
 
 function TCutApplicationMP4Box.InfoString: string;
 begin
-  result := inherited InfoString
-          + 'Options: ' + self.CommandLineOptions + #13#10;
+  Result := Format( CAResources.RsCutAppInfoMP4Box, [
+                    inherited InfoString,
+                    self.CommandLineOptions
+                    ]);
 end;
 
 function TCutApplicationMP4Box.WriteCutlistInfo(CutlistFile: TCustomIniFile;
@@ -209,20 +189,20 @@ begin
 end;
 
 
-  function FileNameCompare(List: TStringList; Index1, Index2: Integer): Integer;
-   {The callback returns
-      a value less than 0 if the string identified by Index1 comes before the string identified by Index2
-      0 if the two strings are equivalent
-      a value greater than 0 if the string with Index1 comes after the string identified by Index2.}
-  var
-    int1, int2: Integer;
-  begin
-    int1 := Integer(List.Objects[Index1]);
-    int2 := Integer(List.Objects[Index2]);
-    if int1>int2 then result := 1
-    else if int1<int2 then result := -1
-    else { if int1=int2 then } result := 0;
-  end;
+function FileNameCompare(List: TStringList; Index1, Index2: Integer): Integer;
+ {The callback returns
+    a value less than 0 if the string identified by Index1 comes before the string identified by Index2
+    0 if the two strings are equivalent
+    a value greater than 0 if the string with Index1 comes after the string identified by Index2.}
+var
+  int1, int2: Integer;
+begin
+  int1 := Integer(List.Objects[Index1]);
+  int2 := Integer(List.Objects[Index2]);
+  if int1>int2 then result := 1
+  else if int1<int2 then result := -1
+  else { if int1=int2 then } result := 0;
+end;
 
 procedure TCutApplicationMP4Box.CommandLineTerminate(Sender: TObject;
   const CommandLineIndex: Integer; const CommandLine: string);

@@ -249,8 +249,8 @@ RESOURCESTRING
   RsCaptionCuttingAutoClose           = '&Close (%d)';
 
   { Utils }
-  RsExpectedErrorHeader               = 'Error while %s:'#10#13
-                                      + #10#13;
+  RsExpectedErrorHeader               = 'Error while %s:'#13#10
+                                      + #13#10;
   RsExpectedErrorFormat               = '%s(%s) %s';
   RsErrorFileVersionGetFileVersion    = '[Error getting file version: %s]';
   RsErrorFileVersionFileNotFound      = '[File not found: %s]';

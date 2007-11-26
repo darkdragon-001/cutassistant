@@ -174,7 +174,7 @@ end;
 
 procedure TDSTrackBarEx.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
-  inherited;
+  inherited MouseMove(Shift, X, Y);
   if (ssShift in Shift) and FUserIsMarking then begin
     FMarkingEnd := Position;
     if FMarkingStart <= FMarkingEnd then begin
@@ -190,7 +190,7 @@ end;
 destructor TDSTrackBarEx.Destroy;
 begin
   FreeAndNIL(FChannelCanvas);
-  inherited;
+  inherited Destroy;
 end;
 
 procedure TDSTrackBarEx.SetOnChannelPostPaint(const Value: TTBCUstomDrawEvent);

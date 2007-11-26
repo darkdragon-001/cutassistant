@@ -76,7 +76,7 @@ var
 
 implementation
 
-  uses Utils, Math;
+  uses Utils, Math, DirectShow9;
 
 {$R *.dfm}
 
@@ -214,15 +214,14 @@ begin
   LIndex.Top := top2;
   LIndex.Left := pos_Left;
 
-  LTime.Top := top2;
-  LTime.Left := pos_left + round(Index_width*width_unit) + button_distance;
-
   BStart.Top := top2;
   BStart.Left := pos_left + round((Index_width+TIme_width)*width_unit) + 2*button_distance;
 
   BStop.Top := top2;
   BStop.Left := pos_left + round((Index_width+TIme_width+Button_width)*width_unit) + 3*button_distance;
 
+  LTime.Top := top2;
+  LTime.Left := BStart.Left - LTime.Width - button_distance;
 end;
 
 procedure TFFrames.FormCreate(Sender: TObject);
@@ -299,6 +298,7 @@ begin
   //LTime.Font.Size := Round(image_width / 40);
   LTIme.Caption := secondsToTimeString(0);
   LTime.Height := Button_height;
+  LTime.Alignment := taRightJustify; 
 
   BStart.Caption := '[<-';
   BStart.Height := button_height;
@@ -357,7 +357,14 @@ begin
 end;
 
 procedure TCutFrame.UpdateFrame;
+var
+  _pos: double;
 begin
+  if MovieInfo.frame_duration = 0 then
+    _pos := index
+  else
+    _pos := FPosition / MovieInfo.frame_duration;
+  LIndex.Caption := MovieInfo.FormatPosition(_pos, TIME_FORMAT_FRAME);
   LTime.Caption := MovieInfo.FormatPosition(FPosition);
 end;
 

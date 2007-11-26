@@ -245,6 +245,9 @@ type
     N17: TMenuItem;
     N18: TMenuItem;
     JvAppCommand: TJvAppCommand;
+    ACurrentFrames: TAction;
+    framesaround1: TMenuItem;
+    JvSpeedItem16: TJvSpeedItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -361,6 +364,7 @@ type
     procedure APauseExecute(Sender: TObject);
     procedure JvAppCommandAppCommand(Handle: Cardinal; Cmd: Word;
       Device: TJvAppCommandDevice; KeyState: Word; var Handled: Boolean);
+    procedure ACurrentFramesExecute(Sender: TObject);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -540,6 +544,7 @@ begin
 
   numFrames := IntToStr(Settings.FramesCount);
   InitFramesProperties(self.ANextFrames, numFrames);
+  InitFramesProperties(self.ACurrentFrames, numFrames);
   InitFramesProperties(self.APrevFrames, numFrames);
   InitFramesProperties(self.AScanInterval, numFrames);
 
@@ -776,7 +781,7 @@ begin
     for icut := 0 to cutlist.Count-1 do begin
       cut := cutlist[icut];
       cut_view := self.Lcutlist.Items.Add;
-      cut_view.Caption := inttostr(cut.index);
+      cut_view.Caption := inttostr(icut); //inttostr(cut.index);
       cut_view.SubItems.Add(MovieInfo.FormatPosition(cut.pos_from));
       cut_view.SubItems.Add(MovieInfo.FormatPosition(cut.pos_to));
       cut_view.SubItems.Add(MovieInfo.FormatPosition(cut.pos_to-cut.pos_from + MovieInfo.frame_duration));
@@ -1817,6 +1822,26 @@ begin
     self.Cursor := crHourGlass;
     application.ProcessMessages;
     showframes(1, FFrames.Count);
+  finally
+    EnableMovieControls(true);
+    self.Cursor := c;
+  end;
+end;
+
+procedure TFMain.ACurrentFramesExecute(Sender: TObject);
+var
+  c: TCursor;
+  halfFrames: integer;
+begin
+  if not MovieInfo.MovieLoaded then
+    exit;
+  c := self.Cursor;
+  try
+    EnableMovieControls(false);
+    self.Cursor := crHourGlass;
+    application.ProcessMessages;
+    halfFrames := 1 + FFrames.Count div 2;
+    showframes(1 - halfFrames, FFrames.Count - halfFrames);
   finally
     EnableMovieControls(true);
     self.Cursor := c;
@@ -3290,6 +3315,7 @@ end;
 procedure TFMain.EnableMovieControls(value: boolean);
 begin
     self.ANextFrames.Enabled := value;
+    self.ACurrentFrames.Enabled := value;
     self.APrevFrames.Enabled := value;
     self.TBFilePos.Enabled := value;
     self.TFinePos.Enabled := value;

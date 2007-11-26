@@ -83,7 +83,7 @@ begin
     for icut := 0 to cutlist.Count-1 do begin
       cut := cutlist[icut];
       cut_view := self.LTimeList.Items.Add;
-      cut_view.Caption := inttostr(cut.index);
+      cut_view.Caption := inttostr(icut); //inttostr(cut.index);
       cut_view.SubItems.Add(MovieInfo.FormatPosition(time));
       time := time + cut.pos_to-cut.pos_from;
       cut_view.SubItems.Add(MovieInfo.FormatPosition(time));

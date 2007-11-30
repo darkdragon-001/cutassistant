@@ -1,6 +1,6 @@
 object FFrames: TFFrames
-  Left = 155
-  Top = 89
+  Left = 269
+  Top = 124
   Width = 815
   Height = 761
   Caption = 'Frames'
@@ -16,6 +16,8 @@ object FFrames: TFFrames
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyUp = FormKeyUp
+  OnMouseWheelDown = FormMouseWheelDown
+  OnMouseWheelUp = FormMouseWheelUp
   OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 144

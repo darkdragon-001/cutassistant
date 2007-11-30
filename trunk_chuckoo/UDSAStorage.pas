@@ -19,8 +19,8 @@ FUNCTION RegisterDSAWarning(CONST DlgID: integer; CONST Name: STRING; CONST Desc
 // Additional values for DefaultButton, CancelButton and HelpButton parameters
 
 CONST
-  mbNone                      = TMsgDlgBtn(-1);
-  mbDefault                   = TMsgDlgBtn(-2);
+  mbNone                           = TMsgDlgBtn(-1);
+  mbDefault                        = TMsgDlgBtn(-2);
 
   //--------------------------------------------------------------------------------------------------
   // "Don't Show Again" (DSA) dialogs
@@ -78,8 +78,8 @@ IMPLEMENTATION
 USES JvDSADialogs, SysUtils, StrUtils;
 
 VAR
-  DSAStorage                  : TDSAStorage;
-  DlgID                       : integer;
+  DSAStorage                       : TDSAStorage;
+  DlgID                            : integer;
 
 FUNCTION RegisterDSADialog(
   CONST DlgID: integer;
@@ -220,15 +220,15 @@ END;
 
 PROCEDURE LoadDSAStates(CONST DSAData: TStrings);
 VAR
-  idx                         : integer;
-  item                        : STRING;
-  dlgID                       : integer;
-  DontShowAgain               : integer;
-  LastResult                  : integer;
-  Check                       : integer;
+  idx                              : integer;
+  item                             : STRING;
+  dlgID                            : integer;
+  DontShowAgain                    : integer;
+  LastResult                       : integer;
+  Check                            : integer;
   FUNCTION NextWord(VAR s: STRING): integer;
   VAR
-    delimPos                  : integer;
+    delimPos                       : integer;
   BEGIN
     delimPos := Pos(';', s);
     IF delimPos > 0 THEN BEGIN
@@ -258,10 +258,10 @@ END;
 
 PROCEDURE SaveDSAStates(CONST DSAData: TStrings);
 VAR
-  idx                         : integer;
-  item                        : TDSARegItem;
-  LastResult                  : integer;
-  DontShowAgain               : integer;
+  idx                              : integer;
+  item                             : TDSARegItem;
+  LastResult                       : integer;
+  DontShowAgain                    : integer;
 BEGIN
   IF NOT Assigned(DSAData) THEN
     Exit;
@@ -286,4 +286,3 @@ FINALIZATION
     FreeAndNil(DSAStorage);
   END;
 END.
-

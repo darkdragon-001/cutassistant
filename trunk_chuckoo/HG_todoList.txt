@@ -1,6 +1,4 @@
-ToDo
-Add cut end via maus
-End cut und single click sollte aktuellen Cut editieren
-
-Done
-Single Click ADD ( Add New Cut führt abhängig von der checkbox automaitsch einen ADD NEW CUT aus )
+28.11.07
+Wheelmaus Support ins Frames Window eingebaut...offset mit 1.49 empirisch..könnte falsch sein
+Auto Add Mode als default option in settings eingebaut, wird bei programmstart gesetzt...
+HOME setzt CUT Start, END Cut Ende  ( allerdings via FORM KEYDOWN gemacht )

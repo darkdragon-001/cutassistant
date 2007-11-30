@@ -4,14 +4,14 @@ object FSettings: TFSettings
   AutoScroll = False
   BorderIcons = []
   Caption = 'Settings'
-  ClientHeight = 307
-  ClientWidth = 562
+  ClientHeight = 472
+  ClientWidth = 865
   Color = clBtnFace
   Constraints.MinHeight = 310
   Constraints.MinWidth = 570
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -11
+  Font.Height = -17
   Font.Name = 'Microsoft Sans Serif'
   Font.Pitch = fpVariable
   Font.Style = []
@@ -19,13 +19,13 @@ object FSettings: TFSettings
   Position = poOwnerFormCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  PixelsPerInch = 96
-  TextHeight = 13
+  PixelsPerInch = 144
+  TextHeight = 20
   object pgSettings: TPageControl
     Left = 0
     Top = 0
-    Width = 562
-    Height = 281
+    Width = 865
+    Height = 432
     ActivePage = tabUserData
     Align = alClient
     MultiLine = True
@@ -35,143 +35,143 @@ object FSettings: TFSettings
       Caption = 'General'
       ImageIndex = 4
       DesignSize = (
-        554
-        250)
+        857
+        394)
       object Label8: TLabel
-        Left = 12
-        Top = 6
-        Width = 102
-        Height = 13
+        Left = 10
+        Top = 9
+        Width = 165
+        Height = 20
         Alignment = taRightJustify
         Caption = 'User Name (optional):'
       end
       object Label9: TLabel
-        Left = 31
-        Top = 33
-        Width = 83
-        Height = 13
+        Left = 39
+        Top = 51
+        Width = 136
+        Height = 20
         Alignment = taRightJustify
         Caption = 'User ID (random):'
       end
       object Label16: TLabel
-        Left = 21
-        Top = 60
-        Width = 93
-        Height = 13
+        Left = 24
+        Top = 92
+        Width = 151
+        Height = 20
         Alignment = taRightJustify
         Anchors = [akTop, akRight]
         Caption = 'Frame preview size:'
       end
       object Label17: TLabel
-        Left = 148
-        Top = 60
-        Width = 19
-        Height = 13
+        Left = 228
+        Top = 92
+        Width = 29
+        Height = 20
         Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 'px x'
       end
       object Label22: TLabel
-        Left = 12
-        Top = 87
-        Width = 102
-        Height = 13
+        Left = 14
+        Top = 134
+        Width = 161
+        Height = 20
         Alignment = taRightJustify
         Anchors = [akTop, akRight]
         Caption = 'Frame preview count:'
       end
       object Label27: TLabel
-        Left = 218
-        Top = 60
-        Width = 114
-        Height = 13
+        Left = 335
+        Top = 92
+        Width = 186
+        Height = 20
         Anchors = [akTop, akRight]
         Caption = '(change requires restart)'
       end
       object Label28: TLabel
-        Left = 218
-        Top = 87
-        Width = 114
-        Height = 13
+        Left = 335
+        Top = 134
+        Width = 186
+        Height = 20
         Anchors = [akTop, akRight]
         Caption = '(change requires restart)'
       end
       object Label32: TLabel
-        Left = 42
-        Top = 116
-        Width = 72
-        Height = 13
+        Left = 56
+        Top = 178
+        Width = 119
+        Height = 20
         Alignment = taRightJustify
         Anchors = [akTop, akRight]
         Caption = 'Small skip time:'
       end
       object Label33: TLabel
-        Left = 41
-        Top = 144
-        Width = 74
-        Height = 13
+        Left = 57
+        Top = 222
+        Width = 120
+        Height = 20
         Alignment = taRightJustify
         Anchors = [akTop, akRight]
         Caption = 'Large skip time:'
       end
       object Label34: TLabel
-        Left = 148
-        Top = 116
-        Width = 15
-        Height = 14
+        Left = 228
+        Top = 178
+        Width = 23
+        Height = 22
         Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 's'
       end
       object Label35: TLabel
-        Left = 148
-        Top = 144
-        Width = 15
-        Height = 14
+        Left = 228
+        Top = 222
+        Width = 23
+        Height = 21
         Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 's'
       end
       object Label36: TLabel
-        Left = 200
-        Top = 60
-        Width = 11
-        Height = 13
+        Left = 308
+        Top = 92
+        Width = 17
+        Height = 20
         Alignment = taCenter
         Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 'px'
       end
       object Label37: TLabel
-        Left = 35
-        Top = 173
-        Width = 80
-        Height = 13
+        Left = 51
+        Top = 266
+        Width = 126
+        Height = 20
         Alignment = taRightJustify
         Anchors = [akTop, akRight]
         Caption = 'Network timeout:'
       end
       object Label38: TLabel
-        Left = 148
-        Top = 173
-        Width = 15
-        Height = 14
+        Left = 228
+        Top = 266
+        Width = 23
+        Height = 22
         Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 's'
       end
       object EUserName: TEdit
-        Left = 120
-        Top = 3
-        Width = 425
+        Left = 185
+        Top = 5
+        Width = 653
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
       end
       object EUserID: TEdit
-        Left = 120
-        Top = 30
-        Width = 425
+        Left = 185
+        Top = 46
+        Width = 653
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         Color = clBtnFace
@@ -179,10 +179,10 @@ object FSettings: TFSettings
         TabOrder = 1
       end
       object EFrameWidth: TEdit
-        Left = 120
-        Top = 57
-        Width = 26
-        Height = 21
+        Left = 185
+        Top = 88
+        Width = 40
+        Height = 32
         Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 3
@@ -192,10 +192,10 @@ object FSettings: TFSettings
         OnKeyPress = EProxyPortKeyPress
       end
       object EFrameHeight: TEdit
-        Left = 172
-        Top = 57
-        Width = 26
-        Height = 21
+        Left = 265
+        Top = 88
+        Width = 40
+        Height = 32
         Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 3
@@ -205,10 +205,10 @@ object FSettings: TFSettings
         OnKeyPress = EProxyPortKeyPress
       end
       object EFrameCount: TEdit
-        Left = 120
-        Top = 84
-        Width = 26
-        Height = 21
+        Left = 185
+        Top = 129
+        Width = 40
+        Height = 33
         Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 2
@@ -218,10 +218,10 @@ object FSettings: TFSettings
         OnKeyPress = EProxyPortKeyPress
       end
       object RCutMode: TRadioGroup
-        Left = 364
-        Top = 60
-        Width = 181
-        Height = 45
+        Left = 560
+        Top = 92
+        Width = 278
+        Height = 70
         Hint = 
           'Cut out: New file is everything except cuts. Crop: New file is s' +
           'um of cuts.'
@@ -237,10 +237,10 @@ object FSettings: TFSettings
         TabOrder = 5
       end
       object edtLargeSkip: TEdit
-        Left = 120
-        Top = 141
-        Width = 26
-        Height = 21
+        Left = 185
+        Top = 217
+        Width = 40
+        Height = 32
         Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 2
@@ -250,10 +250,10 @@ object FSettings: TFSettings
         OnKeyPress = EProxyPortKeyPress
       end
       object edtSmallSkip: TEdit
-        Left = 120
-        Top = 113
-        Width = 26
-        Height = 21
+        Left = 185
+        Top = 174
+        Width = 40
+        Height = 32
         Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 2
@@ -263,10 +263,10 @@ object FSettings: TFSettings
         OnKeyPress = EProxyPortKeyPress
       end
       object edtNetTimeout: TEdit
-        Left = 120
-        Top = 170
-        Width = 26
-        Height = 21
+        Left = 185
+        Top = 262
+        Width = 40
+        Height = 32
         Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 2
@@ -276,33 +276,41 @@ object FSettings: TFSettings
         OnKeyPress = EProxyPortKeyPress
       end
       object cbAutoMuteOnSeek: TCheckBox
-        Left = 219
-        Top = 115
-        Width = 122
-        Height = 17
+        Left = 337
+        Top = 177
+        Width = 188
+        Height = 26
         Caption = 'Auto mute on seek'
         TabOrder = 9
+      end
+      object cbAutoMode: TCheckBox
+        Left = 337
+        Top = 213
+        Width = 188
+        Height = 26
+        Caption = 'Automatic Add Mode'
+        TabOrder = 10
       end
     end
     object TabSaveMovie: TTabSheet
       Caption = 'Save movie'
       ImageIndex = 1
       DesignSize = (
-        554
-        250)
+        857
+        394)
       object Label3: TLabel
-        Left = 3
-        Top = 68
-        Width = 193
-        Height = 13
+        Left = 5
+        Top = 105
+        Width = 236
+        Height = 40
         Caption = 'Automatically insert  before file extension:'
         WordWrap = True
       end
       object SaveCutMovieMode: TRadioGroup
-        Left = 3
-        Top = 3
-        Width = 543
-        Height = 56
+        Left = 5
+        Top = 5
+        Width = 835
+        Height = 86
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Save cut movie:'
         Items.Strings = (
@@ -311,46 +319,46 @@ object FSettings: TFSettings
         TabOrder = 0
       end
       object MovieNameAlwaysConfirm: TCheckBox
-        Left = 3
-        Top = 112
-        Width = 330
-        Height = 13
+        Left = 5
+        Top = 172
+        Width = 507
+        Height = 20
         Caption = 'Always confirm filename before cutting'
         TabOrder = 5
       end
       object CutMovieSaveDir: TEdit
-        Left = 142
-        Top = 34
-        Width = 362
+        Left = 218
+        Top = 52
+        Width = 557
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
         Text = 'CutMovieSaveDir'
       end
       object CutMovieExtension: TEdit
-        Left = 212
-        Top = 65
-        Width = 333
+        Left = 326
+        Top = 100
+        Width = 512
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 3
         Text = 'CutMovieExtension'
       end
       object BCutMovieSaveDir: TButton
-        Left = 510
-        Top = 34
-        Width = 27
-        Height = 21
+        Left = 785
+        Top = 52
+        Width = 41
+        Height = 33
         Anchors = [akTop, akRight]
         Caption = '...'
         TabOrder = 2
         OnClick = BCutMovieSaveDirClick
       end
       object CBUseMovieNameSuggestion: TCheckBox
-        Left = 3
-        Top = 92
-        Width = 334
-        Height = 14
+        Left = 5
+        Top = 142
+        Width = 513
+        Height = 21
         Caption = 'Use movie file name suggested by cutlist (if present)'
         TabOrder = 4
       end
@@ -359,13 +367,13 @@ object FSettings: TFSettings
       Caption = 'Save cutlist'
       ImageIndex = 2
       DesignSize = (
-        554
-        250)
+        857
+        394)
       object SaveCutlistMode: TRadioGroup
-        Left = 3
-        Top = 3
-        Width = 542
-        Height = 56
+        Left = 5
+        Top = 5
+        Width = 833
+        Height = 86
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Save cutlist:'
         Items.Strings = (
@@ -374,34 +382,34 @@ object FSettings: TFSettings
         TabOrder = 0
       end
       object CutlistNameAlwaysConfirm: TCheckBox
-        Left = 3
-        Top = 66
-        Width = 209
-        Height = 14
+        Left = 5
+        Top = 102
+        Width = 321
+        Height = 21
         Caption = 'Always confirm filename before saving'
         TabOrder = 3
       end
       object CutListSaveDir: TEdit
-        Left = 142
-        Top = 34
-        Width = 361
+        Left = 218
+        Top = 52
+        Width = 556
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
       end
       object CutlistAutoSaveBeforeCutting: TCheckBox
-        Left = 3
-        Top = 86
-        Width = 209
-        Height = 13
+        Left = 5
+        Top = 132
+        Width = 321
+        Height = 20
         Caption = 'Auto save before cutting'
         TabOrder = 4
       end
       object BCUtlistSaveDir: TButton
-        Left = 509
-        Top = 34
-        Width = 27
-        Height = 21
+        Left = 783
+        Top = 52
+        Width = 42
+        Height = 33
         Anchors = [akTop, akRight]
         Caption = '...'
         TabOrder = 2
@@ -413,139 +421,139 @@ object FSettings: TFSettings
       ImageIndex = 3
       Constraints.MinHeight = 210
       DesignSize = (
-        554
-        250)
+        857
+        394)
       object Label4: TLabel
-        Left = 66
-        Top = 6
-        Width = 62
-        Height = 13
+        Left = 95
+        Top = 9
+        Width = 102
+        Height = 20
         Alignment = taRightJustify
         Caption = 'Cutlist Server'
       end
       object Label5: TLabel
-        Left = 27
-        Top = 60
-        Width = 101
-        Height = 13
+        Left = 32
+        Top = 92
+        Width = 165
+        Height = 20
         Alignment = taRightJustify
         Caption = 'Cut Assistant Info File'
       end
       object Label6: TLabel
-        Left = 82
-        Top = 87
-        Width = 46
-        Height = 13
+        Left = 125
+        Top = 134
+        Width = 72
+        Height = 20
         Alignment = taRightJustify
         Caption = 'Wiki Help'
       end
       object Label7: TLabel
-        Left = 3
-        Top = 33
-        Width = 125
-        Height = 13
+        Left = -6
+        Top = 51
+        Width = 203
+        Height = 20
         Alignment = taRightJustify
         Caption = 'Cutlist Server Upload Form'
       end
       object EURL_Cutlist_Home: TEdit
-        Left = 134
-        Top = 3
-        Width = 411
+        Left = 206
+        Top = 5
+        Width = 632
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
       end
       object EURL_Info_File: TEdit
-        Left = 134
-        Top = 57
-        Width = 411
+        Left = 206
+        Top = 88
+        Width = 632
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
       end
       object EURL_Cutlist_Upload: TEdit
-        Left = 134
-        Top = 30
-        Width = 411
+        Left = 206
+        Top = 46
+        Width = 632
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
       end
       object EURL_Help: TEdit
-        Left = 134
-        Top = 84
-        Width = 411
+        Left = 206
+        Top = 129
+        Width = 632
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 3
       end
       object GroupBox1: TGroupBox
-        Left = 3
-        Top = 111
-        Width = 542
-        Height = 92
+        Left = 5
+        Top = 171
+        Width = 833
+        Height = 141
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Proxy Prameters'
         TabOrder = 4
         DesignSize = (
-          542
-          92)
+          833
+          141)
         object Label10: TLabel
-          Left = 34
-          Top = 22
-          Width = 31
-          Height = 13
+          Left = 51
+          Top = 34
+          Width = 49
+          Height = 20
           Alignment = taRightJustify
           Caption = 'Server'
         end
         object Label12: TLabel
-          Left = 458
-          Top = 22
-          Width = 19
-          Height = 13
+          Left = 703
+          Top = 34
+          Width = 31
+          Height = 20
           Alignment = taRightJustify
           Anchors = [akTop, akRight]
           Caption = 'Port'
         end
         object Label13: TLabel
-          Left = 329
-          Top = 49
-          Width = 46
-          Height = 13
+          Left = 503
+          Top = 75
+          Width = 74
+          Height = 20
           Alignment = taRightJustify
           Anchors = [akTop, akRight]
           Caption = 'Password'
         end
         object Label11: TLabel
-          Left = 12
-          Top = 49
-          Width = 53
-          Height = 13
+          Left = 15
+          Top = 75
+          Width = 85
+          Height = 20
           Alignment = taRightJustify
           Caption = 'User Name'
         end
         object Label14: TLabel
-          Left = 263
-          Top = 72
-          Width = 266
-          Height = 13
+          Left = 388
+          Top = 111
+          Width = 426
+          Height = 20
           Alignment = taRightJustify
           Anchors = [akTop, akRight]
           Caption = 'Warning: Password will be saved in settings in clear text!'
         end
         object EProxyServerName: TEdit
-          Left = 71
-          Top = 19
-          Width = 363
+          Left = 109
+          Top = 29
+          Width = 559
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
           Text = 'Server'
         end
         object EProxyPort: TEdit
-          Left = 483
-          Top = 18
-          Width = 46
+          Left = 743
+          Top = 28
+          Width = 71
           Height = 21
           Anchors = [akTop, akRight]
           TabOrder = 1
@@ -553,18 +561,18 @@ object FSettings: TFSettings
           OnKeyPress = EProxyPortKeyPress
         end
         object EProxyPassword: TEdit
-          Left = 381
-          Top = 45
-          Width = 148
+          Left = 586
+          Top = 69
+          Width = 228
           Height = 21
           Anchors = [akTop, akRight]
           PasswordChar = '*'
           TabOrder = 3
         end
         object EProxyUserName: TEdit
-          Left = 71
-          Top = 46
-          Width = 230
+          Left = 109
+          Top = 71
+          Width = 354
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 2
@@ -576,58 +584,58 @@ object FSettings: TFSettings
       Caption = 'Info Check'
       ImageIndex = 9
       object GBInfoCheck: TGroupBox
-        Left = 3
-        Top = 23
-        Width = 286
-        Height = 106
+        Left = 5
+        Top = 35
+        Width = 440
+        Height = 163
         TabOrder = 1
         object Label26: TLabel
-          Left = 13
-          Top = 22
-          Width = 209
-          Height = 13
+          Left = 14
+          Top = 34
+          Width = 328
+          Height = 20
           Alignment = taRightJustify
           Caption = 'Days between checking for Infos on server: '
         end
         object CBInfoCheckStable: TCheckBox
-          Left = 13
-          Top = 65
-          Width = 241
-          Height = 13
+          Left = 20
+          Top = 100
+          Width = 371
+          Height = 20
           Caption = 'Check on server for new stable versions'
           TabOrder = 2
         end
         object EChceckInfoInterval: TEdit
-          Left = 244
-          Top = 19
-          Width = 33
+          Left = 375
+          Top = 29
+          Width = 51
           Height = 21
           TabOrder = 0
           Text = '0'
           OnKeyPress = EChceckInfoIntervalKeyPress
         end
         object CBInfoCheckBeta: TCheckBox
-          Left = 13
-          Top = 84
-          Width = 241
-          Height = 13
+          Left = 20
+          Top = 129
+          Width = 371
+          Height = 20
           Caption = 'Check on server for new beta versions'
           TabOrder = 3
         end
         object CBInfoCheckMessages: TCheckBox
-          Left = 13
-          Top = 46
-          Width = 176
-          Height = 13
+          Left = 20
+          Top = 71
+          Width = 271
+          Height = 20
           Caption = 'Check on server for messages'
           TabOrder = 1
         end
       end
       object CBInfoCheckEnabled: TCheckBox
-        Left = 3
-        Top = 3
-        Width = 290
-        Height = 14
+        Left = 5
+        Top = 5
+        Width = 446
+        Height = 21
         Caption = 'Check Infos on Server on Startup'
         TabOrder = 0
       end
@@ -635,144 +643,144 @@ object FSettings: TFSettings
     object TabExternalCutApplication: TTabSheet
       Caption = 'External cut application'
       DesignSize = (
-        554
-        250)
+        857
+        394)
       object Label18: TLabel
-        Left = 3
-        Top = 24
-        Width = 144
-        Height = 13
+        Left = -4
+        Top = 37
+        Width = 230
+        Height = 20
         Alignment = taRightJustify
         Caption = 'Cut Windows Media Files with:'
       end
       object Label19: TLabel
-        Left = 62
-        Top = 51
-        Width = 85
-        Height = 13
+        Left = 88
+        Top = 78
+        Width = 138
+        Height = 20
         Alignment = taRightJustify
         Caption = 'Cut AVI Files with:'
       end
       object Label20: TLabel
-        Left = 42
-        Top = 133
-        Width = 105
-        Height = 13
+        Left = 54
+        Top = 205
+        Width = 172
+        Height = 20
         Alignment = taRightJustify
         Caption = 'Cut all other Files with:'
       end
       object Label21: TLabel
-        Left = 3
+        Left = 5
         Top = 0
-        Width = 299
-        Height = 13
+        Width = 471
+        Height = 22
         Caption = 'Please select the Cut Application for each File Type:'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -18
         Font.Name = 'Microsoft Sans Serif'
         Font.Pitch = fpVariable
         Font.Style = [fsBold]
         ParentFont = False
       end
       object Label1: TLabel
-        Left = 40
-        Top = 106
-        Width = 107
-        Height = 13
+        Left = 53
+        Top = 163
+        Width = 173
+        Height = 20
         Alignment = taRightJustify
         Caption = 'Cut MP4 Iso Files with:'
       end
       object Label29: TLabel
-        Left = 2
-        Top = 162
-        Width = 274
-        Height = 13
+        Left = -14
+        Top = 249
+        Width = 439
+        Height = 20
         Alignment = taRightJustify
         Caption = 'Automatically close cutting window after (use 0 to disable):'
       end
       object Label30: TLabel
-        Left = 360
-        Top = 132
-        Width = 5
-        Height = 13
+        Left = 554
+        Top = 203
+        Width = 9
+        Height = 20
         Caption = 's'
       end
       object lblSmartRenderingCodec: TLabel
-        Left = 314
-        Top = 1
-        Width = 208
-        Height = 13
+        Left = 483
+        Top = 2
+        Width = 331
+        Height = 22
         Caption = 'For Smart Rendering use this Codec:'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -18
         Font.Name = 'Microsoft Sans Serif'
         Font.Pitch = fpVariable
         Font.Style = [fsBold]
         ParentFont = False
       end
       object Label31: TLabel
-        Left = 43
-        Top = 79
-        Width = 104
-        Height = 13
+        Left = 56
+        Top = 122
+        Width = 170
+        Height = 20
         Alignment = taRightJustify
         Caption = 'Cut HQ-AVI Files with:'
       end
       object CBWmvApp: TComboBox
-        Left = 153
-        Top = 21
-        Width = 152
-        Height = 21
+        Left = 235
+        Top = 32
+        Width = 234
+        Height = 28
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 20
         TabOrder = 0
         OnChange = cbCutAppChange
         Items.Strings = (
           '')
       end
       object CBAviApp: TComboBox
-        Left = 153
-        Top = 48
-        Width = 152
-        Height = 21
+        Left = 235
+        Top = 74
+        Width = 234
+        Height = 28
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 20
         TabOrder = 1
         OnChange = cbCutAppChange
         Items.Strings = (
           '')
       end
       object CBOtherApp: TComboBox
-        Left = 153
-        Top = 130
-        Width = 152
-        Height = 21
+        Left = 235
+        Top = 200
+        Width = 234
+        Height = 28
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 20
         TabOrder = 3
         OnChange = cbCutAppChange
         Items.Strings = (
           '')
       end
       object cbMP4App: TComboBox
-        Left = 153
-        Top = 103
-        Width = 152
-        Height = 21
+        Left = 235
+        Top = 158
+        Width = 234
+        Height = 28
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 20
         TabOrder = 4
         OnChange = cbCutAppChange
         Items.Strings = (
           '')
       end
       object spnWaitTimeout: TJvSpinEdit
-        Left = 314
-        Top = 158
-        Width = 65
-        Height = 21
+        Left = 483
+        Top = 243
+        Width = 100
+        Height = 25
         CheckMinValue = True
         Alignment = taRightJustify
         ButtonKind = bkStandard
@@ -781,162 +789,162 @@ object FSettings: TFSettings
         TabOrder = 20
       end
       object cbxCodecWmv: TComboBox
-        Left = 314
-        Top = 21
-        Width = 137
-        Height = 21
+        Left = 483
+        Top = 32
+        Width = 211
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 20
         TabOrder = 5
         OnChange = cbxCodecChange
       end
       object btnCodecConfigWmv: TButton
-        Left = 457
-        Top = 21
-        Width = 65
-        Height = 21
+        Left = 703
+        Top = 32
+        Width = 100
+        Height = 33
         Anchors = [akTop, akRight]
         Caption = 'Config'
         TabOrder = 6
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutWmv: TButton
-        Left = 528
-        Top = 21
-        Width = 25
-        Height = 21
+        Left = 812
+        Top = 32
+        Width = 39
+        Height = 33
         Anchors = [akTop, akRight]
         Caption = '?'
         TabOrder = 7
         OnClick = btnCodecAboutClick
       end
       object cbxCodecAvi: TComboBox
-        Left = 314
-        Top = 48
-        Width = 137
-        Height = 21
+        Left = 483
+        Top = 74
+        Width = 211
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 20
         TabOrder = 8
         OnChange = cbxCodecChange
       end
       object btnCodecConfigAvi: TButton
-        Left = 457
-        Top = 48
-        Width = 65
-        Height = 21
+        Left = 703
+        Top = 74
+        Width = 100
+        Height = 32
         Anchors = [akTop, akRight]
         Caption = 'Config'
         TabOrder = 9
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutAvi: TButton
-        Left = 528
-        Top = 48
-        Width = 25
-        Height = 21
+        Left = 812
+        Top = 74
+        Width = 39
+        Height = 32
         Anchors = [akTop, akRight]
         Caption = '?'
         TabOrder = 10
         OnClick = btnCodecAboutClick
       end
       object cbxCodecMP4: TComboBox
-        Left = 314
-        Top = 103
-        Width = 137
-        Height = 21
+        Left = 483
+        Top = 158
+        Width = 211
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 20
         TabOrder = 14
         OnChange = cbxCodecChange
       end
       object btnCodecConfigMP4: TButton
-        Left = 457
-        Top = 103
-        Width = 65
-        Height = 21
+        Left = 703
+        Top = 158
+        Width = 100
+        Height = 33
         Anchors = [akTop, akRight]
         Caption = 'Config'
         TabOrder = 15
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutMP4: TButton
-        Left = 528
-        Top = 103
-        Width = 25
-        Height = 21
+        Left = 812
+        Top = 158
+        Width = 39
+        Height = 33
         Anchors = [akTop, akRight]
         Caption = '?'
         TabOrder = 16
         OnClick = btnCodecAboutClick
       end
       object cbxCodecOther: TComboBox
-        Left = 314
-        Top = 130
-        Width = 137
-        Height = 21
+        Left = 483
+        Top = 200
+        Width = 211
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 20
         TabOrder = 17
         OnChange = cbxCodecChange
       end
       object btnCodecConfigOther: TButton
-        Left = 457
-        Top = 130
-        Width = 65
-        Height = 21
+        Left = 703
+        Top = 200
+        Width = 100
+        Height = 32
         Anchors = [akTop, akRight]
         Caption = 'Config'
         TabOrder = 18
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutOther: TButton
-        Left = 528
-        Top = 130
-        Width = 25
-        Height = 21
+        Left = 812
+        Top = 200
+        Width = 39
+        Height = 32
         Anchors = [akTop, akRight]
         Caption = '?'
         TabOrder = 19
         OnClick = btnCodecAboutClick
       end
       object CBHQAviApp: TComboBox
-        Left = 153
-        Top = 76
-        Width = 152
-        Height = 21
+        Left = 235
+        Top = 117
+        Width = 234
+        Height = 28
         Style = csDropDownList
-        ItemHeight = 13
+        ItemHeight = 20
         TabOrder = 2
         OnChange = cbCutAppChange
         Items.Strings = (
           '')
       end
       object cbxCodecHQAvi: TComboBox
-        Left = 314
-        Top = 76
-        Width = 137
-        Height = 21
+        Left = 483
+        Top = 117
+        Width = 211
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 20
         TabOrder = 11
         OnChange = cbxCodecChange
       end
       object btnCodecConfigHQAvi: TButton
-        Left = 457
-        Top = 75
-        Width = 65
-        Height = 21
+        Left = 703
+        Top = 115
+        Width = 100
+        Height = 33
         Anchors = [akTop, akRight]
         Caption = 'Config'
         TabOrder = 12
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutHQAvi: TButton
-        Left = 527
-        Top = 75
-        Width = 25
-        Height = 21
+        Left = 811
+        Top = 115
+        Width = 38
+        Height = 33
         Anchors = [akTop, akRight]
         Caption = '?'
         TabOrder = 13
@@ -950,74 +958,74 @@ object FSettings: TFSettings
       Constraints.MinWidth = 548
       OnShow = tsSourceFilterShow
       DesignSize = (
-        554
-        250)
+        857
+        394)
       object lblSourceFilter: TLabel
-        Left = 3
-        Top = 9
-        Width = 105
-        Height = 13
+        Left = 5
+        Top = 14
+        Width = 171
+        Height = 20
         Caption = 'Preferred Source Filter'
       end
       object Label2: TLabel
-        Left = 63
-        Top = 66
-        Width = 53
-        Height = 13
+        Left = 91
+        Top = 102
+        Width = 87
+        Height = 20
         Alignment = taRightJustify
         Caption = 'for AVI files'
       end
       object Label23: TLabel
-        Left = 41
-        Top = 120
-        Width = 75
-        Height = 13
+        Left = 56
+        Top = 185
+        Width = 122
+        Height = 20
         Alignment = taRightJustify
         Caption = 'for MP4 Iso files'
       end
       object Label24: TLabel
-        Left = 41
-        Top = 148
-        Width = 75
-        Height = 13
+        Left = 53
+        Top = 228
+        Width = 125
+        Height = 20
         Alignment = taRightJustify
         Caption = 'for all Other files'
       end
       object Label25: TLabel
-        Left = 4
-        Top = 38
-        Width = 112
-        Height = 13
+        Left = -1
+        Top = 58
+        Width = 179
+        Height = 20
         Alignment = taRightJustify
         Caption = 'for Windows Media files'
       end
       object Label15: TLabel
-        Left = 52
-        Top = 175
-        Width = 64
-        Height = 13
+        Left = 71
+        Top = 269
+        Width = 107
+        Height = 20
         Alignment = taRightJustify
         Caption = 'Filter Blacklist'
       end
       object Label39: TLabel
-        Left = 44
-        Top = 93
-        Width = 72
-        Height = 13
+        Left = 60
+        Top = 143
+        Width = 118
+        Height = 20
         Alignment = taRightJustify
         Caption = 'for HQ AVI files'
       end
       object pnlPleaseWait: TPanel
-        Left = 122
-        Top = 3
-        Width = 296
-        Height = 25
+        Left = 188
+        Top = 5
+        Width = 455
+        Height = 38
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Checking Filters. Please Wait...'
         Color = clGreen
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clYellow
-        Font.Height = -11
+        Font.Height = -18
         Font.Name = 'Microsoft Sans Serif'
         Font.Pitch = fpVariable
         Font.Style = [fsBold]
@@ -1026,117 +1034,117 @@ object FSettings: TFSettings
         Visible = False
       end
       object cbxSourceFilterListAVI: TComboBox
-        Left = 122
-        Top = 63
-        Width = 424
-        Height = 22
+        Left = 188
+        Top = 97
+        Width = 652
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -18
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 20
         ParentFont = False
         TabOrder = 3
         Text = '(none)'
         OnChange = cbxSourceFilterListChange
       end
       object cbxSourceFilterListMP4: TComboBox
-        Left = 122
-        Top = 117
-        Width = 424
-        Height = 22
+        Left = 188
+        Top = 180
+        Width = 652
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -18
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 20
         ParentFont = False
         TabOrder = 5
         Text = '(none)'
         OnChange = cbxSourceFilterListChange
       end
       object cbxSourceFilterListOther: TComboBox
-        Left = 122
-        Top = 145
-        Width = 424
-        Height = 22
+        Left = 188
+        Top = 223
+        Width = 652
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -18
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 20
         ParentFont = False
         TabOrder = 6
         Text = '(none)'
         OnChange = cbxSourceFilterListChange
       end
       object btnRefreshFilterList: TButton
-        Left = 424
-        Top = 6
-        Width = 121
-        Height = 21
+        Left = 652
+        Top = 9
+        Width = 186
+        Height = 33
         Anchors = [akTop, akRight]
         Caption = 'Refresh Filter List'
         TabOrder = 1
         OnClick = btnRefreshFilterListClick
       end
       object cbxSourceFilterListWMV: TComboBox
-        Left = 122
-        Top = 35
-        Width = 424
-        Height = 22
+        Left = 188
+        Top = 54
+        Width = 652
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -18
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 20
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
         OnChange = cbxSourceFilterListChange
       end
       object lbchkBlackList: TCheckListBox
-        Left = 122
-        Top = 173
-        Width = 423
-        Height = 67
+        Left = 188
+        Top = 266
+        Width = 650
+        Height = 103
         OnClickCheck = lbchkBlackListClickCheck
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -18
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 20
         ParentFont = False
         TabOrder = 7
       end
       object cbxSourceFilterListHQAVI: TComboBox
-        Left = 122
-        Top = 90
-        Width = 424
-        Height = 22
+        Left = 188
+        Top = 138
+        Width = 652
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
-        Font.Height = -11
+        Font.Height = -18
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 20
         ParentFont = False
         TabOrder = 4
         Text = '(none)'
@@ -1146,20 +1154,20 @@ object FSettings: TFSettings
   end
   object pnlButtons: TPanel
     Left = 0
-    Top = 281
-    Width = 562
-    Height = 26
+    Top = 432
+    Width = 865
+    Height = 40
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      562
-      26)
+      865
+      40)
     object Cancel: TButton
-      Left = 471
+      Left = 725
       Top = 0
-      Width = 85
-      Height = 21
+      Width = 130
+      Height = 32
       Anchors = [akTop, akRight]
       Cancel = True
       Caption = '&Cancel'
@@ -1167,10 +1175,10 @@ object FSettings: TFSettings
       TabOrder = 1
     end
     object OK: TButton
-      Left = 380
+      Left = 585
       Top = 0
-      Width = 85
-      Height = 21
+      Width = 130
+      Height = 32
       Anchors = [akTop, akRight]
       Caption = '&OK'
       Default = True

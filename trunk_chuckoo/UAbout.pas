@@ -1,12 +1,12 @@
-unit UAbout;
+UNIT UAbout;
 
-interface
+INTERFACE
 
-uses Windows, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls,
+USES Windows, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls,
   Buttons, ExtCtrls, JvGIF, JvPoweredBy, JvExControls, JvLinkLabel;
 
-type
-  TAboutBox = class(TForm)
+TYPE
+  TAboutBox = CLASS(TForm)
     Panel1: TPanel;
     ProgramIcon: TImage;
     ProductName: TLabel;
@@ -17,26 +17,25 @@ type
     JvPoweredByJVCL1: TJvPoweredByJVCL;
     Image1: TImage;
     Label1: TLabel;
-    procedure FormCreate(Sender: TObject);
-  private
+    PROCEDURE FormCreate(Sender: TObject);
+  PRIVATE
     { Private-Deklarationen }
-  public
+  PUBLIC
     { Public-Deklarationen }
-  end;
+  END;
 
-var
-  AboutBox: TAboutBox;
+VAR
+  AboutBox                         : TAboutBox;
 
-implementation
+IMPLEMENTATION
 
-uses Utils;
+USES Utils;
 
 {$R *.dfm}
 
-procedure TAboutBox.FormCreate(Sender: TObject);
-begin
+PROCEDURE TAboutBox.FormCreate(Sender: TObject);
+BEGIN
   Version.Caption := 'Version ' + Get_File_Version(Application.ExeName);
-end;
+END;
 
-end.
- 
+END.

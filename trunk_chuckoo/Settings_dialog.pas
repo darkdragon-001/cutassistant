@@ -1,27 +1,27 @@
-unit Settings_dialog;
+UNIT Settings_dialog;
 
-interface
+INTERFACE
 
 {$WARN UNIT_PLATFORM OFF}
 
-uses
+USES
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, COntnrs,
   Dialogs, FileCtrl, StdCtrls, ComCtrls, ExtCtrls, IniFiles, Utils, CodecSettings, MMSystem,
   Movie, UCutApplicationBase,
 
   DirectShow9, DSPack, DSUtil, CheckLst, Mask, JvExMask, JvSpin;
 
-const
+CONST
   //Settings Save...Mode
-  smWithSource = $00;  //How to Save Cutlists and cut movies
-  smGivenDir = $01;
-  smAutoSaveBeforeCutting = $40;      //Only Cutlist
-  smAlwaysAsk = $80;
+  smWithSource                     = $00; //How to Save Cutlists and cut movies
+  smGivenDir                       = $01;
+  smAutoSaveBeforeCutting          = $40; //Only Cutlist
+  smAlwaysAsk                      = $80;
 
 
-type
+TYPE
 
-  TFSettings = class(TForm)
+  TFSettings = CLASS(TForm)
     Cancel: TButton;
     OK: TButton;
     pgSettings: TPageControl;
@@ -139,55 +139,58 @@ type
     btnCodecAboutHQAvi: TButton;
     Label39: TLabel;
     cbxSourceFilterListHQAVI: TComboBox;
-    procedure BCutMovieSaveDirClick(Sender: TObject);
-    procedure BCutlistSaveDirClick(Sender: TObject);
-    procedure EProxyPortKeyPress(Sender: TObject; var Key: Char);
-    procedure FormCreate(Sender: TObject);
+    cbAutoMode: TCheckBox;
 
-    procedure EChceckInfoIntervalKeyPress(Sender: TObject; var Key: Char);
-    procedure tsSourceFilterShow(Sender: TObject);
-    procedure btnRefreshFilterListClick(Sender: TObject);
-    procedure lbchkBlackListClickCheck(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-    procedure EFrameWidthExit(Sender: TObject);
-    procedure cbxCodecChange(Sender: TObject);
-    procedure btnCodecConfigClick(Sender: TObject);
-    procedure btnCodecAboutClick(Sender: TObject);
-    procedure cbCutAppChange(Sender: TObject);
-    procedure cbxSourceFilterListChange(Sender: TObject);
-  private
+    PROCEDURE BCutMovieSaveDirClick(Sender: TObject);
+    PROCEDURE BCutlistSaveDirClick(Sender: TObject);
+    PROCEDURE EProxyPortKeyPress(Sender: TObject; VAR Key: Char);
+    PROCEDURE FormCreate(Sender: TObject);
+
+    PROCEDURE EChceckInfoIntervalKeyPress(Sender: TObject; VAR Key: Char);
+    PROCEDURE tsSourceFilterShow(Sender: TObject);
+    PROCEDURE btnRefreshFilterListClick(Sender: TObject);
+    PROCEDURE lbchkBlackListClickCheck(Sender: TObject);
+    PROCEDURE FormDestroy(Sender: TObject);
+    PROCEDURE EFrameWidthExit(Sender: TObject);
+    PROCEDURE cbxCodecChange(Sender: TObject);
+    PROCEDURE btnCodecConfigClick(Sender: TObject);
+    PROCEDURE btnCodecAboutClick(Sender: TObject);
+    PROCEDURE cbCutAppChange(Sender: TObject);
+    PROCEDURE cbxSourceFilterListChange(Sender: TObject);
+//    procedure RCutModeClick(Sender: TObject);
+  PRIVATE
     { Private declarations }
     HQAviAppSettings, AviAppSettings, WmvAppSettings, MP4AppSettings, OtherAppSettings: RCutAppSettings;
     EnumFilters: TSysDevEnum;
-    procedure FillBlackList;
-    function GetCodecList: TCodecList;
-    property CodecList: TCodecList read GetCodecList;
-  private
-    function GetMovieTypeFromControl(const Sender: TObject; var MovieType: TMovieType): boolean;
-    function GetCodecSettingsControls(const Sender: TObject;
-      var cbx: TComboBox; var btnConfig, btnAbout: TButton): boolean; overload;
-    function GetCodecSettingsControls(const MovieType: TMovieType;
-      var cbx: TComboBox; var btnConfig, btnAbout: TButton): boolean; overload;
-  public
-    procedure Init;
-    function GetCodecNameByFourCC(FourCC: DWord): string;
-    procedure GetCutAppSettings(const MovieType: TMovieType; var ASettings: RCutAppSettings);
-    procedure SetCutAppSettings(const MovieType: TMovieType; var ASettings: RCutAppSettings);
+    PROCEDURE FillBlackList;
+    FUNCTION GetCodecList: TCodecList;
+    PROPERTY CodecList: TCodecList READ GetCodecList;
+  PRIVATE
+    FUNCTION GetMovieTypeFromControl(CONST Sender: TObject; VAR MovieType: TMovieType): boolean;
+    FUNCTION GetCodecSettingsControls(CONST Sender: TObject;
+      VAR cbx: TComboBox; VAR btnConfig, btnAbout: TButton): boolean; OVERLOAD;
+    FUNCTION GetCodecSettingsControls(CONST MovieType: TMovieType;
+      VAR cbx: TComboBox; VAR btnConfig, btnAbout: TButton): boolean; OVERLOAD;
+  PUBLIC
+    PROCEDURE Init;
+    FUNCTION GetCodecNameByFourCC(FourCC: DWord): STRING;
+    PROCEDURE GetCutAppSettings(CONST MovieType: TMovieType; VAR ASettings: RCutAppSettings);
+    PROCEDURE SetCutAppSettings(CONST MovieType: TMovieType; VAR ASettings: RCutAppSettings);
     { Public declarations }
-  end;
+  END;
 
   //deprecated:
-  TCutApp = (caAsfBin = 0, caVirtualDub = 1,  caAviDemux = 2);
+  TCutApp = (caAsfBin = 0, caVirtualDub = 1, caAviDemux = 2);
 
-  TSettings = class (TObject)
-  private
-     SourceFilterList: TSourceFilterList;
+  TSettings = CLASS(TObject)
+  PRIVATE
+    SourceFilterList: TSourceFilterList;
     _SaveCutListMode, _SaveCutMovieMode: byte;
     _NewSettingsCreated: boolean;
     FCodecList: TCodecList;
-    function GetFilter(Index: Integer): TFilCatNode;
-    property CodecList: TCodecList read FCodecList;
-  public
+    FUNCTION GetFilter(Index: Integer): TFilCatNode;
+    PROPERTY CodecList: TCodecList READ FCodecList;
+  PUBLIC
     // window state
     MainFormBounds, FramesFormBounds, PreviewFormBounds, LoggingFormBounds: TRect;
     MainFormWindowState, FramesFormWindowState, PreviewFormWindowState: TWindowState;
@@ -197,24 +200,25 @@ type
     CutApplicationList: TObjectList;
 
     //User
-    UserName, UserID: string;
+    UserName, UserID: STRING;
 
     // Preview frame window
     FramesWidth, FramesHeight, FramesCount: integer;
 
     //General
-    CutlistSaveDir, CutMovieSaveDir, CutMovieExtension, CurrentMovieDir: string;
+    CutlistSaveDir, CutMovieSaveDir, CutMovieExtension, CurrentMovieDir: STRING;
     UseMovieNameSuggestion: boolean;
     DefaultCutMode: integer;
+    DefaultAutoMode: Boolean;
     SmallSkipTime, LargeSkipTime: integer;
     NetTimeout: integer;
     AutoMuteOnSeek: boolean;
-
+   
     //Warnings
     WarnOnWrongCutApp: boolean;
 
     //Mplayer
-    MPlayerPath: String;
+    MPlayerPath: STRING;
 
     //CutApps
     CuttingWaitTimeout: integer;
@@ -228,10 +232,10 @@ type
 
     //URLs and Proxy
     url_cutlists_home,
-    url_cutlists_upload,
-    url_info_file,
-    url_help: string;
-    proxyServerName, proxyUserName, proxyPassword: String;
+      url_cutlists_upload,
+      url_info_file,
+      url_help: STRING;
+    proxyServerName, proxyUserName, proxyPassword: STRING;
     proxyPort: Integer;
 
     //Other settings
@@ -240,43 +244,43 @@ type
     InfoLastChecked: TDate;
     InfoShowMessages, InfoShowStable, InfoShowBeta: boolean;
 
-    function CheckInfos: boolean;
+    FUNCTION CheckInfos: boolean;
 
-    constructor Create;
-    destructor Destroy; override;
-  protected
+    CONSTRUCTOR Create;
+    DESTRUCTOR Destroy; OVERRIDE;
+  PROTECTED
     //deprecated
-    function GetCutAppNameByCutAppType(CAType: TCutApp): String;
-  public
-    function GetCutAppName(MovieType: TMovieType): String;
-    function GetCutApplicationByName(CAName: string): TCutApplicationBase;
-    function GetCutAppSettingsByMovieType(MovieType: TMovieType): RCutAppSettings;
-    function GetCutApplicationByMovieType(MovieType: TMovieType): TCutApplicationBase;
+    FUNCTION GetCutAppNameByCutAppType(CAType: TCutApp): STRING;
+  PUBLIC
+    FUNCTION GetCutAppName(MovieType: TMovieType): STRING;
+    FUNCTION GetCutApplicationByName(CAName: STRING): TCutApplicationBase;
+    FUNCTION GetCutAppSettingsByMovieType(MovieType: TMovieType): RCutAppSettings;
+    FUNCTION GetCutApplicationByMovieType(MovieType: TMovieType): TCutApplicationBase;
 
-    function GetPreferredSourceFilterByMovieType(MovieType: TMovieType): TGUID;
-    function SaveCutlistMode: byte;
-    function SaveCutMovieMode: byte;
-    function MovieNameAlwaysConfirm: boolean;
-    function CutlistNameAlwaysConfirm: boolean;
-    function CutlistAutoSaveBeforeCutting: boolean;
-    function FilterIsInBlackList(ClassID: TGUID): boolean;
+    FUNCTION GetPreferredSourceFilterByMovieType(MovieType: TMovieType): TGUID;
+    FUNCTION SaveCutlistMode: byte;
+    FUNCTION SaveCutMovieMode: byte;
+    FUNCTION MovieNameAlwaysConfirm: boolean;
+    FUNCTION CutlistNameAlwaysConfirm: boolean;
+    FUNCTION CutlistAutoSaveBeforeCutting: boolean;
+    FUNCTION FilterIsInBlackList(ClassID: TGUID): boolean;
 
-    procedure load;
-    procedure edit;
-    procedure save;
-  published
-    property NewSettingsCreated: boolean read _NewSettingsCreated;
-  public
-    function GetCodecNameByFourCC(FourCC: DWord): string;
-    property GetFilterInfo[Index: Integer]: TFilCatNode read GetFilter;
-  end;
+    PROCEDURE load;
+    PROCEDURE edit;
+    PROCEDURE save;
+  PUBLISHED
+    PROPERTY NewSettingsCreated: boolean READ _NewSettingsCreated;
+  PUBLIC
+    FUNCTION GetCodecNameByFourCC(FourCC: DWord): STRING;
+    PROPERTY GetFilterInfo[Index: Integer]: TFilCatNode READ GetFilter;
+  END;
 
-var
-  FSettings: TFSettings;
+VAR
+  FSettings                        : TFSettings;
 
-implementation
+IMPLEMENTATION
 
-uses
+USES
   Math, Types,
   Main,
   UCutApplicationAsfbin,
@@ -285,75 +289,75 @@ uses
   UCutApplicationMP4Box,
   UCutlist, VFW;
 
-var
-  EmptyRect: TRect;
+VAR
+  EmptyRect                        : TRect;
 
 {$R *.dfm}
 
-function TFSettings.GetCodecList: TCodecList;
-begin
+FUNCTION TFSettings.GetCodecList: TCodecList;
+BEGIN
   Result := Settings.CodecList;
-end;
+END;
 
-function TFSettings.GetCodecNameByFourCC(FourCC: DWord): string;
-begin
+FUNCTION TFSettings.GetCodecNameByFourCC(FourCC: DWord): STRING;
+BEGIN
   Result := Settings.GetCodecNameByFourCC(FourCC);
-end;
+END;
 
-function TSettings.GetCodecNameByFourCC(FourCC: DWord): string;
-var
-  idx: integer;
-  codec: TICInfoObject;
-begin
-  codec := nil;
+FUNCTION TSettings.GetCodecNameByFourCC(FourCC: DWord): STRING;
+VAR
+  idx                              : integer;
+  codec                            : TICInfoObject;
+BEGIN
+  codec := NIL;
   idx := FCodecList.IndexOfCodec(FourCC);
-  if idx > -1 then
+  IF idx > -1 THEN
     codec := FCodecList.CodecInfoObject[idx];
-  if Assigned(codec) then Result := codec.Name
-  else Result := '';
-end;
+  IF Assigned(codec) THEN Result := codec.Name
+  ELSE Result := '';
+END;
 
-procedure TFSettings.BCutMovieSaveDirClick(Sender: TObject);
-var
-  newDir: String;
-  currentDir: string;
-begin
+PROCEDURE TFSettings.BCutMovieSaveDirClick(Sender: TObject);
+VAR
+  newDir                           : STRING;
+  currentDir                       : STRING;
+BEGIN
   newDir := self.CutMovieSaveDir.Text;
   currentDir := self.CutMovieSaveDir.Text;
-  if not IsPathRooted(currentDir) then
+  IF NOT IsPathRooted(currentDir) THEN
     currentDir := '';
-  if selectdirectory('Destination directory for cut movies:', currentDir, newDir) then
+  IF selectdirectory('Destination directory for cut movies:', currentDir, newDir) THEN
     self.CutMovieSaveDir.Text := newDir;
-end;
+END;
 
-procedure TFSettings.BCUtlistSaveDirClick(Sender: TObject);
-var
-  newDir: String;
-  currentDir: string;
-begin
+PROCEDURE TFSettings.BCUtlistSaveDirClick(Sender: TObject);
+VAR
+  newDir                           : STRING;
+  currentDir                       : STRING;
+BEGIN
   newDir := self.CutlistSaveDir.Text;
   currentDir := self.CutlistSaveDir.Text;
-  if not IsPathRooted(currentDir) then
+  IF NOT IsPathRooted(currentDir) THEN
     currentDir := '';
-  if selectdirectory('Destination directory for cutlists:', currentDir, newDir) then
+  IF selectdirectory('Destination directory for cutlists:', currentDir, newDir) THEN
     self.CutlistSaveDir.Text := newDir;
-end;
+END;
 
-procedure TFSettings.EProxyPortKeyPress(Sender: TObject; var Key: Char);
-begin
-  if not (key in [#0 .. #31, '0'..'9']) then key := chr(0);
-end;
+PROCEDURE TFSettings.EProxyPortKeyPress(Sender: TObject; VAR Key: Char);
+BEGIN
+  IF NOT (key IN [#0..#31, '0'..'9']) THEN key := chr(0);
+END;
 
 { TSettings }
 
-function TSettings.CheckInfos: boolean;
-begin
+FUNCTION TSettings.CheckInfos: boolean;
+BEGIN
   result := (self.InfoCheckInterval >= 0);
-end;
+END;
 
-constructor TSettings.create;
-begin
-  inherited;
+CONSTRUCTOR TSettings.create;
+BEGIN
+  INHERITED;
   FCodecList := TCodecList.Create;
   FCodecList.Fill;
   CutApplicationList := TObjectList.Create;
@@ -362,7 +366,7 @@ begin
   CutApplicationList.Add(TCutApplicationAviDemux.Create);
   CutApplicationList.Add(TCutApplicationMP4Box.Create);
 
-  SourceFilterList:= TSourceFilterList.create;
+  SourceFilterList := TSourceFilterList.create;
   FilterBlackList := TGUIDList.Create;
 
   CutAppSettingsWmv.PreferredSourceFilter := GUID_NULL;
@@ -370,47 +374,47 @@ begin
   CutAppSettingsHQAvi.PreferredSourceFilter := GUID_NULL;
   CutAppSettingsMP4.PreferredSourceFilter := GUID_NULL;
   CutAppSettingsOther.PreferredSourceFilter := GUID_NULL;
-end;
+END;
 
-function TSettings.GetFilter(Index: Integer): TFilCatNode;
-begin
+FUNCTION TSettings.GetFilter(Index: Integer): TFilCatNode;
+BEGIN
   Result := SourceFilterList.GetFilterInfo[Index];
-end;
+END;
 
-function TSettings.CutlistAutoSaveBeforeCutting: boolean;
-begin
-  result := ((_SaveCutlistMOde AND smAutoSaveBeforeCutting) >0);
-end;
+FUNCTION TSettings.CutlistAutoSaveBeforeCutting: boolean;
+BEGIN
+  result := ((_SaveCutlistMOde AND smAutoSaveBeforeCutting) > 0);
+END;
 
-function TSettings.CutlistNameAlwaysConfirm: boolean;
-begin
-  result := ((_SaveCutlistMode AND smAlwaysAsk) > 0 );
-end;
+FUNCTION TSettings.CutlistNameAlwaysConfirm: boolean;
+BEGIN
+  result := ((_SaveCutlistMode AND smAlwaysAsk) > 0);
+END;
 
-destructor TSettings.destroy;
-begin
+DESTRUCTOR TSettings.destroy;
+BEGIN
   FreeAndNil(FCodecList);
   FreeAndNIL(FilterBlackList);
   FreeAndNIL(SourceFilterList);
   FreeAndNIL(CutApplicationList);
-  inherited;
-end;
+  INHERITED;
+END;
 
-procedure TSettings.edit;
-var
-  message_string: string;
-  Data_Valid: boolean;
-  iTabSheet: Integer;
-  TabSheet: TTabSheet;
-  FrameClass: TCutApplicationFrameClass;
-begin
-  for iTabSheet := 0 to FSettings.pgSettings.PageCount -1 do begin
+PROCEDURE TSettings.edit;
+VAR
+  message_string                   : STRING;
+  Data_Valid                       : boolean;
+  iTabSheet                        : Integer;
+  TabSheet                         : TTabSheet;
+  FrameClass                       : TCutApplicationFrameClass;
+BEGIN
+  FOR iTabSheet := 0 TO FSettings.pgSettings.PageCount - 1 DO BEGIN
     TabSheet := FSettings.pgSettings.Pages[iTabSheet];
-    if TabSheet.Tag <> 0 then begin
+    IF TabSheet.Tag <> 0 THEN BEGIN
       FrameClass := TCutApplicationFrameClass(TabSheet.Tag);
-      (FSettings.pgSettings.Pages[iTabSheet].Controls[0] as FrameClass).Init;
-    end;
-  end;
+      (FSettings.pgSettings.Pages[iTabSheet].Controls[0] AS FrameClass).Init;
+    END;
+  END;
 
   FSettings.SetCutAppSettings(mtWMV, self.CutAppSettingsWmv);
   FSettings.SetCutAppSettings(mtAVI, self.CutAppSettingsAvi);
@@ -418,83 +422,81 @@ begin
   FSettings.SetCutAppSettings(mtMP4, self.CutAppSettingsMP4);
   FSettings.SetCutAppSettings(mtUnknown, self.CutAppSettingsOther);
 
-  FSettings.spnWaitTimeout.AsInteger               := CuttingWaitTimeout;
-  FSettings.SaveCutMovieMode.ItemIndex             := SaveCutMovieMode;
-  FSettings.CutMovieSaveDir.Text                   := CutMovieSaveDir;
-  FSettings.CutMovieExtension.Text                 := CutMovieExtension;
-  FSettings.CBUseMovieNameSuggestion.Checked       := UseMovieNameSuggestion;
-  FSettings.MovieNameAlwaysConfirm.Checked         := MovieNameAlwaysConfirm;
-  FSettings.SaveCutlistMode.ItemIndex              := SaveCutlistMode;
-  FSettings.CutlistSaveDir.Text                    := CutlistSaveDir;
-  FSettings.CutlistNameAlwaysConfirm.Checked       := CutlistNameAlwaysConfirm;
-  Fsettings.CutlistAutoSaveBeforeCutting.Checked   := CutlistAutoSaveBeforeCutting;
-  Fsettings.RCutMode.ItemIndex                     := DefaultCutMode;
-  FSettings.edtSmallSkip.Text                      := IntToStr(SmallSkipTime);
-  FSettings.edtLargeSkip.Text                      := IntToStr(LargeSkipTime);
-  FSettings.edtNetTimeout.Text                     := IntToStr(NetTimeout);
-  FSettings.cbAutoMuteOnSeek.Checked               := AutoMuteOnSeek;
+  FSettings.spnWaitTimeout.AsInteger := CuttingWaitTimeout;
+  FSettings.SaveCutMovieMode.ItemIndex := SaveCutMovieMode;
+  FSettings.CutMovieSaveDir.Text := CutMovieSaveDir;
+  FSettings.CutMovieExtension.Text := CutMovieExtension;
+  FSettings.CBUseMovieNameSuggestion.Checked := UseMovieNameSuggestion;
+  FSettings.MovieNameAlwaysConfirm.Checked := MovieNameAlwaysConfirm;
+  FSettings.SaveCutlistMode.ItemIndex := SaveCutlistMode;
+  FSettings.CutlistSaveDir.Text := CutlistSaveDir;
+  FSettings.CutlistNameAlwaysConfirm.Checked := CutlistNameAlwaysConfirm;
+  Fsettings.CutlistAutoSaveBeforeCutting.Checked := CutlistAutoSaveBeforeCutting;
+  Fsettings.RCutMode.ItemIndex := DefaultCutMode;
+  Fsettings.cbAutoMode.checked := DefaultAutoMode;
 
-  Fsettings.EURL_Cutlist_Home.Text                 := self.url_cutlists_home;
-  Fsettings.EURL_Info_File.Text                    := self.url_info_file;
-  Fsettings.EURL_Cutlist_Upload.Text               := self.url_cutlists_upload;
-  Fsettings.EURL_Help.Text                         := self.url_help;
+  FSettings.edtSmallSkip.Text := IntToStr(SmallSkipTime);
+  FSettings.edtLargeSkip.Text := IntToStr(LargeSkipTime);
+  FSettings.edtNetTimeout.Text := IntToStr(NetTimeout);
+  FSettings.cbAutoMuteOnSeek.Checked := AutoMuteOnSeek;
 
-  FSettings.EProxyServerName.Text                  := self.proxyServerName;
-  FSettings.EProxyPort.Text                        := IntToStr(self.proxyPort);
-  FSettings.EProxyUserName.Text                    := self.proxyUserName;
-  FSettings.EProxyPassword.Text                    := self.proxyPassword;
+  Fsettings.EURL_Cutlist_Home.Text := self.url_cutlists_home;
+  Fsettings.EURL_Info_File.Text := self.url_info_file;
+  Fsettings.EURL_Cutlist_Upload.Text := self.url_cutlists_upload;
+  Fsettings.EURL_Help.Text := self.url_help;
 
-  Fsettings.EUserName.Text                         := self.UserName;
-  Fsettings.EUserID.Text                           := self.UserID;
+  FSettings.EProxyServerName.Text := self.proxyServerName;
+  FSettings.EProxyPort.Text := IntToStr(self.proxyPort);
+  FSettings.EProxyUserName.Text := self.proxyUserName;
+  FSettings.EProxyPassword.Text := self.proxyPassword;
 
-  FSettings.EFrameWidth.Text                       := IntToStr(self.FramesWidth);
-  FSettings.EFrameHeight.Text                      := IntToStr(self.FramesHeight);
-  FSettings.EFrameCount.Text                      := IntToStr(self.FramesCount);
+  Fsettings.EUserName.Text := self.UserName;
+  Fsettings.EUserID.Text := self.UserID;
 
-  FSettings.CBInfoCheckMessages.Checked   := self.InfoShowMessages            ;
-  FSettings.CBInfoCheckStable.Checked     := self.InfoShowStable              ;
-  FSettings.CBInfoCheckBeta.Checked       := self.InfoShowBeta                ;
-  if self.CheckInfos then
-    FSettings.EChceckInfoInterval.Text      := inttostr(self.InfoCheckInterval)
-  else
-    FSettings.EChceckInfoInterval.Text      := '0';
+  FSettings.EFrameWidth.Text := IntToStr(self.FramesWidth);
+  FSettings.EFrameHeight.Text := IntToStr(self.FramesHeight);
+  FSettings.EFrameCount.Text := IntToStr(self.FramesCount);
+
+  FSettings.CBInfoCheckMessages.Checked := self.InfoShowMessages;
+  FSettings.CBInfoCheckStable.Checked := self.InfoShowStable;
+  FSettings.CBInfoCheckBeta.Checked := self.InfoShowBeta;
+  IF self.CheckInfos THEN
+    FSettings.EChceckInfoInterval.Text := inttostr(self.InfoCheckInterval)
+  ELSE
+    FSettings.EChceckInfoInterval.Text := '0';
   FSettings.CBInfoCheckEnabled.Checked := self.CheckInfos;
 
   FSettings.Init;
 
   Data_Valid := false;
-  while not Data_Valid do begin
-    if FSettings.ShowModal <> mrOK then break;     //User Cancelled
+  WHILE NOT Data_Valid DO BEGIN
+    IF FSettings.ShowModal <> mrOK THEN break; //User Cancelled
     Data_Valid := true;
-    if (Fsettings.SaveCutMovieMode.ItemIndex = 1) then
-    begin
-      if IsPathRooted(FSettings.CutMovieSaveDir.Text) and (not DirectoryExists(FSettings.CutMovieSaveDir.Text)) then
-      begin
-        message_string := 'Cut movie directory does not exist:' + #13#10 + #13#10 + FSettings.CutMovieSaveDir.Text + #13#10 +  #13#10 + 'Create?' ;
-        if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then begin
+    IF (Fsettings.SaveCutMovieMode.ItemIndex = 1) THEN BEGIN
+      IF IsPathRooted(FSettings.CutMovieSaveDir.Text) AND (NOT DirectoryExists(FSettings.CutMovieSaveDir.Text)) THEN BEGIN
+        message_string := 'Cut movie directory does not exist:' + #13#10 + #13#10 + FSettings.CutMovieSaveDir.Text + #13#10 + #13#10 + 'Create?';
+        IF application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONWARNING) = IDYES THEN BEGIN
           Data_Valid := forceDirectories(FSettings.CutMovieSaveDir.Text);
-        end else begin
+        END ELSE BEGIN
           Data_Valid := false;
           FSettings.pgSettings.ActivePage := Fsettings.TabSaveMovie;
           FSettings.ActiveControl := FSettings.CutMovieSaveDir;
-        end;
-      end;
-    end;
-    if Data_Valid AND (Fsettings.SaveCutlistMode.ItemIndex = 1) then
-    begin
-      if IsPathRooted(FSettings.CutlistSaveDir.Text) and (not DirectoryExists(FSettings.CutlistSaveDir.Text)) then
-      begin
-        message_string := 'Cutlist save directory does not exist:' + #13#10 + #13#10 + FSettings.CutlistSaveDir.Text + #13#10 +  #13#10 + 'Create?' ;
-        if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then begin
+        END;
+      END;
+    END;
+    IF Data_Valid AND (Fsettings.SaveCutlistMode.ItemIndex = 1) THEN BEGIN
+      IF IsPathRooted(FSettings.CutlistSaveDir.Text) AND (NOT DirectoryExists(FSettings.CutlistSaveDir.Text)) THEN BEGIN
+        message_string := 'Cutlist save directory does not exist:' + #13#10 + #13#10 + FSettings.CutlistSaveDir.Text + #13#10 + #13#10 + 'Create?';
+        IF application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONWARNING) = IDYES THEN BEGIN
           Data_Valid := forceDirectories(FSettings.CutlistSaveDir.Text);
-        end else begin
+        END ELSE BEGIN
           Data_Valid := false;
           FSettings.pgSettings.ActivePage := Fsettings.TabSaveCutlist;
           FSettings.ActiveControl := FSettings.CutlistSaveDir;
-        end;
-      end;
-    end;
-    if Data_Valid then begin  //Apply new settings and save them
+        END;
+      END;
+    END;
+    IF Data_Valid THEN BEGIN //Apply new settings and save them
 
       self.CuttingWaitTimeout := FSettings.spnWaitTimeout.AsInteger;
 
@@ -504,161 +506,162 @@ begin
       FSettings.GetCutAppSettings(mtMP4, self.CutAppSettingsMP4);
       FSettings.GetCutAppSettings(mtUnknown, self.CutAppSettingsOther);
 
-      case FSettings.SaveCutMovieMode.ItemIndex of
+      CASE FSettings.SaveCutMovieMode.ItemIndex OF
         1: _SaveCutMovieMode := smGivenDir;
-        else _SaveCutMovieMode := smWithSource;
-      end;
-      CutMovieSaveDir                                       := FSettings.CutMovieSaveDir.Text                ;
-      CutMovieExtension                                     := FSettings.CutMovieExtension.Text              ;
-      if FSettings.MovieNameAlwaysConfirm.Checked then _SaveCutMovieMode := _saveCutMovieMode OR smAlwaysAsk;
+      ELSE _SaveCutMovieMode := smWithSource;
+      END;
+      CutMovieSaveDir := FSettings.CutMovieSaveDir.Text;
+      CutMovieExtension := FSettings.CutMovieExtension.Text;
+      IF FSettings.MovieNameAlwaysConfirm.Checked THEN _SaveCutMovieMode := _saveCutMovieMode OR smAlwaysAsk;
       UseMovieNameSuggestion := FSettings.CBUseMovieNameSuggestion.Checked;
 
-      case FSettings.SaveCutlistMode.ItemIndex of
+      CASE FSettings.SaveCutlistMode.ItemIndex OF
         1: _SaveCutlistMode := smGivenDir;
-        else _SaveCutlistMode := smWithSource;
-      end;
-      CutlistSaveDir                                        := FSettings.CutlistSaveDir.Text                 ;
-      if FSettings.CutlistNameAlwaysConfirm.Checked then     _SaveCutlistMode := _SaveCutlistMode OR smAlwaysAsk;
-      if Fsettings.CutlistAutoSaveBeforeCutting.Checked then _SaveCutlistMOde := _SaveCutlistMOde OR smAutoSaveBeforeCutting;
+      ELSE _SaveCutlistMode := smWithSource;
+      END;
+      CutlistSaveDir := FSettings.CutlistSaveDir.Text;
+      IF FSettings.CutlistNameAlwaysConfirm.Checked THEN _SaveCutlistMode := _SaveCutlistMode OR smAlwaysAsk;
+      IF Fsettings.CutlistAutoSaveBeforeCutting.Checked THEN _SaveCutlistMOde := _SaveCutlistMOde OR smAutoSaveBeforeCutting;
 
       DefaultCutMode := Fsettings.RCutMode.ItemIndex;
+      DefaultAutoMode := Fsettings.cbAutomode.checked;
 
-      self.url_cutlists_home           := Fsettings.EURL_Cutlist_Home.Text           ;
-      self.url_info_file               := Fsettings.EURL_Info_File.Text   ;
-      self.url_cutlists_upload         := Fsettings.EURL_Cutlist_Upload.Text         ;
-      self.url_help                    := Fsettings.EURL_Help.Text                   ;
+      self.url_cutlists_home := Fsettings.EURL_Cutlist_Home.Text;
+      self.url_info_file := Fsettings.EURL_Info_File.Text;
+      self.url_cutlists_upload := Fsettings.EURL_Cutlist_Upload.Text;
+      self.url_help := Fsettings.EURL_Help.Text;
 
-      self.proxyServerName             := FSettings.EProxyServerName.Text            ;
-      self.proxyPort                   := strToIntDef(FSettings.EProxyPort.Text, self.proxyPort);
-      self.proxyUserName               := FSettings.EProxyUserName.Text              ;
-      self.proxyPassword               := FSettings.EProxyPassword.Text              ;
+      self.proxyServerName := FSettings.EProxyServerName.Text;
+      self.proxyPort := strToIntDef(FSettings.EProxyPort.Text, self.proxyPort);
+      self.proxyUserName := FSettings.EProxyUserName.Text;
+      self.proxyPassword := FSettings.EProxyPassword.Text;
 
-      self.UserName                    := Fsettings.EUserName.Text;
+      self.UserName := Fsettings.EUserName.Text;
 
-      self.FramesWidth                 := StrToInt(FSettings.EFrameWidth.Text);
-      self.FramesHeight                := StrToInt(FSettings.EFrameHeight.Text);
-      self.FramesCount                 := StrToInt(FSettings.EFrameCount.Text);
+      self.FramesWidth := StrToInt(FSettings.EFrameWidth.Text);
+      self.FramesHeight := StrToInt(FSettings.EFrameHeight.Text);
+      self.FramesCount := StrToInt(FSettings.EFrameCount.Text);
 
-      self.SmallSkipTime               := StrToInt(FSettings.edtSmallSkip.Text);
-      self.LargeSkipTime               := StrToInt(FSettings.edtLargeSkip.Text);
-      self.NetTimeout                  := StrToInt(FSettings.edtNetTimeout.Text);
-      self.AutoMuteOnSeek              := FSettings.cbAutoMuteOnSeek.Checked;
+      self.SmallSkipTime := StrToInt(FSettings.edtSmallSkip.Text);
+      self.LargeSkipTime := StrToInt(FSettings.edtLargeSkip.Text);
+      self.NetTimeout := StrToInt(FSettings.edtNetTimeout.Text);
+      self.AutoMuteOnSeek := FSettings.cbAutoMuteOnSeek.Checked;
 
-      self.InfoShowMessages            :=  FSettings.CBInfoCheckMessages.Checked  ;
-      self.InfoShowStable              :=  FSettings.CBInfoCheckStable.Checked    ;
-      self.InfoShowBeta                :=  FSettings.CBInfoCheckBeta.Checked      ;
-      if FSettings.CBInfoCheckEnabled.Checked then begin
-        self.InfoCheckInterval :=  strToIntDef(FSettings.EChceckInfoInterval.Text, 0);
-      end else begin
+      self.InfoShowMessages := FSettings.CBInfoCheckMessages.Checked;
+      self.InfoShowStable := FSettings.CBInfoCheckStable.Checked;
+      self.InfoShowBeta := FSettings.CBInfoCheckBeta.Checked;
+      IF FSettings.CBInfoCheckEnabled.Checked THEN BEGIN
+        self.InfoCheckInterval := strToIntDef(FSettings.EChceckInfoInterval.Text, 0);
+      END ELSE BEGIN
         self.InfoCheckInterval := -1;
-      end;
+      END;
 
-      for iTabSheet := 0 to FSettings.pgSettings.PageCount -1 do begin
+      FOR iTabSheet := 0 TO FSettings.pgSettings.PageCount - 1 DO BEGIN
         TabSheet := FSettings.pgSettings.Pages[iTabSheet];
-        if TabSheet.Tag <> 0 then begin
+        IF TabSheet.Tag <> 0 THEN BEGIN
           FrameClass := TCutApplicationFrameClass(TabSheet.Tag);
-          (FSettings.pgSettings.Pages[iTabSheet].Controls[0] as FrameClass).Apply;
-        end;
-      end;
+          (FSettings.pgSettings.Pages[iTabSheet].Controls[0] AS FrameClass).Apply;
+        END;
+      END;
 
       self.save;
-    end;
-  end;
-end;
+    END;
+  END;
+END;
 
-function TSettings.FilterIsInBlackList(ClassID: TGUID): boolean;
-begin
+FUNCTION TSettings.FilterIsInBlackList(ClassID: TGUID): boolean;
+BEGIN
   result := FilterBlackList.IsInList(ClassID);
-end;
+END;
 
-function TSettings.GetCutApplicationByMovieType(
+FUNCTION TSettings.GetCutApplicationByMovieType(
   MovieType: TMovieType): TCutApplicationBase;
-begin
+BEGIN
   result := self.GetCutApplicationByName(GetCutAppName(MovieType));
-  if Assigned(Result) then
+  IF Assigned(Result) THEN
     result.CutAppSettings := GetCutAppSettingsByMovieType(MovieType);
-end;
+END;
 
-function TSettings.GetCutApplicationByName(
-  CAName: string): TCutApplicationBase;
-var
-  iCutApplication: Integer;
-  FoundCutApplication: TCutApplicationBase;
-begin
-  result := nil;
-  for iCutApplication := 0 to CutApplicationList.Count - 1 do begin
-    FoundCutApplication := (CutApplicationList[iCutApplication] as TCutApplicationBase);
-    if AnsiSameText(FoundCutApplication.Name, CAName) then begin
+FUNCTION TSettings.GetCutApplicationByName(
+  CAName: STRING): TCutApplicationBase;
+VAR
+  iCutApplication                  : Integer;
+  FoundCutApplication              : TCutApplicationBase;
+BEGIN
+  result := NIL;
+  FOR iCutApplication := 0 TO CutApplicationList.Count - 1 DO BEGIN
+    FoundCutApplication := (CutApplicationList[iCutApplication] AS TCutApplicationBase);
+    IF AnsiSameText(FoundCutApplication.Name, CAName) THEN BEGIN
       result := FoundCutApplication;
       break;
-    end;
-  end;
-end;
+    END;
+  END;
+END;
 
-function TSettings.GetCutAppSettingsByMovieType(
+FUNCTION TSettings.GetCutAppSettingsByMovieType(
   MovieType: TMovieType): RCutAppSettings;
-begin
-  Case MovieType of
-    mtWMV:   result := self.CutAppSettingsWmv;
-    mtAVI:   result := self.CutAppSettingsAvi;
+BEGIN
+  CASE MovieType OF
+    mtWMV: result := self.CutAppSettingsWmv;
+    mtAVI: result := self.CutAppSettingsAvi;
     mtHQAVI: result := self.CutAppSettingsHQAvi;
-    mtMP4:   result := self.CutAppSettingsMP4;
-    else     result := self.CutAppSettingsOther;
-  end;
-end;
+    mtMP4: result := self.CutAppSettingsMP4;
+  ELSE result := self.CutAppSettingsOther;
+  END;
+END;
 
-function TSettings.GetCutAppName(MovieType: TMovieType): String;
-begin
+FUNCTION TSettings.GetCutAppName(MovieType: TMovieType): STRING;
+BEGIN
   Result := GetCutAppSettingsByMovieType(MovieType).CutAppName;
-end;
+END;
 
-function TSettings.GetPreferredSourceFilterByMovieType(
+FUNCTION TSettings.GetPreferredSourceFilterByMovieType(
   MovieType: TMovieType): TGUID;
-begin
+BEGIN
   Result := GetCutAppSettingsByMovieType(MovieType).PreferredSourceFilter;
-end;
+END;
 
-function TSettings.GetCutAppNameByCutAppType(CAType: TCutApp): String;
+FUNCTION TSettings.GetCutAppNameByCutAppType(CAType: TCutApp): STRING;
 //deprecated
-begin
-  Case CAType of
+BEGIN
+  CASE CAType OF
     caAsfBin: result := 'AsfBin';
     caVirtualDub: result := 'VirtualDub';
     caAviDemux: result := 'AviDemux';
-    else result := '';
-  end;
-end;
+  ELSE result := '';
+  END;
+END;
 
 
-procedure TSettings.load;
-var
-  ini: TCustomIniFile;
-  FileName: String;
-  section: string;
-  iFilter, iCutApplication: integer;
+PROCEDURE TSettings.load;
+VAR
+  ini                              : TCustomIniFile;
+  FileName                         : STRING;
+  section                          : STRING;
+  iFilter, iCutApplication         : integer;
 
-  procedure ReadOldCutAppName(var ASettings: RCutAppSettings;
-    const s1: string; t1: TCutApp; s2, default: string);
-  begin
-    with ASettings do begin
+  PROCEDURE ReadOldCutAppName(VAR ASettings: RCutAppSettings;
+    CONST s1: STRING; t1: TCutApp; s2, default: STRING);
+  BEGIN
+    WITH ASettings DO BEGIN
       //defaults and old ini files (belw 0.9.11.6)
-      if CutAppName = '' then
+      IF CutAppName = '' THEN
         CutAppName := ini.ReadString(section, s2, '');
       //old ini Files (for Compatibility with versions below 0.9.9):
-      if (CutAppName = '') and (s1 <> '') then
-        CutAppName   := GetCutAppNameByCutAppType(TCutApp(ini.ReadInteger(section, s1, integer(t1))));
-      if CutAppName = '' then
+      IF (CutAppName = '') AND (s1 <> '') THEN
+        CutAppName := GetCutAppNameByCutAppType(TCutApp(ini.ReadInteger(section, s1, integer(t1))));
+      IF CutAppName = '' THEN
         CutAppName := default;
-    end;
-  end;
-begin
-  FileName := ChangeFileExt( Application.ExeName, '.ini' );
-  self._NewSettingsCreated := not FileExists(FileName);
+    END;
+  END;
+BEGIN
+  FileName := ChangeFileExt(Application.ExeName, '.ini');
+  self._NewSettingsCreated := NOT FileExists(FileName);
   ini := TIniFile.Create(FileName);
-  try
+  TRY
     section := 'General';
-    UserName :=  ini.ReadString(section, 'UserName', '');
-    UserID :=  ini.ReadString(section, 'UserID', '');
+    UserName := ini.ReadString(section, 'UserName', '');
+    UserID := ini.ReadString(section, 'UserID', '');
 
     section := 'FrameWindow';
     FramesWidth := ini.ReadInteger(section, 'Width', 180);
@@ -690,9 +693,9 @@ begin
 
     //provisorisch
     section := 'Filter Blacklist';
-    for iFilter := 0 to ini.ReadInteger(section, 'Count', 0) - 1 do begin
-      self.FilterBlackList.AddFromString(ini.ReadString(section, 'Filter_'+inttostr(iFilter), ''));
-    end;
+    FOR iFilter := 0 TO ini.ReadInteger(section, 'Count', 0) - 1 DO BEGIN
+      self.FilterBlackList.AddFromString(ini.ReadString(section, 'Filter_' + inttostr(iFilter), ''));
+    END;
 
     section := 'Files';
     _SaveCutlistMode := ini.ReadInteger(section, 'SaveCutlistMode', smWithSource OR smAlwaysAsk);
@@ -725,6 +728,7 @@ begin
     self.InfoShowStable := ini.ReadBool(section, 'InfoShowStable', true);
     self.InfoShowBeta := ini.ReadBool(section, 'InfoShowBeta', false);
     self.DefaultCutMode := ini.ReadInteger(section, 'DefaultCutMode', integer(clmCrop));
+    self.DefaultAutoMode := ini.ReadBool(section, 'DefaultAutoMode', false);
     self.SmallSkipTime := ini.ReadInteger(section, 'SmallSkipTime', 2);
     self.LargeSkipTime := ini.ReadInteger(section, 'LargeSkipTime', 25);
     self.AutoMuteOnSeek := ini.ReadBool(section, 'AutoMuteOnSeek', false);
@@ -742,41 +746,43 @@ begin
     self.LoggingFormBounds := iniReadRect(ini, section, 'Logging', EmptyRect);
     self.LoggingFormVisible := ini.ReadBool(section, 'LoggingFormVisible', false);
 
-    for iCutApplication := 0 to CutApplicationList.Count - 1 do begin
+    FOR iCutApplication := 0 TO CutApplicationList.Count - 1 DO BEGIN
       TCutApplicationBase(CutApplicationList[iCutApplication]).LoadSettings(ini);
-    end;
+    END;
 
-  finally
+  FINALLY
     FreeAndNil(ini);
-  end;
+  END;
 
-  if userID = '' then begin
+  IF userID = '' THEN BEGIN
     //Generade Random ID and save it immediately
     userID := rand_string;
     self.save;
-  end;
-end;
+  END;
+END;
 
-function TSettings.MovieNameAlwaysConfirm: boolean;
-begin
-  result := ((_SaveCutMovieMode AND smAlwaysAsk) > 0 );
-end;
+FUNCTION TSettings.MovieNameAlwaysConfirm: boolean;
+BEGIN
+  result := ((_SaveCutMovieMode AND smAlwaysAsk) > 0);
+END;
 
-procedure TSettings.save;
-var
-  ini: TCustomIniFile;
-  FileName: string;
-  section: String;
-  iCutApplication: integer;
-  iFilter: integer;
-begin
-  FileName := ChangeFileExt( Application.ExeName, '.ini' );
+PROCEDURE TSettings.save;
+VAR
+  ini                              : TCustomIniFile;
+  FileName                         : STRING;
+  section                          : STRING;
+  iCutApplication                  : integer;
+  iFilter                          : integer;
+BEGIN
+  FileName := ChangeFileExt(Application.ExeName, '.ini');
   ini := TIniFile.Create(FileName);
-  try
+  TRY
     section := 'General';
     ini.WriteString(section, 'Version', Application_version);
     ini.WriteString(section, 'UserName', UserName);
     ini.WriteString(section, 'UserID', UserID);
+   // ini.WriteBool(section, 'AutoMode',CurrentAutoMode);
+
 
     section := 'FrameWindow';
     ini.WriteInteger(section, 'Width', FramesWidth);
@@ -803,9 +809,9 @@ begin
 
     section := 'Filter Blacklist';
     ini.WriteInteger(section, 'Count', self.FilterBlackList.Count);
-    for iFilter := 0 to self.FilterBlackList.Count - 1 do begin
-      ini.WriteString(section, 'Filter_'+IntToStr(iFilter), GUIDToString(self.FilterBlackList.Item[iFilter]));
-    end;
+    FOR iFilter := 0 TO self.FilterBlackList.Count - 1 DO BEGIN
+      ini.WriteString(section, 'Filter_' + IntToStr(iFilter), GUIDToString(self.FilterBlackList.Item[iFilter]));
+    END;
 
     section := 'Files';
     ini.WriteInteger(section, 'SaveCutlistMode', _SaveCutlistMode);
@@ -819,7 +825,7 @@ begin
     ini.WriteString(section, 'CutlistServerHome', url_cutlists_home);
     ini.WriteString(section, 'CutlistServerUpload', url_cutlists_upload);
     ini.WriteString(section, 'ApplicationInfoFile', url_info_file);
-    ini.WriteString(section, 'ApplicationHelp', url_help );
+    ini.WriteString(section, 'ApplicationHelp', url_help);
 
     section := 'Connection';
     ini.WriteString(section, 'ProxyServerName', ProxyServerName);
@@ -837,6 +843,7 @@ begin
     ini.WriteBool(section, 'InfoShowBeta', self.InfoShowBeta);
     ini.WriteBool(section, 'InfoShowStable', self.InfoShowStable);
     ini.WriteInteger(section, 'DefaultCutMode', self.DefaultCutMode);
+    ini.WriteBool(section, 'DefaultAutoMode', self.DefaultAutoMode);
     ini.WriteInteger(section, 'SmallSkipTime', self.SmallSkipTime);
     ini.WriteInteger(section, 'LargeSkipTime', self.LargeSkipTime);
     ini.WriteBool(section, 'AutoMuteOnSeek', self.AutoMuteOnSeek);
@@ -847,49 +854,49 @@ begin
     section := 'WindowStates';
     ini.WriteInteger(section, 'Main_WindowState', integer(self.MainFormWindowState));
     iniWriteRect(ini, section, 'Main', self.MainFormBounds);
-    if self.FramesFormWindowState <> wsNormal then
+    IF self.FramesFormWindowState <> wsNormal THEN
       ini.WriteInteger(section, 'Frames_WindowState', integer(self.FramesFormWindowState));
     iniWriteRect(ini, section, 'Frames', self.FramesFormBounds);
-    if self.PreviewFormWindowState <> wsNormal then
+    IF self.PreviewFormWindowState <> wsNormal THEN
       ini.WriteInteger(section, 'Preview_WindowState', integer(self.PreviewFormWindowState));
     iniWriteRect(ini, section, 'Preview', self.PreviewFormBounds);
     iniWriteRect(ini, section, 'Logging', self.LoggingFormBounds);
     ini.WriteBool(section, 'LoggingFormVisible', self.LoggingFormVisible);
 
-    for iCutApplication := 0 to CutApplicationList.Count - 1 do begin
-      (CutApplicationList[iCutApplication] as TCutApplicationBase).SaveSettings(ini);
-    end;
+    FOR iCutApplication := 0 TO CutApplicationList.Count - 1 DO BEGIN
+      (CutApplicationList[iCutApplication] AS TCutApplicationBase).SaveSettings(ini);
+    END;
 
-  finally
+  FINALLY
     FreeAndNil(ini);
-    self._NewSettingsCreated := not FileExists(FileName);
-  end;
-end;
+    self._NewSettingsCreated := NOT FileExists(FileName);
+  END;
+END;
 
-function TSettings.SaveCutlistMode: byte;
-begin
+FUNCTION TSettings.SaveCutlistMode: byte;
+BEGIN
   result := self._SaveCutListMode AND $0F;
-end;
+END;
 
-function TSettings.SaveCutMovieMode: byte;
-begin
+FUNCTION TSettings.SaveCutMovieMode: byte;
+BEGIN
   result := self._SaveCutMovieMode AND $0F;
-end;
+END;
 
-procedure TFSettings.FormCreate(Sender: TObject);
-var
-  frame: TfrmCutApplicationBase;
-  newTabsheet: TTabsheet;
-  iCutApplication: integer;
-  CutApplication: TCutApplicationBase;
-  MinSize: TSizeConstraints;
-begin
+PROCEDURE TFSettings.FormCreate(Sender: TObject);
+VAR
+  frame                            : TfrmCutApplicationBase;
+  newTabsheet                      : TTabsheet;
+  iCutApplication                  : integer;
+  CutApplication                   : TCutApplicationBase;
+  MinSize                          : TSizeConstraints;
+BEGIN
   CBOtherApp.Items.Clear;
   MinSize := tabURLs.Constraints;
   EnumFilters := TSysDevEnum.Create(CLSID_LegacyAmFilterCategory); //DirectShow Filters
 
-  for iCutApplication := 0 to Settings.CutApplicationList.Count - 1 do begin
-    CutApplication := (Settings.CutApplicationList[iCutApplication] as TCutApplicationBase);
+  FOR iCutApplication := 0 TO Settings.CutApplicationList.Count - 1 DO BEGIN
+    CutApplication := (Settings.CutApplicationList[iCutApplication] AS TCutApplicationBase);
     newTabsheet := TTabsheet.Create(pgSettings);
     newTabsheet.PageControl := pgSettings;
     newTabsheet.Caption := CutApplication.Name;
@@ -905,12 +912,12 @@ begin
     MinSize.MinHeight := Max(MinSize.MinHeight, frame.Constraints.MinHeight);
 
     CBOtherApp.Items.Add(CutApplication.Name);
-  end;
+  END;
 
-  if tabUserData.Height < MinSize.MinHeight then
-    self.Constraints.MinHeight := self.Height - ( tabUserData.Height - MinSize.MinHeight);
-  if tabUserData.Width < MinSize.MinWidth then
-    self.Constraints.MinWidth := self.Width - ( tabUserData.Width - MinSize.MinWidth);
+  IF tabUserData.Height < MinSize.MinHeight THEN
+    self.Constraints.MinHeight := self.Height - (tabUserData.Height - MinSize.MinHeight);
+  IF tabUserData.Width < MinSize.MinWidth THEN
+    self.Constraints.MinWidth := self.Width - (tabUserData.Width - MinSize.MinWidth);
 
   CBWmvApp.Items.Assign(CBOtherApp.Items);
   CBAviApp.Items.Assign(CBOtherApp.Items);
@@ -922,108 +929,103 @@ begin
   cbxCodecHQAvi.Items := CodecList;
   cbxCodecMP4.Items := CodecList;
   cbxCodecOther.Items := CodecList;
-end;
+END;
 
 
-procedure TFSettings.FormDestroy(Sender: TObject);
-begin
-  if EnumFilters <> nil then
+PROCEDURE TFSettings.FormDestroy(Sender: TObject);
+BEGIN
+  IF EnumFilters <> NIL THEN
     FreeAndNil(EnumFilters);
-end;
+END;
 
-procedure TFSettings.EChceckInfoIntervalKeyPress(Sender: TObject;
-  var Key: Char);
-begin
-  if not (key in [#0 .. #31, '0'..'9']) then key := chr(0);
-end;
+PROCEDURE TFSettings.EChceckInfoIntervalKeyPress(Sender: TObject;
+  VAR Key: Char);
+BEGIN
+  IF NOT (key IN [#0..#31, '0'..'9']) THEN key := chr(0);
+END;
 
-procedure TFSettings.EFrameWidthExit(Sender: TObject);
-var
-  val: integer;
-  Edit: TEdit;
-begin
-  Edit := Sender as TEdit;
-  if Edit = nil then exit;
+PROCEDURE TFSettings.EFrameWidthExit(Sender: TObject);
+VAR
+  val                              : integer;
+  Edit                             : TEdit;
+BEGIN
+  Edit := Sender AS TEdit;
+  IF Edit = NIL THEN exit;
   val := StrToIntDef(Edit.Text, -1);
-  if val < 1 then begin
+  IF val < 1 THEN BEGIN
     ActiveControl := Edit;
-    raise EConvertError.Create('Invalid value: ' + Edit.Text);
-  end
-end;
+    RAISE EConvertError.Create('Invalid value: ' + Edit.Text);
+  END
+END;
 
-procedure TFSettings.lbchkBlackListClickCheck(Sender: TObject);
-var
-  FilterGuid: TGUID;
-  idx: integer;
-begin
-  if not assigned(EnumFilters) then exit;
+PROCEDURE TFSettings.lbchkBlackListClickCheck(Sender: TObject);
+VAR
+  FilterGuid                       : TGUID;
+  idx                              : integer;
+BEGIN
+  IF NOT assigned(EnumFilters) THEN exit;
 
   idx := lbchkBlackList.ItemIndex;
-  if idx = -1 then
+  IF idx = -1 THEN
     exit;
-  if idx < EnumFilters.CountFilters then
+  IF idx < EnumFilters.CountFilters THEN
     FilterGuid := StringToFilterGUID(lbchkBlackList.Items[idx])
-  else
+  ELSE
     FilterGuid := EnumFilters.Filters[idx].CLSID;
-  if lbchkBlackList.Checked[idx] then
-  begin
+  IF lbchkBlackList.Checked[idx] THEN BEGIN
     Settings.FilterBlackList.Add(FilterGuid);
-  end
-  else
-  begin
+  END
+  ELSE BEGIN
     Settings.FilterBlackList.Delete(FilterGuid);
-  end;
-end;
+  END;
+END;
 
-procedure TFSettings.FillBlackList;
-var
-  i, filterCount: Integer;
-  filterInfo: TFilCatNode;
-  blackList: TGUIDList;
-begin
+PROCEDURE TFSettings.FillBlackList;
+VAR
+  i, filterCount                   : Integer;
+  filterInfo                       : TFilCatNode;
+  blackList                        : TGUIDList;
+BEGIN
   blackList := TGUIDList.Create;
-  for I := 0 to Settings.FilterBlackList.Count - 1 do
+  FOR I := 0 TO Settings.FilterBlackList.Count - 1 DO
     blackList.Add(Settings.FilterBlackList.Item[i]);
-  try
+  TRY
     lbchkBlackList.Clear;
-    if EnumFilters <> nil then
+    IF EnumFilters <> NIL THEN
       FreeAndNil(EnumFilters);
     EnumFilters := TSysDevEnum.Create(CLSID_LegacyAmFilterCategory); //DirectShow Filters
-    if not assigned(EnumFilters) then exit;
+    IF NOT assigned(EnumFilters) THEN exit;
 
     filterCount := EnumFilters.CountFilters;
-    For i := 0 to filterCount - 1 do
-    begin
+    FOR i := 0 TO filterCount - 1 DO BEGIN
       filterInfo := EnumFilters.Filters[i];
-      if blackList.IsInList(filterInfo.CLSID) then
+      IF blackList.IsInList(filterInfo.CLSID) THEN
         blackList.Delete(filterInfo.CLSID);
-      lbchkBlackList.AddItem(FilterInfoToString(filterInfo), nil);
+      lbchkBlackList.AddItem(FilterInfoToString(filterInfo), NIL);
       lbchkBlackList.Checked[lbchkBlackList.Count - 1] := Settings.FilterIsInBlackList(filterInfo.CLSID);
-      lbchkBlackList.ItemEnabled[lbchkBlackList.Count - 1] := not IsEqualGUID(GUID_NULL, filterInfo.CLSID);
-    end;
+      lbchkBlackList.ItemEnabled[lbchkBlackList.Count - 1] := NOT IsEqualGUID(GUID_NULL, filterInfo.CLSID);
+    END;
     filterInfo.FriendlyName := '???';
-    for I := 0 to blackList.Count - 1 do
-    begin
+    FOR I := 0 TO blackList.Count - 1 DO BEGIN
       filterInfo.CLSID := blackList.Item[i];
-      lbchkBlackList.AddItem(FilterInfoToString(filterInfo), nil);
+      lbchkBlackList.AddItem(FilterInfoToString(filterInfo), NIL);
       lbchkBlackList.Checked[lbchkBlackList.Count - 1] := true;
-      lbchkBlackList.ItemEnabled[lbchkBlackList.Count - 1] := not IsEqualGUID(GUID_NULL, filterInfo.CLSID);
-    end;
-  finally
+      lbchkBlackList.ItemEnabled[lbchkBlackList.Count - 1] := NOT IsEqualGUID(GUID_NULL, filterInfo.CLSID);
+    END;
+  FINALLY
     FreeAndNil(blackList);
-  end;
-end;
+  END;
+END;
 
-procedure TFSettings.tsSourceFilterShow(Sender: TObject);
-var
-  i: Integer;
-  filterInfo: TFilCatNode;
-begin
-  if lbchkBlackList.Count = 0 then
-  begin
+PROCEDURE TFSettings.tsSourceFilterShow(Sender: TObject);
+VAR
+  i                                : Integer;
+  filterInfo                       : TFilCatNode;
+BEGIN
+  IF lbchkBlackList.Count = 0 THEN BEGIN
     FillBlackList;
-  end;
-  if Settings.SourceFilterList.count = 0 then begin
+  END;
+  IF Settings.SourceFilterList.count = 0 THEN BEGIN
     cbxSourceFilterListWMV.Enabled := false;
     cbxSourceFilterListAVI.Enabled := false;
     cbxSourceFilterListHQAVI.Enabled := false;
@@ -1040,13 +1042,12 @@ begin
     cbxSourceFilterListMP4.ItemIndex := -1;
     cbxSourceFilterListOther.Items.Clear;
     cbxSourceFilterListOther.ItemIndex := -1;
-  end else if self.cbxSourceFilterListOther.Items.Count = 0 then
-  begin
+  END ELSE IF self.cbxSourceFilterListOther.Items.Count = 0 THEN BEGIN
     // lazy initialize
-    for i := 0 to Settings.SourceFilterList.count-1 do begin
+    FOR i := 0 TO Settings.SourceFilterList.count - 1 DO BEGIN
       filterInfo := Settings.SourceFilterList.GetFilterInfo[i];
-      self.cbxSourceFilterListOther.AddItem(FilterInfoToString(filterInfo), nil);
-    end;
+      self.cbxSourceFilterListOther.AddItem(FilterInfoToString(filterInfo), NIL);
+    END;
     cbxSourceFilterListWMV.Items.Assign(cbxSourceFilterListOther.Items);
     cbxSourceFilterListAVI.Items.Assign(cbxSourceFilterListOther.Items);
     cbxSourceFilterListHQAVI.Items.Assign(cbxSourceFilterListOther.Items);
@@ -1068,15 +1069,15 @@ begin
     cbxSourceFilterListHQAVI.Enabled := true;
     cbxSourceFilterListMP4.Enabled := true;
     cbxSourceFilterListOther.Enabled := true;
-  end;
-end;
+  END;
+END;
 
-procedure TFSettings.btnRefreshFilterListClick(Sender: TObject);
-var
-  cur: TCursor;
-begin
+PROCEDURE TFSettings.btnRefreshFilterListClick(Sender: TObject);
+VAR
+  cur                              : TCursor;
+BEGIN
   cur := self.Cursor;
-  try
+  TRY
     screen.cursor := crHourglass;
     self.pnlPleaseWait.Visible := true;
     application.ProcessMessages;
@@ -1091,102 +1092,96 @@ begin
     Settings.SourceFilterList.Fill(pnlPleaseWait, Settings.FilterBlackList);
 
     tsSourceFilterShow(sender);
-  finally
+  FINALLY
     screen.cursor := cur;
     self.pnlPleaseWait.Visible := false;
-  end;
-end;
+  END;
+END;
 
-function TFSettings.GetMovieTypeFromControl(const Sender: TObject; var MovieType: TMovieType): boolean;
-begin
-  if (Sender = cbxSourceFilterListWMV) or (Sender = CBWmvApp) or (Sender = cbxCodecWmv) or (Sender = btnCodecConfigWmv) or (Sender = btnCodecAboutWmv) then
-  begin
+FUNCTION TFSettings.GetMovieTypeFromControl(CONST Sender: TObject; VAR MovieType: TMovieType): boolean;
+BEGIN
+  IF (Sender = cbxSourceFilterListWMV) OR (Sender = CBWmvApp) OR (Sender = cbxCodecWmv) OR (Sender = btnCodecConfigWmv) OR (Sender = btnCodecAboutWmv) THEN BEGIN
     MovieType := mtWMV;
     Result := true;
-  end
-  else if (Sender = cbxSourceFilterListAVI) or (Sender = CBAviApp) or (Sender = cbxCodecAvi) or (Sender = btnCodecConfigAvi) or (Sender = btnCodecAboutAvi) then
-  begin
+  END
+  ELSE IF (Sender = cbxSourceFilterListAVI) OR (Sender = CBAviApp) OR (Sender = cbxCodecAvi) OR (Sender = btnCodecConfigAvi) OR (Sender = btnCodecAboutAvi) THEN BEGIN
     MovieType := mtAVI;
     Result := true;
-  end
-  else if (Sender = cbxSourceFilterListHQAVI) or (Sender = CBHQAviApp) or (Sender = cbxCodecHQAvi) or (Sender = btnCodecConfigHQAvi) or (Sender = btnCodecAboutHQAvi) then
-  begin
+  END
+  ELSE IF (Sender = cbxSourceFilterListHQAVI) OR (Sender = CBHQAviApp) OR (Sender = cbxCodecHQAvi) OR (Sender = btnCodecConfigHQAvi) OR (Sender = btnCodecAboutHQAvi) THEN BEGIN
     MovieType := mtHQAvi;
     Result := true;
-  end
-  else if (Sender = cbxSourceFilterListMP4) or (Sender = CBMP4App) or (Sender = cbxCodecMP4) or (Sender = btnCodecConfigMP4) or (Sender = btnCodecAboutMP4) then
-  begin
+  END
+  ELSE IF (Sender = cbxSourceFilterListMP4) OR (Sender = CBMP4App) OR (Sender = cbxCodecMP4) OR (Sender = btnCodecConfigMP4) OR (Sender = btnCodecAboutMP4) THEN BEGIN
     MovieType := mtMP4;
     Result := true;
-  end
-  else if (Sender = cbxSourceFilterListOther) or (Sender = CBOtherApp) or (Sender = cbxCodecOther) or (Sender = btnCodecConfigOther) or (Sender = btnCodecAboutOther) then
-  begin
+  END
+  ELSE IF (Sender = cbxSourceFilterListOther) OR (Sender = CBOtherApp) OR (Sender = cbxCodecOther) OR (Sender = btnCodecConfigOther) OR (Sender = btnCodecAboutOther) THEN BEGIN
     MovieType := mtUnknown;
     Result := true;
-  end
-  else
-  begin
+  END
+  ELSE BEGIN
     Result := false;
-  end;
-end;
+  END;
+END;
 
-function TFSettings.GetCodecSettingsControls(const Sender: TObject;
-      var cbx: TComboBox; var btnConfig, btnAbout: TButton): boolean;
-var
-    MovieType: TMovieType;
-begin
+FUNCTION TFSettings.GetCodecSettingsControls(CONST Sender: TObject;
+  VAR cbx: TComboBox; VAR btnConfig, btnAbout: TButton): boolean;
+VAR
+  MovieType                        : TMovieType;
+BEGIN
   Result := GetMovieTypeFromControl(Sender, MovieType);
-  if Result then
+  IF Result THEN
     Result := GetCodecSettingsControls(MovieType, cbx, btnConfig, btnAbout);
-end;
+END;
 
-function TFSettings.GetCodecSettingsControls(const MovieType: TMovieType;
-      var cbx: TComboBox; var btnConfig, btnAbout: TButton): boolean;
-begin
-  case MovieType of
-    mtWMV: begin
-      cbx := cbxCodecWmv;
-      btnConfig := btnCodecConfigWmv;
-      btnAbout := btnCodecAboutWmv;
-      Result := true;
-      end;
-    mtAVI: begin
-      cbx := cbxCodecAvi;
-      btnConfig := btnCodecConfigAvi;
-      btnAbout := btnCodecAboutAvi;
-      Result := true;
-      end;
-    mtHQAVI: begin
-      cbx := cbxCodecHQAvi;
-      btnConfig := btnCodecConfigHQAvi;
-      btnAbout := btnCodecAboutHQAvi;
-      Result := true;
-      end;
-    mtMP4: begin
-      cbx := cbxCodecMP4;
-      btnConfig := btnCodecConfigMP4;
-      btnAbout := btnCodecAboutMP4;
-      Result := true;
-      end;
-    mtUnknown: begin
-      cbx := cbxCodecOther;
-      btnConfig := btnCodecConfigOther;
-      btnAbout := btnCodecAboutOther;
-      Result := true;
-      end;
-    else
-      Result := false;
-  end;
-end;
+FUNCTION TFSettings.GetCodecSettingsControls(CONST MovieType: TMovieType;
+  VAR cbx: TComboBox; VAR btnConfig, btnAbout: TButton): boolean;
+BEGIN
+  CASE MovieType OF
+    mtWMV: BEGIN
+        cbx := cbxCodecWmv;
+        btnConfig := btnCodecConfigWmv;
+        btnAbout := btnCodecAboutWmv;
+        Result := true;
+      END;
+    mtAVI: BEGIN
+        cbx := cbxCodecAvi;
+        btnConfig := btnCodecConfigAvi;
+        btnAbout := btnCodecAboutAvi;
+        Result := true;
+      END;
+    mtHQAVI: BEGIN
+        cbx := cbxCodecHQAvi;
+        btnConfig := btnCodecConfigHQAvi;
+        btnAbout := btnCodecAboutHQAvi;
+        Result := true;
+      END;
+    mtMP4: BEGIN
+        cbx := cbxCodecMP4;
+        btnConfig := btnCodecConfigMP4;
+        btnAbout := btnCodecAboutMP4;
+        Result := true;
+      END;
+    mtUnknown: BEGIN
+        cbx := cbxCodecOther;
+        btnConfig := btnCodecConfigOther;
+        btnAbout := btnCodecAboutOther;
+        Result := true;
+      END;
+  ELSE
+    Result := false;
+  END;
+END;
 
 
-procedure TFSettings.Init;
-begin
-  CBWmvApp.ItemIndex      := CBWmvApp.Items.IndexOf(WmvAppSettings.CutAppName);
-  CBAviApp.ItemIndex      := CBAviApp.Items.IndexOf(AviAppSettings.CutAppName);
-  CBHQAviApp.ItemIndex    := CBHQAviApp.Items.IndexOf(HQAviAppSettings.CutAppName);
-  CBMP4App.ItemIndex      := CBMP4App.Items.IndexOf(MP4AppSettings.CutAppName);
-  CBOtherApp.ItemIndex    := CBOtherApp.Items.IndexOf(OtherAppSettings.CutAppName);
+PROCEDURE TFSettings.Init;
+BEGIN
+  CBWmvApp.ItemIndex := CBWmvApp.Items.IndexOf(WmvAppSettings.CutAppName);
+  CBAviApp.ItemIndex := CBAviApp.Items.IndexOf(AviAppSettings.CutAppName);
+  CBHQAviApp.ItemIndex := CBHQAviApp.Items.IndexOf(HQAviAppSettings.CutAppName);
+  CBMP4App.ItemIndex := CBMP4App.Items.IndexOf(MP4AppSettings.CutAppName);
+  CBOtherApp.ItemIndex := CBOtherApp.Items.IndexOf(OtherAppSettings.CutAppName);
 
   cbxCodecWmv.ItemIndex := CodecList.IndexOfCodec(WmvAppSettings.CodecFourCC);
   cbxCodecAvi.ItemIndex := CodecList.IndexOfCodec(AviAppSettings.CodecFourCC);
@@ -1205,56 +1200,56 @@ begin
   cbxCodecChange(CBHQAviApp);
   cbxCodecChange(CBMP4App);
   cbxCodecChange(CBOtherApp);
-end;
+END;
 
-procedure TFSettings.SetCutAppSettings(const MovieType: TMovieType; var ASettings: RCutAppSettings);
-begin
-  case MovieType of
-    mtWMV:      WmvAppSettings := ASettings;
-    mtAVI:      AviAppSettings := ASettings;
-    mtHQAVI:    HQAviAppSettings := ASettings;
-    mtMP4:      MP4AppSettings := ASettings;
-    mtUnknown:  OtherAppSettings := ASettings;
-  end;
-end;
+PROCEDURE TFSettings.SetCutAppSettings(CONST MovieType: TMovieType; VAR ASettings: RCutAppSettings);
+BEGIN
+  CASE MovieType OF
+    mtWMV: WmvAppSettings := ASettings;
+    mtAVI: AviAppSettings := ASettings;
+    mtHQAVI: HQAviAppSettings := ASettings;
+    mtMP4: MP4AppSettings := ASettings;
+    mtUnknown: OtherAppSettings := ASettings;
+  END;
+END;
 
-procedure TFSettings.GetCutAppSettings(const MovieType: TMovieType; var ASettings: RCutAppSettings);
-begin
-  case MovieType of
-    mtWMV: begin
-      WmvAppSettings.CutAppName := CBWmvApp.Text;
-      ASettings := WmvAppSettings;
-    end;
-    mtAVI: begin
-      AviAppSettings.CutAppName := CBAviApp.Text;
-      ASettings := AviAppSettings;
-    end;
-    mtHQAvi: begin
-      HQAviAppSettings.CutAppName := CBHQAviApp.Text;
-      ASettings := HQAviAppSettings;
-    end;
-    mtMP4: begin
-      MP4AppSettings.CutAppName := CBMP4App.Text;
-      ASettings := MP4AppSettings;
-    end;
-    mtUnknown: begin
-      OtherAppSettings.CutAppName := CBOtherApp.Text;
-      ASettings := OtherAppSettings;
-    end;
-  end;
-end;
+PROCEDURE TFSettings.GetCutAppSettings(CONST MovieType: TMovieType; VAR ASettings: RCutAppSettings);
+BEGIN
+  CASE MovieType OF
+    mtWMV: BEGIN
+        WmvAppSettings.CutAppName := CBWmvApp.Text;
+        ASettings := WmvAppSettings;
+      END;
+    mtAVI: BEGIN
+        AviAppSettings.CutAppName := CBAviApp.Text;
+        ASettings := AviAppSettings;
+      END;
+    mtHQAvi: BEGIN
+        HQAviAppSettings.CutAppName := CBHQAviApp.Text;
+        ASettings := HQAviAppSettings;
+      END;
+    mtMP4: BEGIN
+        MP4AppSettings.CutAppName := CBMP4App.Text;
+        ASettings := MP4AppSettings;
+      END;
+    mtUnknown: BEGIN
+        OtherAppSettings.CutAppName := CBOtherApp.Text;
+        ASettings := OtherAppSettings;
+      END;
+  END;
+END;
 
-procedure TFSettings.cbxCodecChange(Sender: TObject);
-var
-  Codec: TICInfoObject;
-  cbxCodec: TComboBox;
-  btnConfig, btnAbout: TButton;
-  MovieType: TMovieType;
-  CutAppSettings: RCutAppSettings;
-begin
-  if not GetMovieTypeFromControl(Sender, MovieType) then
+PROCEDURE TFSettings.cbxCodecChange(Sender: TObject);
+VAR
+  Codec                            : TICInfoObject;
+  cbxCodec                         : TComboBox;
+  btnConfig, btnAbout              : TButton;
+  MovieType                        : TMovieType;
+  CutAppSettings                   : RCutAppSettings;
+BEGIN
+  IF NOT GetMovieTypeFromControl(Sender, MovieType) THEN
     Exit;
-  if not GetCodecSettingsControls(MovieType, cbxCodec, btnConfig, btnAbout) then
+  IF NOT GetCodecSettingsControls(MovieType, cbxCodec, btnConfig, btnAbout) THEN
     Exit;
 
   GetCutAppSettings(MovieType, CutAppSettings);
@@ -1264,117 +1259,115 @@ begin
   CutAppSettings.CodecSettingsSize := 0;
   CutAppSettings.CodecSettings := '';
 
-  Codec := nil;
-  if cbxCodec.ItemIndex >= 0 then
-  begin
-    Codec := (cbxCodec.Items.Objects[cbxCodec.ItemIndex] as TICInfoObject);
-  end;
-  if Assigned(Codec) then begin
+  Codec := NIL;
+  IF cbxCodec.ItemIndex >= 0 THEN BEGIN
+    Codec := (cbxCodec.Items.Objects[cbxCodec.ItemIndex] AS TICInfoObject);
+  END;
+  IF Assigned(Codec) THEN BEGIN
     CutAppSettings.CodecFourCC := Codec.ICInfo.fccHandler;
     CutAppSettings.CodecVersion := Codec.ICInfo.dwVersion;
-    btnConfig.Enabled := cbxCodec.Enabled and Codec.HasConfigureBox;
-    btnAbout.Enabled := cbxCodec.Enabled and Codec.HasAboutBox;
-  end else begin
+    btnConfig.Enabled := cbxCodec.Enabled AND Codec.HasConfigureBox;
+    btnAbout.Enabled := cbxCodec.Enabled AND Codec.HasAboutBox;
+  END ELSE BEGIN
     CutAppSettings.CodecFourCC := 0;
     CutAppSettings.CodecVersion := 0;
     btnConfig.Enabled := false;
     btnAbout.Enabled := false;
-  end;
+  END;
   // only set settings, if sender is codec combo (else called from init)
-  if Sender = cbxCodec then
+  IF Sender = cbxCodec THEN
     SetCutAppSettings(MovieType, CutAppSettings);
-end;
+END;
 
-procedure TFSettings.btnCodecConfigClick(Sender: TObject);
-var
-  Codec: TICInfoObject;
-  cbxCodec: TComboBox;
-  btnConfig, btnAbout: TButton;
-  MovieType: TMovieType;
-  CutAppSettings: RCutAppSettings;
-begin
-  if not GetMovieTypeFromControl(Sender, MovieType) then
+PROCEDURE TFSettings.btnCodecConfigClick(Sender: TObject);
+VAR
+  Codec                            : TICInfoObject;
+  cbxCodec                         : TComboBox;
+  btnConfig, btnAbout              : TButton;
+  MovieType                        : TMovieType;
+  CutAppSettings                   : RCutAppSettings;
+BEGIN
+  IF NOT GetMovieTypeFromControl(Sender, MovieType) THEN
     Exit;
-  if not GetCodecSettingsControls(MovieType, cbxCodec, btnConfig, btnAbout) then
+  IF NOT GetCodecSettingsControls(MovieType, cbxCodec, btnConfig, btnAbout) THEN
     Exit;
-  Codec := nil;
-  if cbxCodec.ItemIndex >= 0 then
-    Codec := (cbxCodec.Items.Objects[cbxCodec.ItemIndex] as TICInfoObject);
-  if Assigned(Codec) then begin
+  Codec := NIL;
+  IF cbxCodec.ItemIndex >= 0 THEN
+    Codec := (cbxCodec.Items.Objects[cbxCodec.ItemIndex] AS TICInfoObject);
+  IF Assigned(Codec) THEN BEGIN
     GetCutAppSettings(MovieType, CutAppSettings);
     Assert(CutAppSettings.CodecFourCC = Codec.ICInfo.fccHandler);
-    if (CutAppSettings.CodecVersion <> Codec.ICInfo.dwVersion) then begin
+    IF (CutAppSettings.CodecVersion <> Codec.ICInfo.dwVersion) THEN BEGIN
       // Reset settings, if codec version changes ...
       // TODO: Log message or ask user.
       CutAppSettings.CodecVersion := Codec.ICInfo.dwVersion;
       CutAppSettings.CodecSettings := '';
       CutAppSettings.CodecSettingsSize := 0;
-    end;
-    if Codec.Config(self.Handle, CutAppSettings.CodecSettings, CutAppSettings.CodecSettingsSize) then begin
+    END;
+    IF Codec.Config(self.Handle, CutAppSettings.CodecSettings, CutAppSettings.CodecSettingsSize) THEN BEGIN
       SetCutAppSettings(MovieType, CutAppSettings);
-    end;
-  end;
-end;
+    END;
+  END;
+END;
 
-procedure TFSettings.btnCodecAboutClick(Sender: TObject);
-var
-  Codec: TICInfoObject;
-  cbxCodec: TComboBox;
-  btnConfig, btnAbout: TButton;
-begin
-  if not GetCodecSettingsControls(Sender, cbxCodec, btnConfig, btnAbout) then
+PROCEDURE TFSettings.btnCodecAboutClick(Sender: TObject);
+VAR
+  Codec                            : TICInfoObject;
+  cbxCodec                         : TComboBox;
+  btnConfig, btnAbout              : TButton;
+BEGIN
+  IF NOT GetCodecSettingsControls(Sender, cbxCodec, btnConfig, btnAbout) THEN
     Exit;
-  Codec := nil;
-  if cbxCodec.ItemIndex >= 0 then
-    Codec := (cbxCodec.Items.Objects[cbxCodec.ItemIndex] as TICInfoObject);
-  if Assigned(Codec) then begin
-    if Codec.HasAboutBox then
+  Codec := NIL;
+  IF cbxCodec.ItemIndex >= 0 THEN
+    Codec := (cbxCodec.Items.Objects[cbxCodec.ItemIndex] AS TICInfoObject);
+  IF Assigned(Codec) THEN BEGIN
+    IF Codec.HasAboutBox THEN
       Codec.About(self.Handle);
-  end;
-end;
+  END;
+END;
 
-procedure TFSettings.cbCutAppChange(Sender: TObject);
-var
-  cbx, cbxCodec: TComboBox;
-  btnConfig, btnAbout: TButton;
-  CutApp: TCutApplicationBase;
-begin
-  cbx := Sender as TComboBox;
-  if not Assigned(cbx) then exit;
-  if not GetCodecSettingsControls(Sender, cbxCodec, btnConfig, btnAbout) then
+PROCEDURE TFSettings.cbCutAppChange(Sender: TObject);
+VAR
+  cbx, cbxCodec                    : TComboBox;
+  btnConfig, btnAbout              : TButton;
+  CutApp                           : TCutApplicationBase;
+BEGIN
+  cbx := Sender AS TComboBox;
+  IF NOT Assigned(cbx) THEN exit;
+  IF NOT GetCodecSettingsControls(Sender, cbxCodec, btnConfig, btnAbout) THEN
     Exit;
 
   CutApp := Settings.GetCutApplicationByName(cbx.Text);
-  cbxCodec.Enabled := Assigned(CutApp) and CutApp.HasSmartRendering;
+  cbxCodec.Enabled := Assigned(CutApp) AND CutApp.HasSmartRendering;
   // enable / disable controls
   cbxCodecChange(Sender);
-end;
+END;
 
-procedure TFSettings.cbxSourceFilterListChange(Sender: TObject);
-var
-  idx: integer;
-  cbx: TComboBox;
-  MovieType: TMovieType;
-  CutAppSettings: RCutAppSettings;
-begin
-  cbx := Sender as TComboBox;
-  if not Assigned(cbx) then exit;
-  if not GetMovieTypeFromControl(Sender, MovieType) then
+PROCEDURE TFSettings.cbxSourceFilterListChange(Sender: TObject);
+VAR
+  idx                              : integer;
+  cbx                              : TComboBox;
+  MovieType                        : TMovieType;
+  CutAppSettings                   : RCutAppSettings;
+BEGIN
+  cbx := Sender AS TComboBox;
+  IF NOT Assigned(cbx) THEN exit;
+  IF NOT GetMovieTypeFromControl(Sender, MovieType) THEN
     Exit;
   GetCutAppSettings(MovieType, CutAppSettings);
   idx := cbx.ItemIndex;
-  if idx >= 0 then
-     CutAppSettings.PreferredSourceFilter := Settings.GetFilterInfo[idx].CLSID
-  else
+  IF idx >= 0 THEN
+    CutAppSettings.PreferredSourceFilter := Settings.GetFilterInfo[idx].CLSID
+  ELSE
     CutAppSettings.PreferredSourceFilter := GUID_NULL;
   SetCutAppSettings(MovieType, CutAppSettings);
-end;
-
-initialization
-begin
-  EmptyRect := Rect(-1, -1, -1, -1);
-end;
-
-end.
+END;
 
 
+INITIALIZATION
+  BEGIN
+    EmptyRect := Rect(-1, -1, -1, -1);
+  END;
+
+END.

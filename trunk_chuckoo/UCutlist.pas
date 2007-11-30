@@ -1,135 +1,135 @@
-unit UCutlist;
+UNIT UCutlist;
 
-interface
+INTERFACE
 
-uses
+USES
   Contnrs, Settings_dialog, Movie, UCutApplicationBase;
 
-const
-  cutlist_Extension= '.cutlist';
+CONST
+  cutlist_Extension                = '.cutlist';
 
-type
-  TCutlist = class;
+TYPE
+  TCutlist = CLASS;
 
-  Tcut = class
-  private
-  public
+  Tcut = CLASS
+  PRIVATE
+  PUBLIC
     index: integer;
     pos_from, pos_to: double;
     frame_from, frame_to: integer;
-    function DurationFrames: integer;
-  end;
+    FUNCTION DurationFrames: integer;
+  END;
 
   TCutlistMode = (clmCutOut, clmCrop);
   TCutlistSaveMode = (csmNeverAsk, csmAskBeforeOverwrite, csmAskWhenSavingFirstTime, csmAlwaysAsk);
 
-  TCutlistCallBackMethod = procedure(cutlist: TCutlist) of object;
+  TCutlistCallBackMethod = PROCEDURE(cutlist: TCutlist) OF OBJECT;
 
-  TCutlist = class(TObjectLIst)
-  private
+  TCutlist = CLASS(TObjectLIst)
+  PRIVATE
     FSettings: TSettings;
     FMovieInfo: TMovieInfo;
-    FIDOnServer: String;
+    FIDOnServer: STRING;
     FRatingOnServer: double;
     FHasChanged: boolean;
     FRefreshCallBack: TCutlistCallBackMethod;
     FMode: TCutlistMode;
-    FSuggestedMovieName: string;
+    FSuggestedMovieName: STRING;
     FFrameDuration, FFrameRate: double;
-    function GetCut(iCut: Integer): TCut;
-    procedure SetIDOnServer(const Value: string);
-    procedure FillCutPosArray(var CutPosArray: array of double);
-    procedure SetRefreshCallBack(const Value: TCutlistCallBackMethod);
-    procedure SetMode(const Value: TCutlistMode);
-    procedure SetSuggestedMovieName(const Value: string);
-    function CutApplication: TCutApplicationBase;
-    procedure SetFrameDuration(d: double);
-    procedure SetFrameRate(d: double);
-  public
+    FUNCTION GetCut(iCut: Integer): TCut;
+    PROCEDURE SetIDOnServer(CONST Value: STRING);
+    PROCEDURE FillCutPosArray(VAR CutPosArray: ARRAY OF double);
+    PROCEDURE SetRefreshCallBack(CONST Value: TCutlistCallBackMethod);
+    PROCEDURE SetMode(CONST Value: TCutlistMode);
+    PROCEDURE SetSuggestedMovieName(CONST Value: STRING);
+    FUNCTION CutApplication: TCutApplicationBase;
+    PROCEDURE SetFrameDuration(d: double);
+    PROCEDURE SetFrameRate(d: double);
+  PUBLIC
     //Info
     RatingByAuthor: Integer;
     RatingByAuthorPresent: boolean;
     EPGError,
-    MissingBeginning, MissingEnding,
-    MissingVideo, MissingAudio,
-    OtherError: boolean;
+      MissingBeginning, MissingEnding,
+      MissingVideo, MissingAudio,
+      OtherError: boolean;
     ActualContent, OtherErrorDescription,
-    UserComment, Author: string;
+      UserComment, Author: STRING;
 
     FramesPresent: boolean;
-    SavedToFilename: string;
+    SavedToFilename: STRING;
     RatingSent: boolean;
-    constructor create(Settings: TSettings; MovieInfo: TMovieInfo);
-    property FrameDuration: double read FFrameDuration write SetFrameDuration;
-    property FrameRate: double read FFrameRate write SetFrameRate;
-    property RefreshCallBack: TCutlistCallBackMethod read FRefreshCallBack write SetRefreshCallBack;
-    procedure RefreshGUI;
-    property Cut[iCut: Integer]:TCut read GetCut; default;
-    function AddCut(pos_from, pos_to: double): boolean;
-    function ReplaceCut(pos_from, pos_to: double; CutToReplace: integer): boolean;
+    CONSTRUCTOR create(Settings: TSettings; MovieInfo: TMovieInfo);
+    PROPERTY FrameDuration: double READ FFrameDuration WRITE SetFrameDuration;
+    PROPERTY FrameRate: double READ FFrameRate WRITE SetFrameRate;
+    PROPERTY RefreshCallBack: TCutlistCallBackMethod READ FRefreshCallBack WRITE SetRefreshCallBack;
+    PROCEDURE RefreshGUI;
+    PROPERTY Cut[iCut: Integer]: TCut READ GetCut; DEFAULT;
+    FUNCTION AddCut(pos_from, pos_to: double): boolean;
+    FUNCTION ReplaceCut(pos_from, pos_to: double; CutToReplace: integer): boolean;
 
-//HG
-    function GetCutNr(pos_curr: double): integer;
-//HG
+    //HG
+    FUNCTION GetCutNr(pos_curr: double): integer;
+    //HG
 
-    function DeleteCut(dCut: Integer): boolean;
-    property Mode: TCutlistMode read FMode write SetMode;
+    FUNCTION DeleteCut(dCut: Integer): boolean;
+    PROPERTY Mode: TCutlistMode READ FMode WRITE SetMode;
 
-    property IDOnServer: string read FIDOnServer write SetIDOnServer;
-    property HasChanged: boolean read FHasChanged;
-    function UserShouldSendRating: boolean;
-    function CutCommand: String;
-    function cut_times_valid(var pos_from, pos_to: double; do_not_test_cut: integer; var interfering_cut: integer): boolean;
-    function FilenameSuggestion: string;
-    property SuggestedMovieName: string read FSuggestedMovieName write SetSuggestedMovieName;
-    function TotalDurationOfCuts: double;
-    function NextCutPos(CurrentPos: double): double;
-    function PreviousCutPos(CurrentPos: double): double;
+    PROPERTY IDOnServer: STRING READ FIDOnServer WRITE SetIDOnServer;
+    PROPERTY HasChanged: boolean READ FHasChanged;
+    FUNCTION UserShouldSendRating: boolean;
+    FUNCTION CutCommand: STRING;
+    FUNCTION cut_times_valid(VAR pos_from, pos_to: double; do_not_test_cut: integer; VAR interfering_cut: integer): boolean;
+    FUNCTION FilenameSuggestion: STRING;
+    PROPERTY SuggestedMovieName: STRING READ FSuggestedMovieName WRITE SetSuggestedMovieName;
+    FUNCTION TotalDurationOfCuts: double;
+    FUNCTION NextCutPos(CurrentPos: double): double;
+    FUNCTION PreviousCutPos(CurrentPos: double): double;
 
-    function clear_after_confirm: boolean;
-    procedure init;
-    procedure sort;
-    function convert: TCutlist;
-    function LoadFromFile(Filename: String): boolean;
-    function EditInfo: boolean;
-    function Save(AskForPath: boolean): boolean;
-    function SaveAs(Filename: String): boolean;
+    FUNCTION clear_after_confirm: boolean;
+    PROCEDURE init;
+    PROCEDURE sort;
+    FUNCTION convert: TCutlist;
+    FUNCTION LoadFromFile(Filename: STRING): boolean;
+    FUNCTION EditInfo: boolean;
+    FUNCTION Save(AskForPath: boolean): boolean;
+    FUNCTION SaveAs(Filename: STRING): boolean;
 
-    property RatingOnServer: double read FRatingOnServer write FRatingOnServer;
-  end;
+    PROPERTY RatingOnServer: double READ FRatingOnServer WRITE FRatingOnServer;
+  END;
 
 
-implementation
+IMPLEMENTATION
 
-uses
+USES
   Forms, windows, dialogs, sysutils, cutlistINfo_dialog, controls, iniFiles, strutils,
   utils, UCutApplicationAsfbin, UCutApplicationMP4Box;
 
 { TCutlist }
 
-procedure TCutlist.SetFrameDuration(d: double);
-begin
-  if d < 0 then d := 0;
+PROCEDURE TCutlist.SetFrameDuration(d: double);
+BEGIN
+  IF d < 0 THEN d := 0;
   FFrameDuration := d;
-  if d > 0 then FFrameRate := 1 / d
-  else FFrameRate := 0;
-end;
+  IF d > 0 THEN FFrameRate := 1 / d
+  ELSE FFrameRate := 0;
+END;
 
-procedure TCutlist.SetFrameRate(d: double);
-begin
-  if d < 0 then d := 0;
+PROCEDURE TCutlist.SetFrameRate(d: double);
+BEGIN
+  IF d < 0 THEN d := 0;
   FFrameRate := d;
-  if d > 0 then FFrameDuration := 1 / d
-  else FFrameDuration := 0;
-end;
+  IF d > 0 THEN FFrameDuration := 1 / d
+  ELSE FFrameDuration := 0;
+END;
 
-function TCutlist.AddCut(pos_from, pos_to: double): boolean;
-var
-  cut : TCut;
-  icut: integer;
-begin
+FUNCTION TCutlist.AddCut(pos_from, pos_to: double): boolean;
+VAR
+  cut                              : TCut;
+  icut                             : integer;
+BEGIN
   result := false;
-  if not cut_times_valid(pos_from, pos_to, -1, iCut) then exit;
+  IF NOT cut_times_valid(pos_from, pos_to, -1, iCut) THEN exit;
 
   cut := Tcut.Create;
   cut.pos_from := pos_from;
@@ -142,34 +142,35 @@ begin
 
   self.sort;
   self.RefreshGUI;
-end;
+END;
 
 
 //HG
 //    function GetCutNr(pos_curr: double;): integer;
-function TCutlist.GetCutNr(pos_curr: double): integer;
-var
- icut: integer;
- ckcut: integer;
+
+FUNCTION TCutlist.GetCutNr(pos_curr: double): integer;
+VAR
+  icut                             : integer;
+  ckcut                            : integer;
 
 
- begin
-  ckcut:= -1;
+BEGIN
+  ckcut := -1;
 
-  for iCut := 0 to self.Count-1 do begin
+  FOR iCut := 0 TO self.Count - 1 DO BEGIN
 
-// suche ob position innerhalb eines cuts liegt
-  if (Cut[iCut].pos_to >= pos_curr) and (Cut[iCut].pos_from <= pos_curr) then begin
-    ckcut := iCut ;
-    break;
-  end else
-    ckcut :=  -1;
-  end;
+    // suche ob position innerhalb eines cuts liegt
+    IF (Cut[iCut].pos_to >= pos_curr) AND (Cut[iCut].pos_from <= pos_curr) THEN BEGIN
+      ckcut := iCut;
+      break;
+    END ELSE
+      ckcut := -1;
+  END;
 
-// -1 auuserhalb der cuts 0... nummer des cuts in dem die pos liegt
+  // -1 auuserhalb der cuts 0... nummer des cuts in dem die pos liegt
   result := ckcut;
 
-  end;
+END;
 
 
 
@@ -183,12 +184,12 @@ var
 
 
 
-function TCutlist.ReplaceCut(pos_from, pos_to: double;
+FUNCTION TCutlist.ReplaceCut(pos_from, pos_to: double;
   CutToReplace: integer): boolean;
-var
-  icut: integer;
-begin
-  if cut_times_valid(pos_from, pos_to, CutToReplace, iCut) then begin
+VAR
+  icut                             : integer;
+BEGIN
+  IF cut_times_valid(pos_from, pos_to, CutToReplace, iCut) THEN BEGIN
     self[CutToReplace].pos_from := pos_from;
     self[CutToReplace].pos_to := pos_to;
     self.FHasChanged := true;
@@ -197,60 +198,60 @@ begin
     result := true;
     self.sort;
     self.RefreshGUI;
-  end else begin
+  END ELSE BEGIN
     result := false;
-  end;
-end;
+  END;
+END;
 
-function TCutlist.DeleteCut(dCut: Integer): boolean;
-var
-  iCut: Integer;
-begin
+FUNCTION TCutlist.DeleteCut(dCut: Integer): boolean;
+VAR
+  iCut                             : Integer;
+BEGIN
   self.Delete(dCut);
   self.FHasChanged := true;
   self.IDOnServer := '';
-  for icut := 0 to self.Count-1 do begin
+  FOR icut := 0 TO self.Count - 1 DO BEGIN
     self.Cut[iCut].index := iCut;
-  end;
+  END;
   result := true;
   self.RefreshGUI;
-end;
+END;
 
-function TCutlist.clear_after_confirm: boolean;
+FUNCTION TCutlist.clear_after_confirm: boolean;
 //true if cleared, false if cancelled
-var
-  message_string: string;
-  CanClear: boolean;
-begin
+VAR
+  message_string                   : STRING;
+  CanClear                         : boolean;
+BEGIN
   canClear := true;
-  if self.HasChanged then begin
+  IF self.HasChanged THEN BEGIN
     message_string := 'Save changes in current cutlist?';
-    case application.messagebox(PChar(message_string), 'Cutlist not saved', MB_YESNOCANCEL + MB_DEFBUTTON3 + MB_ICONQUESTION) of
-      IDYES: begin
-          CanClear := self.Save(false);      //Can Clear if saved successfully
-        end;
-      IDNO: begin
+    CASE application.messagebox(PChar(message_string), 'Cutlist not saved', MB_YESNOCANCEL + MB_DEFBUTTON3 + MB_ICONQUESTION) OF
+      IDYES: BEGIN
+          CanClear := self.Save(false); //Can Clear if saved successfully
+        END;
+      IDNO: BEGIN
           CanClear := true;
-        end;
-      else begin
-          CanClear := false;
-        end;
-    end;
-  end;
-  if CanClear then begin
+        END;
+    ELSE BEGIN
+        CanClear := false;
+      END;
+    END;
+  END;
+  IF CanClear THEN BEGIN
     self.init;
-  end;
+  END;
   result := CanClear;
-end;
+END;
 
-function TCutlist.convert: TCutlist;
-var
-  newCutlist: TcutLIst;
-  iCut: integer;
-  pos_Prev, dur, _pos_From : double;
-  Frame_prev: integer;
-  newCut: TCut;
-begin
+FUNCTION TCutlist.convert: TCutlist;
+VAR
+  newCutlist                       : TcutLIst;
+  iCut                             : integer;
+  pos_Prev, dur, _pos_From         : double;
+  Frame_prev                       : integer;
+  newCut                           : TCut;
+BEGIN
   self.sort;
   newCutlist := TCutlist.Create(FSettings, FMovieInfo);
   newCutlist.FFrameRate := self.FFrameRate;
@@ -274,218 +275,218 @@ begin
   newCutlist.RatingOnServer := self.RatingOnServer;
   newCutlist.RatingSent := self.RatingSent;
 
-  if self.Count > 0 then begin
+  IF self.Count > 0 THEN BEGIN
     pos_prev := 0;
     Frame_prev := 0;
-    for iCut := 0 to self.Count-1 do begin
+    FOR iCut := 0 TO self.Count - 1 DO BEGIN
       dur := self[iCut].pos_from - pos_prev;
-      if dur > 0 then begin
+      IF dur > 0 THEN BEGIN
         newCut := TCut.Create;
         newCut.pos_from := pos_prev;
         newCut.pos_to := self[iCut].pos_from - FrameDuration;
-        if self.FramesPresent then begin
+        IF self.FramesPresent THEN BEGIN
           newCut.frame_from := frame_prev;
           newCut.frame_to := self[iCut].frame_from - 1;
-        end;
+        END;
         newCut.index := newCutlist.Add(newCut);
-      end;
+      END;
       pos_prev := self[iCut].pos_to + FrameDuration;
       frame_prev := self[iCut].frame_to + 1;
-    end;
+    END;
 
     //rest to End of File
-    _pos_From :=  self.FMovieInfo.current_file_duration + FrameDuration;
+    _pos_From := self.FMovieInfo.current_file_duration + FrameDuration;
     dur := _pos_From - pos_prev;
-    if dur > 0 then begin
-        newCut := TCut.Create;
-        newCut.pos_from := pos_prev;
-        newCut.pos_to := _pos_From - FrameDuration;
-        if self.FramesPresent then begin
-          newCut.frame_from := frame_prev;
-          newCut.frame_to := round(self.FMovieInfo.current_file_duration*FrameRate);   // this could be more accurate
-        end;
-        newCut.index := newCutlist.Add(newCut);
-    end;
-  end;
-  if self.Mode = clmCutOut then
+    IF dur > 0 THEN BEGIN
+      newCut := TCut.Create;
+      newCut.pos_from := pos_prev;
+      newCut.pos_to := _pos_From - FrameDuration;
+      IF self.FramesPresent THEN BEGIN
+        newCut.frame_from := frame_prev;
+        newCut.frame_to := round(self.FMovieInfo.current_file_duration * FrameRate); // this could be more accurate
+      END;
+      newCut.index := newCutlist.Add(newCut);
+    END;
+  END;
+  IF self.Mode = clmCutOut THEN
     newcutlist.FMode := clmCrop
-  else
+  ELSE
     newcutlist.FMode := clmCutOut;
   newCutlist.FHasChanged := self.HasChanged;
   newCutlist.FIDOnServer := self.FIDOnServer;
 
   result := newcutlist;
-end;
+END;
 
-constructor TCutlist.create(Settings: TSettings; MovieInfo: TMovieInfo);
-begin
-  inherited create;
+CONSTRUCTOR TCutlist.create(Settings: TSettings; MovieInfo: TMovieInfo);
+BEGIN
+  INHERITED create;
   FSettings := Settings;
   FMovieInfo := MovieInfo;
   self.init;
-end;
+END;
 
-function TCutlist.CutApplication: TCutApplicationBase;
-begin
+FUNCTION TCutlist.CutApplication: TCutApplicationBase;
+BEGIN
   result := FSettings.GetCutApplicationByMovieType(FMovieInfo.MovieType);
-end;
+END;
 
-function TCutlist.CutCommand: String;
-var
-  command: string;
-  iCut : integer;
-  ConvertedCutlist: TCutlist;
-begin
-  if self.Count = 0 then begin
+FUNCTION TCutlist.CutCommand: STRING;
+VAR
+  command                          : STRING;
+  iCut                             : integer;
+  ConvertedCutlist                 : TCutlist;
+BEGIN
+  IF self.Count = 0 THEN BEGIN
     showmessage('No cuts defined.');
     result := '';
     exit;
-  end;
+  END;
 
-  if self.Mode = clmCrop then begin
+  IF self.Mode = clmCrop THEN BEGIN
     command := '';
     self.sort;
-    for iCut := 0 to self.Count-1 do begin
+    FOR iCut := 0 TO self.Count - 1 DO BEGIN
       command := command + ' -start ' + FMovieInfo.FormatPosition(self[iCut].pos_from);
       command := command + ' -duration ' + FMovieInfo.FormatPosition(self[iCut].pos_to - self[iCut].pos_from);
-    end;
-  end else begin
+    END;
+  END ELSE BEGIN
     ConvertedCutlist := self.convert;
     command := ConvertedCutlist.CutCommand;
     FreeAndNIL(ConvertedCutlist);
-  end;
+  END;
 
   result := command;
-end;
+END;
 
-function TCutlist.cut_times_valid(var pos_from, pos_to: double;
-  do_not_test_cut: integer; var interfering_cut: integer): boolean;
-var
-  icut: integer;
-begin
+FUNCTION TCutlist.cut_times_valid(VAR pos_from, pos_to: double;
+  do_not_test_cut: integer; VAR interfering_cut: integer): boolean;
+VAR
+  icut                             : integer;
+BEGIN
   result := false;
 
-  if pos_to <= pos_from then exit;
-  if (pos_from > FMovieInfo.current_file_duration) or (pos_to < 0) then exit;
-  if pos_from < 0 then pos_from := 0;
-  if pos_to > FMovieInfo.current_file_duration then begin
+  IF pos_to <= pos_from THEN exit;
+  IF (pos_from > FMovieInfo.current_file_duration) OR (pos_to < 0) THEN exit;
+  IF pos_from < 0 THEN pos_from := 0;
+  IF pos_to > FMovieInfo.current_file_duration THEN BEGIN
     pos_to := FMovieInfo.current_file_duration;
-  end;
+  END;
 
-  for iCut := 0 to self.Count -1 do begin
-   if iCut <> do_not_test_cut then begin
-    if not ((pos_from > self[iCut].pos_to) OR (pos_to < self[iCut].pos_from)) then begin
-    {if ((pos_from >= (self[iCut] as TCut).pos_from)
-    AND (pos_from <= (self[iCut] as TCut).pos_to))
-    OR ((pos_to >= (self[iCut] as TCut).pos_from)
-    AND (pos_to <= (self[iCut] as TCut).pos_to)) then begin }
-      showmessage('Planned Cut is overlapping with cut # ' + inttostr(iCut)+'. Cut cannot be added.');
-      interfering_cut := icut;
-//      self.Lcutlist.Selected := self.Lcutlist.items[iCut];
-//      self.DeleteCut.Enabled := true;
-      exit;
-    end;
-    {if ((pos_from <= (self[iCut] as TCut).pos_from)
-    AND (pos_to >= (self[iCut] as TCut).pos_to)) then begin
-      showmessage('Planned Cut is overlapping with cut # ' + inttostr(iCut)+'. Cut cannot be added.');
-      self.Lcutlist.Selected := self.Lcutlist.items[iCut];
-      self.DeleteCut.Enabled := true;
-      exit;
-    end; }
-   end;
-  end;
+  FOR iCut := 0 TO self.Count - 1 DO BEGIN
+    IF iCut <> do_not_test_cut THEN BEGIN
+      IF NOT ((pos_from > self[iCut].pos_to) OR (pos_to < self[iCut].pos_from)) THEN BEGIN
+        {if ((pos_from >= (self[iCut] as TCut).pos_from)
+        AND (pos_from <= (self[iCut] as TCut).pos_to))
+        OR ((pos_to >= (self[iCut] as TCut).pos_from)
+        AND (pos_to <= (self[iCut] as TCut).pos_to)) then begin }
+        showmessage('Planned Cut is overlapping with cut # ' + inttostr(iCut) + '. Cut cannot be added.');
+        interfering_cut := icut;
+        //      self.Lcutlist.Selected := self.Lcutlist.items[iCut];
+        //      self.DeleteCut.Enabled := true;
+        exit;
+      END;
+      {if ((pos_from <= (self[iCut] as TCut).pos_from)
+      AND (pos_to >= (self[iCut] as TCut).pos_to)) then begin
+        showmessage('Planned Cut is overlapping with cut # ' + inttostr(iCut)+'. Cut cannot be added.');
+        self.Lcutlist.Selected := self.Lcutlist.items[iCut];
+        self.DeleteCut.Enabled := true;
+        exit;
+      end; }
+    END;
+  END;
   result := true;
-end;
+END;
 
-function TCutlist.EditInfo: boolean;
-begin
+FUNCTION TCutlist.EditInfo: boolean;
+BEGIN
   FCutlistInfo.original_movie_filename := FMovieInfo.current_filename;
-  FCutlistInfo.CBFramesPresent.Checked := (self.FramesPresent and not self.HasChanged);
+  FCutlistInfo.CBFramesPresent.Checked := (self.FramesPresent AND NOT self.HasChanged);
   FCutlistInfo.lblFrameRate.Caption := FMovieInfo.FormatFrameRate(self.FrameDuration, 'C');
-  if self.Author = '' then
+  IF self.Author = '' THEN
     FCutlistInfo.LAuthor.Caption := 'Cutlist Author unknown'
-  else
+  ELSE
     FCutlistInfo.LAuthor.Caption := 'Cutlist by ' + self.Author;
-  if self.RatingByAuthorPresent then
+  IF self.RatingByAuthorPresent THEN
     FCutlistInfo.RGRatingByAuthor.ItemIndex := self.RatingByAuthor
-  else
+  ELSE
     FCutlistInfo.RGRatingByAuthor.ItemIndex := -1;
   FCutlistInfo.CBEPGError.Checked := self.EPGError;
-  if self.EPGError then
+  IF self.EPGError THEN
     FCutlistInfo.EActualContent.Text := self.ActualContent
-  else
+  ELSE
     FCutlistInfo.EActualContent.Text := '';
   FCutlistInfo.CBMissingBeginning.Checked := self.MissingBeginning;
   FCutlistInfo.CBMissingEnding.Checked := self.MissingEnding;
   FCutlistInfo.CBMissingVideo.Checked := self.MissingVideo;
   FCutlistInfo.CBMissingAudio.Checked := self.MissingAudio;
   FCutlistInfo.CBOtherError.Checked := self.OtherError;
-  if self.OtherError then
+  IF self.OtherError THEN
     FCutlistInfo.EOtherErrorDescription.Text := self.OtherErrorDescription
-  else
+  ELSE
     FCutlistInfo.EOtherErrorDescription.Text := '';
   FCutlistInfo.EUserComment.Text := self.UserComment;
   FCutlistInfo.EMovieName.Text := self.SuggestedMovieName;
 
-  if FCutlistInfo.ShowModal = mrOK then begin
+  IF FCutlistInfo.ShowModal = mrOK THEN BEGIN
     self.FHasChanged := true;
-    if FCutlistInfo.RGRatingByAuthor.ItemIndex = -1 then begin
+    IF FCutlistInfo.RGRatingByAuthor.ItemIndex = -1 THEN BEGIN
       self.RatingByAuthorPresent := false;
       result := false;
-    end else begin
+    END ELSE BEGIN
       self.RatingByAuthorPresent := true;
       self.RatingByAuthor := FCutlistInfo.RGRatingByAuthor.ItemIndex;
       result := true;
-    end;
+    END;
     self.EPGError := FCutlistInfo.CBEPGError.Checked;
-    if self.EPGError then
+    IF self.EPGError THEN
       self.ActualContent := FCutlistInfo.EActualContent.Text
-    else
+    ELSE
       self.ActualContent := '';
-    self.MissingBeginning := FCutlistInfo.CBMissingBeginning.Checked ;
-    self.MissingEnding    := FCutlistInfo.CBMissingEnding.Checked    ;
-    self.MissingVideo     := FCutlistInfo.CBMissingVideo.Checked     ;
-    self.MissingAudio     := FCutlistInfo.CBMissingAudio.Checked     ;
-    self.OtherError       := FCutlistInfo.CBOtherError.Checked       ;
-    if self.OtherError then
+    self.MissingBeginning := FCutlistInfo.CBMissingBeginning.Checked;
+    self.MissingEnding := FCutlistInfo.CBMissingEnding.Checked;
+    self.MissingVideo := FCutlistInfo.CBMissingVideo.Checked;
+    self.MissingAudio := FCutlistInfo.CBMissingAudio.Checked;
+    self.OtherError := FCutlistInfo.CBOtherError.Checked;
+    IF self.OtherError THEN
       self.OtherErrorDescription := FCutlistInfo.EOtherErrorDescription.Text
-    else
+    ELSE
       self.OtherErrorDescription := '';
     self.UserComment := FCutlistInfo.EUserComment.Text;
     self.SuggestedMovieName := FCutlistInfo.EMovieName.Text;
 
     self.RefreshGUI;
-  end else begin
+  END ELSE BEGIN
     result := false;
-  end;
-end;
+  END;
+END;
 
-function TCutlist.FilenameSuggestion: string;
-begin
-  if FMovieInfo.current_filename<>'' then begin
+FUNCTION TCutlist.FilenameSuggestion: STRING;
+BEGIN
+  IF FMovieInfo.current_filename <> '' THEN BEGIN
     result := ChangeFileExt(extractfilename(FMovieInfo.current_filename), cutlist_Extension);
-  end else
+  END ELSE
     result := 'Cutlist_01.cutlist';
-end;
+END;
 
-procedure TCutlist.FillCutPosArray(var CutPosArray: array of double);
-var
-  iCut: integer;
-begin
+PROCEDURE TCutlist.FillCutPosArray(VAR CutPosArray: ARRAY OF double);
+VAR
+  iCut                             : integer;
+BEGIN
   self.sort;
-  for iCut := 0 to self.Count -1 do begin
-    CutPosArray[iCut*2] := self.Cut[iCut].pos_from;
-    CutPosArray[iCut*2+1] := self.Cut[iCut].pos_to;
-  end;
-end;
+  FOR iCut := 0 TO self.Count - 1 DO BEGIN
+    CutPosArray[iCut * 2] := self.Cut[iCut].pos_from;
+    CutPosArray[iCut * 2 + 1] := self.Cut[iCut].pos_to;
+  END;
+END;
 
-function TCutlist.GetCut(iCut: Integer): TCut;
-begin
-  result := (self.items[iCut] as TCut);
-end;
+FUNCTION TCutlist.GetCut(iCut: Integer): TCut;
+BEGIN
+  result := (self.items[iCut] AS TCut);
+END;
 
-procedure TCutlist.init;
-begin
+PROCEDURE TCutlist.init;
+BEGIN
   self.Clear;
   self.FFrameRate := 0;
   self.FFrameDuration := 0;
@@ -510,260 +511,256 @@ begin
   self.FHasChanged := false;
 
   self.RefreshGUI;
-end;
+END;
 
-function TCutlist.LoadFromFile(Filename: String): boolean;
-var
-  section: string;
-  apply_to_file, intended_options, intendedCutApp, intendedCutAppVersionStr, myCutApp, myOptions: string;
+FUNCTION TCutlist.LoadFromFile(Filename: STRING): boolean;
+VAR
+  section                          : STRING;
+  apply_to_file, intended_options, intendedCutApp, intendedCutAppVersionStr, myCutApp, myOptions: STRING;
   myCutAppVersionWords, intendedCutAppVersionWords: ARFileVersion;
-  message_string: string;
-  Temp_DecimalSeparator: char;
-  cutlistfile: TCustomIniFile;
-  iCUt, cCuts, ACut : integer;
-  cut : TCut;
-  _pos_from, _pos_to: double;
-  _frame_from, _frame_to: integer;
-  CutAppAsfBin: TCutApplicationAsfbin;
-begin
+  message_string                   : STRING;
+  Temp_DecimalSeparator            : char;
+  cutlistfile                      : TCustomIniFile;
+  iCUt, cCuts, ACut                : integer;
+  cut                              : TCut;
+  _pos_from, _pos_to               : double;
+  _frame_from, _frame_to           : integer;
+  CutAppAsfBin                     : TCutApplicationAsfbin;
+BEGIN
   result := false;
-  if not fileexists(filename) then begin
-      showmessage('File not found:' + #13#10 + filename);
-      exit;
-  end;
+  IF NOT fileexists(filename) THEN BEGIN
+    showmessage('File not found:' + #13#10 + filename);
+    exit;
+  END;
 
-  if not self.clear_after_confirm then exit;
+  IF NOT self.clear_after_confirm THEN exit;
 
   cutlistfile := TInifile.Create(filename);
   Temp_DecimalSeparator := DecimalSeparator;
   DecimalSeparator := '.';
-  try
+  TRY
     section := 'General';
     apply_to_file := cutlistfile.ReadString(section, 'ApplyToFile', '(Not found)');
-    if (not ansiSameText(apply_to_file, extractfilename(FMovieInfo.current_filename))) and (not batchmode) then begin
-      message_string := 'Cut List File is intended for file:' + #13#10 + apply_to_file +#13#10+
-                        'However, current file is: '+ #13#10 + extractfilename(FMovieInfo.current_filename) +#13#10+
-                        'Continue anyway?';
-      if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
+    IF (NOT ansiSameText(apply_to_file, extractfilename(FMovieInfo.current_filename))) AND (NOT batchmode) THEN BEGIN
+      message_string := 'Cut List File is intended for file:' + #13#10 + apply_to_file + #13#10 +
+        'However, current file is: ' + #13#10 + extractfilename(FMovieInfo.current_filename) + #13#10 +
+        'Continue anyway?';
+      IF NOT (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONINFORMATION) = IDYES) THEN BEGIN
         exit;
-      end;
-    end;
+      END;
+    END;
 
     //App + version
-    if self.CutApplication <> nil then begin
+    IF self.CutApplication <> NIL THEN BEGIN
       intendedCutApp := cutlistfile.ReadString(section, 'IntendedCutApplication', '');
       intendedCutAppVersionStr := cutlistfile.ReadString(section, 'IntendedCutApplicationVersion', '');
       intendedCutAppVersionWords := Parse_File_Version(intendedCutAppVersionStr);
       myCutApp := extractfilename(CutApplication.Path);
       myCutAppVersionWords := Parse_File_Version(CutApplication.Version);
 
-      if (not batchmode) then begin
-        if not ansiSameText(intendedCutApp, myCutApp) then begin
-          message_string := 'Cut List File is intended for Cut Application:' + #13#10 + IntendedCutApp +#13#10+
-                            'However, current Cut Application is: '+ #13#10 + myCutApp +#13#10+
-                            'Continue anyway?';
-          if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
+      IF (NOT batchmode) THEN BEGIN
+        IF NOT ansiSameText(intendedCutApp, myCutApp) THEN BEGIN
+          message_string := 'Cut List File is intended for Cut Application:' + #13#10 + IntendedCutApp + #13#10 +
+            'However, current Cut Application is: ' + #13#10 + myCutApp + #13#10 +
+            'Continue anyway?';
+          IF NOT (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONINFORMATION) = IDYES) THEN BEGIN
             exit;
-          end;
-        end else if (myCutAppVersionWords[0] <> intendedCutAppVersionWords[0])
-                 or (myCutAppVersionWords[1] <> intendedCutAppVersionWords[1])
-                 or (myCutAppVersionWords[2] <  intendedCutAppVersionWords[2]) then begin
+          END;
+        END ELSE IF (myCutAppVersionWords[0] <> intendedCutAppVersionWords[0])
+          OR (myCutAppVersionWords[1] <> intendedCutAppVersionWords[1])
+          OR (myCutAppVersionWords[2] < intendedCutAppVersionWords[2]) THEN BEGIN
           message_string := 'Cut List File is intended for Cut Application:' + #13#10
-                  + IntendedCutApp + ' ' + intendedCutAppVersionStr +#13#10+
-                  'However, current Cut Application Version is: '+ #13#10 + CutApplication.Version +#13#10+
-                  'Continue anyway?';
-          if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
+            + IntendedCutApp + ' ' + intendedCutAppVersionStr + #13#10 +
+            'However, current Cut Application Version is: ' + #13#10 + CutApplication.Version + #13#10 +
+            'Continue anyway?';
+          IF NOT (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONINFORMATION) = IDYES) THEN BEGIN
             exit;
-          end;
-        end;
-      end;
+          END;
+        END;
+      END;
 
       //options for asfbin
-      if self.CutApplication is TCutApplicationAsfbin then begin
-        CutAppAsfBin := self.CutApplication as TCutApplicationAsfbin;
+      IF self.CutApplication IS TCutApplicationAsfbin THEN BEGIN
+        CutAppAsfBin := self.CutApplication AS TCutApplicationAsfbin;
         myOptions := CutAppAsfBin.CommandLineOptions;
         intended_options := cutlistfile.ReadString(section, 'IntendedCutApplicationOptions', myOptions);
-        if not ansiSameText(intended_options, myOptions) and (not batchmode) then begin
-          message_string := 'Loaded options for external cut application are:' + #13#10 + intended_options +#13#10+
-                            'However, current options are: '+ #13#10 + myOptions +#13#10+
-                            'Replace current options by loaded options?';
-          if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES then begin
+        IF NOT ansiSameText(intended_options, myOptions) AND (NOT batchmode) THEN BEGIN
+          message_string := 'Loaded options for external cut application are:' + #13#10 + intended_options + #13#10 +
+            'However, current options are: ' + #13#10 + myOptions + #13#10 +
+            'Replace current options by loaded options?';
+          IF application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONINFORMATION) = IDYES THEN BEGIN
             CutAppAsfBin.CommandLineOptions := intended_options;
-          end;
-        end;
-      end;
-    end;
+          END;
+        END;
+      END;
+    END;
 
     //Number of Cuts
     cCuts := cutlistfile.ReadInteger(section, 'NoOfCuts', 0);
     FrameRate := cutlistfile.ReadFloat(section, 'FramesPerSecond', 0);
 
-    if (FrameRate > 0) and (FMovieInfo.frame_duration > 0) then
-    begin
-      if (not batchmode) and (FMovieInfo.FrameCount <> Trunc(FrameRate * FMovieInfo.current_file_duration)) then
-      begin
+    IF (FrameRate > 0) AND (FMovieInfo.frame_duration > 0) THEN BEGIN
+      IF (NOT batchmode) AND (FMovieInfo.FrameCount <> Trunc(FrameRate * FMovieInfo.current_file_duration)) THEN BEGIN
         message_string := 'The frame rate of the cutlist differs from the frame rate of the movie file.'
-                  +#13#10+'If the rate of the movie file is used, you may get a different result'
-                  +#13#10+'as expected by the author of the cutlist.'
-                  +#13#10
-                  +#13#10+'Frame rate of cutlist:    %.6f'#9'Frame rate of movie file: %.6f'
-                  +#13#10
-                  +#13#10+'Do you want to use the frame rate of the cutlist?'
-                  +#13#10+'(Selecting "No" will use the frame rate of the movie file)';
-        if Application.MessageBox(
-          PChar(Format(message_string, [ FrameRate, 1/FMovieInfo.frame_duration ])),
+          + #13#10 + 'If the rate of the movie file is used, you may get a different result'
+          + #13#10 + 'as expected by the author of the cutlist.'
+          + #13#10
+          + #13#10 + 'Frame rate of cutlist:    %.6f'#9'Frame rate of movie file: %.6f'
+          + #13#10
+          + #13#10 + 'Do you want to use the frame rate of the cutlist?'
+          + #13#10 + '(Selecting "No" will use the frame rate of the movie file)';
+        IF Application.MessageBox(
+          PChar(Format(message_string, [FrameRate, 1 / FMovieInfo.frame_duration])),
           'Frame rate difference',
-          MB_YESNO+MB_ICONEXCLAMATION+MB_DEFBUTTON2
-          ) = IDNO then
-        begin
+          MB_YESNO + MB_ICONEXCLAMATION + MB_DEFBUTTON2
+          ) = IDNO THEN BEGIN
           FrameDuration := FMovieInfo.frame_duration;
-        end;
-      end;
-    end
-    else
-    begin
+        END;
+      END;
+    END
+    ELSE BEGIN
       FrameDuration := FMovieInfo.frame_duration;
-    end;
+    END;
 
     //info
     section := 'Info';
     self.Author := cutlistfile.ReadString(section, 'Author', '');
     self.RatingByAuthor := cutlistfile.ReadInteger(section, 'RatingByAuthor', -1);
-    if self.RatingByAuthor = -1 then
+    IF self.RatingByAuthor = -1 THEN
       self.RatingByAuthorPresent := false
-    else
+    ELSE
       self.RatingByAuthorPresent := true;
     self.EPGError := cutlistfile.ReadBool(section, 'EPGError', false);
-    if self.EPGError then
+    IF self.EPGError THEN
       self.ActualContent := cutlistfile.ReadString(section, 'ActualContent', '')
-    else
+    ELSE
       self.ActualContent := '';
     self.MissingBeginning := cutlistfile.ReadBool(section, 'MissingBeginning', false);
     self.MissingEnding := cutlistfile.ReadBool(section, 'MissingEnding', false);
     self.MissingVideo := cutlistfile.ReadBool(section, 'MissingVideo', false);
     self.MissingAudio := cutlistfile.ReadBool(section, 'MissingAudio', false);
     self.OtherError := cutlistfile.ReadBool(section, 'OtherError', false);
-    if self.OtherError then
+    IF self.OtherError THEN
       self.OtherErrorDescription := cutlistfile.ReadString(section, 'OtherErrorDescription', '')
-    else
+    ELSE
       self.OtherErrorDescription := '';
     self.SuggestedMovieName := cutlistfile.ReadString(section, 'SuggestedMovieName', '');
     self.UserComment := cutlistfile.ReadString(section, 'UserComment', '');
 
     self.FramesPresent := true;
 
-    for iCut := 0 to cCuts-1 do begin
+    FOR iCut := 0 TO cCuts - 1 DO BEGIN
       section := 'Cut' + inttostr(iCut);
-      _pos_from := cutlistfile.ReadFloat(section, 'Start',0);
+      _pos_from := cutlistfile.ReadFloat(section, 'Start', 0);
       _pos_to := _pos_from + cutlistfile.ReadFloat(section, 'Duration', 0) - FrameDuration;
       _Frame_from := cutlistfile.ReadInteger(section, 'StartFrame', -1);
       _Frame_to := _frame_from + cutlistfile.ReadInteger(section, 'DurationFrames', -1) - 1;
 
-      if self.cut_times_valid(_pos_from, _pos_to, -1, aCut) then begin
+      IF self.cut_times_valid(_pos_from, _pos_to, -1, aCut) THEN BEGIN
         cut := Tcut.Create;
         cut.pos_from := _pos_from;
         cut.pos_to := _pos_to;
-        if (_frame_from <0) or (_frame_to <0) then begin
+        IF (_frame_from < 0) OR (_frame_to < 0) THEN BEGIN
           self.FramesPresent := false;
-        end else begin
+        END ELSE BEGIN
           cut.frame_from := _Frame_from;
           cut.frame_to := _frame_to;
-        end;
+        END;
         cut.index := self.Add(cut);
-      end;
-    end;
+      END;
+    END;
 
-  finally
+  FINALLY
     DecimalSeparator := Temp_DecimalSeparator;
     FreeAndNil(cutlistfile);
-  end;
+  END;
 
   self.FMode := clmCrop;
   self.FHasChanged := false;
   self.SavedToFilename := filename;
   result := true;
-  if not batchmode then begin
+  IF NOT batchmode THEN BEGIN
     showmessage(inttostr(self.Count) + ' of ' + inttostr(cCuts) + ' Cuts loaded.');
-  end;
+  END;
   self.RefreshGUI;
-end;
+END;
 
-function TCutlist.NextCutPos(CurrentPos: double): double;
-var
-  CutPosArray: array of double;
-  iPos: integer;
-begin
+FUNCTION TCutlist.NextCutPos(CurrentPos: double): double;
+VAR
+  CutPosArray                      : ARRAY OF double;
+  iPos                             : integer;
+BEGIN
   result := -1;
   setlength(CutPosArray, self.Count * 2);
   self.FillCutPosArray(CutPosArray);
-  for iPos := 0 to 2*self.Count -1 do begin
-    if CutPosArray[iPos] > CurrentPos then begin
-      result:= CutPosArray[iPos];
+  FOR iPos := 0 TO 2 * self.Count - 1 DO BEGIN
+    IF CutPosArray[iPos] > CurrentPos THEN BEGIN
+      result := CutPosArray[iPos];
       break;
-    end;
-  end;
-end;
+    END;
+  END;
+END;
 
-function TCutlist.PreviousCutPos(CurrentPos: double): double;
-var
-  CutPosArray: array of double;
-  iPos: integer;
-begin
+FUNCTION TCutlist.PreviousCutPos(CurrentPos: double): double;
+VAR
+  CutPosArray                      : ARRAY OF double;
+  iPos                             : integer;
+BEGIN
   result := -1;
   setlength(CutPosArray, self.Count * 2);
   self.FillCutPosArray(CutPosArray);
-  for iPos := 2*self.Count -1 downto 0 do begin
-    if CutPosArray[iPos] < CurrentPos then begin
-      result:= CutPosArray[iPos];
+  FOR iPos := 2 * self.Count - 1 DOWNTO 0 DO BEGIN
+    IF CutPosArray[iPos] < CurrentPos THEN BEGIN
+      result := CutPosArray[iPos];
       break;
-    end;
-  end;
-end;
+    END;
+  END;
+END;
 
-procedure TCutlist.RefreshGUI;
-begin
-  if assigned(self.FRefreshCallBack) then RefreshCallBack(self);
-end;
+PROCEDURE TCutlist.RefreshGUI;
+BEGIN
+  IF assigned(self.FRefreshCallBack) THEN RefreshCallBack(self);
+END;
 
-function TCutlist.Save(AskForPath: boolean): boolean;
-var
-  cutlist_path, target_file : string;
-  message_string: string;
-  saveDlg: TSaveDialog;
-begin
+FUNCTION TCutlist.Save(AskForPath: boolean): boolean;
+VAR
+  cutlist_path, target_file        : STRING;
+  message_string                   : STRING;
+  saveDlg                          : TSaveDialog;
+BEGIN
   result := false;
-  if self.Count = 0 then begin
+  IF self.Count = 0 THEN BEGIN
     showmessage('No cuts defined.');
     exit;
-  end;
+  END;
 
-  if self.SavedToFilename = '' then begin
-    case FSettings.SaveCutlistMode of
-      smWithSource: begin    //with source
-           cutlist_path := extractFilePath(FMovieInfo.current_filename);
-         end;
-      smGivenDir: begin    //in given Dir
-           cutlist_path := IncludeTrailingPathDelimiter(FSettings.CutlistSaveDir);
-         end;
-      else begin       //with source
-           cutlist_path := extractFilePath(FMovieInfo.current_filename);
-         end;
-    end;
+  IF self.SavedToFilename = '' THEN BEGIN
+    CASE FSettings.SaveCutlistMode OF
+      smWithSource: BEGIN //with source
+          cutlist_path := extractFilePath(FMovieInfo.current_filename);
+        END;
+      smGivenDir: BEGIN //in given Dir
+          cutlist_path := IncludeTrailingPathDelimiter(FSettings.CutlistSaveDir);
+        END;
+    ELSE BEGIN //with source
+        cutlist_path := extractFilePath(FMovieInfo.current_filename);
+      END;
+    END;
     target_file := cutlist_path + self.FilenameSuggestion;
-  end else begin
+  END ELSE BEGIN
     target_file := self.SavedToFilename;
-  end;
+  END;
 
-  if (self.SavedToFilename = '') or AskForPath then begin
+  IF (self.SavedToFilename = '') OR AskForPath THEN BEGIN
     //Display Save Dialog?
-    AskForPath := AskForPath or FSettings.CutlistNameAlwaysConfirm;
-    if fileexists(target_File) AND (NOT AskForPath) then begin
-      message_string := 'Target file already exists:' + #13#10 + #13#10 + target_file + #13#10 +  #13#10 + 'Overwrite?' ;
-      if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_DEFBUTTON2 + MB_ICONWARNING) <> IDYES then begin
+    AskForPath := AskForPath OR FSettings.CutlistNameAlwaysConfirm;
+    IF fileexists(target_File) AND (NOT AskForPath) THEN BEGIN
+      message_string := 'Target file already exists:' + #13#10 + #13#10 + target_file + #13#10 + #13#10 + 'Overwrite?';
+      IF application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_DEFBUTTON2 + MB_ICONWARNING) <> IDYES THEN BEGIN
         AskForPath := true;
-      end;
-    end;
-    if AskForPath then begin
+      END;
+    END;
+    IF AskForPath THEN BEGIN
       saveDlg := TSaveDialog.Create(Application.MainForm);
       saveDlg.Filter := 'Cutlists|*' + cutlist_Extension + '|All Files|*.*';
       saveDlg.FilterIndex := 1;
@@ -771,74 +768,73 @@ begin
       saveDlg.InitialDir := cutlist_path;
       saveDlg.filename := self.FilenameSuggestion;
       saveDlg.options := saveDlg.Options + [ofOverwritePrompt, ofPathMustExist];
-      if saveDlg.Execute then begin
+      IF saveDlg.Execute THEN BEGIN
         target_file := saveDlg.FileName;
         FreeAndNIL(saveDlg);
-      end else begin
+      END ELSE BEGIN
         FreeAndNIL(saveDlg);
         exit;
-      end;
-    end;
+      END;
+    END;
 
     cutlist_path := ExtractFilePath(target_file);
-    if not ForceDirectories(cutlist_path) then
-    begin
-        if not batchmode then
-          showmessage('Could not create cutlist path ' + cutlist_path + '. Abort.');
-        exit;
-    end;
-    if fileexists(target_File) then begin
-      if not deletefile(target_file) then begin
+    IF NOT ForceDirectories(cutlist_path) THEN BEGIN
+      IF NOT batchmode THEN
+        showmessage('Could not create cutlist path ' + cutlist_path + '. Abort.');
+      exit;
+    END;
+    IF fileexists(target_File) THEN BEGIN
+      IF NOT deletefile(target_file) THEN BEGIN
         showmessage('Could not delete existing file ' + target_file + '. Abort.');
         exit;
-      end;
-    end;
-  end;
+      END;
+    END;
+  END;
 
   result := self.SaveAs(target_file);
-end;
+END;
 
-function TCutlist.SaveAs(Filename: String): boolean;
+FUNCTION TCutlist.SaveAs(Filename: STRING): boolean;
 //true if saved successfully
-var
-  cutlistfile: TCustomIniFile;
-  section, cutApp, cutAppVer, cutAppOptions, cutCommand, message_string, OutputFileName : string;
-  iCut, writtenCuts : integer;
-  temp_DecimalSeparator: char;
-  convertedCutlist: TCutlist;
-  CutApplication: TCutApplicationBase;
+VAR
+  cutlistfile                      : TCustomIniFile;
+  section, cutApp, cutAppVer, cutAppOptions, cutCommand, message_string, OutputFileName: STRING;
+  iCut, writtenCuts                : integer;
+  temp_DecimalSeparator            : char;
+  convertedCutlist                 : TCutlist;
+  CutApplication                   : TCutApplicationBase;
   //iCommandLine: Integer;
-begin
+BEGIN
   result := false;
 
-  if (not self.RatingByAuthorPresent) then begin
-    if not self.EditInfo then exit;
-  end;
+  IF (NOT self.RatingByAuthorPresent) THEN BEGIN
+    IF NOT self.EditInfo THEN exit;
+  END;
 
-  if self.Mode = clmCrop then begin
+  IF self.Mode = clmCrop THEN BEGIN
     self.sort;
 
-    if self.HasChanged then begin
-      if self.Author = '' then begin
-        self.Author := Fsettings.UserName ;
+    IF self.HasChanged THEN BEGIN
+      IF self.Author = '' THEN BEGIN
+        self.Author := Fsettings.UserName;
         RefreshGUI;
-      end else begin
-        if self.Author <> Fsettings.UserName then begin
-          message_string := 'Do you want to replace the Author name of this cutlist' + #13#10 + '"' + self.Author +'"'+#13#10+
-                            'by your own User Name?';
-          if (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
+      END ELSE BEGIN
+        IF self.Author <> Fsettings.UserName THEN BEGIN
+          message_string := 'Do you want to replace the Author name of this cutlist' + #13#10 + '"' + self.Author + '"' + #13#10 +
+            'by your own User Name?';
+          IF (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONINFORMATION) = IDYES) THEN BEGIN
             self.Author := Fsettings.UserName;
             RefreshGUI;
-          end;
-        end;
-      end;
-    end;
+          END;
+        END;
+      END;
+    END;
 
     Temp_DecimalSeparator := DecimalSeparator;
     DecimalSeparator := '.';
 
     cutlistfile := TIniFile.Create(Filename);
-    try
+    TRY
       section := 'General';
       cutlistfile.WriteString(section, 'Application', Application_name);
       cutlistfile.WriteString(section, 'Version', Application_version);
@@ -846,12 +842,12 @@ begin
       cutlistfile.WriteString(section, 'comment2', 'All values are given in seconds.');
       cutlistfile.WriteString(section, 'ApplyToFile', extractfilename(FMovieInfo.current_filename));
       cutlistfile.WriteInteger(section, 'OriginalFileSizeBytes', FMovieInfo.current_filesize);
-      if (FrameRate = 0) or (FrameDuration = 0) then
+      IF (FrameRate = 0) OR (FrameDuration = 0) THEN
         FrameDuration := FMovieInfo.frame_duration;
       cutlistfile.WriteFloat(section, 'FramesPerSecond', FrameRate);
 
       CutApplication := FSettings.GetCutApplicationByMovieType(FMovieInfo.MovieType);
-      if assigned(CutApplication) then begin
+      IF assigned(CutApplication) THEN BEGIN
         CutApplication.WriteCutlistInfo(CutlistFile, section);
 
         //Write Command Line Only for Cut Apps which do not require script files (Asfbin and MP4Box).
@@ -859,11 +855,11 @@ begin
         //- with these apps all commands are in the scripts
         //- the command would show the full path to the script files  (privacy of user!)
         //- the script files written while "prepareCutting" had to be deleted afterwards.
-        if (CutApplication is TCutApplicationAsfbin)
-          or (CutApplication is TCutApplicationMP4Box) then begin
+        IF (CutApplication IS TCutApplicationAsfbin)
+          OR (CutApplication IS TCutApplicationMP4Box) THEN BEGIN
           OutputFileName := FMovieInfo.target_filename;
-          if OutputFileName = '' then OutputFileName := self.FSuggestedMovieName;
-          if OutputFileName = '' then OutputFileName := '<OutputFile>';
+          IF OutputFileName = '' THEN OutputFileName := self.FSuggestedMovieName;
+          IF OutputFileName = '' THEN OutputFileName := '<OutputFile>';
 
           //Fill CommandLine List
           CutApplication.PrepareCutting(extractfilename(extractFileName(FMovieInfo.current_filename)), OutputFileName, self);
@@ -871,8 +867,8 @@ begin
           CutApplication.CommandLines.QuoteChar := ' ';
           cutCommand := CutApplication.CommandLines.DelimitedText;
           cutlistfile.WriteString(section, 'CutCommandLine', cutCommand);
-        end;
-      end else begin
+        END;
+      END ELSE BEGIN
         cutApp := '';
         cutAppVer := '';
         cutAppOptions := '';
@@ -882,11 +878,11 @@ begin
         cutlistfile.WriteString(section, 'IntendedCutApplicationVersion', cutAppVer);
         cutlistfile.WriteString(section, 'IntendedCutApplicationOptions', cutAppOptions);
         cutlistfile.WriteString(section, 'CutCommandLine', cutCommand);
-      end;
+      END;
 
       section := 'Info';
       cutlistfile.WriteString(section, 'Author', self.Author);
-      if self.RatingByAuthorPresent then
+      IF self.RatingByAuthorPresent THEN
         cutlistfile.WriteInteger(section, 'RatingByAuthor', self.RatingByAuthor);
       cutlistfile.WriteBool(section, 'EPGError', self.EPGError);
       cutlistfile.WriteString(section, 'ActualContent', self.ActualContent);
@@ -901,120 +897,119 @@ begin
 
       writtenCuts := 0;
 
-      for iCut := 0 to self.Count-1 do begin
+      FOR iCut := 0 TO self.Count - 1 DO BEGIN
         section := 'Cut' + inttostr(writtenCuts);
         inc(writtenCuts);
         cutlistfile.WriteFloat(section, 'Start', self[iCut].pos_from);
-        if self.FramesPresent then
+        IF self.FramesPresent THEN
           cutlistfile.WriteInteger(section, 'StartFrame', self[iCut].frame_from)
-        else if cutlistfile.ValueExists(section, 'StartFrame') then
+        ELSE IF cutlistfile.ValueExists(section, 'StartFrame') THEN
           cutlistfile.DeleteKey(section, 'StartFrame');
         cutlistfile.WriteFloat(section, 'Duration', self[iCut].pos_to - self[iCut].pos_from + FMovieInfo.frame_duration);
-        if self.FramesPresent then
+        IF self.FramesPresent THEN
           cutlistfile.WriteInteger(section, 'DurationFrames', self[iCut].DurationFrames)
-        else if cutlistfile.ValueExists(section, 'DurationFrames') then
+        ELSE IF cutlistfile.ValueExists(section, 'DurationFrames') THEN
           cutlistfile.DeleteKey(section, 'DurationFrames');
-      end;
+      END;
       cutlistfile.WriteInteger('General', 'NoOfCuts', writtenCuts);
       result := true;
 
-      if self.FHasChanged then
-      begin
+      IF self.FHasChanged THEN BEGIN
         self.FIDOnServer := '';
         self.FHasChanged := false;
-      end;
+      END;
       self.SavedToFilename := filename;
 
-    finally
+    FINALLY
       DecimalSeparator := Temp_DecimalSeparator;
       FreeAndNil(cutlistfile);
-    end;
-  end else begin
+    END;
+  END ELSE BEGIN
     ConvertedCutlist := self.convert;
-    try
+    TRY
       result := ConvertedCutlist.SaveAs(filename);
       self.FHasChanged := ConvertedCutlist.HasChanged;
       self.SavedToFilename := ConvertedCutlist.SavedToFilename;
       self.IDOnServer := convertedCutlist.IDOnServer;
-    finally
+    FINALLY
       FreeAndNil(ConvertedCutlist);
-    end;
-  end;
-end;
+    END;
+  END;
+END;
 
-procedure TCutlist.SetIDOnServer(const Value: string);
-begin
+PROCEDURE TCutlist.SetIDOnServer(CONST Value: STRING);
+BEGIN
   FIDOnServer := Value;
-end;
+END;
 
-procedure TCutlist.SetMode(const Value: TCutlistMode);
-begin
+PROCEDURE TCutlist.SetMode(CONST Value: TCutlistMode);
+BEGIN
   FMode := Value;
   self.RefreshGUI;
-end;
+END;
 
-procedure TCutlist.SetRefreshCallBack(const Value: TCutlistCallBackMethod);
-begin
+PROCEDURE TCutlist.SetRefreshCallBack(CONST Value: TCutlistCallBackMethod);
+BEGIN
 
 
   FRefreshCallBack := Value;
 
 
-end;
+END;
 
-procedure TCutlist.SetSuggestedMovieName(const Value: string);
-begin
+PROCEDURE TCutlist.SetSuggestedMovieName(CONST Value: STRING);
+BEGIN
   FSuggestedMovieName := AnsiReplaceStr(Value, '"', '''');
-end;
+END;
 
-procedure TCutlist.sort;
-var
-  Acut: TCut;
-  iCut, jCut: integer;
-begin
+PROCEDURE TCutlist.sort;
+VAR
+  Acut                             : TCut;
+  iCut, jCut                       : integer;
+BEGIN
   Acut := TCut.Create;
-  for iCut := 0 to self.Count-2 do begin
+  FOR iCut := 0 TO self.Count - 2 DO BEGIN
     Acut.pos_from := self[iCut].pos_from;
     Acut.index := iCut;
-    for jcut := icut+1 to self.Count-1 do begin
-      if self[jcut].pos_from < Acut.pos_from then begin
+    FOR jcut := icut + 1 TO self.Count - 1 DO BEGIN
+      IF self[jcut].pos_from < Acut.pos_from THEN BEGIN
         Acut.pos_from := self[jCut].pos_from;
         Acut.index := jCut;
-      end;
-    end;
-    if Acut.index <> iCut then begin
-      Acut.pos_to  := self[acut.index].pos_to;
+      END;
+    END;
+    IF Acut.index <> iCut THEN BEGIN
+      Acut.pos_to := self[acut.index].pos_to;
       self[acut.index].pos_from := self[iCut].pos_from;
       self[acut.index].pos_to := self[iCut].pos_to;
       self[iCut].pos_from := Acut.pos_from;
       self[iCut].pos_to := Acut.pos_to;
-    end;
-  end;
+    END;
+  END;
   FreeAndNIL(Acut);
-end;
+END;
 
-function TCutlist.TotalDurationOfCuts: double;
-var
-  iCut: Integer;
-  dur: double;
-begin
+FUNCTION TCutlist.TotalDurationOfCuts: double;
+VAR
+  iCut                             : Integer;
+  dur                              : double;
+BEGIN
   dur := 0;
-  for iCut := 0 to self.Count-1 do
+  FOR iCut := 0 TO self.Count - 1 DO
     dur := dur + Cut[iCut].pos_to - Cut[iCut].pos_from;
   result := dur;
-end;
+END;
 
-function TCutlist.UserShouldSendRating: boolean;
-begin
-  result := (not self.RatingSent and (self.IDOnServer > ''));
-end;
+FUNCTION TCutlist.UserShouldSendRating: boolean;
+BEGIN
+  result := (NOT self.RatingSent AND (self.IDOnServer > ''));
+END;
 
 { Tcut }
 
-function Tcut.DurationFrames: integer;
-begin
-  result := self.frame_to - self.frame_from +1;
-end;
+FUNCTION Tcut.DurationFrames: integer;
+BEGIN
+  result := self.frame_to - self.frame_from + 1;
+END;
 
 
-end.
+END.

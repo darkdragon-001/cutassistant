@@ -1,13 +1,13 @@
-unit UClist;
+UNIT UClist;
 
-interface
+INTERFACE
 
-uses
+USES
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ComCtrls, StdCtrls, ExtCtrls, UCutlist, JvGIF, Buttons;
 
-type
-  TfrmClist = class(TForm)
+TYPE
+  TfrmClist = CLASS(TForm)
     Lcutlist: TListView;
     PAuthor: TPanel;
     LAuthor: TLabel;
@@ -25,108 +25,110 @@ type
     ICutlistWarning: TImage;
     BCutlistInfo: TBitBtn;
     RCutMode: TRadioGroup;
-    procedure BReplaceCutClick(Sender: TObject);
-    procedure BEditCutClick(Sender: TObject);
-    procedure BDeleteCutClick(Sender: TObject);
-    procedure BClearCutlistClick(Sender: TObject);
-    procedure BConvertClick(Sender: TObject);
-    procedure BCutlistInfoClick(Sender: TObject);
-    procedure RCutModeClick(Sender: TObject);
-  private
+    PROCEDURE BReplaceCutClick(Sender: TObject);
+    PROCEDURE BEditCutClick(Sender: TObject);
+    PROCEDURE BDeleteCutClick(Sender: TObject);
+    PROCEDURE BClearCutlistClick(Sender: TObject);
+    PROCEDURE BConvertClick(Sender: TObject);
+    PROCEDURE BCutlistInfoClick(Sender: TObject);
+    PROCEDURE RCutModeClick(Sender: TObject);
+  PRIVATE
     { Private declarations }
-  public
+  PUBLIC
     { Public declarations }
-    procedure enable_del_buttons(value: boolean);
-  end;
+    PROCEDURE enable_del_buttons(value: boolean);
+  END;
 
-var
-  frmClist: TfrmClist;
+VAR
+  frmClist                         : TfrmClist;
 
-implementation
+IMPLEMENTATION
 
-uses Main;
+USES Main;
 
 {$R *.dfm}
 
-procedure TfrmClist.BReplaceCutClick(Sender: TObject);
-var
-  dcut: integer;
-begin
-  if frmClist.Lcutlist.SelCount = 0 then begin
-//    self.enable_del_buttons(false);
+PROCEDURE TfrmClist.BReplaceCutClick(Sender: TObject);
+VAR
+  dcut                             : integer;
+BEGIN
+  IF frmClist.Lcutlist.SelCount = 0 THEN BEGIN
+    //    self.enable_del_buttons(false);
     exit;
-  end;
+  END;
   dcut := strtoint(frmClist.Lcutlist.Selected.caption);
   cutlist.ReplaceCut(pos_from, pos_to, dCut);
-end;
+END;
 
-procedure TfrmClist.BEditCutClick(Sender: TObject);
-var
-  dcut: integer;
-begin
-  if frmClist.Lcutlist.SelCount = 0 then begin
- //   self.enable_del_buttons(false);
+PROCEDURE TfrmClist.BEditCutClick(Sender: TObject);
+VAR
+  dcut                             : integer;
+BEGIN
+  IF frmClist.Lcutlist.SelCount = 0 THEN BEGIN
+    //   self.enable_del_buttons(false);
     exit;
-  end;
+  END;
   dcut := strtoint(frmClist.Lcutlist.Selected.caption);
   pos_from := cutlist[dcut].pos_from;
   pos_to := cutlist[dcut].pos_to;
   Fmain.refresh_times;
-end;
-procedure TfrmClist.BDeleteCutClick(Sender: TObject);
-begin
-  if frmClist.Lcutlist.SelCount = 0 then begin
- //   self.enable_del_buttons(false);
+END;
+
+PROCEDURE TfrmClist.BDeleteCutClick(Sender: TObject);
+BEGIN
+  IF frmClist.Lcutlist.SelCount = 0 THEN BEGIN
+    //   self.enable_del_buttons(false);
     exit;
-  end;
+  END;
   cutlist.DeleteCut(strtoint(frmClist.Lcutlist.Selected.caption));
-end;
+END;
 
-procedure TfrmClist.BClearCutlistClick(Sender: TObject);
-begin
- frmClist.Lcutlist.Clear;
+PROCEDURE TfrmClist.BClearCutlistClick(Sender: TObject);
+BEGIN
+  frmClist.Lcutlist.Clear;
 
 
 
-end;
+END;
 
-procedure TfrmClist.enable_del_buttons(value: boolean);
-begin
+PROCEDURE TfrmClist.enable_del_buttons(value: boolean);
+BEGIN
   self.bDeleteCut.enabled := value;
   self.bEditCut.Enabled := value;
   self.bReplaceCut.Enabled := value;
   self.BClearCutlist.Enabled := value;
 
 
-end;
+END;
 
 
 
-procedure TfrmClist.BConvertClick(Sender: TObject);
-var
-  newCutlist: TCutlist;
-begin
-  if cutlist.Count = 0 then exit;
+PROCEDURE TfrmClist.BConvertClick(Sender: TObject);
+VAR
+  newCutlist                       : TCutlist;
+BEGIN
+  IF cutlist.Count = 0 THEN exit;
   newCutlist := cutlist.convert;
   newCutlist.RefreshCallBack := cutlist.RefreshCallBack;
   FreeAndNIL(cutlist);
   cutlist := newCutlist;
   cutlist.RefreshGUI;
-end;
-procedure TfrmClist.BCutlistInfoClick(Sender: TObject);
-begin
+END;
+
+PROCEDURE TfrmClist.BCutlistInfoClick(Sender: TObject);
+BEGIN
   cutlist.EditInfo;
-end;
-procedure TfrmClist.RCutModeClick(Sender: TObject);
-begin
+END;
+
+PROCEDURE TfrmClist.RCutModeClick(Sender: TObject);
+BEGIN
 
 
-   Fmain.setCutlistMode( self.RCutMode.ItemIndex );
+  Fmain.setCutlistMode(self.RCutMode.ItemIndex);
   //case self.RCutMode.ItemIndex of
 
    /// 0: Fmain.cutlist.Mode := clmCutOut;
    // 1: Fmain.cutlist.Mode := clmCrop;
 //  end;
-end;
-end.
-
+END;
+END.

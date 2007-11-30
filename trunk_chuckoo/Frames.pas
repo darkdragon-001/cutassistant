@@ -332,6 +332,51 @@ var
 begin
   _pos := ((sender as TButton).Owner as TCutFrame).position;
   (self.Owner as TFFrames).MainForm.SetStartPosition(_pos);
+
+Fmain.iActiveCut := cutlist.GetCutNr(_pos);
+
+
+    //     label3.Caption := inttostr(iActiveCut);
+
+FMain.pnlCutFrom.Color := clSkyBlue  ;
+
+
+
+//do no try this when there is no cut begin set, this may cause errors unneeded
+      if ( (self.Owner as TFFrames).MainForm.cbSclickMode.checked = true )  and (pos_from > 0)  and (pos_from <  pos_to )  then begin
+      Fmain.AddCut.Execute ;
+      end;
+// *HG
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    Fmain.TrackMWheelFine.SetFocus;
+
+
+
+
+
+
+
+
+
+
+
+
+
 end;
 
 procedure TCutFrame.BStopClick(Sender: TObject);
@@ -340,7 +385,33 @@ var
 begin
   _pos := ((sender as TButton).Owner as TCutFrame).position;
   (self.Owner as TFFrames).MainForm.SetStopPosition(_pos);
-end;
+
+
+Fmain.iActiveCut := cutlist.GetCutNr(_pos);
+
+
+    //     label3.Caption := inttostr(iActiveCut);
+
+FMain.pnlCutTo.Color := clSkyBlue  ;
+
+
+
+//do no try this when there is no cut begin set, this may cause errors unneeded
+      if ( (self.Owner as TFFrames).MainForm.cbSclickMode.checked = true )  and (pos_from > 0)  and (pos_from <  pos_to )  then begin
+      Fmain.AddCut.Execute ;
+      end;
+// *HG
+
+
+
+
+
+
+
+
+    Fmain.TrackMWheelFine.SetFocus;
+
+  end;
 
 procedure TCutFrame.DisableUpdate;
 begin
@@ -464,8 +535,11 @@ begin
     VK_RETURN:
       begin
         self.MainForm.BringToFront;
+  self.MainForm.TrackMWheelFine.SetFocus;
       end;
   end;
+
+
 end;
 
 end.

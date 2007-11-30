@@ -1,13 +1,13 @@
 object FFrames: TFFrames
-  Left = 436
-  Top = 79
+  Left = 155
+  Top = 89
   Width = 815
   Height = 761
   Caption = 'Frames'
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
-  Font.Height = -9
+  Font.Height = -14
   Font.Name = 'Small Fonts'
   Font.Style = []
   KeyPreview = True
@@ -18,6 +18,6 @@ object FFrames: TFFrames
   OnKeyUp = FormKeyUp
   OnResize = FormResize
   OnShow = FormShow
-  PixelsPerInch = 96
-  TextHeight = 11
+  PixelsPerInch = 144
+  TextHeight = 16
 end

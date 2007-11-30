@@ -1,0 +1,6 @@
+ToDo
+Add cut end via maus
+End cut und single click sollte aktuellen Cut editieren
+
+Done
+Single Click ADD ( Add New Cut führt abhängig von der checkbox automaitsch einen ADD NEW CUT aus )

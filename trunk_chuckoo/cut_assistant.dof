@@ -25,7 +25,7 @@ U=0
 V=1
 W=1
 X=1
-Y=1
+Y=2
 Z=1
 ShowHints=1
 ShowWarnings=1
@@ -130,3 +130,15 @@ OriginalFilename=cut_assistant.exe
 ProductName=
 ProductVersion=1.0.0.0
 Comments=
+[HistoryLists\hlConditionals]
+Count=1
+Item0=madExcept
+[HistoryLists\hlUnitAliases]
+Count=1
+Item0=WinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE;
+[HistoryLists\hlSearchPath]
+Count=1
+Item0=D:\Develop\MS SDKs\DSPACK234\src\DirectX9;D:\Develop\MS SDKs\DSPACK234\src\DSPack
+[HistoryLists\hlOutputDirectorry]
+Count=1
+Item0=C:\asfbin

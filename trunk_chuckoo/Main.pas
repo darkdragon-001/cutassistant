@@ -20,7 +20,7 @@ uses
   CodecSettings, JvComponentBase, JvSimpleXml, JclSimpleXML, IdAntiFreezeBase,
   IdAntiFreeze, JvGIF, JvSpeedbar, JvExExtCtrls, JvExtComponent, JvExControls,
   JvXPCore, JvXPBar, ActnList, IdThreadComponent, JvBaseDlg,
-  JvProgressDialog, JvExStdCtrls, JvScrollBar;
+  JvProgressDialog, JvExStdCtrls, JvScrollBar, JvPanel;
 
 const
   //Registry Keys
@@ -32,23 +32,12 @@ const
 type
 
   TFMain = class(TForm{, ISampleGrabberCB})
-    Lcutlist: TListView;
-    BDeleteCut: TButton;
-    BReplaceCut: TButton;
-    BEditCut: TButton;
-    RCutMode: TRadioGroup;
-    TVolume: TTrackBar;
-    Label8: TLabel;
-    CBMute: TCheckBox;
-    Bevel2: TBevel;
-    Bevel3: TBevel;
     CutListOpenDialog: TOpenDialog;
     VideoWindow: TVideoWindow;
     SampleGrabber1: TSampleGrabber;
     TeeFilter: TFilter;
     NullRenderer1: TFilter;
     PanelVideoWindow: TPanel;
-    BConvert: TButton;
     OpenMovie: TAction;
     OpenCutlist: TAction;
     File_Exit: TAction;
@@ -62,6 +51,7 @@ type
     ANextFrames: TAction;
     APrevFrames: TAction;
     AScanInterval: TAction;
+
     AStartCutting: TAction;
     EditSettings: TAction;
     MovieMetaData: TAction;
@@ -76,23 +66,13 @@ type
     BrowseWWWHelp: TAction;
     OpenCutlistHome: TAction;
     ARepairMovie: TAction;
-    BCutlistInfo: TBitBtn;
     ACutlistInfo: TAction;
-    ICutlistWarning: TImage;
     ASaveCutlist: TAction;
     ACalculateResultingTimes: TAction;
     AAsfbinInfo: TAction;
-    PAuthor: TPanel;
-    LAuthor: TLabel;
     ASearchCutlistByFileSize: TAction;
     ASendRating: TAction;
     ADeleteCutlistFromServer: TAction;
-    LTotalCutoff: TLabel;
-    LResultingDuration: TLabel;
-    TBRate: TtrackBarEx;
-    Label4: TLabel;
-    LRate: TLabel;
-    LTrueRate: TLabel;
     ANextCut: TAction;
     APrevCut: TAction;
     FilterGraph: TFilterGraph;
@@ -201,15 +181,13 @@ type
     RequestWorker: TIdThreadComponent;
     ASupportRequest: TAction;
     Makeasupportrequest1: TMenuItem;
-    lblMovieType: TLabel;
-    lblCutApplication: TLabel;
-    lblMovieFPS: TLabel;
     AStop: TAction;
     APlayPause: TAction;
     N14: TMenuItem;
     N15: TMenuItem;
     N16: TMenuItem;
     TrackMWheelFine: TtrackBarEx;
+    pnlMovieControl: TPanel;
     pnlViewControl: TPanel;
     BPrevCut: TButton;
     BStepBack: TButton;
@@ -219,14 +197,6 @@ type
     BNextCut: TButton;
     BStepForwards: TButton;
     TFinePos: TtrackBarEx;
-    Panel1: TPanel;
-    BPrev12: TButton;
-    B12FromTo: TButton;
-    BNext12: TButton;
-    LDuration: TLabel;
-    LPos: TLabel;
-    Label7: TLabel;
-    TBFilePos: TDSTrackBarEx;
     Panel2: TPanel;
     pnlCutFrom: TPanel;
     BSetFrom: TButton;
@@ -242,6 +212,25 @@ type
     Label2: TLabel;
     BAddCut: TButton;
     EDuration: TEdit;
+    Panel1: TPanel;
+    LDuration: TLabel;
+    LPos: TLabel;
+    Label7: TLabel;
+    BPrev12: TButton;
+    B12FromTo: TButton;
+    BNext12: TButton;
+    TBFilePos: TDSTrackBarEx;
+    cbSclickMode: TCheckBox;
+    Panel3: TPanel;
+    Label8: TLabel;
+    TVolume: TTrackBar;
+    CBMute: TCheckBox;
+    TBRate: TtrackBarEx;
+    Label4: TLabel;
+    LTrueRate: TLabel;
+    LRate: TLabel;
+    btnScanToEnd: TButton;
+    JvSpeedItem16: TJvSpeedItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -259,7 +248,7 @@ type
     procedure LcutlistSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
     procedure LcutlistDblClick(Sender: TObject);
-    procedure RCutModeClick(Sender: TObject);
+   // procedure RCutModeClick(Sender: TObject);
 
     procedure TVolumeChange(Sender: TObject);
     procedure CBMuteClick(Sender: TObject);
@@ -298,11 +287,11 @@ type
     procedure AShowFramesFormExecute(Sender: TObject);
     procedure ANextFramesExecute(Sender: TObject);
     procedure APrevFramesExecute(Sender: TObject);
-    procedure AScanIntervalExecute(Sender: TObject);
+    procedure AScanintervalExecute(Sender: TObject);
 
     procedure ARepairMovieExecute(Sender: TObject);
     procedure AStartCuttingExecute(Sender: TObject);
-    procedure AAsfbinInfoExecute(Sender: TObject);
+    procedure ShowCutlistWorkWindow(Sender: TObject);
     procedure MovieMetaDataExecute(Sender: TObject);
     procedure EditSettingsExecute(Sender: TObject);
     procedure UsedFiltersExecute(Sender: TObject);
@@ -355,6 +344,11 @@ type
     procedure AStopExecute(Sender: TObject);
     procedure APlayPauseExecute(Sender: TObject);
     procedure TrackMWheelFineChange(Sender: TObject);
+    procedure btnScanToEndMouseDown(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer);
+    procedure btnShowCutlistClick(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
+    procedure JvSpeedItem16Click(Sender: TObject);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -382,6 +376,10 @@ type
     procedure UpdateMovieInfoControls;
   public
     { Public declarations }
+
+    iActiveCut: integer;
+ //   CutList: TCutList;
+
     procedure ProcessFileList(FileList: TStringList; IsMyOwnCommandLine: boolean);
     procedure refresh_times;
     procedure enable_del_buttons(value: boolean);
@@ -403,6 +401,11 @@ type
     function ToggleFullScreen: boolean;
     procedure ShowMetaData;
     function RepairMovie: boolean;
+
+    procedure setCutlistMode(value: integer);
+
+
+
     function StartCutting: boolean;
 //    function CreateVDubScript(cutlist: TCutlist; Inputfile, Outputfile: String; var scriptfile: string): boolean;
     function CreateMPlayerEDL(cutlist: TCutlist; Inputfile, Outputfile: String; var scriptfile: string): boolean;
@@ -435,8 +438,12 @@ var
   pos_to, pos_from: double;
   vol_temp: integer;
   last_pos: double;
-//HG
+
+  //HG
   IlastPos: longint;
+  iActiveCut: integer;
+  mainformLoaded: boolean;
+
 //*HG
 
   //Batch flags
@@ -456,26 +463,37 @@ var
 implementation
   uses madExcept, madNVBitmap, madNVAssistant, Frames, CutlistRate_Dialog, ResultingTimes, CutlistSearchResults,
     PBOnceOnly, UfrmCutting, UCutApplicationBase, UCutApplicationAsfbin, UCutApplicationMP4Box, UMemoDialog,
-    DateTools, UAbout, ULogging, UDSAStorage, IdResourceStrings;
+    DateTools, UAbout, ULogging, UDSAStorage, IdResourceStrings,  UframeCutlist,
+  UClist;
 
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
 
 procedure TFMain.UpdateMovieInfoControls;
 begin
+// HG ... due to cutlist in separate form now
+// only clear cutlist, if the main form is already created, otherwise we crash
+
+if mainformLoaded = true then  begin
+
+
   if not Assigned(MovieInfo) then
-    self.lblMovieFPS.Caption := 'fps: N/A'
+    frmClist.lblMovieFPS.Caption := 'fps: N/A'
   else
-    self.lblMovieFPS.Caption := MovieInfo.FormatFrameRate;
+    frmClist.lblMovieFPS.Caption := MovieInfo.FormatFrameRate;
 
   if not Assigned(MovieInfo) or not MovieInfo.MovieLoaded then
   begin
-    self.lblMovieType.Caption := '[None]';
-    self.lblCutApplication.Caption := 'Cut app.: N/A';
+    frmClist.lblMovieType.Caption := '[None]';
+    frmClist.lblCutApplication.Caption := 'Cut app.: N/A';
   end else begin
-    self.lblMovieType.Caption := MovieInfo.MovieTypeString;
-    self.lblCutApplication.Caption := 'Cut app.: ' + Settings.GetCutAppName(MovieInfo.MovieType);
+    frmClist.lblMovieType.Caption := MovieInfo.MovieTypeString;
+    frmClist.lblCutApplication.Caption := 'Cut app.: ' + Settings.GetCutAppName(MovieInfo.MovieType);
   end;
+
+end;
+//HG
+
 end;
 
 procedure TFMain.InitFramesProperties(const AAction: TAction; const s: string);
@@ -489,21 +507,64 @@ end;
 procedure TFMain.BSetFromClick(Sender: TObject);
 begin
   SetStartPosition(CurrentPosition);
-  self.pnlCutFrom.Color := clSkyBlue
+// HG
+
+iActiveCut := cutlist.GetCutNr(CurrentPosition);
+
+
+         //label3.Caption := inttostr(iActiveCut);
+
+  self.pnlCutFrom.Color := clSkyBlue  ;
+
+
+
+//do no try this when there is no cut begin set, this may cause errors unneeded
+      if ( cbSclickMode.checked = true )  and (pos_from > 0)  and (pos_from <  pos_to )  then begin
+      AddCut.Execute ;
+      end;
+// *HG
+
+
+
+
 end;
 
 procedure TFMain.BSetToClick(Sender: TObject);
+
 begin
   SetStopPosition(CurrentPosition);
-       self.pnlCutTo.Color := clSkyBlue
+
+// HG
+
+iActiveCut := cutlist.GetCutNr(CurrentPosition);
+
+
+         //label3.Caption := inttostr(iActiveCut);
+
+
+//iActiveCut := cutlist.GetCutNr(pos_from);
+
+
+//         label1.Caption := inttostr(iActiveCut);
+
+
+       self.pnlCutTo.Color := clSkyBlue   ;
+//do no try this when there is no cut begin set, this may cause errors unneeded
+      if ( cbSclickMode.checked = true ) and (AddCut.Enabled = true ) and (pos_from > 0)  then begin
+      AddCut.Execute ;
+      end;
+// *HG
 
 end;
-
+             
 procedure TFMain.refresh_times;
 begin
   self.EFrom.Text := MovieInfo.FormatPosition(pos_from);
   self.ETo.Text := MovieInfo.FormatPosition(pos_to);
-  if pos_to >= pos_from then begin
+//  if pos_to >= pos_from then begin
+//HG
+  if (pos_to >= pos_from) and (pos_from > 0)  then begin
+//HG
     self.EDuration.Text := MovieInfo.FormatPosition(pos_to-pos_from);
     self.AddCut.Enabled := true;
     self.pnlCutAdd.Color := clYellow;
@@ -570,10 +631,21 @@ begin
 
   InitHttpProperties;
 
-  self.RCutMode.ItemIndex := settings.DefaultCutMode;
-  
+
+
+
+// HG ... due to cutlist in separate form now
+// only clear cutlist, if the main form is already created, otherwise we crash
+
+setCutlistMode( settings.DefaultCutMode );
+
+
+if mainformLoaded = true then  begin
+  frmClist.RCutMode.ItemIndex := settings.DefaultCutMode;
+end;
   Cutlist.RefreshCallBack := self.refresh_Lcutlist;
   cutlist.RefreshGUI;
+//end;
 
   filtergraph.Volume := 5000;
   TVolume.PageSize := TVOlume.Frequency;
@@ -624,6 +696,20 @@ begin
   self.EditCut.Enabled := value;
   self.ReplaceCut.Enabled := value;
 end;
+
+procedure TFMain.setCutlistMode(value: integer);
+begin
+
+ case value  of
+
+    0: cutlist.Mode := clmCutOut;
+    1: cutlist.Mode := clmCrop;
+  end;
+
+end;
+
+
+
 
 
 function TFMain.StartCutting: boolean;
@@ -765,7 +851,15 @@ var
   i_column: integer;
   total_cutoff, resulting_duration: Double;
 begin
-  self.Lcutlist.Clear;
+// HG ... due to cutlist in separate form now
+// only clear cutlist, if the main form is already created, otherwise we crash
+
+if mainformLoaded = true then  begin
+
+  frmClist.Lcutlist.Clear;
+end;
+//HG
+
   self.ASendRating.Enabled := cutlist.IDOnServer <> '';
 
   if cutlist.Count = 0 then begin
@@ -787,7 +881,7 @@ begin
     self.APrevCut.Enabled := true;
     for icut := 0 to cutlist.Count-1 do begin
       cut := cutlist[icut];
-      cut_view := self.Lcutlist.Items.Add;
+      cut_view := frmClist.Lcutlist.Items.Add;
       cut_view.Caption := inttostr(cut.index);
       cut_view.SubItems.Add(MovieInfo.FormatPosition(cut.pos_from));
       cut_view.SubItems.Add(MovieInfo.FormatPosition(cut.pos_to));
@@ -795,11 +889,11 @@ begin
     end;
 
     //Auto-Resize columns
-    for i_column := 0 to self.Lcutlist.Columns.Count -1 do begin
-      lcutlist.Columns[i_column].Width := -2;
+    for i_column := 0 to frmClist.Lcutlist.Columns.Count -1 do begin
+      frmClist.lcutlist.Columns[i_column].Width := -2;
     end;
 
-    if LCutlist.ItemIndex = -1 then
+    if frmClist.LCutlist.ItemIndex = -1 then
       self.enable_del_buttons(false)
     else
       self.enable_del_buttons(true);
@@ -812,16 +906,20 @@ begin
     resulting_duration := cutlist.TotalDurationOfCuts;
     total_cutoff := MovieInfo.current_file_duration - resulting_duration;
   end;
-  LTotalCutoff.Caption := 'Total cutoff: ' + secondstotimestring(total_cutoff);
-  self.LResultingDuration.Caption := 'Resulting movie duration: ' + secondsToTimeString(resulting_duration);
 
-  //Cuts in Trackbar are taken from global var "cutlist"!
-  self.TBFilePos.Perform(CM_RECREATEWND, 0, 0);    //Show Cuts in Trackbar
+  // HG ... due to cutlist in separate form now
+// only set values in cutlist window, if the main form is already created, otherwise we crash
+
+if mainformLoaded = true then  begin
+
+  frmClist.LTotalCutoff.Caption := 'Total cutoff: ' + secondstotimestring(total_cutoff);
+  frmClist.LResultingDuration.Caption := 'Resulting movie duration: ' + secondsToTimeString(resulting_duration);
 
   case cutlist.Mode of
-    clmCutOut: self.RCutMode.ItemIndex := 0;
-    clmCrop: self.RCutMode.ItemIndex := 1;
+    clmCutOut: frmClist.RCutMode.ItemIndex := 0;
+    clmCrop: frmClist.RCutMode.ItemIndex := 1;
   end;
+
 
   if (cutlist.RatingByAuthorPresent and (cutlist.RatingByAuthor <=2))
     or cutlist.EPGError
@@ -832,19 +930,35 @@ begin
     or cutlist.OtherError
   then begin
     //self.ACutlistInfo.ImageIndex := 18;
-    self.ICutlistWarning.Visible := true;
+    frmClist.ICutlistWarning.Visible := true;
   end else begin
     //self.ACutlistInfo.ImageIndex := -1;
-    self.ICutlistWarning.Visible := false;
+    frmClist.ICutlistWarning.Visible := false;
   end;
 
+
   if cutlist.Author <> '' then begin
-    self.LAuthor.Caption := cutlist.Author;
-    self.PAuthor.Visible := true;
+    frmClist.LAuthor.Caption := cutlist.Author;
+    frmClist.PAuthor.Visible := true;
   end else begin
-    self.PAuthor.Visible := false;
+    frmClist.PAuthor.Visible := false;
   end;;
 end;
+
+//HG
+
+
+//Cuts in Trackbar are taken from global var "cutlist"!
+  self.TBFilePos.Perform(CM_RECREATEWND, 0, 0);    //Show Cuts in Trackbar
+
+
+end;
+
+
+
+
+
+
 
 
 function TFMain.OpenFile(Filename: String): boolean;
@@ -1139,6 +1253,9 @@ begin
     end else FrameStep := nil;
     self.EnableMovieControls(true);
   end;
+//HG
+  self.BtnScanToEnd.Enabled := true; // enable scan to button
+//HG
 end;
 
 procedure TFMain.JumpTo(NewPosition: double);
@@ -1247,7 +1364,7 @@ begin
  if      (self.TFinePos.Position < 0 ) then begin
  //self.lblFinePosBack.Caption := inttostr(self.TFinePos.Position * -1) ;
  self.BStepBack.Caption := inttostr(self.TFinePos.Position * -1) ;
- self.TFinePos.PageSize := self.TFinePos.Position;
+ self.TFinePos.PageSize := self.TFinePos.Position * -1;
 
  end else
  begin
@@ -1789,6 +1906,11 @@ begin
       settings.CurrentMovieDir := ExtractFilePath(openDialog.FileName);
       OpenFile(opendialog.FileName);
     end;
+
+    //HG
+    iActiveCut := -1;  //reset active cut id
+    self.BtnScanToEnd.Enabled := true; // enable scan to button
+    //*HG
   finally
     FreeAndNil(OpenDialog);
   end;
@@ -1806,7 +1928,71 @@ begin
 end;
 
 procedure TFMain.AddCutExecute(Sender: TObject);
+
+var InsideStartPos,InsideEndPos : double;
 begin
+
+// if we have set start or end outside a previous defined cut
+if iActiveCut = -1 then begin
+// start and end defined ??
+  if ( pos_from <> 0) and ( pos_to <> 0 ) then
+  begin
+
+   InsideStartPos := cutlist.NextCutPos(pos_from);
+   InsideEndPos := cutlist.PreviousCutPos(pos_to);
+// is this a cut inside ??
+   if InsideStartPos < InsideEndPos then begin
+// find which one to replace
+   iActiveCut := cutlist.GetCutNr(InsideStartPos + MovieInfo.frame_duration);
+  end;
+
+// is this a cut partially inside ??
+   if InsideStartPos = InsideEndPos then begin
+// find which one to replace
+    if pos_from <   InsideStartPos then        begin
+   iActiveCut := cutlist.GetCutNr(InsideEndPos - MovieInfo.frame_duration) ;
+   end       ;
+
+    if iActiveCut = -1  then        begin
+   iActiveCut := cutlist.GetCutNr(InsideEndPos + MovieInfo.frame_duration);
+    end;
+
+  end;
+
+
+
+
+  end;
+
+
+
+end;
+
+
+
+
+
+if iActiveCut <> -1 then begin
+ // if ( pos_from = 0) and ( pos_to <> 0 ) then
+ // begin
+ //   pos_from := 1;
+ // end       ;
+
+ //   if ( pos_to = 0) and ( pos_from <> 0 ) then
+ // begin
+ //   pos_to := 1000;
+ // end        ;
+
+  cutlist.ReplaceCut(pos_from, pos_to, iActiveCut);
+    pos_from := 0;
+    pos_to := 0;
+    refresh_times;
+    self.pnlCutAdd.Color := clGradientInactiveCaption;
+    self.AddCut.Enabled := false;
+    self.pnlCutFrom.Color := clGradientInactiveCaption;
+    self.pnlCutTo.Color := clGradientInactiveCaption;
+end
+else
   if cutlist.AddCut(pos_from, pos_to) then begin
     pos_from := 0;
     pos_to := 0;
@@ -1822,11 +2008,11 @@ procedure TFMain.ReplaceCutExecute(Sender: TObject);
 var
   dcut: integer;
 begin
-  if self.Lcutlist.SelCount = 0 then begin
+  if frmClist.Lcutlist.SelCount = 0 then begin
     self.enable_del_buttons(false);
     exit;
   end;
-  dcut := strtoint(self.Lcutlist.Selected.caption);
+  dcut := strtoint(frmClist.Lcutlist.Selected.caption);
   cutlist.ReplaceCut(pos_from, pos_to, dCut);
 end;
 
@@ -1834,11 +2020,11 @@ procedure TFMain.EditCutExecute(Sender: TObject);
 var
   dcut: integer;
 begin
-  if self.Lcutlist.SelCount = 0 then begin
+  if frmClist.Lcutlist.SelCount = 0 then begin
     self.enable_del_buttons(false);
     exit;
   end;
-  dcut := strtoint(self.Lcutlist.Selected.caption);
+  dcut := strtoint(frmClist.Lcutlist.Selected.caption);
   pos_from := cutlist[dcut].pos_from;
   pos_to := cutlist[dcut].pos_to;
   refresh_times;
@@ -1846,11 +2032,11 @@ end;
 
 procedure TFMain.DeleteCutExecute(Sender: TObject);
 begin
-  if self.Lcutlist.SelCount = 0 then begin
+  if frmClist.Lcutlist.SelCount = 0 then begin
     self.enable_del_buttons(false);
     exit;
   end;
-  cutlist.DeleteCut(strtoint(self.Lcutlist.Selected.caption));
+  cutlist.DeleteCut(strtoint(frmClist.Lcutlist.Selected.caption));
 end;
 
 procedure TFMain.AShowFramesFormExecute(Sender: TObject);
@@ -1924,15 +2110,41 @@ begin
   try
     EnableMovieControls(false);
     self.AScanInterval.Enabled := false;
+    self.BtnScanToEnd.Enabled := false;
+
     Application.ProcessMessages;
 
     showframesabs(pos1, pos2, FFrames.Count);
   finally
     EnableMovieControls(true);
     self.AScanInterval.Enabled := true;
+    self.BtnScanToEnd.Enabled := true;
     self.Cursor := c;
   end;
 end;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 procedure TFMain.EditSettingsExecute(Sender: TObject);
 begin
@@ -2073,13 +2285,13 @@ begin
   end;
 end;
 
-procedure TFMain.RCutModeClick(Sender: TObject);
-begin
-  case self.RCutMode.ItemIndex of
-    0: cutlist.Mode := clmCutOut;
-    1: cutlist.Mode := clmCrop;
-  end;
-end;
+//procedure TFMain.RCutModeClick(Sender: TObject);
+//begin
+//  case self.RCutMode.ItemIndex of
+//    0: cutlist.Mode := clmCutOut;
+//    1: cutlist.Mode := clmCrop;
+//  end;
+//end;
 
 procedure TFMain.CutlistUploadExecute(Sender: TObject);
 var
@@ -2344,7 +2556,7 @@ begin
   end;
 end;
 
-procedure TFMain.AAsfbinInfoExecute(Sender: TObject);
+procedure TFMain.ShowCutlistWorkWindow(Sender: TObject);
 var
   info: string;
   CutApplication: TCutApplicationBase;
@@ -2821,7 +3033,8 @@ var
 begin
   NewPos := cutlist.NextCutPos(currentPosition + MovieInfo.frame_duration);
   if NewPos >= 0 then jumpTo(NewPos);
-end;
+  TrackMWheelFine.SetFocus;
+  end;
 
 procedure TFMain.APrevCutExecute(Sender: TObject);
 var
@@ -2829,6 +3042,7 @@ var
 begin
   NewPos := cutlist.PreviousCutPos(currentPosition - MovieInfo.frame_duration);
   if NewPos >= 0 then jumpTo(NewPos);
+  TrackMWheelFine.SetFocus;
 end;
 
 procedure TFMain.BFFMouseDown(Sender: TObject; Button: TMouseButton;
@@ -3532,6 +3746,9 @@ begin
     self.DownloadInfo(settings, true, false);
   if settings.NewSettingsCreated then
     EditSettings.Execute;
+// set to true after creation of form, for cutlist clear  HG
+ mainformLoaded := true;
+    
 end;
 
 function TFMain.DoHttpGet(const url: string; const handleRedirects: boolean; const Error_message: string; var Response: string): boolean;
@@ -3824,6 +4041,114 @@ begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+procedure TFMain.btnScanToEndMouseDown(Sender: TObject;
+  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+
+var
+//  i1, i2: integer;
+  pos1, pos2: double;
+  c: TCursor;
+
+
+begin
+  if not MovieInfo.MovieLoaded then
+    exit;
+
+
+pos1 := CurrentPosition;
+pos2 := MovieInfo.current_file_duration;
+
+
+if (GetKeyState(VK_SHIFT)<0) then begin
+
+pos2 := int(MovieInfo.current_file_duration - ((MovieInfo.current_file_duration - CurrentPosition) /2)) ;
+
+
+end;
+
+if (GetKeyState(VK_CONTROL)<0) then begin
+
+pos2 := int(MovieInfo.current_file_duration - (((MovieInfo.current_file_duration - CurrentPosition) /4)) * 3) ;
+
+
+end;
+
+
+
+
+
+
+  c := self.Cursor;
+  self.Cursor := crHourGlass;
+  try
+    EnableMovieControls(false);
+    self.AScanInterval.Enabled := false;
+    self.BtnScanToEnd.Enabled := false;
+    Application.ProcessMessages;
+
+    showframesabs(pos1, pos2, FFrames.Count);
+  finally
+    EnableMovieControls(true);
+    self.AScanInterval.Enabled := true;
+    self.BtnScanToEnd.Enabled := true;
+    self.Cursor := c;
+  end;
+
+
+
+end;
+
+procedure TFMain.btnShowCutlistClick(Sender: TObject);
+
+
+begin
+
+frmClist.show;
+end;
+
+
+
+
+
+
+
+procedure TFMain.Button1Click(Sender: TObject);
+begin
+ frmClist.Lcutlist.Clear;
+
+
+
+end;
+
+
+
+procedure TFMain.JvSpeedItem16Click(Sender: TObject);
+begin
+
+if frmClist.Visible  then
+begin
+frmClist.hide;
+end
+else
+begin
+frmClist.show;
+end ;
+
+
+
+
+end;
+
 initialization
 begin
   randomize;
@@ -3832,6 +4157,12 @@ begin
   //RegisterDSAMessage(1, 'CutlistRated', 'Cutlist rated');
   MovieInfo := TMovieInfo.Create;
   Cutlist := TCutList.Create(Settings, MovieInfo);
+
+      //HG
+    iActiveCut := -1  //reset active cut id
+    //*HG
+
+
 end;
 
 finalization

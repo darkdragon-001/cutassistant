@@ -67,6 +67,11 @@ type
     property Cut[iCut: Integer]:TCut read GetCut; default;
     function AddCut(pos_from, pos_to: double): boolean;
     function ReplaceCut(pos_from, pos_to: double; CutToReplace: integer): boolean;
+
+//HG
+    function GetCutNr(pos_curr: double): integer;
+//HG
+
     function DeleteCut(dCut: Integer): boolean;
     property Mode: TCutlistMode read FMode write SetMode;
 
@@ -138,6 +143,45 @@ begin
   self.sort;
   self.RefreshGUI;
 end;
+
+
+//HG
+//    function GetCutNr(pos_curr: double;): integer;
+function TCutlist.GetCutNr(pos_curr: double): integer;
+var
+ icut: integer;
+ ckcut: integer;
+
+
+ begin
+  ckcut:= -1;
+
+  for iCut := 0 to self.Count-1 do begin
+
+// suche ob position innerhalb eines cuts liegt
+  if (Cut[iCut].pos_to >= pos_curr) and (Cut[iCut].pos_from <= pos_curr) then begin
+    ckcut := iCut ;
+    break;
+  end else
+    ckcut :=  -1;
+  end;
+
+// -1 auuserhalb der cuts 0... nummer des cuts in dem die pos liegt
+  result := ckcut;
+
+  end;
+
+
+
+
+
+
+
+
+
+//>HG
+
+
 
 function TCutlist.ReplaceCut(pos_from, pos_to: double;
   CutToReplace: integer): boolean;
@@ -911,7 +955,11 @@ end;
 
 procedure TCutlist.SetRefreshCallBack(const Value: TCutlistCallBackMethod);
 begin
+
+
   FRefreshCallBack := Value;
+
+
 end;
 
 procedure TCutlist.SetSuggestedMovieName(const Value: string);

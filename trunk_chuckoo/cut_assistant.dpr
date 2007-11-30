@@ -4,6 +4,7 @@ program cut_assistant;
 {%File 'news.txt'}
 {%File 'license.txt'}
 {%File 'cut_assistant_info.xml'}
+{%File 'HG_todoList.txt'}
 
 uses
   madExcept,
@@ -39,7 +40,8 @@ uses
   DateTools in 'DateTools.pas',
   ULogging in 'ULogging.pas' {FLogging},
   UDSAStorage in 'UDSAStorage.pas',
-  UAbout in 'UAbout.pas' {AboutBox};
+  UAbout in 'UAbout.pas' {AboutBox},
+  UClist in 'UClist.pas' {frmClist};
 
 {$R *.res}
 const
@@ -73,6 +75,9 @@ begin
   Application.CreateForm(TfrmCutting, frmCutting);
   Application.CreateForm(TFLogging, FLogging);
   Application.CreateForm(TAboutBox, AboutBox);
+  Application.CreateForm(TfrmClist, frmClist);
+  // Application.CreateForm(TframeCutlist, frameCutlist);
+  Application.CreateForm(TfrmClist, frmClist);
   FFrames.MainForm := FMain;
 
   FileList := TStringList.Create;

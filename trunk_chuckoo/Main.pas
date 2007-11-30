@@ -20,7 +20,7 @@ uses
   CodecSettings, JvComponentBase, JvSimpleXml, JclSimpleXML, IdAntiFreezeBase,
   IdAntiFreeze, JvGIF, JvSpeedbar, JvExExtCtrls, JvExtComponent, JvExControls,
   JvXPCore, JvXPBar, ActnList, IdThreadComponent, JvBaseDlg,
-  JvProgressDialog;
+  JvProgressDialog, JvExStdCtrls, JvScrollBar;
 
 const
   //Registry Keys
@@ -32,50 +32,22 @@ const
 type
 
   TFMain = class(TForm{, ISampleGrabberCB})
-    BStop: TButton;
-    BPlayPause: TButton;
     Lcutlist: TListView;
-    BAddCut: TButton;
     BDeleteCut: TButton;
-    EFrom: TEdit;
-    EDuration: TEdit;
-    ETo: TEdit;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    BSetFrom: TButton;
-    BSetTo: TButton;
-    BFromStart: TButton;
-    BToEnd: TButton;
-    BJumpFrom: TButton;
-    BJumpTo: TButton;
     BReplaceCut: TButton;
     BEditCut: TButton;
     RCutMode: TRadioGroup;
-    BPrev12: TButton;
-    BStepBack: TButton;
-    BStepForwards: TButton;
     TVolume: TTrackBar;
     Label8: TLabel;
     CBMute: TCheckBox;
-    LPos: TLabel;
-    BNext12: TButton;
-    TFinePos: TtrackBarEx;
-    Label11: TLabel;
-    Label12: TLabel;
-    LDuration: TLabel;
     Bevel2: TBevel;
     Bevel3: TBevel;
     CutListOpenDialog: TOpenDialog;
     VideoWindow: TVideoWindow;
-    LFinePos: TLabel;
-    TBFilePos: TDSTrackBarEx;
     SampleGrabber1: TSampleGrabber;
     TeeFilter: TFilter;
     NullRenderer1: TFilter;
-    Label7: TLabel;
     PanelVideoWindow: TPanel;
-    B12FromTo: TButton;
     BConvert: TButton;
     OpenMovie: TAction;
     OpenCutlist: TAction;
@@ -121,11 +93,8 @@ type
     Label4: TLabel;
     LRate: TLabel;
     LTrueRate: TLabel;
-    BNextCut: TButton;
-    BPrevCut: TButton;
     ANextCut: TAction;
     APrevCut: TAction;
-    BFF: TButton;
     FilterGraph: TFilterGraph;
     AFullScreen: TAction;
     ACloseMovie: TAction;
@@ -240,6 +209,39 @@ type
     N14: TMenuItem;
     N15: TMenuItem;
     N16: TMenuItem;
+    TrackMWheelFine: TtrackBarEx;
+    pnlViewControl: TPanel;
+    BPrevCut: TButton;
+    BStepBack: TButton;
+    BPlayPause: TButton;
+    BFF: TButton;
+    BStop: TButton;
+    BNextCut: TButton;
+    BStepForwards: TButton;
+    TFinePos: TtrackBarEx;
+    Panel1: TPanel;
+    BPrev12: TButton;
+    B12FromTo: TButton;
+    BNext12: TButton;
+    LDuration: TLabel;
+    LPos: TLabel;
+    Label7: TLabel;
+    TBFilePos: TDSTrackBarEx;
+    Panel2: TPanel;
+    pnlCutFrom: TPanel;
+    BSetFrom: TButton;
+    BJumpFrom: TButton;
+    BFromStart: TButton;
+    EFrom: TEdit;
+    pnlCutTo: TPanel;
+    BSetTo: TButton;
+    BJumpTo: TButton;
+    BToEnd: TButton;
+    ETo: TEdit;
+    pnlCutAdd: TPanel;
+    Label2: TLabel;
+    BAddCut: TButton;
+    EDuration: TEdit;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -352,6 +354,7 @@ type
       const AWorkCount: Integer);
     procedure AStopExecute(Sender: TObject);
     procedure APlayPauseExecute(Sender: TObject);
+    procedure TrackMWheelFineChange(Sender: TObject);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -432,7 +435,9 @@ var
   pos_to, pos_from: double;
   vol_temp: integer;
   last_pos: double;
-
+//HG
+  IlastPos: longint;
+//*HG
 
   //Batch flags
   exit_after_commandline, TryCutting: boolean;
@@ -484,11 +489,14 @@ end;
 procedure TFMain.BSetFromClick(Sender: TObject);
 begin
   SetStartPosition(CurrentPosition);
+  self.pnlCutFrom.Color := clSkyBlue
 end;
 
 procedure TFMain.BSetToClick(Sender: TObject);
 begin
   SetStopPosition(CurrentPosition);
+       self.pnlCutTo.Color := clSkyBlue
+
 end;
 
 procedure TFMain.refresh_times;
@@ -498,9 +506,12 @@ begin
   if pos_to >= pos_from then begin
     self.EDuration.Text := MovieInfo.FormatPosition(pos_to-pos_from);
     self.AddCut.Enabled := true;
+    self.pnlCutAdd.Color := clYellow;
+
   end else begin
     self.EDuration.Text := '';
     self.AddCut.Enabled := false;
+    self.pnlCutAdd.Color := clGradientInactiveCaption;
   end;
 end;
 
@@ -1186,9 +1197,14 @@ procedure TFMain.TBFilePosChange(Sender: TObject);
 begin
   if self.TBFilePos.IsMouseDown then begin
       self.LPos.Caption := IntToStr(Trunc(self.TBFilePos.position / MovieInfo.frame_duration)) + ' / '
-                         + MovieInfo.FormatPosition(self.TBFilePos.position);
-  end;
-//  else self.LPos.Caption := FormatPosition(currentPosition);
+                         + MovieInfo.FormatPosition(self.TBFilePos.position)//;
+  end
+ // else
+ // begin
+ //    self.LPos.Caption := IntToStr(Trunc(self.TBFilePos.position / MovieInfo.frame_duration)) + ' / '
+ //                        + MovieInfo.FormatPosition(self.TBFilePos.position)//;
+ // end
+  //self.LPos.Caption := FormatPosition(currentPosition);
 end;
 
 procedure TFMain.FilterGraphGraphStepComplete(Sender: TObject);
@@ -1205,11 +1221,43 @@ begin
   MEdiaEvent.WaitForCompletion(500, event);
   self.LPos.Caption := IntToStr(Trunc(currentPosition / MovieInfo.frame_duration)) + ' / '
                      + MovieInfo.FormatPosition(currentPosition);
+
+//HG
+  TrackMWheelFine.SetFocus;
+//HG
+
 end;
 
 procedure TFMain.TFinePosChange(Sender: TObject);
 begin
-  self.LFinePos.Caption := inttostr(self.TFinePos.Position);
+
+
+ // self.LFinePos.Caption := inttostr(self.TFinePos.Position);
+
+
+ if (self.TFinePos.Position = 0 ) then begin
+ //self.lblFinePosBack.Caption := '<' ;
+ //self.lblFinePosForward.Caption := '>' ;
+ self.BStepBack.Caption := 'II<' ;
+// self.TFinePos.PageSize := 5;
+
+ self.BStepForwards.Caption  := '>II' ;
+ end else
+
+ if      (self.TFinePos.Position < 0 ) then begin
+ //self.lblFinePosBack.Caption := inttostr(self.TFinePos.Position * -1) ;
+ self.BStepBack.Caption := inttostr(self.TFinePos.Position * -1) ;
+ self.TFinePos.PageSize := self.TFinePos.Position;
+
+ end else
+ begin
+ //self.lblFinePosForward.Caption := inttostr(self.TFinePos.Position) ;
+ self.BStepForwards.Caption := inttostr(self.TFinePos.Position) ;
+ self.TFinePos.PageSize := self.TFinePos.Position;
+
+ end ;
+
+
 end;
 
 procedure TFMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -1238,7 +1286,7 @@ begin
 
   if not FilterGraph.Active then exit;
 
-  TeeFilter.FilterGraph := Filtergraph;
+  TeeFilter.FilterGraph := filtergraph;
   SampleGrabber1.FilterGraph := filtergraph;
   NullRenderer1.FilterGraph := filtergraph;
 
@@ -1260,6 +1308,7 @@ begin
     OleCheck((FilterGraph as IGraphBuilder).Connect(Spin,Tinpin));  // Decomp. to Tee
     OleCheck((FilterGraph as IGraphBuilder).Connect(Toutpin1,Rpin)); //Tee to VideoRenderer
     OleCheck(GetPin((TeeFilter as IBaseFilter), PINDIR_OUTPUT, 1, TOutpin2)); //GEt new OutputPin of Tee
+//    OleCheck(GetPin((TeeFilter as IBaseFilter), PINDIR_OUTPUT, 1, TOutpin2)); //GEt new OutputPin of Tee
     OleCheck((FilterGraph as IGraphBuilder).Connect(Toutpin2,SGInpin)); //Tee to SampleGrabber
     OleCheck((FilterGraph as IGraphBuilder).Connect(SGoutpin,NRInpin));  //SampleGrabber to Null
 
@@ -1762,6 +1811,10 @@ begin
     pos_from := 0;
     pos_to := 0;
     refresh_times;
+    self.pnlCutAdd.Color := clGradientInactiveCaption;
+    self.AddCut.Enabled := false;
+    self.pnlCutFrom.Color := clGradientInactiveCaption;
+    self.pnlCutTo.Color := clGradientInactiveCaption;
   end;
 end;
 
@@ -2104,6 +2157,13 @@ begin
         Key := 0;
       end;
   end;
+
+//HG
+  TrackMWheelFine.SetFocus;
+//HG
+
+
+
 end;
 
 procedure TFMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -3692,7 +3752,77 @@ end;
 procedure TFMain.APlayPauseExecute(Sender: TObject);
 begin
   GraphPlayPause;
-end;
+//HG
+  TrackMWheelFine.SetFocus;
+  TFinePos.PageSize := 10;
+//HG
+  end;
+
+procedure TFMain.TrackMWheelFineChange(Sender: TObject);
+
+var
+  timeToSkip: double;
+  skipframes: integer;
+  begin
+
+  skipframes := 1 ;
+
+  if (GetKeyState(VK_SHIFT)<0) then begin
+
+  skipframes := 5 ;
+
+  end;
+
+
+//  lblTest1.caption :=   Format('%10d',[IlastPos]);
+
+
+
+  if  (IlastPos > TrackMWheelFine.Position) then
+  begin
+  if not (FilterGraph.State = gsPaused) then GraphPause;
+  if assigned(FrameStep) then begin
+    if Settings.AutoMuteOnSeek and not CBMute.Checked then
+      FilterGraph.Volume := 0;
+
+          timeToSkip := MovieInfo.frame_duration * skipframes ;
+
+  JumpTo(currentPosition + timeToSkip);
+
+
+ //   TBFilePos.TriggerTimer;
+  //  if Settings.AutoMuteOnSeek and not CBMute.Checked then
+  //    FilterGraph.Volume := TVolume.Position;
+
+
+  end else
+  begin
+    self.AStepForward.Enabled := false;
+  end
+
+
+  end
+
+
+  else
+
+begin
+  if not (FilterGraph.State = gsPaused) then GraphPause;
+
+
+    timeToSkip := MovieInfo.frame_duration * skipframes ;
+
+  JumpTo(currentPosition - timeToSkip);
+
+  end;
+
+  IlastPos := longint(TrackMWheelFine.Position);
+
+
+  end;
+
+
+
 
 initialization
 begin

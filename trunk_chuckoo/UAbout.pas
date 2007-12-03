@@ -35,7 +35,7 @@ USES Utils;
 
 PROCEDURE TAboutBox.FormCreate(Sender: TObject);
 BEGIN
-  Version.Caption := 'Version ' + Get_File_Version(Application.ExeName);
+  Version.Caption := 'Version ' + Application_version;
 END;
 
 END.

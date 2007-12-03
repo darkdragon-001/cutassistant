@@ -4,7 +4,7 @@ object AboutBox: TAboutBox
   BorderStyle = bsDialog
   Caption = 'Info'
   ClientHeight = 219
-  ClientWidth = 443
+  ClientWidth = 496
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
@@ -16,14 +16,14 @@ object AboutBox: TAboutBox
   Position = poOwnerFormCenter
   OnCreate = FormCreate
   DesignSize = (
-    443
+    496
     219)
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
     Left = 8
     Top = 8
-    Width = 426
+    Width = 479
     Height = 172
     Anchors = [akLeft, akTop, akRight, akBottom]
     BevelInner = bvRaised
@@ -31,7 +31,7 @@ object AboutBox: TAboutBox
     ParentColor = True
     TabOrder = 0
     DesignSize = (
-      426
+      479
       172)
     object ProgramIcon: TImage
       Left = 8
@@ -447,9 +447,9 @@ object AboutBox: TAboutBox
     object Version: TLabel
       Left = 88
       Top = 40
-      Width = 86
+      Width = 144
       Height = 16
-      Caption = 'Version 0.0.0.0'
+      Caption = 'Version 0.0.0.0_chuckoo'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -462,9 +462,9 @@ object AboutBox: TAboutBox
     object Copyright: TLabel
       Left = 8
       Top = 80
-      Width = 113
+      Width = 170
       Height = 16
-      Caption = 'Author: 1248, a_s_z'
+      Caption = 'Author: 1248, a_s_z, chuckoo'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -475,21 +475,21 @@ object AboutBox: TAboutBox
       IsControl = True
     end
     object JvPoweredByJCL1: TJvPoweredByJCL
-      Left = 206
+      Left = 259
       Top = 8
       Width = 213
       Anchors = [akTop, akRight]
       URL = 'http://homepages.borland.com/jedi/jcl/'
     end
     object JvPoweredByJVCL1: TJvPoweredByJVCL
-      Left = 206
+      Left = 259
       Top = 48
       Width = 211
       Anchors = [akTop, akRight]
       URL = 'http://homepages.borland.com/jedi/jvcl/PoweredByJVCL.htm'
     end
     object Image1: TImage
-      Left = 206
+      Left = 259
       Top = 88
       Width = 209
       Height = 49
@@ -680,7 +680,7 @@ object AboutBox: TAboutBox
       Proportional = True
     end
     object Label1: TLabel
-      Left = 206
+      Left = 259
       Top = 144
       Width = 173
       Height = 16
@@ -696,7 +696,7 @@ object AboutBox: TAboutBox
     end
   end
   object OKButton: TButton
-    Left = 359
+    Left = 412
     Top = 187
     Width = 75
     Height = 25

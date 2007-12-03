@@ -776,7 +776,7 @@ END;
 
 FUNCTION Application_version: STRING;
 BEGIN
-  Result := Get_File_Version(Application.ExeName);
+  Result := Get_File_Version(Application.ExeName) + '_chuckoo';
 END;
 
 FUNCTION Application_Dir: STRING;

@@ -1,0 +1,9 @@
+03.12.07
+
+Cleanup of Cutlist Work Frame
+CLEAR CUTLIST button now really clears the cutlist, not only the table content.
+( not sure if we should once add a warning ...do you really ... )
+
+Added an Option in settings NO Notify on Cutlist...  to save mouseclicks (avoid popups ) when saving/loading of cutlist succeeds.
+
+

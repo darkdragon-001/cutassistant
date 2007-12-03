@@ -140,6 +140,7 @@ TYPE
     Label39: TLabel;
     cbxSourceFilterListHQAVI: TComboBox;
     cbAutoMode: TCheckBox;
+    cbNotifyOnSave: TCheckBox;
 
     PROCEDURE BCutMovieSaveDirClick(Sender: TObject);
     PROCEDURE BCutlistSaveDirClick(Sender: TObject);
@@ -157,7 +158,7 @@ TYPE
     PROCEDURE btnCodecAboutClick(Sender: TObject);
     PROCEDURE cbCutAppChange(Sender: TObject);
     PROCEDURE cbxSourceFilterListChange(Sender: TObject);
-//    procedure RCutModeClick(Sender: TObject);
+
   PRIVATE
     { Private declarations }
     HQAviAppSettings, AviAppSettings, WmvAppSettings, MP4AppSettings, OtherAppSettings: RCutAppSettings;
@@ -210,6 +211,7 @@ TYPE
     UseMovieNameSuggestion: boolean;
     DefaultCutMode: integer;
     DefaultAutoMode: Boolean;
+    NotifyOnSave: Boolean;
     SmallSkipTime, LargeSkipTime: integer;
     NetTimeout: integer;
     AutoMuteOnSeek: boolean;
@@ -434,6 +436,8 @@ BEGIN
   Fsettings.CutlistAutoSaveBeforeCutting.Checked := CutlistAutoSaveBeforeCutting;
   Fsettings.RCutMode.ItemIndex := DefaultCutMode;
   Fsettings.cbAutoMode.checked := DefaultAutoMode;
+  Fsettings.cbNotifyOnSave.checked := NotifyOnSave;
+
 
   FSettings.edtSmallSkip.Text := IntToStr(SmallSkipTime);
   FSettings.edtLargeSkip.Text := IntToStr(LargeSkipTime);
@@ -525,7 +529,7 @@ BEGIN
 
       DefaultCutMode := Fsettings.RCutMode.ItemIndex;
       DefaultAutoMode := Fsettings.cbAutomode.checked;
-
+      NotifyOnSave := Fsettings.cbNotifyOnSave.checked;
       self.url_cutlists_home := Fsettings.EURL_Cutlist_Home.Text;
       self.url_info_file := Fsettings.EURL_Info_File.Text;
       self.url_cutlists_upload := Fsettings.EURL_Cutlist_Upload.Text;
@@ -729,6 +733,7 @@ BEGIN
     self.InfoShowBeta := ini.ReadBool(section, 'InfoShowBeta', false);
     self.DefaultCutMode := ini.ReadInteger(section, 'DefaultCutMode', integer(clmCrop));
     self.DefaultAutoMode := ini.ReadBool(section, 'DefaultAutoMode', false);
+    self.NotifyOnSave := ini.ReadBool(section, 'NotifyOnSave', false);
     self.SmallSkipTime := ini.ReadInteger(section, 'SmallSkipTime', 2);
     self.LargeSkipTime := ini.ReadInteger(section, 'LargeSkipTime', 25);
     self.AutoMuteOnSeek := ini.ReadBool(section, 'AutoMuteOnSeek', false);
@@ -844,6 +849,7 @@ BEGIN
     ini.WriteBool(section, 'InfoShowStable', self.InfoShowStable);
     ini.WriteInteger(section, 'DefaultCutMode', self.DefaultCutMode);
     ini.WriteBool(section, 'DefaultAutoMode', self.DefaultAutoMode);
+    ini.WriteBool(section, 'NotifyOnSave', self.NotifyOnSave);
     ini.WriteInteger(section, 'SmallSkipTime', self.SmallSkipTime);
     ini.WriteInteger(section, 'LargeSkipTime', self.LargeSkipTime);
     ini.WriteBool(section, 'AutoMuteOnSeek', self.AutoMuteOnSeek);
@@ -1363,6 +1369,8 @@ BEGIN
     CutAppSettings.PreferredSourceFilter := GUID_NULL;
   SetCutAppSettings(MovieType, CutAppSettings);
 END;
+
+
 
 
 INITIALIZATION

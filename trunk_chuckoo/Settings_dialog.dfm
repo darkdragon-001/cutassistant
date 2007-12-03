@@ -164,7 +164,7 @@ object FSettings: TFSettings
         Left = 185
         Top = 5
         Width = 653
-        Height = 21
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
       end
@@ -172,7 +172,7 @@ object FSettings: TFSettings
         Left = 185
         Top = 46
         Width = 653
-        Height = 21
+        Height = 28
         Anchors = [akLeft, akTop, akRight]
         Color = clBtnFace
         ReadOnly = True
@@ -290,6 +290,19 @@ object FSettings: TFSettings
         Height = 26
         Caption = 'Automatic Add Mode'
         TabOrder = 10
+      end
+      object cbNotifyOnSave: TCheckBox
+        Left = 337
+        Top = 249
+        Width = 240
+        Height = 26
+        Hint = 
+          'If checked successful operations on Cutlist SAVE or LOAD will no' +
+          't show a confirmation Window'
+        Caption = 'NO Notify on Cutlist Fileops'
+        ParentShowHint = False
+        ShowHint = True
+        TabOrder = 11
       end
     end
     object TabSaveMovie: TTabSheet
@@ -780,7 +793,7 @@ object FSettings: TFSettings
         Left = 483
         Top = 243
         Width = 100
-        Height = 25
+        Height = 28
         CheckMinValue = True
         Alignment = taRightJustify
         ButtonKind = bkStandard

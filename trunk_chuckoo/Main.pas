@@ -507,15 +507,8 @@ PROCEDURE TFMain.BSetFromClick(Sender: TObject);
 BEGIN
   SetStartPosition(CurrentPosition);
   // HG
-
   iActiveCut := cutlist.GetCutNr(CurrentPosition);
-
-
-  //label3.Caption := inttostr(iActiveCut);
-
   self.pnlCutFrom.Color := clSkyBlue;
-
-
 
   //do no try this when there is no cut begin set, this may cause errors unneeded
   IF (cbSclickMode.checked = true) AND (pos_from > 0) AND (pos_from < pos_to) THEN BEGIN
@@ -534,19 +527,7 @@ BEGIN
   SetStopPosition(CurrentPosition);
 
   // HG
-
   iActiveCut := cutlist.GetCutNr(CurrentPosition);
-
-
-  //label3.Caption := inttostr(iActiveCut);
-
-
-//iActiveCut := cutlist.GetCutNr(pos_from);
-
-
-//         label1.Caption := inttostr(iActiveCut);
-
-
   self.pnlCutTo.Color := clSkyBlue;
   //do no try this when there is no cut begin set, this may cause errors unneeded
   IF (cbSclickMode.checked = true) AND (AddCut.Enabled = true) AND (pos_from > 0) THEN BEGIN
@@ -636,7 +617,7 @@ BEGIN
   // only clear cutlist, if the main form is already created, otherwise we crash
 
   setCutlistMode(settings.DefaultCutMode);
-      self.cbSclickMode.checked := settings.DefaultAutoMode;
+  self.cbSclickMode.checked := settings.DefaultAutoMode;
 
 
   IF mainformLoaded = true THEN BEGIN
@@ -2499,7 +2480,9 @@ PROCEDURE TFMain.ASaveCutlistExecute(Sender: TObject);
 BEGIN
   IF cutlist.Save(false) THEN
     IF NOT batchmode THEN
+      if NOT settings.NotifyOnSave then
       showmessage('Cutlist saved successfully to' + #13#10 + cutlist.SavedToFilename);
+      
 END;
 
 PROCEDURE TFMain.ACalculateResultingTimesExecute(Sender: TObject);

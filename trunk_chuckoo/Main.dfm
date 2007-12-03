@@ -52,7 +52,7 @@ object FMain: TFMain
     object VideoWindow: TVideoWindow
       Left = 2
       Top = 5
-      Width = 640
+      Width = 815
       Height = 552
       FilterGraph = FilterGraph
       VMROptions.Mode = vmrWindowless

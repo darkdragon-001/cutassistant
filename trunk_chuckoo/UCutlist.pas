@@ -680,6 +680,7 @@ BEGIN
   self.SavedToFilename := filename;
   result := true;
   IF NOT batchmode THEN BEGIN
+     IF not FSettings.NotifyOnSave then
     showmessage(inttostr(self.Count) + ' of ' + inttostr(cCuts) + ' Cuts loaded.');
   END;
   self.RefreshGUI;

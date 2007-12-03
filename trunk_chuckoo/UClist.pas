@@ -84,9 +84,10 @@ BEGIN
 END;
 
 PROCEDURE TfrmClist.BClearCutlistClick(Sender: TObject);
+
 BEGIN
   frmClist.Lcutlist.Clear;
-
+  cutlist.init;
 
 
 END;

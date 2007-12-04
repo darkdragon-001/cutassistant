@@ -1,38 +1,38 @@
 object frmClist: TfrmClist
-  Left = 469
-  Top = 186
-  Width = 804
-  Height = 624
+  Left = 233
+  Top = 236
+  Width = 520
+  Height = 411
   Caption = 'Cutlist'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
-  Font.Height = -17
+  Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = False
   DesignSize = (
-    794
-    586)
-  PixelsPerInch = 144
-  TextHeight = 20
+    512
+    384)
+  PixelsPerInch = 96
+  TextHeight = 13
   object Lcutlist: TListView
     Left = 0
-    Top = 52
-    Width = 385
-    Height = 528
+    Top = 34
+    Width = 250
+    Height = 343
     Columns = <
       item
         Caption = '#'
-        Width = 46
+        Width = 30
       end
       item
         Caption = 'From'
-        Width = 108
+        Width = 70
       end
       item
         Caption = 'To'
-        Width = 108
+        Width = 70
       end
       item
         AutoSize = True
@@ -51,18 +51,18 @@ object frmClist: TfrmClist
     ViewStyle = vsReport
   end
   object PAuthor: TPanel
-    Left = -2
-    Top = 2
-    Width = 387
-    Height = 50
+    Left = -1
+    Top = 1
+    Width = 251
+    Height = 33
     BevelInner = bvLowered
     TabOrder = 1
     Visible = False
     object LAuthor: TLabel
       Left = 2
       Top = 2
-      Width = 383
-      Height = 46
+      Width = 247
+      Height = 29
       Align = alClient
       Alignment = taCenter
       AutoSize = False
@@ -70,7 +70,7 @@ object frmClist: TfrmClist
       Color = clNone
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clNavy
-      Font.Height = -24
+      Font.Height = -16
       Font.Name = 'Microsoft Sans Serif'
       Font.Pitch = fpVariable
       Font.Style = []
@@ -81,76 +81,76 @@ object frmClist: TfrmClist
     end
   end
   object Panel4: TPanel
-    Left = 385
-    Top = -24
-    Width = 408
-    Height = 605
-    Anchors = [akTop, akRight]
+    Left = 250
+    Top = 0
+    Width = 266
+    Height = 377
+    Anchors = [akLeft, akTop, akRight]
     BevelOuter = bvLowered
     ParentBackground = False
     TabOrder = 2
     object LResultingDuration: TLabel
-      Left = 10
-      Top = 25
-      Width = 302
-      Height = 22
+      Left = -4
+      Top = 16
+      Width = 207
+      Height = 15
       Alignment = taRightJustify
       Caption = 'Resulting movie duration: 0:00:00.000'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clGreen
-      Font.Height = -18
+      Font.Height = -12
       Font.Name = 'Microsoft Sans Serif'
       Font.Pitch = fpVariable
       Font.Style = []
       ParentFont = False
     end
     object LTotalCutoff: TLabel
-      Left = 10
-      Top = 52
-      Width = 195
-      Height = 22
+      Left = 3
+      Top = 34
+      Width = 130
+      Height = 15
       Alignment = taRightJustify
       Caption = 'Total cutoff: 0:00:00.000'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clRed
-      Font.Height = -18
+      Font.Height = -12
       Font.Name = 'Microsoft Sans Serif'
       Font.Pitch = fpVariable
       Font.Style = []
       ParentFont = False
     end
     object lblCutApplication: TLabel
-      Left = 7
-      Top = 99
-      Width = 187
-      Height = 20
+      Left = 5
+      Top = 64
+      Width = 121
+      Height = 13
       Alignment = taCenter
       AutoSize = False
       Caption = 'N/A'
     end
     object lblMovieType: TLabel
-      Left = 8
-      Top = 146
-      Width = 185
-      Height = 20
+      Left = 5
+      Top = 95
+      Width = 120
+      Height = 13
       Alignment = taCenter
       AutoSize = False
       Caption = '[None]'
     end
     object lblMovieFPS: TLabel
-      Left = 213
-      Top = 55
-      Width = 184
-      Height = 20
+      Left = 138
+      Top = 36
+      Width = 120
+      Height = 13
       Alignment = taCenter
       AutoSize = False
       Caption = '0.00000 fps (F)'
     end
     object ICutlistWarning: TImage
-      Left = 324
-      Top = 179
-      Width = 44
-      Height = 43
+      Left = 211
+      Top = 116
+      Width = 28
+      Height = 28
       Picture.Data = {
         0B544A76474946496D6167651804000047494638396124002300F70000FFFF00
         7F7F00808003EEEEEED2D2D2BFBFBF7F7F7F0303030000000000000000000000
@@ -190,10 +190,10 @@ object frmClist: TfrmClist
       Transparent = True
     end
     object BReplaceCut: TButton
-      Left = 7
-      Top = 231
-      Width = 171
-      Height = 31
+      Left = 5
+      Top = 150
+      Width = 111
+      Height = 20
       Caption = 'Replace Selected Cut'
       ParentShowHint = False
       ShowHint = True
@@ -201,10 +201,10 @@ object frmClist: TfrmClist
       OnClick = BReplaceCutClick
     end
     object BEditCut: TButton
-      Left = 6
-      Top = 276
-      Width = 171
-      Height = 31
+      Left = 4
+      Top = 179
+      Width = 111
+      Height = 21
       Caption = 'Edit Selected Cut'
       ParentShowHint = False
       ShowHint = True
@@ -212,10 +212,10 @@ object frmClist: TfrmClist
       OnClick = BEditCutClick
     end
     object BDeleteCut: TButton
-      Left = 6
-      Top = 323
-      Width = 171
-      Height = 31
+      Left = 4
+      Top = 210
+      Width = 111
+      Height = 20
       Caption = 'Delete Selected Cut'
       ParentShowHint = False
       ShowHint = True
@@ -223,10 +223,10 @@ object frmClist: TfrmClist
       OnClick = BDeleteCutClick
     end
     object BClearCutlist: TButton
-      Left = 6
-      Top = 367
-      Width = 171
-      Height = 31
+      Left = 4
+      Top = 239
+      Width = 111
+      Height = 20
       Caption = 'Clear Cutlist'
       ParentShowHint = False
       ShowHint = True
@@ -234,28 +234,28 @@ object frmClist: TfrmClist
       OnClick = BClearCutlistClick
     end
     object BConvert: TButton
-      Left = 200
-      Top = 174
-      Width = 73
-      Height = 40
+      Left = 130
+      Top = 113
+      Width = 47
+      Height = 26
       Caption = 'Convert'
       TabOrder = 4
       OnClick = BConvertClick
     end
     object BCutlistInfo: TBitBtn
-      Left = 13
-      Top = 559
-      Width = 117
-      Height = 31
+      Left = 8
+      Top = 347
+      Width = 77
+      Height = 21
       Caption = 'Cutlist &Info'
       TabOrder = 5
       OnClick = BCutlistInfoClick
     end
     object RCutMode: TRadioGroup
-      Left = 197
-      Top = 79
-      Width = 188
-      Height = 91
+      Left = 128
+      Top = 51
+      Width = 122
+      Height = 60
       Hint = 
         'Cut out: New file is everything except cuts. Crop: NEw file is s' +
         'um of cuts.'

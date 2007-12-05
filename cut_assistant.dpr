@@ -7,6 +7,7 @@ program cut_assistant;
 
 uses
   madExcept,
+  uFreeLocalizer,
   SysUtils,
   PBOnceOnly in 'lib\PBOnceOnly.pas',
   Forms,
@@ -61,6 +62,14 @@ begin
 
   Application.Initialize;
   Application.Title := 'Cut Assistant';
+
+  FreeLocalizer.ErrorProcessing := epErrors;
+  FreeLocalizer.AutoTranslate := True;
+  FreeLocalizer.LanguageFile := ChangeFileExt(Application.ExeName, '.lng');
+
+  if FreeLocalizer.Errors <> '' then
+    Application.MessageBox(pChar(FreeLocalizer.Errors), 'Localizer Errors');
+
   Application.CreateForm(TFMain, FMain);
   Application.CreateForm(TFSettings, FSettings);
   Application.CreateForm(TfrmMemoDialog, frmMemoDialog);
@@ -75,6 +84,9 @@ begin
   Application.CreateForm(TFLogging, FLogging);
   Application.CreateForm(TAboutBox, AboutBox);
   FFrames.MainForm := FMain;
+
+  if FreeLocalizer.Errors <> '' then
+    Application.MessageBox(pChar(FreeLocalizer.Errors), 'Localizer Errors');
 
   FileList := TStringList.Create;
   for iParam := 1 to ParamCount do begin

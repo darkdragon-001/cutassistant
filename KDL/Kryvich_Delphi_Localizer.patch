@@ -1,0 +1,153 @@
+diff -u Kryvich_Delphi_Localizer.orig/kdlscan.ini Kryvich_Delphi_Localizer/kdlscan.ini
+--- Kryvich_Delphi_Localizer.orig/kdlscan.ini	2007-09-20 12:50:00.000000000 +0200
++++ Kryvich_Delphi_Localizer/kdlscan.ini	2007-11-02 22:48:23.390625000 +0100
+@@ -16,7 +16,7 @@
+ SkipComponents=TDatabase
+ 
+ ; Skip resource strings in given units (comma separated list)
+-SkipUnits=Consts,HelpIntfs,RTLConsts,SysConst,ComConst,VDBConsts,DBConsts,ComStrs,WinHelpViewer,OleConst,ExtCtrls,MidConst,JvResources
++SkipUnits=Consts,HelpIntfs,RTLConsts,SysConst,ComConst,VDBConsts,DBConsts,ComStrs,WinHelpViewer,OleConst,ExtCtrls,MidConst,JvResources,JclResources,JConsts
+ 
+ ; Use Humanize option to "humanize" processed strings, i.e. to make
+ ; strings more suitable for a viewing and a manually editing.
+diff -u Kryvich_Delphi_Localizer.orig/uFreeLocalizer.pas Kryvich_Delphi_Localizer/uFreeLocalizer.pas
+--- Kryvich_Delphi_Localizer.orig/uFreeLocalizer.pas	2007-09-20 12:50:00.000000000 +0200
++++ Kryvich_Delphi_Localizer/uFreeLocalizer.pas	2007-11-05 23:30:52.000000000 +0100
+@@ -20,7 +20,9 @@
+   TErrorProcessing = (
+     epSilent,  // Just skip errors (default) - use for public releases
+     epMessage, // Show message to a user - use for a beta testing
+-    epException // Raise exception - use while develop and debug
++    epException, // Raise exception - use while develop and debug
++    epDebug,    // Use DebugOutputString
++    epErrors   // Append all messages to a string list
+   );
+ 
+   // Translated form properties
+@@ -50,6 +52,7 @@
+ 
+   TFreeLocalizer = class
+   private
++    fErrors: TStrings;
+     fLanguageFile: string; // Loaded language file
+     ResForms: array of TResForm; // List of all localized forms
+     fAutoTranslate: boolean;
+@@ -76,6 +79,7 @@
+     procedure Error(const Mess: string);
+     // Translate component (form) as component of class CompClassType
+     procedure TranslateAs(Comp: TComponent; const CompClassType: TClass);
++    function GetErrors: string;
+   public
+     LanguageDir: string; // Directory with language files (optional)
+     ErrorProcessing: TErrorProcessing;
+@@ -99,6 +103,8 @@
+     // Do here necessary operations such as calling TranslateScreen (if AutoTranslate disabled)
+     // and updating of controls state
+     property AfterLanguageLoad: TAfterLanguageLoadEvent read fAfterLanguageLoadEvent write fAfterLanguageLoadEvent;
++    property Errors: string read GetErrors;
++    procedure ClearErrors;
+   end;
+ 
+ var
+@@ -159,6 +165,23 @@
+   end else result := System.LoadResString(ResStringRec);
+ end;
+ 
++type
++  EKdlError = class (Exception)
++    constructor Create(AMessage: string);
++  end;
++  EKdlSilentError = class (EKdlError)
++    constructor Create();
++  end;
++
++constructor EKdlError.Create(AMessage: string);
++begin
++  inherited Create(AMessage);
++end;
++constructor EKdlSilentError.Create;
++begin
++  inherited Create('');
++end;
++
+ { TResStringer }
+ 
+ constructor TResStringer.Create;
+@@ -278,6 +301,7 @@
+ 
+ constructor TFreeLocalizer.Create;
+ begin
++  fErrors := TStringList.Create;
+   ResStringer := TResStringer.Create;
+ end;
+ 
+@@ -286,14 +310,27 @@
+   SetAutoTranslate(False);
+   ResStringer.Free;
+   ClearResForms;
++  fErrors.Free;
+   inherited;
+ end;
+ 
++function TFreeLocalizer.GetErrors: string;
++begin
++  Result := fErrors.Text;
++end;
++
++procedure TFreeLocalizer.ClearErrors;
++begin
++  fErrors.Clear;
++end;
++
+ procedure TFreeLocalizer.Error(const Mess: string);
+ begin
+   case ErrorProcessing of
+     epMessage: Application.MessageBox(pChar(Mess), 'K.D.L. Error', MB_ICONERROR+MB_OK+MB_DEFBUTTON1+MB_APPLMODAL);
+-    epException: raise Exception.Create(Mess);
++    epException: raise EKdlError.Create(Mess);
++    epDebug: OutputDebugString(pChar(Mess));
++    epErrors: fErrors.Append(Mess);
+   end;
+ end;
+ 
+@@ -357,7 +394,7 @@
+   if AnsiCP = 0 then
+     AnsiCP := 1250;
+   if AnsiCP = 65001 then
+-    raise Exception.Create('K.D.L. initialization error.'#13#10+
++    raise EKdlError.Create('K.D.L. initialization error.'#13#10+
+       'Please put uFreeLocalizer before UTF8VCL in an uses clause of Application');
+ 
+   if Assigned(fBeforeLanguageLoadEvent) then
+@@ -535,7 +572,7 @@
+         {$else}
+           SetPropValue(Obj, PropInfo, PropValue)
+         {$endif}
+-      else raise Exception.Create('');
++      else raise EKdlSilentError.Create();
+     end;
+   end;
+ 
+@@ -606,15 +643,16 @@
+     end;
+ 
+     // yet untranslated...
+-    raise Exception.Create('');
++    raise EKdlSilentError.Create();
+ 
+   except
++    on E: EKdlSilentError do begin
++      s := 'Unknown property "%s" found in component "%s".'#13#10 +
++           'Remove it from language file';
++      Error(Format(s, [PropName, RootComp.Name]));
++    end;
+     on E: Exception do begin
+-      if E.Message <> '' then
+-        s := 'Translation error of property "%s" in component "%s"'#13#10 + E.Message
+-      else
+-        s := 'Unknown property "%s" found in component "%s".'#13#10 +
+-          'Remove it from language file';
++      s := 'Translation error of property "%s" in component "%s"'#13#10 + E.Message;
+       Error(Format(s, [PropName, RootComp.Name]));
+     end;
+   end;

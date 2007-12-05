@@ -13,11 +13,17 @@ type
 
   Tcut = class
   private
+    Fpos_from, Fpos_to: double;
+    Fframe_from, Fframe_to: integer;
   public
-    index: integer;
-    pos_from, pos_to: double;
-    frame_from, frame_to: integer;
+    constructor Create(pos_from, pos_to: double); overload;
+    constructor Create(pos_from, pos_to: double; frame_from, frame_to: integer); overload;
+    property pos_from: double read Fpos_from write Fpos_from;
+    property pos_to: double read Fpos_to write Fpos_to;
+    property frame_from: integer read Fframe_from write Fframe_from;
+    property frame_to: integer read Fframe_to write Fframe_to;
     function DurationFrames: integer;
+    class function Compare(const Item1, Item2: TCut): Integer;
   end;
 
   TCutlistMode = (clmCutOut, clmCrop);
@@ -65,8 +71,10 @@ type
     property RefreshCallBack: TCutlistCallBackMethod read FRefreshCallBack write SetRefreshCallBack;
     procedure RefreshGUI;
     property Cut[iCut: Integer]:TCut read GetCut; default;
+    function FindCut(fPos: double): integer;
     function AddCut(pos_from, pos_to: double): boolean;
     function ReplaceCut(pos_from, pos_to: double; CutToReplace: integer): boolean;
+    function SplitCut(pos_from, pos_to: double): boolean;
     function DeleteCut(dCut: Integer): boolean;
     property Mode: TCutlistMode read FMode write SetMode;
 
@@ -83,7 +91,7 @@ type
 
     function clear_after_confirm: boolean;
     procedure init;
-    procedure sort;
+    procedure Sort;
     function convert: TCutlist;
     function LoadFromFile(Filename: String): boolean;
     function EditInfo: boolean;
@@ -99,6 +107,47 @@ implementation
 uses
   Classes, Forms, windows, dialogs, sysutils, cutlistINfo_dialog, controls, iniFiles, strutils,
   utils, UCutApplicationAsfbin, UCutApplicationMP4Box, CAResources;
+
+{ Tcut }
+
+constructor Tcut.Create(pos_from, pos_to: double);
+begin
+  Create(pos_from, pos_to, 0, 0);
+end;
+
+constructor Tcut.Create(pos_from, pos_to: double; frame_from, frame_to: integer);
+begin
+  if pos_from > pos_to then
+    raise Exception.CreateFmt('Invalid Range: %f - %f', [ pos_from, pos_to ]);
+  if frame_from > frame_to then
+    raise Exception.CreateFmt('Invalid frame range: %d - %d', [ frame_from, frame_to ]);
+
+  Fpos_from := pos_from;
+  Fpos_to := pos_to;
+  Fframe_from := frame_from;
+  Fframe_to := frame_to;
+end;
+
+function Tcut.DurationFrames: integer;
+begin
+  result := self.frame_to - self.frame_from + 1;
+end;
+
+class function Tcut.Compare(const Item1, Item2: TCut): Integer;
+begin
+  if Assigned(Item1) <> Assigned(Item2) then
+  begin
+    if Assigned(Item1) then Result := 1
+    else Result := -1;
+  end else begin
+    if not Assigned(Item1) then Result := 0
+    else if Item1.pos_from < Item2.pos_from then Result := -1
+    else if Item1.pos_from > Item2.pos_from then Result :=  1
+    else if Item1.pos_to < Item2.pos_to then Result := -1
+    else if Item1.pos_to > Item2.pos_to then Result :=  1
+    else Result := 0;
+  end;
+end;
 
 { TCutlist }
 
@@ -118,24 +167,50 @@ begin
   else FFrameDuration := 0;
 end;
 
+function TCutlist.FindCut(fPos: double): integer;
+var
+  iCount: Integer;
+  iCut: Integer;
+  iStep: Integer;
+  ACut: TCut;
+begin
+  Result := -1;
+  iCount := self.Count;
+  if iCount < 1 then
+    exit;
+  iCut := 0;
+  iStep := iCount div 2;
+  repeat
+    ACut := self.Cut[iCut];
+    if ACut.pos_from > fPos then begin
+      iCut := iCut - iStep;
+      if iCut < 0 then
+        break;
+    end else if ACut.pos_to < fPos then begin
+      iCut := iCut + iStep;
+      if iCut >= iCount then
+        break;
+    end else begin
+      Result := iCut;
+    end;
+    iStep := iStep div 2;
+  until (iStep = 0) or (Result >= 0);
+end;
+
 function TCutlist.AddCut(pos_from, pos_to: double): boolean;
 var
-  cut : TCut;
   icut: integer;
 begin
   result := false;
   if not cut_times_valid(pos_from, pos_to, -1, iCut) then exit;
 
-  cut := Tcut.Create;
-  cut.pos_from := pos_from;
-  cut.pos_to := pos_to;
-  cut.index := self.Add(cut);
+  self.Add(Tcut.Create(pos_from, pos_to));
   self.FHasChanged := true;
   self.IDOnServer := '';
   self.FramesPresent := false;
   result := true;
 
-  self.sort;
+  self.Sort;
   self.RefreshGUI;
 end;
 
@@ -158,6 +233,33 @@ begin
   end;
 end;
 
+function TCutlist.SplitCut(pos_from, pos_to: double): boolean;
+var
+  LeftIndex, RightIndex: integer;
+  LeftPos, RightPos: double;
+begin
+  Result := false;
+  if pos_to <= pos_from then
+    exit;
+  if (pos_from > FMovieInfo.current_file_duration) or (pos_to < 0) then
+    exit;
+
+  LeftIndex := FindCut(pos_from);
+  RightIndex := FindCut(pos_to);
+  if LeftIndex = RightIndex then
+  begin
+    if LeftIndex < 0 then begin
+      Result := self.AddCut(pos_from, pos_to);
+    end else begin
+      LeftPos := self.Cut[LeftIndex].pos_from;
+      RightPos := self.Cut[LeftIndex].pos_to;
+      Result := Self.DeleteCut(LeftIndex);
+      Result := Result and self.AddCut(LeftPos, pos_from);
+      Result := Result and self.AddCut(pos_to, RightPos);
+    end;
+  end;
+end;
+
 function TCutlist.DeleteCut(dCut: Integer): boolean;
 var
   iCut: Integer;
@@ -165,9 +267,6 @@ begin
   self.Delete(dCut);
   self.FHasChanged := true;
   self.IDOnServer := '';
-  for icut := 0 to self.Count-1 do begin
-    self.Cut[iCut].index := iCut;
-  end;
   result := true;
   self.RefreshGUI;
 end;
@@ -241,7 +340,7 @@ begin
           newCut.frame_from := frame_prev;
           newCut.frame_to := self[iCut].frame_from - 1;
         end;
-        newCut.index := newCutlist.Add(newCut);
+        newCutlist.Add(newCut);
       end;
       pos_prev := self[iCut].pos_to + FrameDuration;
       frame_prev := self[iCut].frame_to + 1;
@@ -251,14 +350,12 @@ begin
     _pos_From :=  self.FMovieInfo.current_file_duration + FrameDuration;
     dur := _pos_From - pos_prev;
     if dur > 0 then begin
-        newCut := TCut.Create;
-        newCut.pos_from := pos_prev;
-        newCut.pos_to := _pos_From - FrameDuration;
+        newCut := TCut.Create(pos_prev, _pos_From - FrameDuration);
         if self.FramesPresent then begin
           newCut.frame_from := frame_prev;
           newCut.frame_to := round(self.FMovieInfo.current_file_duration*FrameRate);   // this could be more accurate
         end;
-        newCut.index := newCutlist.Add(newCut);
+        newCutlist.Add(newCut);
     end;
   end;
   if self.Mode = clmCutOut then
@@ -267,6 +364,7 @@ begin
     newcutlist.FMode := clmCutOut;
   newCutlist.FHasChanged := self.HasChanged;
   newCutlist.FIDOnServer := self.FIDOnServer;
+  newCutlist.Sort;
 
   result := newcutlist;
 end;
@@ -594,16 +692,14 @@ begin
       _Frame_to := _frame_from + cutlistfile.ReadInteger(section, 'DurationFrames', -1) - 1;
 
       if self.cut_times_valid(_pos_from, _pos_to, -1, aCut) then begin
-        cut := Tcut.Create;
-        cut.pos_from := _pos_from;
-        cut.pos_to := _pos_to;
+        cut := Tcut.Create(_pos_from, _pos_to);
         if (_frame_from <0) or (_frame_to <0) then begin
           self.FramesPresent := false;
         end else begin
           cut.frame_from := _Frame_from;
           cut.frame_to := _frame_to;
         end;
-        cut.index := self.Add(cut);
+        self.Add(cut);
       end;
     end;
 
@@ -896,30 +992,18 @@ begin
   FSuggestedMovieName := AnsiReplaceStr(Value, '"', '''');
 end;
 
-procedure TCutlist.sort;
+function TCutlistCompareItems(Item1, Item2: Pointer): Integer;
 var
-  Acut: TCut;
-  iCut, jCut: integer;
+  o1, o2: TCut;
 begin
-  Acut := TCut.Create;
-  for iCut := 0 to self.Count-2 do begin
-    Acut.pos_from := self[iCut].pos_from;
-    Acut.index := iCut;
-    for jcut := icut+1 to self.Count-1 do begin
-      if self[jcut].pos_from < Acut.pos_from then begin
-        Acut.pos_from := self[jCut].pos_from;
-        Acut.index := jCut;
-      end;
-    end;
-    if Acut.index <> iCut then begin
-      Acut.pos_to  := self[acut.index].pos_to;
-      self[acut.index].pos_from := self[iCut].pos_from;
-      self[acut.index].pos_to := self[iCut].pos_to;
-      self[iCut].pos_from := Acut.pos_from;
-      self[iCut].pos_to := Acut.pos_to;
-    end;
-  end;
-  FreeAndNIL(Acut);
+  o1 := TCut(Item1);
+  o2 := TCut(Item2);
+  Result := TCut.Compare(o1, o2);
+end;
+
+procedure TCutlist.Sort;
+begin
+  inherited Sort(@TCutlistCompareItems);
 end;
 
 function TCutlist.TotalDurationOfCuts: double;
@@ -937,13 +1021,5 @@ function TCutlist.UserShouldSendRating: boolean;
 begin
   result := (not self.RatingSent and (self.IDOnServer > ''));
 end;
-
-{ Tcut }
-
-function Tcut.DurationFrames: integer;
-begin
-  result := self.frame_to - self.frame_from +1;
-end;
-
 
 end.

@@ -69,3 +69,6 @@ For version changelog see News.txt
     from http://sourceforge.net/projects/dspack
 
     Using madExcept, copyright (C) 1999 - 2003 Mathias Rauen, www.madshi.net
+
+    Using The Kryvich's Delphi Localizer, http://kryvich.googlepages.com/,
+    (extended version)

@@ -1156,7 +1156,8 @@ var
   h, m, s, ms: integer;
   sh, sm, ss, sms: string;
 begin
-  ms := round(1000*frac(t));
+  t := RoundTo(t, -3);
+  ms := Trunc(1000*frac(t));
   s := trunc(t);
   m := trunc(s/60);
   s := s mod 60;

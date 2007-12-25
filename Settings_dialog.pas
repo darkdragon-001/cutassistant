@@ -26,8 +26,8 @@ type
     OK: TButton;
     pgSettings: TPageControl;
     tabUserData: TTabSheet;
-    Label8: TLabel;
-    Label9: TLabel;
+    lblUsername: TLabel;
+    lblUserID: TLabel;
     EUserName: TEdit;
     EUserID: TEdit;
     TabSaveMovie: TTabSheet;
@@ -96,27 +96,27 @@ type
     pnlButtons: TPanel;
     lbchkBlackList: TCheckListBox;
     Label15: TLabel;
-    Label16: TLabel;
+    lblFramesSize: TLabel;
     EFrameWidth: TEdit;
-    Label17: TLabel;
+    nllbl1: TLabel;
     EFrameHeight: TEdit;
-    Label22: TLabel;
+    lblFramesCount: TLabel;
     EFrameCount: TEdit;
-    Label27: TLabel;
-    Label28: TLabel;
+    lblFramesSizeChangeHint: TLabel;
+    lblFramesCountChangeHint: TLabel;
     RCutMode: TRadioGroup;
     Label29: TLabel;
     spnWaitTimeout: TJvSpinEdit;
     Label30: TLabel;
     edtSmallSkip: TEdit;
-    Label32: TLabel;
-    Label33: TLabel;
+    lblSmallSkip: TLabel;
+    lblLargeSkip: TLabel;
     edtLargeSkip: TEdit;
     Label34: TLabel;
     Label35: TLabel;
-    Label36: TLabel;
+    nllbl2: TLabel;
     edtNetTimeout: TEdit;
-    Label37: TLabel;
+    lblNetTimeout: TLabel;
     Label38: TLabel;
     cbAutoMuteOnSeek: TCheckBox;
     cbxCodecWmv: TComboBox;
@@ -139,6 +139,8 @@ type
     btnCodecAboutHQAvi: TButton;
     Label39: TLabel;
     cbxSourceFilterListHQAVI: TComboBox;
+    lblLanguage: TLabel;
+    cmbLanguage: TComboBox;
     procedure BCutMovieSaveDirClick(Sender: TObject);
     procedure BCutlistSaveDirClick(Sender: TObject);
     procedure EProxyPortKeyPress(Sender: TObject; var Key: Char);
@@ -198,6 +200,9 @@ type
 
     //User
     UserName, UserID: string;
+
+    // UI Language
+    Language: integer;
 
     // Preview frame window
     FramesWidth, FramesHeight, FramesCount: integer;
@@ -450,7 +455,9 @@ begin
 
   FSettings.EFrameWidth.Text                       := IntToStr(self.FramesWidth);
   FSettings.EFrameHeight.Text                      := IntToStr(self.FramesHeight);
-  FSettings.EFrameCount.Text                      := IntToStr(self.FramesCount);
+  FSettings.EFrameCount.Text                       := IntToStr(self.FramesCount);
+
+  FSettings.cmbLanguage.ItemIndex                  := self.Language;
 
   FSettings.CBInfoCheckMessages.Checked   := self.InfoShowMessages            ;
   FSettings.CBInfoCheckStable.Checked     := self.InfoShowStable              ;
@@ -545,9 +552,11 @@ begin
       self.NetTimeout                  := StrToInt(FSettings.edtNetTimeout.Text);
       self.AutoMuteOnSeek              := FSettings.cbAutoMuteOnSeek.Checked;
 
-      self.InfoShowMessages            :=  FSettings.CBInfoCheckMessages.Checked  ;
-      self.InfoShowStable              :=  FSettings.CBInfoCheckStable.Checked    ;
-      self.InfoShowBeta                :=  FSettings.CBInfoCheckBeta.Checked      ;
+      self.Language                    := FSettings.cmbLanguage.ItemIndex;
+
+      self.InfoShowMessages            := FSettings.CBInfoCheckMessages.Checked  ;
+      self.InfoShowStable              := FSettings.CBInfoCheckStable.Checked    ;
+      self.InfoShowBeta                := FSettings.CBInfoCheckBeta.Checked      ;
       if FSettings.CBInfoCheckEnabled.Checked then begin
         self.InfoCheckInterval :=  strToIntDef(FSettings.EChceckInfoInterval.Text, 0);
       end else begin
@@ -660,6 +669,7 @@ begin
     section := 'General';
     UserName :=  ini.ReadString(section, 'UserName', '');
     UserID :=  ini.ReadString(section, 'UserID', '');
+    Language := ini.ReadInteger(section, 'Language', 0);
 
     section := 'FrameWindow';
     FramesWidth := ini.ReadInteger(section, 'Width', 180);
@@ -725,7 +735,7 @@ begin
     self.InfoShowMessages := ini.ReadBool(section, 'InfoShowMessages', true);
     self.InfoShowStable := ini.ReadBool(section, 'InfoShowStable', true);
     self.InfoShowBeta := ini.ReadBool(section, 'InfoShowBeta', false);
-    self.DefaultCutMode := ini.ReadInteger(section, 'DefaultCutMode', integer(clmCrop));
+    self.DefaultCutMode := ini.ReadInteger(section, 'DefaultCutMode', integer(clmTrim));
     self.SmallSkipTime := ini.ReadInteger(section, 'SmallSkipTime', 2);
     self.LargeSkipTime := ini.ReadInteger(section, 'LargeSkipTime', 25);
     self.AutoMuteOnSeek := ini.ReadBool(section, 'AutoMuteOnSeek', false);
@@ -778,6 +788,7 @@ begin
     ini.WriteString(section, 'Version', Application_version);
     ini.WriteString(section, 'UserName', UserName);
     ini.WriteString(section, 'UserID', UserID);
+    ini.WriteInteger(section, 'Language', Language);
 
     section := 'FrameWindow';
     ini.WriteInteger(section, 'Width', FramesWidth);

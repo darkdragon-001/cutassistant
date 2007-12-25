@@ -286,7 +286,7 @@ begin
   MustFreeTempCutlist := false;
   TempCutlist := (Cutlist as TCutlist);
   
-  if TempCutlist.Mode <> clmCrop then begin
+  if TempCutlist.Mode <> clmTrim then begin
     TempCutlist := TempCutlist.convert;
     MustFreeTempCutlist := True;
   end;
@@ -415,7 +415,7 @@ begin
   result := false;
   if not (aCutlist is TCutlist) then exit;
   cutlist := (aCutlist as TCutlist);
-  if not (cutlist.Mode = clmCrop) then exit;
+  if not (cutlist.Mode = clmTrim) then exit;
 
   if scriptfile = '' then scriptfile := Inputfile + '.syl';
   assignfile(f, scriptfile);

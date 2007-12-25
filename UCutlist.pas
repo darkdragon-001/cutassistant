@@ -26,7 +26,7 @@ type
     class function Compare(const Item1, Item2: TCut): Integer;
   end;
 
-  TCutlistMode = (clmCutOut, clmCrop);
+  TCutlistMode = (clmCutOut, clmTrim);
   TCutlistSaveMode = (csmNeverAsk, csmAskBeforeOverwrite, csmAskWhenSavingFirstTime, csmAlwaysAsk);
 
   TCutlistCallBackMethod = procedure(cutlist: TCutlist) of object;
@@ -261,8 +261,6 @@ begin
 end;
 
 function TCutlist.DeleteCut(dCut: Integer): boolean;
-var
-  iCut: Integer;
 begin
   self.Delete(dCut);
   self.FHasChanged := true;
@@ -359,7 +357,7 @@ begin
     end;
   end;
   if self.Mode = clmCutOut then
-    newcutlist.FMode := clmCrop
+    newcutlist.FMode := clmTrim
   else
     newcutlist.FMode := clmCutOut;
   newCutlist.FHasChanged := self.HasChanged;
@@ -394,7 +392,7 @@ begin
     exit;
   end;
 
-  if self.Mode = clmCrop then begin
+  if self.Mode = clmTrim then begin
     command := '';
     self.sort;
     for iCut := 0 to self.Count-1 do begin
@@ -444,6 +442,11 @@ end;
 
 function TCutlist.EditInfo: boolean;
 begin
+  Result := false;
+  
+  if FCutlistInfo.Visible then
+    exit;
+
   FCutlistInfo.original_movie_filename := FMovieInfo.current_filename;
   FCutlistInfo.CBFramesPresent.Checked := (self.FramesPresent and not self.HasChanged);
   FCutlistInfo.lblFrameRate.Caption := FMovieInfo.FormatFrameRate(self.FrameDuration, 'C');
@@ -708,7 +711,7 @@ begin
     FreeAndNil(cutlistfile);
   end;
 
-  self.FMode := clmCrop;
+  self.FMode := clmTrim;
   self.FHasChanged := false;
   self.SavedToFilename := filename;
   result := true;
@@ -846,7 +849,7 @@ begin
     if not self.EditInfo then exit;
   end;
 
-  if self.Mode = clmCrop then begin
+  if self.Mode = clmTrim then begin
     self.sort;
 
     if self.HasChanged then begin

@@ -8,10 +8,10 @@ uses
 
 type
   TFCutlistRate = class(TForm)
-    Label1: TLabel;
+    lblSendRating: TLabel;
     RGRatingByAuthor: TRadioGroup;
-    btnCancel: TButton;
-    ButtonOK: TButton;
+    cmdCancel: TButton;
+    cmdOk: TButton;
     procedure RGRatingByAuthorClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
   private
@@ -37,9 +37,9 @@ uses CAResources;
 
 procedure TFCutlistRate.RGRatingByAuthorClick(Sender: TObject);
 begin
-  if self.RGRatingByAuthor.ItemIndex >= 0 then
+  if RGRatingByAuthor.ItemIndex >= 0 then
   begin
-    self.ButtonOK.Enabled := true;
+    cmdOk.Enabled := true;
     FRatingSelectedByUser := (Sender = RGRatingByAuthor);
   end;
 end;

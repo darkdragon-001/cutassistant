@@ -14,33 +14,33 @@ const
 
 type
   TFCutlistInfo = class(TForm)
-    Label1: TLabel;
-    RGRatingByAuthor: TRadioGroup;
+    lblInfoCaption: TLabel;
+    rgRatingByAuthor: TRadioGroup;
     grpDetails: TGroupBox;
-    CBEPGError: TCheckBox;
-    CBMissingBeginning: TCheckBox;
-    CBMissingEnding: TCheckBox;
-    CBMissingVideo: TCheckBox;
-    CBMissingAudio: TCheckBox;
-    CBOtherError: TCheckBox;
-    EOtherErrorDescription: TEdit;
-    EActualContent: TEdit;
+    cbEPGError: TCheckBox;
+    cbMissingBeginning: TCheckBox;
+    cbMissingEnding: TCheckBox;
+    cbMissingVideo: TCheckBox;
+    cbMissingAudio: TCheckBox;
+    cbOtherError: TCheckBox;
+    edtOtherErrorDescription: TEdit;
+    edtActualContent: TEdit;
     cmdCancel: TButton;
     cmdOk: TButton;
-    EUserComment: TEdit;
-    Label2: TLabel;
-    LAuthor: TLabel;
+    edtUserComment: TEdit;
+    lblComment: TLabel;
+    lblAuthor: TLabel;
     pnlAuthor: TPanel;
-    CBFramesPresent: TCheckBox;
-    Label3: TLabel;
-    EMovieName: TEdit;
-    BMovieNameCopy: TButton;
+    cbFramesPresent: TCheckBox;
+    lblSuggestedFilename: TLabel;
+    edtMovieName: TEdit;
+    cmdMovieNameCopy: TButton;
     lblFrameRate: TLabel;
     procedure FormShow(Sender: TObject);
-    procedure CBEPGErrorClick(Sender: TObject);
-    procedure CBOtherErrorClick(Sender: TObject);
+    procedure cbEPGErrorClick(Sender: TObject);
+    procedure cbOtherErrorClick(Sender: TObject);
     procedure EnableOK(Sender: TObject);
-    procedure BMovieNameCopyClick(Sender: TObject);
+    procedure cmdMovieNameCopyClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -65,15 +65,15 @@ begin
   self.cmdOk.Enabled := false;
 end;
 
-procedure TFCutlistInfo.CBEPGErrorClick(Sender: TObject);
+procedure TFCutlistInfo.cbEPGErrorClick(Sender: TObject);
 begin
-  self.EActualContent.Enabled := self.CBEPGError.Checked;
+  self.edtActualContent.Enabled := self.CBEPGError.Checked;
   self.EnableOK(sender);
 end;
 
-procedure TFCutlistInfo.CBOtherErrorClick(Sender: TObject);
+procedure TFCutlistInfo.cbOtherErrorClick(Sender: TObject);
 begin
-  self.EOtherErrorDescription.Enabled := self.CBOtherError.Checked;
+  self.edtOtherErrorDescription.Enabled := self.CBOtherError.Checked;
   self.EnableOK(sender);
 end;   
 
@@ -83,7 +83,7 @@ begin
   self.cmdOk.Enabled := true;
 end;
 
-procedure TFCutlistInfo.BMovieNameCopyClick(Sender: TObject);
+procedure TFCutlistInfo.cmdMovieNameCopyClick(Sender: TObject);
 var
   s, e: string;
 begin
@@ -94,7 +94,7 @@ begin
     e := extractFileExt(s);
   end;
   s := AnsiReplaceText(s, '_', ' ');
-  self.EMovieName.Text := s;
+  self.edtMovieName.Text := s;
 end;
 
 end.

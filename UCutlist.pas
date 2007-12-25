@@ -451,29 +451,29 @@ begin
   FCutlistInfo.CBFramesPresent.Checked := (self.FramesPresent and not self.HasChanged);
   FCutlistInfo.lblFrameRate.Caption := FMovieInfo.FormatFrameRate(self.FrameDuration, 'C');
   if self.Author = '' then
-    FCutlistInfo.LAuthor.Caption := CAResources.RsCaptionCutlistAuthorUnknown
+    FCutlistInfo.lblAuthor.Caption := CAResources.RsCaptionCutlistAuthorUnknown
   else
-    FCutlistInfo.LAuthor.Caption := Format(CAResources.RsCaptionCutlistAuthor, [ self.Author ]);
+    FCutlistInfo.lblAuthor.Caption := Format(CAResources.RsCaptionCutlistAuthor, [ self.Author ]);
   if self.RatingByAuthorPresent then
     FCutlistInfo.RGRatingByAuthor.ItemIndex := self.RatingByAuthor
   else
     FCutlistInfo.RGRatingByAuthor.ItemIndex := -1;
   FCutlistInfo.CBEPGError.Checked := self.EPGError;
   if self.EPGError then
-    FCutlistInfo.EActualContent.Text := self.ActualContent
+    FCutlistInfo.edtActualContent.Text := self.ActualContent
   else
-    FCutlistInfo.EActualContent.Text := '';
+    FCutlistInfo.edtActualContent.Text := '';
   FCutlistInfo.CBMissingBeginning.Checked := self.MissingBeginning;
   FCutlistInfo.CBMissingEnding.Checked := self.MissingEnding;
   FCutlistInfo.CBMissingVideo.Checked := self.MissingVideo;
   FCutlistInfo.CBMissingAudio.Checked := self.MissingAudio;
   FCutlistInfo.CBOtherError.Checked := self.OtherError;
   if self.OtherError then
-    FCutlistInfo.EOtherErrorDescription.Text := self.OtherErrorDescription
+    FCutlistInfo.edtOtherErrorDescription.Text := self.OtherErrorDescription
   else
-    FCutlistInfo.EOtherErrorDescription.Text := '';
-  FCutlistInfo.EUserComment.Text := self.UserComment;
-  FCutlistInfo.EMovieName.Text := self.SuggestedMovieName;
+    FCutlistInfo.edtOtherErrorDescription.Text := '';
+  FCutlistInfo.edtUserComment.Text := self.UserComment;
+  FCutlistInfo.edtMovieName.Text := self.SuggestedMovieName;
 
   if FCutlistInfo.ShowModal = mrOK then begin
     self.FHasChanged := true;
@@ -487,7 +487,7 @@ begin
     end;
     self.EPGError := FCutlistInfo.CBEPGError.Checked;
     if self.EPGError then
-      self.ActualContent := FCutlistInfo.EActualContent.Text
+      self.ActualContent := FCutlistInfo.edtActualContent.Text
     else
       self.ActualContent := '';
     self.MissingBeginning := FCutlistInfo.CBMissingBeginning.Checked ;
@@ -496,11 +496,11 @@ begin
     self.MissingAudio     := FCutlistInfo.CBMissingAudio.Checked     ;
     self.OtherError       := FCutlistInfo.CBOtherError.Checked       ;
     if self.OtherError then
-      self.OtherErrorDescription := FCutlistInfo.EOtherErrorDescription.Text
+      self.OtherErrorDescription := FCutlistInfo.edtOtherErrorDescription.Text
     else
       self.OtherErrorDescription := '';
-    self.UserComment := FCutlistInfo.EUserComment.Text;
-    self.SuggestedMovieName := FCutlistInfo.EMovieName.Text;
+    self.UserComment := FCutlistInfo.edtUserComment.Text;
+    self.SuggestedMovieName := FCutlistInfo.edtMovieName.Text;
 
     self.RefreshGUI;
   end else begin

@@ -21,7 +21,7 @@ object FCutlistRate: TFCutlistRate
     223)
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
+  object lblSendRating: TLabel
     Left = 7
     Top = 7
     Width = 172
@@ -60,7 +60,7 @@ object FCutlistRate: TFCutlistRate
     TabOrder = 0
     OnClick = RGRatingByAuthorClick
   end
-  object btnCancel: TButton
+  object cmdCancel: TButton
     Left = 403
     Top = 196
     Width = 85
@@ -71,7 +71,7 @@ object FCutlistRate: TFCutlistRate
     ModalResult = 2
     TabOrder = 2
   end
-  object ButtonOK: TButton
+  object cmdOk: TButton
     Left = 313
     Top = 196
     Width = 85

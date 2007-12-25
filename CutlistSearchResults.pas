@@ -8,12 +8,12 @@ uses
 
 type
   TFCutlistSearchResults = class(TForm)
-    Panel1: TPanel;
+    pnlButtons: TPanel;
     LLinklist: TListView;
-    BCancel: TButton;
-    BOk: TButton;
+    cmdCancel: TButton;
+    cmdOk: TButton;
     procedure LLinklistClick(Sender: TObject);
-    procedure BOkClick(Sender: TObject);
+    procedure cmdOkClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -51,7 +51,7 @@ begin
   self.ModalResult := mrOK;
 end;
 
-procedure TFCutlistSearchResults.BOkClick(Sender: TObject);
+procedure TFCutlistSearchResults.cmdOkClick(Sender: TObject);
 begin
   if LLinklist.ItemIndex >= 0 then
     ModalResult := mrOk;

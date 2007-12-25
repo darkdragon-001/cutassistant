@@ -32,55 +32,55 @@ const
 type
 
   TFMain = class(TForm{, ISampleGrabberCB})
-    BStop: TButton;
-    BPlayPause: TButton;
+    cmdStop: TButton;
+    cmdPlayPause: TButton;
     Lcutlist: TListView;
-    BAddCut: TButton;
-    BDeleteCut: TButton;
-    EFrom: TEdit;
-    EDuration: TEdit;
-    ETo: TEdit;
-    Label1: TLabel;
-    Label2: TLabel;
-    Label3: TLabel;
-    BSetFrom: TButton;
-    BSetTo: TButton;
-    BFromStart: TButton;
-    BToEnd: TButton;
-    BJumpFrom: TButton;
-    BJumpTo: TButton;
-    BReplaceCut: TButton;
-    BEditCut: TButton;
-    RCutMode: TRadioGroup;
-    BPrev12: TButton;
-    BStepBack: TButton;
-    BStepForwards: TButton;
-    TVolume: TTrackBar;
-    Label8: TLabel;
-    CBMute: TCheckBox;
-    LPos: TLabel;
-    BNext12: TButton;
-    TFinePos: TtrackBarEx;
-    Label11: TLabel;
-    Label12: TLabel;
-    LDuration: TLabel;
-    Bevel2: TBevel;
-    Bevel3: TBevel;
-    CutListOpenDialog: TOpenDialog;
+    cmdAddCut: TButton;
+    cmdDeleteCut: TButton;
+    edtFrom: TEdit;
+    edtDuration: TEdit;
+    edtTo: TEdit;
+    lblCutFrom: TLabel;
+    lblCutDuration: TLabel;
+    lblCutTo: TLabel;
+    cmdSetFrom: TButton;
+    cmdSetTo: TButton;
+    cmdFromStart: TButton;
+    cmdToEnd: TButton;
+    cmdJumpFrom: TButton;
+    cmdJumpTo: TButton;
+    cmdReplaceCut: TButton;
+    cmdEditCut: TButton;
+    rgCutMode: TRadioGroup;
+    cmdPrev12: TButton;
+    cmdStepBack: TButton;
+    cmdStepForwards: TButton;
+    tbVolume: TTrackBar;
+    lblVolume: TLabel;
+    cbMute: TCheckBox;
+    lblPos_nl: TLabel;
+    cmdNext12: TButton;
+    tbFinePos: TtrackBarEx;
+    lblMinFinepos_nl: TLabel;
+    lblMaxFinepos_nl: TLabel;
+    lblDuration_nl: TLabel;
+    bvCutilistInfo: TBevel;
+    bvMovieControl: TBevel;
+    odCutlist: TOpenDialog;
     VideoWindow: TVideoWindow;
-    LFinePos: TLabel;
-    TBFilePos: TDSTrackBarEx;
-    SampleGrabber1: TSampleGrabber;
+    lblFinePos_nl: TLabel;
+    tbFilePos: TDSTrackBarEx;
+    SampleGrabber: TSampleGrabber;
     TeeFilter: TFilter;
-    NullRenderer1: TFilter;
-    Label7: TLabel;
-    PanelVideoWindow: TPanel;
-    B12FromTo: TButton;
-    BConvert: TButton;
+    NullRenderer: TFilter;
+    lblStartPosition_nl: TLabel;
+    pnlVideoWindow: TPanel;
+    cmd12FromTo: TButton;
+    cmdConvert: TButton;
     OpenMovie: TAction;
     OpenCutlist: TAction;
     File_Exit: TAction;
-    ImageList1: TImageList;
+    ImageList: TImageList;
     SaveCutlistAs: TAction;
     AddCut: TAction;
     ReplaceCut: TAction;
@@ -98,34 +98,34 @@ type
     WriteToRegisty: TAction;
     RemoveRegistryEntries: TAction;
     CutlistUpload: TAction;
-    IdHTTP1: TIdHTTP;
+    IdHTTP: TIdHTTP;
     AStepForward: TAction;
     AStepBackward: TAction;
     BrowseWWWHelp: TAction;
     OpenCutlistHome: TAction;
     ARepairMovie: TAction;
-    BCutlistInfo: TBitBtn;
+    cmdCutlistInfo: TBitBtn;
     ACutlistInfo: TAction;
     ICutlistWarning: TImage;
     ASaveCutlist: TAction;
     ACalculateResultingTimes: TAction;
     AAsfbinInfo: TAction;
-    PAuthor: TPanel;
-    LAuthor: TLabel;
+    pnlAuthor: TPanel;
+    nl_lblCutlistAuthor: TLabel;
     ASearchCutlistByFileSize: TAction;
     ASendRating: TAction;
     ADeleteCutlistFromServer: TAction;
-    LTotalCutoff: TLabel;
-    LResultingDuration: TLabel;
-    TBRate: TtrackBarEx;
-    Label4: TLabel;
-    LRate: TLabel;
-    LTrueRate: TLabel;
-    BNextCut: TButton;
-    BPrevCut: TButton;
+    lblTotalCutoff_nl: TLabel;
+    lblResultingDuration_nl: TLabel;
+    tbRate: TtrackBarEx;
+    lblRate: TLabel;
+    lblCurrentRate_nl: TLabel;
+    lblTrueRate_nl: TLabel;
+    cmdNextCut: TButton;
+    cmdPrevCut: TButton;
     ANextCut: TAction;
     APrevCut: TAction;
-    BFF: TButton;
+    cmdFF: TButton;
     FilterGraph: TFilterGraph;
     AFullScreen: TAction;
     ACloseMovie: TAction;
@@ -139,8 +139,8 @@ type
     FramePopUpPrevious12Frames: TMenuItem;
     N1: TMenuItem;
     XMLResponse: TJvSimpleXML;
-    ActionList1: TActionList;
-    SpeedBar: TJvSpeedBar;
+    ActionList: TActionList;
+    SpeedBar_nl: TJvSpeedBar;
     MainMenu: TMainMenu;
     File1: TMenuItem;
     Cutlist1: TMenuItem;
@@ -232,9 +232,9 @@ type
     RequestWorker: TIdThreadComponent;
     ASupportRequest: TAction;
     Makeasupportrequest1: TMenuItem;
-    lblMovieType: TLabel;
-    lblCutApplication: TLabel;
-    lblMovieFPS: TLabel;
+    lblMovieType_nl: TLabel;
+    lblCutApplication_nl: TLabel;
+    lblMovieFPS_nl: TLabel;
     AStop: TAction;
     APlayPause: TAction;
     N14: TMenuItem;
@@ -244,7 +244,7 @@ type
     APause: TAction;
     N17: TMenuItem;
     N18: TMenuItem;
-    JvAppCommand: TJvAppCommand;
+    AppCommand: TJvAppCommand;
     ACurrentFrames: TAction;
     framesaround1: TMenuItem;
     JvSpeedItem16: TJvSpeedItem;
@@ -253,36 +253,36 @@ type
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure BSetFromClick(Sender: TObject);
-    procedure BSetToClick(Sender: TObject);
-    procedure BFromStartClick(Sender: TObject);
-    procedure BToEndClick(Sender: TObject);
-    procedure BJumpFromClick(Sender: TObject);
-    procedure BJumpToClick(Sender: TObject);
+    procedure cmdSetFromClick(Sender: TObject);
+    procedure cmdSetToClick(Sender: TObject);
+    procedure cmdFromStartClick(Sender: TObject);
+    procedure cmdToEndClick(Sender: TObject);
+    procedure cmdJumpFromClick(Sender: TObject);
+    procedure cmdJumpToClick(Sender: TObject);
     procedure AStepForwardExecute(Sender: TObject);
     procedure AStepBackwardExecute(Sender: TObject);
 
     procedure LcutlistSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
     procedure LcutlistDblClick(Sender: TObject);
-    procedure RCutModeClick(Sender: TObject);
+    procedure rgCutModeClick(Sender: TObject);
 
-    procedure TVolumeChange(Sender: TObject);
-    procedure CBMuteClick(Sender: TObject);
+    procedure tbVolumeChange(Sender: TObject);
+    procedure cbMuteClick(Sender: TObject);
 
-    procedure TBFilePosTimer(sender: TObject; CurrentPos,
+    procedure tbFilePosTimer(sender: TObject; CurrentPos,
       StopPos: Cardinal);
-    procedure TBFilePosPositionChangedByMouse(Sender: TObject);
-    procedure TBFilePosChange(Sender: TObject);
-    procedure TBFilePosSelChanged(Sender: TObject);
-    procedure TBFilePosChannelPostPaint(Sender: TDSTrackBarEx;
+    procedure tbFilePosPositionChangedByMouse(Sender: TObject);
+    procedure tbFilePosChange(Sender: TObject);
+    procedure tbFilePosSelChanged(Sender: TObject);
+    procedure tbFilePosChannelPostPaint(Sender: TDSTrackBarEx;
       const ARect: TRect);
-    procedure TFinePosMouseUp(Sender: TObject; Button: TMouseButton;
+    procedure tbFinePosMOuseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure TFinePosChange(Sender: TObject);
+    procedure tbFinePosChange(Sender: TObject);
     procedure FilterGraphGraphStepComplete(Sender: TObject);
-    procedure PanelVideoWindowResize(Sender: TObject);
-    procedure SampleGrabber1Buffer(sender: TObject; SampleTime: Double;
+    procedure pnlVideoWindowResize(Sender: TObject);
+    procedure SampleGrabberBuffer(sender: TObject; SampleTime: Double;
       pBuffer: Pointer; BufferLen: Integer);
 
     procedure OpenMovieExecute(Sender: TObject);
@@ -294,7 +294,7 @@ type
     procedure ReplaceCutExecute(Sender: TObject);
     procedure EditCutExecute(Sender: TObject);
     procedure DeleteCutExecute(Sender: TObject);
-    procedure BConvertClick(Sender: TObject);
+    procedure cmdConvertClick(Sender: TObject);
     procedure ACutlistInfoExecute(Sender: TObject);
     procedure ASearchCutlistByFileSizeExecute(Sender: TObject);
     procedure CutlistUploadExecute(Sender: TObject);
@@ -321,13 +321,13 @@ type
 
     procedure ACalculateResultingTimesExecute(Sender: TObject);
     procedure VideoWindowClick(Sender: TObject);
-    procedure TBRateChange(Sender: TObject);
-    procedure LRateDblClick(Sender: TObject);
+    procedure tbRateChange(Sender: TObject);
+    procedure lblCurrentRate_nlDblClick(Sender: TObject);
     procedure ANextCutExecute(Sender: TObject);
     procedure APrevCutExecute(Sender: TObject);
-    procedure BFFMouseDown(Sender: TObject; Button: TMouseButton;
+    procedure cmdFFMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
-    procedure BFFMouseUp(Sender: TObject; Button: TMouseButton;
+    procedure cmdFFMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure VideoWindowDblClick(Sender: TObject);
     procedure AFullScreenExecute(Sender: TObject);
@@ -352,17 +352,17 @@ type
     procedure RequestWorkerRun(Sender: TIdCustomThreadComponent);
     procedure RequestWorkerException(Sender: TIdCustomThreadComponent;
       AException: Exception);
-    procedure IdHTTP1Status(ASender: TObject; const AStatus: TIdStatus;
+    procedure IdHTTPStatus(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: String);
     procedure ASupportRequestExecute(Sender: TObject);
     procedure RequestProgressDialogCancel(Sender: TObject);
-    procedure IdHTTP1Work(Sender: TObject; AWorkMode: TWorkMode;
+    procedure IdHTTPWork(Sender: TObject; AWorkMode: TWorkMode;
       const AWorkCount: Integer);
     procedure AStopExecute(Sender: TObject);
     procedure APlayPauseExecute(Sender: TObject);
     procedure APlayExecute(Sender: TObject);
     procedure APauseExecute(Sender: TObject);
-    procedure JvAppCommandAppCommand(Handle: Cardinal; Cmd: Word;
+    procedure AppCommandAppCommand(Handle: Cardinal; Cmd: Word;
       Device: TJvAppCommandDevice; KeyState: Word; var Handled: Boolean);
     procedure ACurrentFramesExecute(Sender: TObject);
     procedure FilterGraphGraphComplete(sender: TObject; Result: HRESULT;
@@ -437,6 +437,8 @@ type
     procedure InitHttpProperties;
     function HandleWorkerException(data: THttpRequest): boolean;
     procedure InitFramesProperties(const AAction: TAction; const s: string);
+    function FormatMoviePosition(const position: double): string; overload;
+    function FormatMoviePosition(const frame: longint; const duration: double): string; overload;
   end;
 
 
@@ -471,20 +473,32 @@ implementation
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
 
+function TFMain.FormatMoviePosition(const position: double): string;
+begin
+  Result := FormatMoviePosition(Trunc(position / MovieInfo.frame_duration), position)
+end;
+
+function TFMain.FormatMoviePosition(const frame: longint; const duration: double): string;
+begin
+  Result := IntToStr(frame)
+          + ' / '
+          + MovieInfo.FormatPosition(duration);
+end;
+
 procedure TFMain.UpdateMovieInfoControls;
 begin
   if not Assigned(MovieInfo) then
-    self.lblMovieFPS.Caption := MovieInfo.FormatFrameRate(0, #0)
+    self.lblMovieFPS_nl.Caption := MovieInfo.FormatFrameRate(0, #0)
   else
-    self.lblMovieFPS.Caption := MovieInfo.FormatFrameRate;
+    self.lblMovieFPS_nl.Caption := MovieInfo.FormatFrameRate;
 
   if not Assigned(MovieInfo) or not MovieInfo.MovieLoaded then
   begin
-    self.lblMovieType.Caption := MovieInfo.GetStringFromMovieType(mtNone);
-    self.lblCutApplication.Caption := Format(CAResources.RsCaptionCutApplication, [ CAResources.RsNotAvailable ]);
+    self.lblMovieType_nl.Caption := MovieInfo.GetStringFromMovieType(mtNone);
+    self.lblCutApplication_nl.Caption := Format(CAResources.RsCaptionCutApplication, [ CAResources.RsNotAvailable ]);
   end else begin
-    self.lblMovieType.Caption := MovieInfo.MovieTypeString;
-    self.lblCutApplication.Caption := Format(CAResources.RsCaptionCutApplication, [ Settings.GetCutAppName(MovieInfo.MovieType) ]);
+    self.lblMovieType_nl.Caption := MovieInfo.MovieTypeString;
+    self.lblCutApplication_nl.Caption := Format(CAResources.RsCaptionCutApplication, [ Settings.GetCutAppName(MovieInfo.MovieType) ]);
   end;
 end;
 
@@ -496,25 +510,25 @@ begin
   AAction.Hint    := AnsiReplaceText(AAction.Hint   , '$$', s);
 end;
 
-procedure TFMain.BSetFromClick(Sender: TObject);
+procedure TFMain.cmdSetFromClick(Sender: TObject);
 begin
   SetStartPosition(CurrentPosition);
 end;
 
-procedure TFMain.BSetToClick(Sender: TObject);
+procedure TFMain.cmdSetToClick(Sender: TObject);
 begin
   SetStopPosition(CurrentPosition);
 end;
 
 procedure TFMain.refresh_times;
 begin
-  self.EFrom.Text := MovieInfo.FormatPosition(pos_from);
-  self.ETo.Text := MovieInfo.FormatPosition(pos_to);
+  self.edtFrom.Text := MovieInfo.FormatPosition(pos_from);
+  self.edtTo.Text := MovieInfo.FormatPosition(pos_to);
   if pos_to >= pos_from then begin
-    self.EDuration.Text := MovieInfo.FormatPosition(pos_to-pos_from);
+    self.edtDuration.Text := MovieInfo.FormatPosition(pos_to-pos_from);
     self.AddCut.Enabled := true;
   end else begin
-    self.EDuration.Text := '';
+    self.edtDuration.Text := '';
     self.AddCut.Enabled := false;
   end;
 end;
@@ -580,15 +594,15 @@ end;
 
   InitHttpProperties;
 
-  self.RCutMode.ItemIndex := settings.DefaultCutMode;
+  self.rgCutMode.ItemIndex := settings.DefaultCutMode;
 
   Cutlist.RefreshCallBack := self.refresh_Lcutlist;
   cutlist.RefreshGUI;
 
   filtergraph.Volume := 5000;
-  TVolume.PageSize := TVOlume.Frequency;
-  TVOlume.LineSize := round(TVolume.PageSize /10);
-  TVolume.Position := filtergraph.Volume;
+  tbVolume.PageSize := tbVolume.Frequency;
+  tbVolume.LineSize := round(tbVolume.PageSize /10);
+  tbVolume.Position := filtergraph.Volume;
 end;
 
 procedure TFMain.FormDestroy(Sender: TObject);
@@ -598,24 +612,24 @@ begin
   FreeAndNIL(UploadDataEntries);
 end;
 
-procedure TFMain.BFromStartClick(Sender: TObject);
+procedure TFMain.cmdFromStartClick(Sender: TObject);
 begin
   pos_from := 0;
   refresh_times;
 end;
 
-procedure TFMain.BToEndClick(Sender: TObject);
+procedure TFMain.cmdToEndClick(Sender: TObject);
 begin
   pos_to := MovieInfo.current_file_duration;
   refresh_times;
 end;
 
-procedure TFMain.BJumpFromClick(Sender: TObject);
+procedure TFMain.cmdJumpFromClick(Sender: TObject);
 begin
   JumpTo(pos_from);
 end;
 
-procedure TFMain.BJumpToClick(Sender: TObject);
+procedure TFMain.cmdJumpToClick(Sender: TObject);
 begin
   JumpTo(pos_to);
 end;
@@ -738,32 +752,32 @@ begin
   end;
 end;
 
-procedure TFMain.CBMuteClick(Sender: TObject);
+procedure TFMain.cbMuteClick(Sender: TObject);
 begin
   if CBMUte.Checked then begin
     FilterGraph.Volume := 0;
   end else begin
-    FilterGraph.Volume := TVolume.Position;
+    FilterGraph.Volume := tbVolume.Position;
   end;
 
 end;
 
-procedure TFMain.TVolumeChange(Sender: TObject);
+procedure TFMain.tbVolumeChange(Sender: TObject);
 begin
   if not CBMute.Checked then
-    FilterGraph.Volume := TVolume.Position;
+    FilterGraph.Volume := tbVolume.Position;
 end;
 
-procedure TFMain.TFinePosMouseUp(Sender: TObject; Button: TMouseButton;
+procedure TFMain.tbFinePosMOuseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var
   new_pos: double;
 begin
-  new_pos := currentPosition +  TFinePos.Position * MovieInfo.frame_duration;
+  new_pos := currentPosition +  tbFinePos.Position * MovieInfo.frame_duration;
   if new_pos<0 then new_pos := 0;
   if new_pos > MovieInfo.current_file_duration then new_pos := MovieInfo.current_file_duration;
   JumpTo(new_pos);
-  TFinePos.Position := 0;
+  tbFinePos.Position := 0;
 end;
 
 procedure TFMain.refresh_Lcutlist(cutlist: TCutlist);
@@ -821,16 +835,16 @@ begin
     resulting_duration := cutlist.TotalDurationOfCuts;
     total_cutoff := MovieInfo.current_file_duration - resulting_duration;
   end;
-  LTotalCutoff.Caption := Format(CAResources.RsCaptionTotalCutoff, [ secondsToTimeString(total_cutoff) ]);
-  self.LResultingDuration.Caption := Format(CAResources.RsCaptionTotalCutoff, [ secondsToTimeString(resulting_duration) ]);
+  self.lblTotalCutoff_nl.Caption := Format(CAResources.RsCaptionTotalCutoff, [ secondsToTimeString(total_cutoff) ]);
+  self.lblResultingDuration_nl.Caption := Format(CAResources.RsCaptionTotalCutoff, [ secondsToTimeString(resulting_duration) ]);
 
 
   //Cuts in Trackbar are taken from global var "cutlist"!
   self.TBFilePos.Perform(CM_RECREATEWND, 0, 0);    //Show Cuts in Trackbar
 
   case cutlist.Mode of
-    clmCutOut: self.RCutMode.ItemIndex := 0;
-    clmTrim: self.RCutMode.ItemIndex := 1;
+    clmCutOut: self.rgCutMode.ItemIndex := 0;
+    clmTrim: self.rgCutMode.ItemIndex := 1;
   end;
 
   if (cutlist.RatingByAuthorPresent and (cutlist.RatingByAuthor <=2))
@@ -849,10 +863,10 @@ begin
   end;
 
   if cutlist.Author <> '' then begin
-    self.LAuthor.Caption := cutlist.Author;
-    self.PAuthor.Visible := true;
+    self.nl_lblCutlistAuthor.Caption := cutlist.Author;
+    self.pnlAuthor.Visible := true;
   end else begin
-    self.PAuthor.Visible := false;
+    self.pnlAuthor.Visible := false;
   end;;
 end;
 
@@ -890,9 +904,9 @@ begin
         SourceAdded := false;
 
         if MovieInfo.MovieType in [ mtWMV ] then begin
-          SampleGrabber1.FilterGraph := nil;
+          SampleGrabber.FilterGraph := nil;
         end else begin
-          SampleGrabber1.FilterGraph := FilterGraph;
+          SampleGrabber.FilterGraph := FilterGraph;
         end;
 
         FilterGraph.Active := true;
@@ -934,7 +948,7 @@ begin
 
         initVideo;
 
-        if SampleGrabber1.FilterGraph = nil then begin
+        if SampleGrabber.FilterGraph = nil then begin
           InsertSampleGrabber;
           if not filtergraph.Active then begin
             if not batchmode then
@@ -946,12 +960,12 @@ begin
             exit;
           end;
         end;
-        FilterGraph.Volume := self.TVolume.Position;
+        FilterGraph.Volume := self.tbVolume.Position;
 
         GraphPause;
 
         TBFilePos.TriggerTimer;
-        self.PanelVideoWindowResize(self);
+        self.pnlVideoWindowResize(self);
       end;
 
       self.Caption := Application_Friendly_Name + ' ' + extractfilename(MovieInfo.current_filename);
@@ -1000,11 +1014,11 @@ begin
        end;
   end;
 
-  CutlistOpenDialog.InitialDir := cutlist_path;
-  CutlistOpenDialog.FileName := cutlist_filename;
-  CutlistOpenDialog.Options := CutlistOpenDialog.Options + [ofNoChangeDir];
-  if self.CutlistOpenDialog.Execute then begin
-    filename := self.CutlistOpenDialog.FileName;
+  odCutlist.InitialDir := cutlist_path;
+  odCutlist.FileName := cutlist_filename;
+  odCutlist.Options := odCutlist.Options + [ofNoChangeDir];
+  if self.odCutlist.Execute then begin
+    filename := self.odCutlist.FileName;
     CutlistMode_old := cutlist.Mode;
     cutlist.LoadFromFile(filename);
     if CutlistMode_old <> cutlist.Mode then begin
@@ -1135,8 +1149,8 @@ begin
 
     self.OpenCutlist.Enabled := true;
     self.ASearchCutlistByFileSize.Enabled := true;
-    self.LDuration.Caption := IntToStr(MovieInfo.FrameCount) + ' / '
-                            + MovieInfo.FormatPosition(MovieInfo.current_file_duration);
+
+    self.lblDuration_nl.Caption := FormatMoviePosition(MovieInfo.FrameCount, MovieInfo.current_file_duration);
 
     MovieInfo.CanStepForward := false;
     if succeeded(FilterGraph.QueryInterface(IVideoFrameStep, FrameStep)) then begin
@@ -1185,47 +1199,43 @@ begin
   end;
 end;
 
-procedure TFMain.TBFilePosTimer(sender: TObject; CurrentPos,
+procedure TFMain.tbFilePosTimer(sender: TObject; CurrentPos,
   StopPos: Cardinal);
 var
   TrueRate: double;
 begin
   TrueRate := CalcTrueRate(self.TBFilePos.TimerInterval / 1000);
   if TrueRate > 0 then
-    self.LTrueRate.Caption := '['+floattostrF(TrueRate, ffFixed, 15, 3) + 'x]'
+    self.lblTrueRate_nl.Caption := '['+floattostrF(TrueRate, ffFixed, 15, 3) + 'x]'
   else
-    self.LTrueRate.Caption := '[ ? x]';
-  self.LPos.Caption := IntToStr(Trunc(currentPosition / MovieInfo.frame_duration)) + ' / '
-                     + MovieInfo.FormatPosition(currentPosition);
+    self.lblTrueRate_nl.Caption := '[ ? x]';
+  self.lblPos_nl.Caption := FormatMoviePosition(currentPosition);
 end;
 
-procedure TFMain.TBFilePosChange(Sender: TObject);
+procedure TFMain.tbFilePosChange(Sender: TObject);
 begin
   if self.TBFilePos.IsMouseDown then begin
-      self.LPos.Caption := IntToStr(Trunc(self.TBFilePos.position / MovieInfo.frame_duration)) + ' / '
-                         + MovieInfo.FormatPosition(self.TBFilePos.position);
+      self.lblPos_nl.Caption := FormatMoviePosition(self.TBFilePos.position);
   end;
 end;
 
 procedure TFMain.FilterGraphGraphStepComplete(Sender: TObject);
 begin
-  self.LPos.Caption := IntToStr(Trunc(currentPosition / MovieInfo.frame_duration)) + ' / '
-                     + MovieInfo.FormatPosition(currentPosition);
+  self.lblPos_nl.Caption := FormatMoviePosition(currentPosition);
   self.StepComplete := true;
 end;
 
-procedure TFMain.TBFilePosPositionChangedByMouse(Sender: TObject);
+procedure TFMain.tbFilePosPositionChangedByMouse(Sender: TObject);
 var
   event: integer;
 begin
   MEdiaEvent.WaitForCompletion(500, event);
-  self.LPos.Caption := IntToStr(Trunc(currentPosition / MovieInfo.frame_duration)) + ' / '
-                     + MovieInfo.FormatPosition(currentPosition);
+  self.lblPos_nl.Caption := FormatMoviePosition(currentPosition);
 end;
 
-procedure TFMain.TFinePosChange(Sender: TObject);
+procedure TFMain.tbFinePosChange(Sender: TObject);
 begin
-  self.LFinePos.Caption := inttostr(self.TFinePos.Position);
+  self.lblFinePos_nl.Caption := inttostr(self.tbFinePos.Position);
 end;
 
 procedure TFMain.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -1255,8 +1265,8 @@ begin
   if not FilterGraph.Active then exit;
 
   TeeFilter.FilterGraph := Filtergraph;
-  SampleGrabber1.FilterGraph := filtergraph;
-  NullRenderer1.FilterGraph := filtergraph;
+  SampleGrabber.FilterGraph := filtergraph;
+  NullRenderer.FilterGraph := filtergraph;
 
   try
     //Disconnect Video Window
@@ -1266,9 +1276,9 @@ begin
     OleCheck((FilterGraph as IGraphBuilder).Disconnect(Spin));
 
     //Get Pins
-    OleCheck(GetPin((SampleGrabber1 as IBaseFilter), PINDIR_INPUT, 0, SGInpin));
-    OleCheck(GetPin((SampleGrabber1 as IBaseFilter), PINDIR_OUTPUT, 0, SGOutpin));
-    OleCheck(GetPin((NullRenderer1 as IBaseFilter), PINDIR_INPUT, 0, NRInpin));
+    OleCheck(GetPin((SampleGrabber as IBaseFilter), PINDIR_INPUT, 0, SGInpin));
+    OleCheck(GetPin((SampleGrabber as IBaseFilter), PINDIR_OUTPUT, 0, SGOutpin));
+    OleCheck(GetPin((NullRenderer as IBaseFilter), PINDIR_INPUT, 0, NRInpin));
     OleCheck(GetPin((TeeFilter as IBaseFilter), PINDIR_INPUT, 0, TInpin));
     OleCheck(GetPin((TeeFilter as IBaseFilter), PINDIR_OUTPUT, 0, TOutpin1));
 
@@ -1309,17 +1319,17 @@ begin
   result := self.StepComplete;
 end;
 
-procedure TFMain.PanelVideoWindowResize(Sender: TObject);
+procedure TFMain.pnlVideoWindowResize(Sender: TObject);
 var
   movie_ar, my_ar: double;
 begin
   movie_ar := MovieInfo.ratio;
-  my_ar := self.PanelVideoWindow.Width / self.PanelVideoWindow.Height;
+  my_ar := self.pnlVideoWindow.Width / self.pnlVideoWindow.Height;
   if my_ar > movie_ar then begin
-    self.VideoWindow.Height := self.PanelVideoWindow.Height;
+    self.VideoWindow.Height := self.pnlVideoWindow.Height;
     self.VideoWindow.Width := round (self.videowindow.Height * movie_ar);
   end else begin
-    self.VideoWindow.Width := self.PanelVideoWindow.Width;
+    self.VideoWindow.Width := self.pnlVideoWindow.Width;
     self.VideoWindow.Height := round(self.VideoWindow.Width / movie_ar);
   end; 
 end;
@@ -1388,7 +1398,7 @@ begin
     FFrames.CanClose := true;
     // Restore sound
     if Settings.AutoMuteOnSeek and not CBMute.Checked then
-      FilterGraph.Volume := TVolume.Position;
+      FilterGraph.Volume := tbVolume.Position;
     JumpTo(pos);
   end;
 end;
@@ -1440,7 +1450,7 @@ begin
     FFrames.CanClose := true;
     // Restore sound
     if Settings.AutoMuteOnSeek and not CBMute.Checked then
-      FilterGraph.Volume := TVolume.Position;
+      FilterGraph.Volume := tbVolume.Position;
     JumpTo(pos);
   end;
 end;
@@ -1455,7 +1465,7 @@ begin
      until (hr = S_OK) or (hr = E_FAIL);
 end;
 
-procedure TFMain.BConvertClick(Sender: TObject);
+procedure TFMain.cmdConvertClick(Sender: TObject);
 var
   newCutlist: TCutlist;
 begin
@@ -1564,7 +1574,7 @@ begin
   frmMemoDialog.ShowModal;
 end;
 
-procedure TFMain.TBFilePosSelChanged(Sender: TObject);
+procedure TFMain.tbFilePosSelChanged(Sender: TObject);
 begin
   with FFrames do begin
     if scan_1 <> -1 then begin
@@ -2061,9 +2071,9 @@ begin
   end;
 end;
 
-procedure TFMain.RCutModeClick(Sender: TObject);
+procedure TFMain.rgCutModeClick(Sender: TObject);
 begin
-  case self.RCutMode.ItemIndex of
+  case self.rgCutMode.ItemIndex of
     0: cutlist.Mode := clmCutOut;
     1: cutlist.Mode := clmTrim;
   end;
@@ -2099,7 +2109,7 @@ begin
     MediaEvent.WaitForCompletion(500, event);
     TBFilePos.TriggerTimer;
     if Settings.AutoMuteOnSeek and not CBMute.Checked then
-      FilterGraph.Volume := TVolume.Position;
+      FilterGraph.Volume := tbVolume.Position;
   end else
   begin
     self.AStepForward.Enabled := false;
@@ -2156,7 +2166,7 @@ begin
     Key := 0;
 end;
 
-procedure TFMain.JvAppCommandAppCommand(Handle: Cardinal; Cmd: Word;
+procedure TFMain.AppCommandAppCommand(Handle: Cardinal; Cmd: Word;
   Device: TJvAppCommandDevice; KeyState: Word; var Handled: Boolean);
 begin
   case Cmd of // Force Handled for specific commands ...
@@ -2207,9 +2217,9 @@ begin
     filtergraph.Stop;
     filtergraph.Active := false;
     filtergraph.ClearGraph;
-    samplegrabber1.FilterGraph := nil;
+    SampleGrabber.FilterGraph := nil;
     TeeFilter.FilterGraph := nil;
-    NullRenderer1.FilterGraph := nil;
+    NullRenderer.FilterGraph := nil;
 //    AviDecompressor.FilterGraph := nil;
   end;
   MovieInfo.current_filename := '';
@@ -2515,7 +2525,7 @@ begin
   self.SendRating(cutlist);
 end;
 
-procedure TFMain.SampleGrabber1Buffer(sender: TObject; SampleTime: Double;
+procedure TFMain.SampleGrabberBuffer(sender: TObject; SampleTime: Double;
   pBuffer: Pointer; BufferLen: Integer);
 var
   Target: TCutFrame;
@@ -2524,7 +2534,7 @@ begin
   if SampleTarget = nil then exit;
   Target := (SampleTarget as TCutFrame);
   try
-    //SampleGrabber1.GetBitmap(Target.Image.Picture.Bitmap, pBuffer, BufferLen);
+    //SampleGrabber.GetBitmap(Target.Image.Picture.Bitmap, pBuffer, BufferLen);
     self.CustomGetSampleGrabberBitmap(Target.Image.Picture.Bitmap, pBuffer, BufferLen);
     Target.position := SampleTime;
   finally
@@ -2680,7 +2690,7 @@ begin
   end;
 end;
 
-procedure TFMain.TBFilePosChannelPostPaint(Sender: TDSTrackBarEx;
+procedure TFMain.tbFilePosChannelPostPaint(Sender: TDSTrackBarEx;
   const ARect: TRect);
 var
   scale: double;
@@ -2765,7 +2775,7 @@ begin
     //BPlayPause.Caption := APlay.Caption;
     //BPlayPause.Hint := APlay.Hint;
     //BPlayPause.Enabled := APlay.Enabled;
-    self.BFF.Enabled := false;
+    self.cmdFF.Enabled := false;
     TBFilePos.TriggerTimer;
   end;
 end;
@@ -2777,7 +2787,7 @@ begin
     //BPlayPause.Caption := APause.Caption;
     //BPlayPause.Hint := APause.Hint;
     //BPlayPause.Enabled := APause.Enabled;
-    self.BFF.Enabled := true;
+    self.cmdFF.Enabled := true;
   end;
 end;
 
@@ -2787,14 +2797,14 @@ begin
     self.APlayPause.Execute;
 end;
 
-procedure TFMain.TBRateChange(Sender: TObject);
+procedure TFMain.tbRateChange(Sender: TObject);
 var
   NewRate: double;
 begin
   NewRate := Power(2, (TBRate.Position / 8));
   filtergraph.Rate := newRate;
 
-  LRate.Caption :=  floattostrF(filtergraph.Rate, ffFixed, 15, 3) + 'x' ;
+  lblCurrentRate_nl.Caption :=  floattostrF(filtergraph.Rate, ffFixed, 15, 3) + 'x' ;
 end;
 
 function TFMain.CalcTrueRate(Interval: double): double;
@@ -2812,7 +2822,7 @@ begin
     result := diff / Interval;
 end;
 
-procedure TFMain.LRateDblClick(Sender: TObject);
+procedure TFMain.lblCurrentRate_nlDblClick(Sender: TObject);
 begin
   TBRate.Position := 0;
 end;
@@ -2833,7 +2843,7 @@ begin
   if NewPos >= 0 then jumpTo(NewPos);
 end;
 
-procedure TFMain.BFFMouseDown(Sender: TObject; Button: TMouseButton;
+procedure TFMain.cmdFFMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   self.FF_Start;
@@ -2849,7 +2859,7 @@ begin
   self.TBRateChange(self);
 end;
 
-procedure TFMain.BFFMouseUp(Sender: TObject; Button: TMouseButton;
+procedure TFMain.cmdFFMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   self.FF_Stop;
@@ -3324,7 +3334,7 @@ begin
   self.EnableMovieControls(false);
   self.AStepForward.Enabled := false;
 
-  self.LDuration.Caption := IntToStr(0) + ' / ' + MovieInfo.FormatPosition(0);
+  self.lblDuration_nl.Caption := FormatMoviePosition(0);
   self.UpdateMovieInfoControls;
 end;
 
@@ -3334,7 +3344,7 @@ begin
     self.ACurrentFrames.Enabled := value;
     self.APrevFrames.Enabled := value;
     self.TBFilePos.Enabled := value;
-    self.TFinePos.Enabled := value;
+    self.tbFinePos.Enabled := value;
     self.ASmallSkipForward.Enabled := value;
     self.ALargeSkipForward.Enabled := value;
     self.AStepBackward.Enabled := value;
@@ -3349,12 +3359,12 @@ begin
     end else begin
       self.AStepForward.Enabled := false;
     end;
-    self.BJumpFrom.Enabled := value;
-    self.BJumpTo.Enabled := value;
-    self.BSetFrom.Enabled := value;
-    self.BSetTo.Enabled := value;
-    self.BFromStart.Enabled := value;
-    self.BToEnd.Enabled := value;
+    self.cmdJumpFrom.Enabled := value;
+    self.cmdJumpTo.Enabled := value;
+    self.cmdSetFrom.Enabled := value;
+    self.cmdSetTo.Enabled := value;
+    self.cmdFromStart.Enabled := value;
+    self.cmdToEnd.Enabled := value;
     //self.BPlayPause.Enabled := APlayPause.Enabled;
 end;
 
@@ -3372,7 +3382,7 @@ var
   SourcePin: IPin;
   InPin: IPin;
 begin
-  InPin := SampleGrabber1.InPutPin;
+  InPin := SampleGrabber.InPutPin;
   Result := InPin.ConnectedTo(SourcePin);
   if Result <> S_OK then begin
     exit;
@@ -3606,7 +3616,7 @@ end;
 
 procedure TFMain.RequestProgressDialogCancel(Sender: TObject);
 begin
-  IdHTTP1.DisconnectSocket;
+  IdHTTP.DisconnectSocket;
   RequestWorker.WaitFor;
 end;
 
@@ -3640,11 +3650,11 @@ begin
   end;
   Sender.ReturnValue := -1;
   try
-    IdHttp1.HandleRedirects := data.HandleRedirects;
+    IdHTTP.HandleRedirects := data.HandleRedirects;
     if data.IsPostRequest then
-      Response := IdHTTP1.Post(data.Url, data.PostData)
+      Response := IdHTTP.Post(data.Url, data.PostData)
     else
-      Response := IdHTTP1.Get(data.Url);
+      Response := IdHTTP.Get(data.Url);
     data.Response := Response;
   finally
     // Only for testing purposes
@@ -3683,21 +3693,21 @@ end;
 
 procedure TFMain.InitHttpProperties;
 begin
-  self.IdHTTP1.ConnectTimeout := 1000 * Settings.NetTimeout;
-  self.IdHTTP1.ReadTimeout := 1000 * Settings.NetTimeout;
-  self.IdHTTP1.ProxyParams.ProxyServer := Settings.proxyServerName;
-  self.IdHTTP1.ProxyParams.ProxyPort := Settings.proxyPort;
-  self.IdHTTP1.ProxyParams.ProxyUsername := Settings.proxyUserName;
-  self.IdHTTP1.ProxyParams.ProxyPassword := Settings.proxyPassword;
+  self.IdHTTP.ConnectTimeout := 1000 * Settings.NetTimeout;
+  self.IdHTTP.ReadTimeout := 1000 * Settings.NetTimeout;
+  self.IdHTTP.ProxyParams.ProxyServer := Settings.proxyServerName;
+  self.IdHTTP.ProxyParams.ProxyPort := Settings.proxyPort;
+  self.IdHTTP.ProxyParams.ProxyUsername := Settings.proxyUserName;
+  self.IdHTTP.ProxyParams.ProxyPassword := Settings.proxyPassword;
 end;
 
-procedure TFMain.IdHTTP1Status(ASender: TObject; const AStatus: TIdStatus;
+procedure TFMain.IdHTTPStatus(ASender: TObject; const AStatus: TIdStatus;
   const AStatusText: String);
 begin
   RequestProgressDialog.Text := AStatusText;
 end;
 
-procedure TFMain.IdHTTP1Work(Sender: TObject; AWorkMode: TWorkMode;
+procedure TFMain.IdHTTPWork(Sender: TObject; AWorkMode: TWorkMode;
   const AWorkCount: Integer);
 begin
   case AWorkMode of

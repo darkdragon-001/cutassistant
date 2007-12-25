@@ -22,7 +22,7 @@ object FCutlistInfo: TFCutlistInfo
     520)
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
+  object lblInfoCaption: TLabel
     Left = 7
     Top = 7
     Width = 123
@@ -36,7 +36,7 @@ object FCutlistInfo: TFCutlistInfo
     Font.Style = []
     ParentFont = False
   end
-  object Label2: TLabel
+  object lblComment: TLabel
     Left = 7
     Top = 442
     Width = 72
@@ -44,7 +44,7 @@ object FCutlistInfo: TFCutlistInfo
     Anchors = [akLeft, akBottom]
     Caption = 'User Comment:'
   end
-  object Label3: TLabel
+  object lblSuggestedFilename: TLabel
     Left = 7
     Top = 397
     Width = 221
@@ -62,7 +62,7 @@ object FCutlistInfo: TFCutlistInfo
     Caption = 'Frame rate: N/A (-)'
     Layout = tlCenter
   end
-  object RGRatingByAuthor: TRadioGroup
+  object rgRatingByAuthor: TRadioGroup
     Left = 7
     Top = 33
     Width = 481
@@ -96,7 +96,7 @@ object FCutlistInfo: TFCutlistInfo
     DesignSize = (
       481
       176)
-    object CBEPGError: TCheckBox
+    object cbEPGError: TCheckBox
       Left = 7
       Top = 20
       Width = 410
@@ -105,9 +105,9 @@ object FCutlistInfo: TFCutlistInfo
         'Wrong content, EPG error (filename does not match content). Actu' +
         'al content:'
       TabOrder = 0
-      OnClick = CBEPGErrorClick
+      OnClick = cbEPGErrorClick
     end
-    object CBMissingBeginning: TCheckBox
+    object cbMissingBeginning: TCheckBox
       Left = 7
       Top = 72
       Width = 182
@@ -116,7 +116,7 @@ object FCutlistInfo: TFCutlistInfo
       TabOrder = 2
       OnClick = EnableOK
     end
-    object CBMissingEnding: TCheckBox
+    object cbMissingEnding: TCheckBox
       Left = 7
       Top = 91
       Width = 182
@@ -125,7 +125,7 @@ object FCutlistInfo: TFCutlistInfo
       TabOrder = 3
       OnClick = EnableOK
     end
-    object CBMissingVideo: TCheckBox
+    object cbMissingVideo: TCheckBox
       Left = 7
       Top = 111
       Width = 215
@@ -134,7 +134,7 @@ object FCutlistInfo: TFCutlistInfo
       TabOrder = 4
       OnClick = EnableOK
     end
-    object CBMissingAudio: TCheckBox
+    object cbMissingAudio: TCheckBox
       Left = 7
       Top = 130
       Width = 215
@@ -143,16 +143,16 @@ object FCutlistInfo: TFCutlistInfo
       TabOrder = 5
       OnClick = EnableOK
     end
-    object CBOtherError: TCheckBox
+    object cbOtherError: TCheckBox
       Left = 7
       Top = 153
       Width = 78
       Height = 14
       Caption = 'Other Error:'
       TabOrder = 6
-      OnClick = CBOtherErrorClick
+      OnClick = cbOtherErrorClick
     end
-    object EOtherErrorDescription: TEdit
+    object edtOtherErrorDescription: TEdit
       Left = 85
       Top = 149
       Width = 384
@@ -161,7 +161,7 @@ object FCutlistInfo: TFCutlistInfo
       TabOrder = 7
       OnChange = EnableOK
     end
-    object EActualContent: TEdit
+    object edtActualContent: TEdit
       Left = 26
       Top = 39
       Width = 443
@@ -191,7 +191,7 @@ object FCutlistInfo: TFCutlistInfo
     ModalResult = 1
     TabOrder = 7
   end
-  object EUserComment: TEdit
+  object edtUserComment: TEdit
     Left = 7
     Top = 462
     Width = 481
@@ -208,7 +208,7 @@ object FCutlistInfo: TFCutlistInfo
     Anchors = [akLeft, akRight, akBottom]
     BevelInner = bvLowered
     TabOrder = 6
-    object LAuthor: TLabel
+    object lblAuthor: TLabel
       Left = 2
       Top = 6
       Width = 294
@@ -229,7 +229,7 @@ object FCutlistInfo: TFCutlistInfo
       Transparent = True
     end
   end
-  object CBFramesPresent: TCheckBox
+  object cbFramesPresent: TCheckBox
     Left = 345
     Top = 12
     Width = 143
@@ -240,7 +240,7 @@ object FCutlistInfo: TFCutlistInfo
     Enabled = False
     TabOrder = 5
   end
-  object EMovieName: TEdit
+  object edtMovieName: TEdit
     Left = 7
     Top = 416
     Width = 364
@@ -249,7 +249,7 @@ object FCutlistInfo: TFCutlistInfo
     TabOrder = 2
     OnChange = EnableOK
   end
-  object BMovieNameCopy: TButton
+  object cmdMovieNameCopy: TButton
     Left = 377
     Top = 416
     Width = 111
@@ -257,6 +257,6 @@ object FCutlistInfo: TFCutlistInfo
     Anchors = [akRight, akBottom]
     Caption = 'Copy from Filename'
     TabOrder = 3
-    OnClick = BMovieNameCopyClick
+    OnClick = cmdMovieNameCopyClick
   end
 end

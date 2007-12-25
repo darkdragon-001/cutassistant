@@ -17,18 +17,18 @@ object FCutlistSearchResults: TFCutlistSearchResults
   Position = poMainFormCenter
   PixelsPerInch = 96
   TextHeight = 13
-  object Panel1: TPanel
+  object pnlButtons: TPanel
     Left = 0
     Top = 254
     Width = 933
     Height = 34
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     DesignSize = (
       933
       34)
-    object BCancel: TButton
+    object cmdCancel: TButton
       Left = 829
       Top = 6
       Width = 95
@@ -46,7 +46,7 @@ object FCutlistSearchResults: TFCutlistSearchResults
       ParentFont = False
       TabOrder = 0
     end
-    object BOk: TButton
+    object cmdOk: TButton
       Left = 729
       Top = 6
       Width = 95
@@ -62,7 +62,7 @@ object FCutlistSearchResults: TFCutlistSearchResults
       Font.Style = []
       ParentFont = False
       TabOrder = 1
-      OnClick = BOkClick
+      OnClick = cmdOkClick
     end
   end
   object LLinklist: TListView
@@ -109,7 +109,7 @@ object FCutlistSearchResults: TFCutlistSearchResults
     ReadOnly = True
     RowSelect = True
     SortType = stText
-    TabOrder = 1
+    TabOrder = 0
     ViewStyle = vsReport
     OnClick = LLinklistClick
   end

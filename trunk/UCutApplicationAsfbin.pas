@@ -119,7 +119,7 @@ begin
   MustFreeTempCutlist := false;
   TempCutlist := (Cutlist as TCutlist);
 
-  if TempCutlist.Mode <> clmCrop then begin
+  if TempCutlist.Mode <> clmTrim then begin
     TempCutlist := TempCutlist.convert;
     MustFreeTempCutlist := True;
   end;

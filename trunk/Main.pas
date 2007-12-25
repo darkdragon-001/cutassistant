@@ -365,6 +365,8 @@ type
     procedure JvAppCommandAppCommand(Handle: Cardinal; Cmd: Word;
       Device: TJvAppCommandDevice; KeyState: Word; var Handled: Boolean);
     procedure ACurrentFramesExecute(Sender: TObject);
+    procedure FilterGraphGraphComplete(sender: TObject; Result: HRESULT;
+      Renderer: IBaseFilter);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -521,6 +523,20 @@ procedure TFMain.FormCreate(Sender: TObject);
 var
   numFrames: string;
 begin
+{
+procedure TModalForm.CreateParams(var Params: TCreateParams);
+  // override;
+begin
+  inherited;
+  if (Parent <> nil) or (ParentWindow <> 0) then
+    Exit;  // must not mess with wndparent if form is embedded
+
+  if Assigned(Owner) and (Owner is TWincontrol) then
+    Params.WndParent := TWinControl(Owner).handle
+  else if Assigned(Screen.Activeform) then
+    Params.WndParent := Screen.Activeform.Handle;
+end;
+}
   AdjustFormConstraints(self);
   if screen.WorkAreaWidth < self.Constraints.MinWidth then begin
     self.Constraints.MinWidth := screen.Width;
@@ -814,7 +830,7 @@ begin
 
   case cutlist.Mode of
     clmCutOut: self.RCutMode.ItemIndex := 0;
-    clmCrop: self.RCutMode.ItemIndex := 1;
+    clmTrim: self.RCutMode.ItemIndex := 1;
   end;
 
   if (cutlist.RatingByAuthorPresent and (cutlist.RatingByAuthor <=2))
@@ -1018,7 +1034,7 @@ begin
     if succeeded(filtergraph.QueryInterface(IMediaSeeking, Seeking)) then begin
       {if succeeded(seeking.IsFormatSupported(TIME_FORMAT_FRAME)) then begin
         seeking.SetTimeFormat(TIME_FORMAT_FRAME);
-      end;                              }                                   //does not work ???
+      end; }                                   //does not work ???
       seeking.GetTimeFormat(MovieInfo.TimeFormat);
       seeking.GetDuration(_dur_time);
       MovieInfo.current_file_duration := _dur_time;
@@ -2049,7 +2065,7 @@ procedure TFMain.RCutModeClick(Sender: TObject);
 begin
   case self.RCutMode.ItemIndex of
     0: cutlist.Mode := clmCutOut;
-    1: cutlist.Mode := clmCrop;
+    1: cutlist.Mode := clmTrim;
   end;
 end;
 
@@ -2672,7 +2688,7 @@ var
   CutRect: TRect;
 begin
   if MovieInfo.current_file_duration = 0 then exit;
-  if cutlist.Mode = clmCrop then
+  if cutlist.Mode = clmTrim then
     TBFilePos.ChannelCanvas.Brush.Color := clgreen
   else
     TBFilePos.ChannelCanvas.Brush.Color := clred;
@@ -3738,6 +3754,14 @@ procedure TFMain.APauseExecute(Sender: TObject);
 begin
   GraphPause;
 end;
+
+procedure TFMain.FilterGraphGraphComplete(sender: TObject; Result: HRESULT;
+  Renderer: IBaseFilter);
+begin
+  // implement cut preview ...
+  //ShowMessage('Complete');
+end;
+
 
 initialization
 begin

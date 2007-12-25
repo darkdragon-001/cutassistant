@@ -76,7 +76,7 @@ begin
     self.LTimeList.Clear;
     exit;
   end;
-  if cutlist.Mode = clmCrop then begin
+  if cutlist.Mode = clmTrim then begin
     self.LTimeList.Clear;
     time := 0;
     setlength(To_Array, cutlist.Count);

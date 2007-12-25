@@ -37,7 +37,7 @@ object FSettings: TFSettings
       DesignSize = (
         554
         250)
-      object Label8: TLabel
+      object lblUsername: TLabel
         Left = 12
         Top = 6
         Width = 102
@@ -45,7 +45,7 @@ object FSettings: TFSettings
         Alignment = taRightJustify
         Caption = 'User Name (optional):'
       end
-      object Label9: TLabel
+      object lblUserID: TLabel
         Left = 31
         Top = 33
         Width = 83
@@ -53,7 +53,7 @@ object FSettings: TFSettings
         Alignment = taRightJustify
         Caption = 'User ID (random):'
       end
-      object Label16: TLabel
+      object lblFramesSize: TLabel
         Left = 21
         Top = 60
         Width = 93
@@ -62,7 +62,7 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = 'Frame preview size:'
       end
-      object Label17: TLabel
+      object nllbl1: TLabel
         Left = 148
         Top = 60
         Width = 19
@@ -71,7 +71,7 @@ object FSettings: TFSettings
         AutoSize = False
         Caption = 'px x'
       end
-      object Label22: TLabel
+      object lblFramesCount: TLabel
         Left = 12
         Top = 87
         Width = 102
@@ -80,7 +80,7 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = 'Frame preview count:'
       end
-      object Label27: TLabel
+      object lblFramesSizeChangeHint: TLabel
         Left = 218
         Top = 60
         Width = 114
@@ -88,7 +88,7 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = '(change requires restart)'
       end
-      object Label28: TLabel
+      object lblFramesCountChangeHint: TLabel
         Left = 218
         Top = 87
         Width = 114
@@ -96,7 +96,7 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = '(change requires restart)'
       end
-      object Label32: TLabel
+      object lblSmallSkip: TLabel
         Left = 42
         Top = 116
         Width = 72
@@ -105,7 +105,7 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = 'Small skip time:'
       end
-      object Label33: TLabel
+      object lblLargeSkip: TLabel
         Left = 41
         Top = 144
         Width = 74
@@ -132,7 +132,7 @@ object FSettings: TFSettings
         AutoSize = False
         Caption = 's'
       end
-      object Label36: TLabel
+      object nllbl2: TLabel
         Left = 200
         Top = 60
         Width = 11
@@ -142,7 +142,7 @@ object FSettings: TFSettings
         AutoSize = False
         Caption = 'px'
       end
-      object Label37: TLabel
+      object lblNetTimeout: TLabel
         Left = 35
         Top = 173
         Width = 80
@@ -159,6 +159,15 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 's'
+      end
+      object lblLanguage: TLabel
+        Left = 64
+        Top = 202
+        Width = 51
+        Height = 13
+        Alignment = taRightJustify
+        Anchors = [akTop, akRight]
+        Caption = 'Language:'
       end
       object EUserName: TEdit
         Left = 120
@@ -223,15 +232,15 @@ object FSettings: TFSettings
         Width = 181
         Height = 45
         Hint = 
-          'Cut out: New file is everything except cuts. Crop: New file is s' +
-          'um of cuts.'
+          'Cut out: New file is everything except cuts.'#13#10'Trim: New file is ' +
+          'sum of cuts.'
         Anchors = [akTop, akRight]
         Caption = 'Default Cut Mode'
         Columns = 2
         ItemIndex = 1
         Items.Strings = (
           'Cut out'
-          'Crop')
+          'Trim')
         ParentShowHint = False
         ShowHint = True
         TabOrder = 5
@@ -282,6 +291,19 @@ object FSettings: TFSettings
         Height = 17
         Caption = 'Auto mute on seek'
         TabOrder = 9
+      end
+      object cmbLanguage: TComboBox
+        Left = 120
+        Top = 199
+        Width = 213
+        Height = 21
+        Style = csDropDownList
+        ItemHeight = 13
+        ItemIndex = 0
+        TabOrder = 10
+        Text = 'Standard'
+        Items.Strings = (
+          'Standard')
       end
     end
     object TabSaveMovie: TTabSheet
@@ -786,7 +808,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 5
         OnChange = cbxCodecChange
       end
@@ -816,7 +838,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 8
         OnChange = cbxCodecChange
       end
@@ -846,7 +868,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 14
         OnChange = cbxCodecChange
       end
@@ -876,7 +898,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 17
         OnChange = cbxCodecChange
       end
@@ -918,7 +940,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 11
         OnChange = cbxCodecChange
       end
@@ -1037,7 +1059,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 3
         Text = '(none)'
@@ -1055,7 +1077,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 5
         Text = '(none)'
@@ -1073,7 +1095,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 6
         Text = '(none)'
@@ -1101,7 +1123,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
@@ -1136,7 +1158,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 4
         Text = '(none)'

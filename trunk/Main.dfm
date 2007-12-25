@@ -512,14 +512,14 @@ object FMain: TFMain
     Width = 122
     Height = 59
     Hint = 
-      'Cut out: New file is everything except cuts. Crop: NEw file is s' +
-      'um of cuts.'
+      'Cut out: New file is everything except cuts.'#13#10'Trim: New file is ' +
+      'sum of cuts.'
     Anchors = [akRight, akBottom]
     Caption = 'Cut Mode'
     ItemIndex = 0
     Items.Strings = (
       'Cut out'
-      'Crop')
+      'Trim')
     ParentShowHint = False
     ShowHint = True
     TabOrder = 28
@@ -1528,6 +1528,7 @@ object FMain: TFMain
   object FilterGraph: TFilterGraph
     GraphEdit = True
     LinearVolume = True
+    OnGraphComplete = FilterGraphGraphComplete
     OnGraphStepComplete = FilterGraphGraphStepComplete
     OnSelectedFilter = FilterGraphSelectedFilter
     Left = 48

@@ -16,7 +16,7 @@ type
   TFCutlistInfo = class(TForm)
     Label1: TLabel;
     RGRatingByAuthor: TRadioGroup;
-    GroupBox1: TGroupBox;
+    grpDetails: TGroupBox;
     CBEPGError: TCheckBox;
     CBMissingBeginning: TCheckBox;
     CBMissingEnding: TCheckBox;
@@ -25,12 +25,12 @@ type
     CBOtherError: TCheckBox;
     EOtherErrorDescription: TEdit;
     EActualContent: TEdit;
-    Button1: TButton;
-    Button2: TButton;
+    cmdCancel: TButton;
+    cmdOk: TButton;
     EUserComment: TEdit;
     Label2: TLabel;
     LAuthor: TLabel;
-    Panel1: TPanel;
+    pnlAuthor: TPanel;
     CBFramesPresent: TCheckBox;
     Label3: TLabel;
     EMovieName: TEdit;
@@ -62,7 +62,7 @@ procedure TFCutlistInfo.FormShow(Sender: TObject);
 begin
   CBEPGErrorClick(sender);
   CBOtherErrorClick(sender);
-  self.Button2.Enabled := false;
+  self.cmdOk.Enabled := false;
 end;
 
 procedure TFCutlistInfo.CBEPGErrorClick(Sender: TObject);
@@ -80,7 +80,7 @@ end;
 procedure TFCutlistInfo.EnableOK(Sender: TObject);
 begin
   if self.RGRatingByAuthor.ItemIndex < 0 then exit;
-  self.Button2.Enabled := true;
+  self.cmdOk.Enabled := true;
 end;
 
 procedure TFCutlistInfo.BMovieNameCopyClick(Sender: TObject);

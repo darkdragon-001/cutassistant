@@ -44,19 +44,19 @@ object FCutlistRate: TFCutlistRate
     Caption = 'How do you rate this cutlist?'
     Items.Strings = (
       
-        '0 - Test, do not use, or dummy cutlist to save only information ' +
-        'about the movie'
+        '&0 - Test, do not use, or dummy cutlist to save only information' +
+        ' about the movie'
       
-        '1 - Trimmed beginning and end, but there are one or more commerc' +
-        'ials still in the movie'
+        '&1 - Trimmed beginning and end, but there are one or more commer' +
+        'cials still in the movie'
       
-        '2 - All commercials cut out, but cutting was done very roughly (' +
-        '+/- 5 sec.)'
-      '3 - ... cutting was done fairly accurate (+/- 1 sec.)'
-      '4 - ... cutting was done very accurate (to frame)'
+        '&2 - All commercials cut out, but cutting was done very roughly ' +
+        '(+/- 5 sec.)'
+      '&3 - ... cutting was done fairly accurate (+/- 1 sec.)'
+      '&4 - ... cutting was done very accurate (to frame)'
       
-        '5 - ... perfect! (Duplicate scenes have been removed if necessar' +
-        'y)')
+        '&5 - ... perfect! (Duplicate scenes have been removed if necessa' +
+        'ry)')
     TabOrder = 0
     OnClick = RGRatingByAuthorClick
   end
@@ -69,7 +69,7 @@ object FCutlistRate: TFCutlistRate
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 1
+    TabOrder = 2
   end
   object ButtonOK: TButton
     Left = 313
@@ -81,6 +81,6 @@ object FCutlistRate: TFCutlistRate
     Default = True
     Enabled = False
     ModalResult = 1
-    TabOrder = 2
+    TabOrder = 1
   end
 end

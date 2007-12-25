@@ -71,21 +71,21 @@ object FCutlistInfo: TFCutlistInfo
     Caption = 'How do you rate your cutlist?'
     Items.Strings = (
       
-        '0 - Test, do not use, or dummy cutlist to save only information ' +
-        'about the movie (see below)'
+        '&0 - Test, do not use, or dummy cutlist to save only information' +
+        ' about the movie (see below)'
       
-        '1 - I trimmed beginning and end, but there may be one or more co' +
-        'mmercials still in the movie'
+        '&1 - I trimmed beginning and end, but there may be one or more c' +
+        'ommercials still in the movie'
       
-        '2 - All commercials cut out, but I did the cutting very roughly ' +
-        '(+/- 5 sec.)'
-      '3 - ... I did the cutting fairly accurate (+/- 1 sec.)'
-      '4 - ... I did the cutting very accurate (to frame)'
-      '5 - ... and I removed duplicate scenes if necessary')
+        '&2 - All commercials cut out, but I did the cutting very roughly' +
+        ' (+/- 5 sec.)'
+      '&3 - ... I did the cutting fairly accurate (+/- 1 sec.)'
+      '&4 - ... I did the cutting very accurate (to frame)'
+      '&5 - ... and I removed duplicate scenes if necessary')
     TabOrder = 0
     OnClick = EnableOK
   end
-  object GroupBox1: TGroupBox
+  object grpDetails: TGroupBox
     Left = 7
     Top = 208
     Width = 481
@@ -113,7 +113,7 @@ object FCutlistInfo: TFCutlistInfo
       Width = 182
       Height = 13
       Caption = 'Missing Beginning'
-      TabOrder = 1
+      TabOrder = 2
       OnClick = EnableOK
     end
     object CBMissingEnding: TCheckBox
@@ -122,7 +122,7 @@ object FCutlistInfo: TFCutlistInfo
       Width = 182
       Height = 14
       Caption = 'Missing Ending'
-      TabOrder = 2
+      TabOrder = 3
       OnClick = EnableOK
     end
     object CBMissingVideo: TCheckBox
@@ -131,7 +131,7 @@ object FCutlistInfo: TFCutlistInfo
       Width = 215
       Height = 13
       Caption = 'Missing Video track'
-      TabOrder = 3
+      TabOrder = 4
       OnClick = EnableOK
     end
     object CBMissingAudio: TCheckBox
@@ -140,7 +140,7 @@ object FCutlistInfo: TFCutlistInfo
       Width = 215
       Height = 14
       Caption = 'Missing Audio track'
-      TabOrder = 4
+      TabOrder = 5
       OnClick = EnableOK
     end
     object CBOtherError: TCheckBox
@@ -149,7 +149,7 @@ object FCutlistInfo: TFCutlistInfo
       Width = 78
       Height = 14
       Caption = 'Other Error:'
-      TabOrder = 5
+      TabOrder = 6
       OnClick = CBOtherErrorClick
     end
     object EOtherErrorDescription: TEdit
@@ -158,7 +158,7 @@ object FCutlistInfo: TFCutlistInfo
       Width = 384
       Height = 21
       Anchors = [akLeft, akTop, akRight]
-      TabOrder = 6
+      TabOrder = 7
       OnChange = EnableOK
     end
     object EActualContent: TEdit
@@ -167,29 +167,29 @@ object FCutlistInfo: TFCutlistInfo
       Width = 443
       Height = 21
       Anchors = [akLeft, akTop, akRight]
-      TabOrder = 7
+      TabOrder = 1
       OnChange = EnableOK
     end
   end
-  object Button1: TButton
+  object cmdCancel: TButton
     Left = 402
     Top = 491
     Width = 85
     Height = 20
     Anchors = [akRight, akBottom]
-    Caption = 'Cancel'
+    Caption = '&Cancel'
     ModalResult = 2
-    TabOrder = 2
+    TabOrder = 8
   end
-  object Button2: TButton
+  object cmdOk: TButton
     Left = 312
     Top = 491
     Width = 85
     Height = 20
     Anchors = [akRight, akBottom]
-    Caption = 'OK'
+    Caption = '&OK'
     ModalResult = 1
-    TabOrder = 3
+    TabOrder = 7
   end
   object EUserComment: TEdit
     Left = 7
@@ -200,14 +200,14 @@ object FCutlistInfo: TFCutlistInfo
     TabOrder = 4
     OnChange = EnableOK
   end
-  object Panel1: TPanel
+  object pnlAuthor: TPanel
     Left = 7
     Top = 488
     Width = 298
     Height = 26
     Anchors = [akLeft, akRight, akBottom]
     BevelInner = bvLowered
-    TabOrder = 5
+    TabOrder = 6
     object LAuthor: TLabel
       Left = 2
       Top = 6
@@ -234,10 +234,11 @@ object FCutlistInfo: TFCutlistInfo
     Top = 12
     Width = 143
     Height = 13
+    TabStop = False
     Anchors = [akTop, akRight]
     Caption = 'Frame numbers present'
     Enabled = False
-    TabOrder = 6
+    TabOrder = 5
   end
   object EMovieName: TEdit
     Left = 7
@@ -245,7 +246,7 @@ object FCutlistInfo: TFCutlistInfo
     Width = 364
     Height = 21
     Anchors = [akLeft, akRight, akBottom]
-    TabOrder = 7
+    TabOrder = 2
     OnChange = EnableOK
   end
   object BMovieNameCopy: TButton
@@ -255,7 +256,7 @@ object FCutlistInfo: TFCutlistInfo
     Height = 20
     Anchors = [akRight, akBottom]
     Caption = 'Copy from Filename'
-    TabOrder = 8
+    TabOrder = 3
     OnClick = BMovieNameCopyClick
   end
 end

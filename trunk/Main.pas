@@ -96,7 +96,7 @@ type
     actWriteToRegisty: TAction;
     actRemoveRegistryEntries: TAction;
     actCutlistUpload: TAction;
-    ihWebRequest: TIdHTTP;
+    WebRequest_nl: TIdHTTP;
     actStepForward: TAction;
     actStepBackward: TAction;
     actBrowseWWWHelp: TAction;
@@ -350,11 +350,11 @@ type
     procedure RequestWorkerRun(Sender: TIdCustomThreadComponent);
     procedure RequestWorkerException(Sender: TIdCustomThreadComponent;
       AException: Exception);
-    procedure ihWebRequestStatus(ASender: TObject; const AStatus: TIdStatus;
+    procedure WebRequest_nlStatus(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: String);
     procedure actSupportRequestExecute(Sender: TObject);
     procedure dlgRequestProgressCancel(Sender: TObject);
-    procedure ihWebRequestWork(Sender: TObject; AWorkMode: TWorkMode;
+    procedure WebRequest_nlWork(Sender: TObject; AWorkMode: TWorkMode;
       const AWorkCount: Integer);
     procedure actStopExecute(Sender: TObject);
     procedure actPlayPauseExecute(Sender: TObject);
@@ -473,7 +473,10 @@ implementation
 
 function TFMain.FormatMoviePosition(const position: double): string;
 begin
-  Result := FormatMoviePosition(Trunc(position / MovieInfo.frame_duration), position)
+  if MovieInfo.frame_duration = 0 then
+    Result := FormatMoviePosition(0, 0)
+  else
+    Result := FormatMoviePosition(Trunc(position / MovieInfo.frame_duration), position)
 end;
 
 function TFMain.FormatMoviePosition(const frame: longint; const duration: double): string;
@@ -2428,13 +2431,13 @@ begin
     try
       if result and (Length(response) > 5) then begin
           XMLResponse.LoadFromString(Response);
-          FCutlistSearchResults.LLinklist.Clear;
+          FCutlistSearchResults.lvLinklist.Clear;
 
           if XMLResponse.Root.ChildsCount > 0 then begin
             Node := XMLResponse.Root.Items;
             for idx := 0 to node.Count - 1 do begin
               CutNode := node.Item[idx].Items;
-              with FCutlistSearchResults.LLinklist.Items.Add do begin
+              with FCutlistSearchResults.lvLinklist.Items.Add do begin
                 Caption := CutNode.ItemNamed['id'].Value;
                 SubItems.Add(CutNode.ItemNamed['name'].Value);
                 SubItems.Add(CutNode.ItemNamed['rating'].Value);
@@ -2448,10 +2451,10 @@ begin
           end;
 
           if FCutlistSearchResults.ShowModal = mrOK then begin
-            result := self.DownloadCutlistByID(FCutlistSearchResults.Llinklist.Selected.Caption, FCutlistSearchResults.Llinklist.Selected.SubItems[0]);
+            result := self.DownloadCutlistByID(FCutlistSearchResults.lvLinklist.Selected.Caption, FCutlistSearchResults.lvLinklist.Selected.SubItems[0]);
             if result then begin
-              cutlist.IDOnServer :=  FCutlistSearchResults.Llinklist.Selected.Caption;
-              cutlist.RatingOnServer := StrToFloatDef(FCutlistSearchResults.Llinklist.Selected.SubItems[1], -1);
+              cutlist.IDOnServer :=  FCutlistSearchResults.lvLinklist.Selected.Caption;
+              cutlist.RatingOnServer := StrToFloatDef(FCutlistSearchResults.lvLinklist.Selected.SubItems[1], -1);
               self.actSendRating.Enabled := true;
             end;
           end;
@@ -3616,7 +3619,7 @@ end;
 
 procedure TFMain.dlgRequestProgressCancel(Sender: TObject);
 begin
-  ihWebRequest.DisconnectSocket;
+  WebRequest_nl.DisconnectSocket;
   RequestWorker.WaitFor;
 end;
 
@@ -3650,11 +3653,11 @@ begin
   end;
   Sender.ReturnValue := -1;
   try
-    ihWebRequest.HandleRedirects := data.HandleRedirects;
+    WebRequest_nl.HandleRedirects := data.HandleRedirects;
     if data.IsPostRequest then
-      Response := ihWebRequest.Post(data.Url, data.PostData)
+      Response := WebRequest_nl.Post(data.Url, data.PostData)
     else
-      Response := ihWebRequest.Get(data.Url);
+      Response := WebRequest_nl.Get(data.Url);
     data.Response := Response;
   finally
     // Only for testing purposes
@@ -3693,21 +3696,21 @@ end;
 
 procedure TFMain.InitHttpProperties;
 begin
-  self.ihWebRequest.ConnectTimeout := 1000 * Settings.NetTimeout;
-  self.ihWebRequest.ReadTimeout := 1000 * Settings.NetTimeout;
-  self.ihWebRequest.ProxyParams.ProxyServer := Settings.proxyServerName;
-  self.ihWebRequest.ProxyParams.ProxyPort := Settings.proxyPort;
-  self.ihWebRequest.ProxyParams.ProxyUsername := Settings.proxyUserName;
-  self.ihWebRequest.ProxyParams.ProxyPassword := Settings.proxyPassword;
+  self.WebRequest_nl.ConnectTimeout := 1000 * Settings.NetTimeout;
+  self.WebRequest_nl.ReadTimeout := 1000 * Settings.NetTimeout;
+  self.WebRequest_nl.ProxyParams.ProxyServer := Settings.proxyServerName;
+  self.WebRequest_nl.ProxyParams.ProxyPort := Settings.proxyPort;
+  self.WebRequest_nl.ProxyParams.ProxyUsername := Settings.proxyUserName;
+  self.WebRequest_nl.ProxyParams.ProxyPassword := Settings.proxyPassword;
 end;
 
-procedure TFMain.ihWebRequestStatus(ASender: TObject; const AStatus: TIdStatus;
+procedure TFMain.WebRequest_nlStatus(ASender: TObject; const AStatus: TIdStatus;
   const AStatusText: String);
 begin
   dlgRequestProgress.Text := AStatusText;
 end;
 
-procedure TFMain.ihWebRequestWork(Sender: TObject; AWorkMode: TWorkMode;
+procedure TFMain.WebRequest_nlWork(Sender: TObject; AWorkMode: TWorkMode;
   const AWorkCount: Integer);
 begin
   case AWorkMode of

@@ -9,10 +9,10 @@ uses
 type
   TFCutlistSearchResults = class(TForm)
     pnlButtons: TPanel;
-    LLinklist: TListView;
+    lvLinklist: TListView;
     cmdCancel: TButton;
     cmdOk: TButton;
-    procedure LLinklistClick(Sender: TObject);
+    procedure lvLinklistClick(Sender: TObject);
     procedure cmdOkClick(Sender: TObject);
   private
     { Private declarations }
@@ -36,24 +36,24 @@ var
   iLink: Integer;
   ALink: TListItem;
 begin
-  self.LLinklist.Clear;
+  self.lvLinklist.Clear;
   for iLInk := 0 to length(self.LinkList)-1 do begin
-      ALink := self.LLinklist.Items.Add;
+      ALink := self.lvLinklist.Items.Add;
       ALink.Caption := inttostr(iLink);
-      ALink.SubItems.Add(self.LinkLIst[iLInk, 0]);
+      ALink.SubItems.Add(self.LinkList[iLInk, 0]);
   end;
 end;
 
 
-procedure TFCutlistSearchResults.LLinklistClick(Sender: TObject);
+procedure TFCutlistSearchResults.lvLinklistClick(Sender: TObject);
 begin
-  if self.LLinklist.ItemIndex < 0 then exit;
+  if self.lvLinklist.ItemIndex < 0 then exit;
   self.ModalResult := mrOK;
 end;
 
 procedure TFCutlistSearchResults.cmdOkClick(Sender: TObject);
 begin
-  if LLinklist.ItemIndex >= 0 then
+  if lvLinklist.ItemIndex >= 0 then
     ModalResult := mrOk;
 end;
 

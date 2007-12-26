@@ -12,7 +12,7 @@ type
   TFResultingTimes = class(TForm)
     lvTimeList: TListView;
     cmdClose: TButton;
-    Panel1: TPanel;
+    pnlMovieControl: TPanel;
     lblDuration: TLabel;
     pnlVideoWindow: TPanel;
     VideoWindow: TVideoWindow;

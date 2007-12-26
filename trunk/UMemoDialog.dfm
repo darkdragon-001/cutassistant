@@ -1,7 +1,7 @@
 object frmMemoDialog: TfrmMemoDialog
   Left = 733
   Top = 218
-  ActiveControl = BClose
+  ActiveControl = cmdClose
   AutoScroll = False
   Caption = 'Cut Assistant'
   ClientHeight = 393
@@ -20,7 +20,7 @@ object frmMemoDialog: TfrmMemoDialog
     393)
   PixelsPerInch = 96
   TextHeight = 13
-  object BClose: TButton
+  object cmdClose: TButton
     Left = 330
     Top = 362
     Width = 95
@@ -31,7 +31,7 @@ object frmMemoDialog: TfrmMemoDialog
     Default = True
     ModalResult = 1
     TabOrder = 1
-    OnClick = BCloseClick
+    OnClick = cmdCloseClick
   end
   object memInfo: TMemo
     Left = 0

@@ -8,9 +8,9 @@ uses
 
 type
   TfrmMemoDialog = class(TForm)
-    BClose: TButton;
+    cmdClose: TButton;
     memInfo: TMemo;
-    procedure BCloseClick(Sender: TObject);
+    procedure cmdCloseClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -25,7 +25,7 @@ implementation
 {$R *.dfm}
 
 
-procedure TfrmMemoDialog.BCloseClick(Sender: TObject);
+procedure TfrmMemoDialog.cmdCloseClick(Sender: TObject);
 begin
   self.Hide;
 end;

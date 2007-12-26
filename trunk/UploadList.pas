@@ -8,10 +8,10 @@ uses
 
 type
   TFUploadList = class(TForm)
-    Panel1: TPanel;
-    LLinklist: TListView;
-    BCancel: TButton;
-    BDelete: TButton;
+    pnlButtons: TPanel;
+    lvLinklist: TListView;
+    cmdCancel: TButton;
+    cmdDelete: TButton;
   private
     { Private declarations }
   public

@@ -2614,11 +2614,13 @@ var
     end;
   end;
 begin
+  if FUploadList.Visible then
+    exit;
   //Fill ListView
-  FUploadList.LLinklist.Clear;
+  FUploadList.lvLinklist.Clear;
   for idx := 0 to UploadDataEntries.Count - 1 do begin
     entry := Copy(UploadDataEntries.Strings[idx],1,MaxInt);
-    with FUploadList.LLinklist.Items.Add do begin
+    with FUploadList.lvLinklist.Items.Add do begin
       Caption := NextField(entry, '=');
       SubItems.Add(NextField(entry, ';'));
       dateTimeToString(DateString, 'ddddd tt', StrToFloat(NextField(entry, ';')));
@@ -2627,10 +2629,10 @@ begin
   end;
 
   //Show Dialog and delete cutlist
-  if (FUploadList.ShowModal = mrOK) and (FUploadList.LLinklist.SelCount = 1) then begin
-    if self.DeleteCutlistFromServer(FUploadList.LLinklist.Selected.Caption) then begin
+  if (FUploadList.ShowModal = mrOK) and (FUploadList.lvLinklist.SelCount = 1) then begin
+    if self.DeleteCutlistFromServer(FUploadList.lvLinklist.Selected.Caption) then begin
       //Success, so delete Record in upload list
-      UploadDataEntries.Delete(FUploadList.LLinklist.ItemIndex);
+      UploadDataEntries.Delete(FUploadList.lvLinklist.ItemIndex);
       UploadDataEntries.SaveToFile(UploadData_Path(true));
     end;
   end;

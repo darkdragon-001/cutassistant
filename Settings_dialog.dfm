@@ -114,7 +114,7 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = 'Large skip time:'
       end
-      object Label34: TLabel
+      object lblSmallSkipSecs: TLabel
         Left = 148
         Top = 116
         Width = 15
@@ -123,7 +123,7 @@ object FSettings: TFSettings
         AutoSize = False
         Caption = 's'
       end
-      object Label35: TLabel
+      object lblLargeSkipSecs: TLabel
         Left = 148
         Top = 144
         Width = 15
@@ -151,7 +151,7 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = 'Network timeout:'
       end
-      object Label38: TLabel
+      object lblNetTimeoutSecs: TLabel
         Left = 148
         Top = 173
         Width = 15
@@ -806,7 +806,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 1
         OnChange = cmbCodecChange
       end
@@ -836,7 +836,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 5
         OnChange = cmbCodecChange
       end
@@ -866,7 +866,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 13
         OnChange = cmbCodecChange
       end
@@ -896,7 +896,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 17
         OnChange = cmbCodecChange
       end
@@ -938,7 +938,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 9
         OnChange = cmbCodecChange
       end
@@ -1057,7 +1057,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 3
         Text = '(none)'
@@ -1075,7 +1075,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 5
         Text = '(none)'
@@ -1093,7 +1093,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 6
         Text = '(none)'
@@ -1121,7 +1121,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
@@ -1156,7 +1156,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 4
         Text = '(none)'

@@ -2372,11 +2372,11 @@ object FMain: TFMain
       FC0300000000E07FFC0300010001F07F00000000000000000000000000000000
       000000000000}
   end
-  object ihWebRequest: TIdHTTP
-    OnStatus = ihWebRequestStatus
+  object WebRequest_nl: TIdHTTP
+    OnStatus = WebRequest_nlStatus
     MaxLineAction = maException
     ReadTimeout = 15000
-    OnWork = ihWebRequestWork
+    OnWork = WebRequest_nlWork
     AllowCookies = True
     HandleRedirects = True
     ProxyParams.BasicAuthentication = False

@@ -54,7 +54,7 @@ object FResultingTimes: TFResultingTimes
     ViewStyle = vsReport
     OnDblClick = lvTimeListDblClick
   end
-  object Panel1: TPanel
+  object pnlMovieControl: TPanel
     Left = 0
     Top = 352
     Width = 592

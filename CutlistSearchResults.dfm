@@ -1,7 +1,7 @@
 object FCutlistSearchResults: TFCutlistSearchResults
   Left = 175
   Top = 316
-  ActiveControl = LLinklist
+  ActiveControl = lvLinklist
   AutoScroll = False
   Caption = 'Cutlist Search Results'
   ClientHeight = 288
@@ -65,7 +65,7 @@ object FCutlistSearchResults: TFCutlistSearchResults
       OnClick = cmdOkClick
     end
   end
-  object LLinklist: TListView
+  object lvLinklist: TListView
     Left = 0
     Top = 0
     Width = 933
@@ -111,6 +111,6 @@ object FCutlistSearchResults: TFCutlistSearchResults
     SortType = stText
     TabOrder = 0
     ViewStyle = vsReport
-    OnClick = LLinklistClick
+    OnClick = lvLinklistClick
   end
 end

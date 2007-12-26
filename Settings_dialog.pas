@@ -112,12 +112,12 @@ type
     lblSmallSkip: TLabel;
     lblLargeSkip: TLabel;
     edtLargeSkip_nl: TEdit;
-    Label34: TLabel;
-    Label35: TLabel;
+    lblSmallSkipSecs: TLabel;
+    lblLargeSkipSecs: TLabel;
     lblFramesSizey_nl: TLabel;
     edtNetTimeout_nl: TEdit;
     lblNetTimeout: TLabel;
-    Label38: TLabel;
+    lblNetTimeoutSecs: TLabel;
     cbAutoMuteOnSeek: TCheckBox;
     cmbCodecWmv_nl: TComboBox;
     btnCodecConfigWmv: TButton;

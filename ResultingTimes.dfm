@@ -1,7 +1,7 @@
 object FResultingTimes: TFResultingTimes
   Left = 373
   Top = 377
-  ActiveControl = BClose
+  ActiveControl = cmdClose
   AutoScroll = False
   Caption = 'Check cuts after cutting'
   ClientHeight = 396
@@ -22,7 +22,7 @@ object FResultingTimes: TFResultingTimes
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object LTimeList: TListView
+  object lvTimeList: TListView
     Left = 360
     Top = 0
     Width = 232
@@ -50,9 +50,9 @@ object FResultingTimes: TFResultingTimes
     ReadOnly = True
     RowSelect = True
     SortType = stText
-    TabOrder = 0
+    TabOrder = 1
     ViewStyle = vsReport
-    OnDblClick = LTimeListDblClick
+    OnDblClick = lvTimeListDblClick
   end
   object Panel1: TPanel
     Left = 0
@@ -62,46 +62,50 @@ object FResultingTimes: TFResultingTimes
     Align = alBottom
     BevelOuter = bvNone
     Constraints.MinWidth = 360
-    TabOrder = 1
+    TabOrder = 2
     DesignSize = (
       592
       44)
-    object Label1: TLabel
-      Left = 360
-      Top = 7
-      Width = 106
+    object lblDuration: TLabel
+      Left = 364
+      Top = 9
+      Width = 38
       Height = 26
+      Hint = 
+        'Double click entry in list to jump <x> seconds before end of par' +
+        't.'
+      Alignment = taRightJustify
       Anchors = [akTop, akRight]
-      Caption = 'Double Click = jump to end of part -'
+      Caption = 'Check duration'
       WordWrap = True
     end
     object Label8: TLabel
       Left = 214
-      Top = 7
+      Top = 10
       Width = 18
       Height = 13
       Alignment = taRightJustify
       Anchors = [akTop, akRight]
       Caption = 'Vol.'
     end
-    object Label2: TLabel
+    object lblPosition: TLabel
       Left = 77
-      Top = 7
+      Top = 10
       Width = 21
       Height = 13
       Alignment = taRightJustify
       Caption = 'Pos.'
     end
-    object Label3: TLabel
-      Left = 462
-      Top = 20
+    object lblSeconds: TLabel
+      Left = 454
+      Top = 16
       Width = 20
       Height = 13
       Alignment = taRightJustify
       Anchors = [akTop, akRight]
       Caption = 'sec.'
     end
-    object BClose: TButton
+    object cmdClose: TButton
       Left = 492
       Top = 13
       Width = 95
@@ -109,10 +113,10 @@ object FResultingTimes: TFResultingTimes
       Anchors = [akTop, akRight]
       Caption = 'Close'
       ModalResult = 1
-      TabOrder = 0
-      OnClick = BCloseClick
+      TabOrder = 6
+      OnClick = cmdCloseClick
     end
-    object TVolume: TTrackBar
+    object tbVolume: TTrackBar
       Left = 233
       Top = 7
       Width = 122
@@ -121,10 +125,10 @@ object FResultingTimes: TFResultingTimes
       Max = 10000
       Frequency = 1000
       Position = 5000
-      TabOrder = 1
-      OnChange = TVolumeChange
+      TabOrder = 3
+      OnChange = tbVolumeChange
     end
-    object BPause: TButton
+    object cmdPause: TButton
       Left = 41
       Top = 7
       Width = 27
@@ -133,10 +137,10 @@ object FResultingTimes: TFResultingTimes
       Caption = 'II'
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 2
-      OnClick = BPauseClick
+      TabOrder = 1
+      OnClick = cmdPauseClick
     end
-    object BPlay: TButton
+    object cmdPlay: TButton
       Left = 9
       Top = 7
       Width = 27
@@ -145,50 +149,50 @@ object FResultingTimes: TFResultingTimes
       Caption = '>'
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 3
-      OnClick = BPlayClick
+      TabOrder = 0
+      OnClick = cmdPlayClick
     end
-    object DSTrackBar1: TDSTrackBar
+    object tbPosition: TDSTrackBar
       Left = 98
       Top = 7
       Width = 112
       Height = 26
       Anchors = [akLeft, akTop, akRight]
       Frequency = 300
-      TabOrder = 4
+      TabOrder = 2
       FilterGraph = FilterGraph
     end
-    object ESeconds: TEdit
-      Left = 423
-      Top = 20
-      Width = 20
+    object edtDuration: TEdit
+      Left = 412
+      Top = 12
+      Width = 23
       Height = 21
       Anchors = [akTop, akRight]
       ReadOnly = True
-      TabOrder = 5
+      TabOrder = 4
       Text = '0'
     end
-    object UDSeconds: TUpDown
-      Left = 443
-      Top = 20
+    object udDuration: TUpDown
+      Left = 435
+      Top = 12
       Width = 15
       Height = 21
       Anchors = [akTop, akRight]
-      Associate = ESeconds
+      Associate = edtDuration
       Max = 99
-      TabOrder = 6
-      OnChanging = UDSecondsChanging
+      TabOrder = 5
+      OnChanging = udDurationChanging
     end
   end
-  object PanelVideoWindow: TPanel
+  object pnlVideoWindow: TPanel
     Left = 0
     Top = 0
     Width = 360
     Height = 352
     Align = alClient
     BevelOuter = bvNone
-    TabOrder = 2
-    OnResize = PanelVideoWindowResize
+    TabOrder = 0
+    OnResize = pnlVideoWindowResize
     DesignSize = (
       360
       352)

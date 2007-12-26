@@ -3,24 +3,22 @@ unit Main;
 interface
 
 uses
-  Windows, Messages, SysUtils, DateUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ComCtrls, OleCtrls, StdCtrls, contnrs, shellapi, Buttons,
+  Windows, Messages, SysUtils, DateUtils, Variants, Classes, Graphics, Controls,
+  Forms, Dialogs, ComCtrls, OleCtrls, StdCtrls, contnrs, shellapi, Buttons,
   ExtCtrls, strutils, iniFiles, Registry, ComObj, Menus, math, ToolWin, Clipbrd,
 
-  ImgList,
+  ImgList, ActnList,
 
-  IdBaseComponent, IdComponent,IdTCPConnection, IdTCPClient,IdHTTP,
-  IdMultipartFormData, IdException,
+  IdException, IdBaseComponent, IdComponent, IdThreadComponent, IdTCPConnection,
+  IdTCPClient, IdHTTP, IdMultipartFormData, IdAntiFreezeBase, IdAntiFreeze,
 
   DSPack, DSUtil, DirectShow9, wmf9, ActiveX,
 
   Settings_dialog, ManageFilters, UploadList, CutlistInfo_dialog, UCutlist,
-  Movie, Unit_DSTrackBarEx, trackBarEx, Utils,
+  Movie, Unit_DSTrackBarEx, trackBarEx, Utils, CodecSettings,
 
-  CodecSettings, JvComponentBase, JvSimpleXml, JclSimpleXML, IdAntiFreezeBase,
-  IdAntiFreeze, JvGIF, JvSpeedbar, JvExExtCtrls, JvExtComponent, JvExControls,
-  JvXPCore, JvXPBar, ActnList, IdThreadComponent, JvBaseDlg,
-  JvProgressDialog, JvAppCommand;
+  JvComponentBase, JvSimpleXml, JclSimpleXML, JvGIF, JvSpeedbar, JvExExtCtrls,
+  JvExtComponent, JvExControls, JvBaseDlg, JvProgressDialog, JvAppCommand;
 
 const
   //Registry Keys
@@ -34,7 +32,7 @@ type
   TFMain = class(TForm{, ISampleGrabberCB})
     cmdStop: TButton;
     cmdPlayPause: TButton;
-    Lcutlist: TListView;
+    lvCutlist: TListView;
     cmdAddCut: TButton;
     cmdDeleteCut: TButton;
     edtFrom: TEdit;
@@ -77,44 +75,44 @@ type
     pnlVideoWindow: TPanel;
     cmd12FromTo: TButton;
     cmdConvert: TButton;
-    OpenMovie: TAction;
-    OpenCutlist: TAction;
-    File_Exit: TAction;
+    actOpenMovie: TAction;
+    actOpenCutlist: TAction;
+    actFileExit: TAction;
     ImageList: TImageList;
-    SaveCutlistAs: TAction;
-    AddCut: TAction;
-    ReplaceCut: TAction;
-    EditCut: TAction;
-    DeleteCut: TAction;
-    AShowFramesForm: TAction;
-    ANextFrames: TAction;
-    APrevFrames: TAction;
-    AScanInterval: TAction;
-    AStartCutting: TAction;
-    EditSettings: TAction;
-    MovieMetaData: TAction;
-    About: TAction;
-    UsedFilters: TAction;
-    WriteToRegisty: TAction;
-    RemoveRegistryEntries: TAction;
-    CutlistUpload: TAction;
-    IdHTTP: TIdHTTP;
-    AStepForward: TAction;
-    AStepBackward: TAction;
-    BrowseWWWHelp: TAction;
-    OpenCutlistHome: TAction;
-    ARepairMovie: TAction;
+    actSaveCutlistAs: TAction;
+    actAddCut: TAction;
+    actReplaceCut: TAction;
+    actEditCut: TAction;
+    actDeleteCut: TAction;
+    actShowFramesForm: TAction;
+    actNextFrames: TAction;
+    actPrevFrames: TAction;
+    actScanInterval: TAction;
+    actStartCutting: TAction;
+    actEditSettings: TAction;
+    actMovieMetaData: TAction;
+    actAbout: TAction;
+    actUsedFilters: TAction;
+    actWriteToRegisty: TAction;
+    actRemoveRegistryEntries: TAction;
+    actCutlistUpload: TAction;
+    ihWebRequest: TIdHTTP;
+    actStepForward: TAction;
+    actStepBackward: TAction;
+    actBrowseWWWHelp: TAction;
+    actOpenCutlistHome: TAction;
+    actRepairMovie: TAction;
     cmdCutlistInfo: TBitBtn;
-    ACutlistInfo: TAction;
+    actCutlistInfo: TAction;
     ICutlistWarning: TImage;
-    ASaveCutlist: TAction;
-    ACalculateResultingTimes: TAction;
-    AAsfbinInfo: TAction;
+    actSaveCutlist: TAction;
+    actCalculateResultingTimes: TAction;
+    actAsfbinInfo: TAction;
     pnlAuthor: TPanel;
-    nl_lblCutlistAuthor: TLabel;
-    ASearchCutlistByFileSize: TAction;
-    ASendRating: TAction;
-    ADeleteCutlistFromServer: TAction;
+    lblCutlistAuthor_nl: TLabel;
+    actSearchCutlistByFileSize: TAction;
+    actSendRating: TAction;
+    actDeleteCutlistFromServer: TAction;
     lblTotalCutoff_nl: TLabel;
     lblResultingDuration_nl: TLabel;
     tbRate: TtrackBarEx;
@@ -123,70 +121,70 @@ type
     lblTrueRate_nl: TLabel;
     cmdNextCut: TButton;
     cmdPrevCut: TButton;
-    ANextCut: TAction;
-    APrevCut: TAction;
+    actNextCut: TAction;
+    actPrevCut: TAction;
     cmdFF: TButton;
     FilterGraph: TFilterGraph;
-    AFullScreen: TAction;
-    ACloseMovie: TAction;
-    ASnapshotCopy: TAction;
-    ASnapshotSave: TAction;
-    MenuVideo: TPopupMenu;
-    CopySnapshottoClipboard1: TMenuItem;
-    SaveSnapshotas1: TMenuItem;
-    APlayInMPlayerAndSkip: TAction;
-    FramePopUpNext12Frames: TMenuItem;
-    FramePopUpPrevious12Frames: TMenuItem;
-    N1: TMenuItem;
+    actFullScreen: TAction;
+    actCloseMovie: TAction;
+    actSnapshotCopy: TAction;
+    actSnapshotSave: TAction;
+    mnuVideo: TPopupMenu;
+    miVideoCopySnapshottoClipboard_nl: TMenuItem;
+    miVideoSaveSnapshotas_nl: TMenuItem;
+    actPlayInMPlayerAndSkip: TAction;
+    miVideoNextXFrames_nl: TMenuItem;
+    miVideoPreviousXFrames_nl: TMenuItem;
+    miN1_nl: TMenuItem;
     XMLResponse: TJvSimpleXML;
     ActionList: TActionList;
     SpeedBar_nl: TJvSpeedBar;
-    MainMenu: TMainMenu;
-    File1: TMenuItem;
-    Cutlist1: TMenuItem;
-    Edit1: TMenuItem;
-    Frames1: TMenuItem;
-    Info1: TMenuItem;
-    Options1: TMenuItem;
-    Help1: TMenuItem;
-    OpenMovie1: TMenuItem;
-    StartCutting1: TMenuItem;
-    PlayMovieinMPlayer1: TMenuItem;
-    RepairMovie1: TMenuItem;
-    CloseMovie1: TMenuItem;
-    N2: TMenuItem;
-    Exit1: TMenuItem;
-    OpenCutlist1: TMenuItem;
-    SearchCutlistsonServer1: TMenuItem;
-    N3: TMenuItem;
-    SaveCutlistAs1: TMenuItem;
-    SaveCutlist1: TMenuItem;
-    UploadCutlisttoServer1: TMenuItem;
-    DeleteCutlistfromServer1: TMenuItem;
-    N4: TMenuItem;
-    CutlistInfo1: TMenuItem;
-    CheckcutMovie1: TMenuItem;
-    SendRating1: TMenuItem;
-    Addnewcut1: TMenuItem;
-    Replaceselectedcut1: TMenuItem;
-    Editselectedcut1: TMenuItem;
-    Deleteselectedcut1: TMenuItem;
-    ShowForm1: TMenuItem;
-    N5: TMenuItem;
-    ScanInterval1: TMenuItem;
-    Previous12Frames1: TMenuItem;
-    Next12Frames1: TMenuItem;
-    MovieMetaData1: TMenuItem;
-    UsedFilters1: TMenuItem;
-    CutApplications1: TMenuItem;
-    Settings1: TMenuItem;
-    N6: TMenuItem;
-    Associatewithfileextensions1: TMenuItem;
-    Removeregistryentries1: TMenuItem;
-    CutlistHomepage1: TMenuItem;
-    InternetHelpPages1: TMenuItem;
-    N7: TMenuItem;
-    About1: TMenuItem;
+    mnuMain: TMainMenu;
+    miFile: TMenuItem;
+    miCutlist: TMenuItem;
+    miEdit: TMenuItem;
+    miFrames: TMenuItem;
+    miInfo: TMenuItem;
+    miOptions: TMenuItem;
+    miHelp: TMenuItem;
+    miOpenMovie_nl: TMenuItem;
+    miStartCutting_nl: TMenuItem;
+    miPlayMovieinMPlayer_nl: TMenuItem;
+    miRepairMovie_nl: TMenuItem;
+    miCloseMovie_nl: TMenuItem;
+    miN2_nl: TMenuItem;
+    miExit_nl: TMenuItem;
+    miOpenCutlist_nl: TMenuItem;
+    miSearchCutlistsonServer_nl: TMenuItem;
+    miN3_nl: TMenuItem;
+    miSaveCutlistAs_nl: TMenuItem;
+    miSaveCutlist_nl: TMenuItem;
+    miUploadCutlisttoServer_nl: TMenuItem;
+    miDeleteCutlistfromServer_nl: TMenuItem;
+    miN4_nl: TMenuItem;
+    miCutlistInfo_nl: TMenuItem;
+    miCheckcutMovie_nl: TMenuItem;
+    miSendRating_nl: TMenuItem;
+    miAddnewcut_nl: TMenuItem;
+    miReplaceselectedcut_nl: TMenuItem;
+    miEditselectedcut_nl: TMenuItem;
+    miDeleteselectedcut_nl: TMenuItem;
+    miShowForm_nl: TMenuItem;
+    miN5_nl: TMenuItem;
+    miScanInterval_nl: TMenuItem;
+    miPreviousXFrames_nl: TMenuItem;
+    miNextXFrames_nl: TMenuItem;
+    miMovieMetaData_nl: TMenuItem;
+    miUsedFilters_nl: TMenuItem;
+    miCutApplications_nl: TMenuItem;
+    miSettings_nl: TMenuItem;
+    miN6_nl: TMenuItem;
+    miAssociatewithfileextensions_nl: TMenuItem;
+    miRemoveregistryentries_nl: TMenuItem;
+    miCutlistHomepage_nl: TMenuItem;
+    miInternetHelpPages_nl: TMenuItem;
+    miN7_nl: TMenuItem;
+    miAbout_nl: TMenuItem;
     JvSpeedBarSection1: TJvSpeedBarSection;
     JvSpeedItem1: TJvSpeedItem;
     JvSpeedItem2: TJvSpeedItem;
@@ -203,50 +201,50 @@ type
     JvSpeedItem13: TJvSpeedItem;
     JvSpeedItem14: TJvSpeedItem;
     JvSpeedItem15: TJvSpeedItem;
-    ASmallSkipForward: TAction;
-    ASmallSkipBackward: TAction;
-    ALargeSkipForward: TAction;
-    ALargeSkipBackward: TAction;
-    Navigation1: TMenuItem;
-    II1: TMenuItem;
-    II2: TMenuItem;
-    N8: TMenuItem;
-    III1: TMenuItem;
-    III2: TMenuItem;
-    N9: TMenuItem;
-    IIII1: TMenuItem;
-    IIII2: TMenuItem;
-    N10: TMenuItem;
-    N11: TMenuItem;
-    N12: TMenuItem;
-    AShowLogging: TAction;
-    N13: TMenuItem;
-    ShowLoggingMessages1: TMenuItem;
-    ATestExceptionHandling: TAction;
-    TestExceptionHandling1: TMenuItem;
-    ACheckInfoOnServer: TAction;
-    Checkinfoonserver1: TMenuItem;
-    AOpenCutassistantHome: TAction;
-    CutAssistantProject1: TMenuItem;
-    RequestProgressDialog: TJvProgressDialog;
+    actSmallSkipForward: TAction;
+    actSmallSkipBackward: TAction;
+    actLargeSkipForward: TAction;
+    actLargeSkipBackward: TAction;
+    miNavigation: TMenuItem;
+    miStepForward_nl: TMenuItem;
+    miStepBack_nl: TMenuItem;
+    miN8_nl: TMenuItem;
+    miSmallSkipForward_nl: TMenuItem;
+    miSmallSkipBack_nl: TMenuItem;
+    miN9_nl: TMenuItem;
+    miLargeSkipForward_nl: TMenuItem;
+    miLargeSkipBack_nl: TMenuItem;
+    miN10_nl: TMenuItem;
+    miNextCut_nl: TMenuItem;
+    miPrevCut_nl: TMenuItem;
+    actShowLogging: TAction;
+    miN13_nl: TMenuItem;
+    miShowLoggingMessages_nl: TMenuItem;
+    actTestExceptionHandling: TAction;
+    miTestExceptionHandling_nl: TMenuItem;
+    actCheckInfoOnServer: TAction;
+    miCheckinfoonserver_nl: TMenuItem;
+    actOpenCutassistantHome: TAction;
+    miCutAssistantProject_nl: TMenuItem;
+    dlgRequestProgress: TJvProgressDialog;
     RequestWorker: TIdThreadComponent;
-    ASupportRequest: TAction;
-    Makeasupportrequest1: TMenuItem;
+    actSupportRequest: TAction;
+    miMakeasupportrequest_nl: TMenuItem;
     lblMovieType_nl: TLabel;
     lblCutApplication_nl: TLabel;
     lblMovieFPS_nl: TLabel;
-    AStop: TAction;
-    APlayPause: TAction;
-    N14: TMenuItem;
-    N15: TMenuItem;
-    N16: TMenuItem;
-    APlay: TAction;
-    APause: TAction;
-    N17: TMenuItem;
-    N18: TMenuItem;
+    actStop: TAction;
+    actPlayPause: TAction;
+    miPlayPause_nl: TMenuItem;
+    miStop_nl: TMenuItem;
+    miN16_nl: TMenuItem;
+    actPlay: TAction;
+    actPause: TAction;
+    miPlay_nl: TMenuItem;
+    miPause_nl: TMenuItem;
     AppCommand: TJvAppCommand;
-    ACurrentFrames: TAction;
-    framesaround1: TMenuItem;
+    actCurrentFrames: TAction;
+    miFramesAround_nl: TMenuItem;
     JvSpeedItem16: TJvSpeedItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -259,12 +257,12 @@ type
     procedure cmdToEndClick(Sender: TObject);
     procedure cmdJumpFromClick(Sender: TObject);
     procedure cmdJumpToClick(Sender: TObject);
-    procedure AStepForwardExecute(Sender: TObject);
-    procedure AStepBackwardExecute(Sender: TObject);
+    procedure actStepForwardExecute(Sender: TObject);
+    procedure actStepBackwardExecute(Sender: TObject);
 
-    procedure LcutlistSelectItem(Sender: TObject; Item: TListItem;
+    procedure lvCutlistSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
-    procedure LcutlistDblClick(Sender: TObject);
+    procedure lvCutlistDblClick(Sender: TObject);
     procedure rgCutModeClick(Sender: TObject);
 
     procedure tbVolumeChange(Sender: TObject);
@@ -285,86 +283,86 @@ type
     procedure SampleGrabberBuffer(sender: TObject; SampleTime: Double;
       pBuffer: Pointer; BufferLen: Integer);
 
-    procedure OpenMovieExecute(Sender: TObject);
-    procedure OpenCutlistExecute(Sender: TObject);
-    procedure ASaveCutlistExecute(Sender: TObject);
-    procedure SaveCutlistAsExecute(Sender: TObject);
-    procedure File_ExitExecute(Sender: TObject);
-    procedure AddCutExecute(Sender: TObject);
-    procedure ReplaceCutExecute(Sender: TObject);
-    procedure EditCutExecute(Sender: TObject);
-    procedure DeleteCutExecute(Sender: TObject);
+    procedure actOpenMovieExecute(Sender: TObject);
+    procedure actOpenCutlistExecute(Sender: TObject);
+    procedure actSaveCutlistExecute(Sender: TObject);
+    procedure actSaveCutlistAsExecute(Sender: TObject);
+    procedure actFileExitExecute(Sender: TObject);
+    procedure actAddCutExecute(Sender: TObject);
+    procedure actReplaceCutExecute(Sender: TObject);
+    procedure actEditCutExecute(Sender: TObject);
+    procedure actDeleteCutExecute(Sender: TObject);
     procedure cmdConvertClick(Sender: TObject);
-    procedure ACutlistInfoExecute(Sender: TObject);
-    procedure ASearchCutlistByFileSizeExecute(Sender: TObject);
-    procedure CutlistUploadExecute(Sender: TObject);
-    procedure ASendRatingExecute(Sender: TObject);
-    procedure ADeleteCutlistFromServerExecute(Sender: TObject);
+    procedure actCutlistInfoExecute(Sender: TObject);
+    procedure actSearchCutlistByFileSizeExecute(Sender: TObject);
+    procedure actCutlistUploadExecute(Sender: TObject);
+    procedure actSendRatingExecute(Sender: TObject);
+    procedure actDeleteCutlistFromServerExecute(Sender: TObject);
 
-    procedure AShowFramesFormExecute(Sender: TObject);
-    procedure ANextFramesExecute(Sender: TObject);
-    procedure APrevFramesExecute(Sender: TObject);
-    procedure AScanIntervalExecute(Sender: TObject);
+    procedure actShowFramesFormExecute(Sender: TObject);
+    procedure actNextFramesExecute(Sender: TObject);
+    procedure actPrevFramesExecute(Sender: TObject);
+    procedure actScanIntervalExecute(Sender: TObject);
 
-    procedure ARepairMovieExecute(Sender: TObject);
-    procedure AStartCuttingExecute(Sender: TObject);
-    procedure AAsfbinInfoExecute(Sender: TObject);
-    procedure MovieMetaDataExecute(Sender: TObject);
-    procedure EditSettingsExecute(Sender: TObject);
-    procedure UsedFiltersExecute(Sender: TObject);
-    procedure AboutExecute(Sender: TObject);
-    procedure BrowseWWWHelpExecute(Sender: TObject);
-    procedure OpenCutlistHomeExecute(Sender: TObject);
+    procedure actRepairMovieExecute(Sender: TObject);
+    procedure actStartCuttingExecute(Sender: TObject);
+    procedure actAsfbinInfoExecute(Sender: TObject);
+    procedure actMovieMetaDataExecute(Sender: TObject);
+    procedure actEditSettingsExecute(Sender: TObject);
+    procedure actUsedFiltersExecute(Sender: TObject);
+    procedure actAboutExecute(Sender: TObject);
+    procedure actBrowseWWWHelpExecute(Sender: TObject);
+    procedure actOpenCutlistHomeExecute(Sender: TObject);
 
-    procedure WriteToRegistyExecute(Sender: TObject);
-    procedure RemoveRegistryEntriesExecute(Sender: TObject);
+    procedure actWriteToRegistyExecute(Sender: TObject);
+    procedure actRemoveRegistryEntriesExecute(Sender: TObject);
 
-    procedure ACalculateResultingTimesExecute(Sender: TObject);
+    procedure actCalculateResultingTimesExecute(Sender: TObject);
     procedure VideoWindowClick(Sender: TObject);
     procedure tbRateChange(Sender: TObject);
     procedure lblCurrentRate_nlDblClick(Sender: TObject);
-    procedure ANextCutExecute(Sender: TObject);
-    procedure APrevCutExecute(Sender: TObject);
+    procedure actNextCutExecute(Sender: TObject);
+    procedure actPrevCutExecute(Sender: TObject);
     procedure cmdFFMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure cmdFFMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure VideoWindowDblClick(Sender: TObject);
-    procedure AFullScreenExecute(Sender: TObject);
+    procedure actFullScreenExecute(Sender: TObject);
     procedure VideoWindowKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
-    procedure ACloseMovieExecute(Sender: TObject);
-    procedure ASnapshotCopyExecute(Sender: TObject);
-    procedure ASnapshotSaveExecute(Sender: TObject);
-    procedure APlayInMPlayerAndSkipExecute(Sender: TObject);
+    procedure actCloseMovieExecute(Sender: TObject);
+    procedure actSnapshotCopyExecute(Sender: TObject);
+    procedure actSnapshotSaveExecute(Sender: TObject);
+    procedure actPlayInMPlayerAndSkipExecute(Sender: TObject);
     function FilterGraphSelectedFilter(Moniker: IMoniker; FilterName: WideString; ClassID: TGUID): Boolean;
     procedure FramePopUpNext12FramesClick(Sender: TObject);
     procedure FramePopUpPrevious12FramesClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure AShowLoggingExecute(Sender: TObject);
-    procedure ATestExceptionHandlingExecute(Sender: TObject);
-    procedure ACheckInfoOnServerExecute(Sender: TObject);
-    procedure AOpenCutassistantHomeExecute(Sender: TObject);
+    procedure actShowLoggingExecute(Sender: TObject);
+    procedure actTestExceptionHandlingExecute(Sender: TObject);
+    procedure actCheckInfoOnServerExecute(Sender: TObject);
+    procedure actOpenCutassistantHomeExecute(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure RequestProgressDialogShow(Sender: TObject);
-    procedure RequestProgressDialogProgress(Sender: TObject;
+    procedure dlgRequestProgressShow(Sender: TObject);
+    procedure dlgRequestProgressProgress(Sender: TObject;
       var AContinue: Boolean);
     procedure RequestWorkerRun(Sender: TIdCustomThreadComponent);
     procedure RequestWorkerException(Sender: TIdCustomThreadComponent;
       AException: Exception);
-    procedure IdHTTPStatus(ASender: TObject; const AStatus: TIdStatus;
+    procedure ihWebRequestStatus(ASender: TObject; const AStatus: TIdStatus;
       const AStatusText: String);
-    procedure ASupportRequestExecute(Sender: TObject);
-    procedure RequestProgressDialogCancel(Sender: TObject);
-    procedure IdHTTPWork(Sender: TObject; AWorkMode: TWorkMode;
+    procedure actSupportRequestExecute(Sender: TObject);
+    procedure dlgRequestProgressCancel(Sender: TObject);
+    procedure ihWebRequestWork(Sender: TObject; AWorkMode: TWorkMode;
       const AWorkCount: Integer);
-    procedure AStopExecute(Sender: TObject);
-    procedure APlayPauseExecute(Sender: TObject);
-    procedure APlayExecute(Sender: TObject);
-    procedure APauseExecute(Sender: TObject);
+    procedure actStopExecute(Sender: TObject);
+    procedure actPlayPauseExecute(Sender: TObject);
+    procedure actPlayExecute(Sender: TObject);
+    procedure actPauseExecute(Sender: TObject);
     procedure AppCommandAppCommand(Handle: Cardinal; Cmd: Word;
       Device: TJvAppCommandDevice; KeyState: Word; var Handled: Boolean);
-    procedure ACurrentFramesExecute(Sender: TObject);
+    procedure actCurrentFramesExecute(Sender: TObject);
     procedure FilterGraphGraphComplete(sender: TObject; Result: HRESULT;
       Renderer: IBaseFilter);
   private
@@ -382,7 +380,7 @@ type
     function SampleCB(SampleTime: double; MediaSample: IMediaSample): HRESULT; stdcall;
     function  BufferCB(SampleTime: Double; pBuffer: PByte; BufferLen: longint): HResult; stdcall;
     }
-    procedure refresh_Lcutlist(cutlist: TCutlist);
+    procedure refresh_lvCutlist(cutlist: TCutlist);
     function WaitForStep(TimeOut: INteger): boolean;
     procedure WaitForFilterGraph;
     procedure HandleParameter(const param: string);
@@ -526,10 +524,10 @@ begin
   self.edtTo.Text := MovieInfo.FormatPosition(pos_to);
   if pos_to >= pos_from then begin
     self.edtDuration.Text := MovieInfo.FormatPosition(pos_to-pos_from);
-    self.AddCut.Enabled := true;
+    self.actAddCut.Enabled := true;
   end else begin
     self.edtDuration.Text := '';
-    self.AddCut.Enabled := false;
+    self.actAddCut.Enabled := false;
   end;
 end;
 
@@ -573,10 +571,10 @@ end;
   
 
   numFrames := IntToStr(Settings.FramesCount);
-  InitFramesProperties(self.ANextFrames, numFrames);
-  InitFramesProperties(self.ACurrentFrames, numFrames);
-  InitFramesProperties(self.APrevFrames, numFrames);
-  InitFramesProperties(self.AScanInterval, numFrames);
+  InitFramesProperties(self.actNextFrames, numFrames);
+  InitFramesProperties(self.actCurrentFrames, numFrames);
+  InitFramesProperties(self.actPrevFrames, numFrames);
+  InitFramesProperties(self.actScanInterval, numFrames);
 
   ResetForm;
 
@@ -596,7 +594,7 @@ end;
 
   self.rgCutMode.ItemIndex := settings.DefaultCutMode;
 
-  Cutlist.RefreshCallBack := self.refresh_Lcutlist;
+  Cutlist.RefreshCallBack := self.refresh_lvCutlist;
   cutlist.RefreshGUI;
 
   filtergraph.Volume := 5000;
@@ -634,7 +632,7 @@ begin
   JumpTo(pos_to);
 end;
 
-procedure TFMain.LcutlistSelectItem(Sender: TObject; Item: TListItem;
+procedure TFMain.lvCutlistSelectItem(Sender: TObject; Item: TListItem;
   Selected: Boolean);
 begin
   self.enable_del_buttons(true);
@@ -642,9 +640,9 @@ end;
 
 procedure TFMain.enable_del_buttons(value: boolean);
 begin
-  self.DeleteCut.enabled := value;
-  self.EditCut.Enabled := value;
-  self.ReplaceCut.Enabled := value;
+  self.actDeleteCut.enabled := value;
+  self.actEditCut.Enabled := value;
+  self.actReplaceCut.Enabled := value;
 end;
 
 
@@ -780,7 +778,7 @@ begin
   tbFinePos.Position := 0;
 end;
 
-procedure TFMain.refresh_Lcutlist(cutlist: TCutlist);
+procedure TFMain.refresh_lvCutlist(cutlist: TCutlist);
 var
   icut: integer;
   cut: tcut;
@@ -788,29 +786,29 @@ var
   i_column: integer;
   total_cutoff, resulting_duration: Double;
 begin
-  self.Lcutlist.Clear;
-  self.ASendRating.Enabled := cutlist.IDOnServer <> '';
+  self.lvCutlist.Clear;
+  self.actSendRating.Enabled := cutlist.IDOnServer <> '';
 
   if cutlist.Count = 0 then begin
-    self.AStartCutting.Enabled := false;
-    self.ACalculateResultingTimes.Enabled := false;
-    self.SaveCutlistAs.Enabled := false;
-    self.ASaveCutlist.Enabled := false;
-    self.CutlistUpload.Enabled := false;
-    self.ANextCut.Enabled := false;
-    self.APrevCut.Enabled := false;
+    self.actStartCutting.Enabled := false;
+    self.actCalculateResultingTimes.Enabled := false;
+    self.actSaveCutlistAs.Enabled := false;
+    self.actSaveCutlist.Enabled := false;
+    self.actCutlistUpload.Enabled := false;
+    self.actNextCut.Enabled := false;
+    self.actPrevCut.Enabled := false;
     self.enable_del_buttons(false);
   end else begin
-    self.AStartCutting.Enabled := true;
-    self.ACalculateResultingTimes.Enabled := true;
-    self.SaveCutlistAs.Enabled := true;
-    self.ASaveCutlist.Enabled := true;
-    self.CutlistUpload.Enabled := true;
-    self.ANextCut.Enabled := true;
-    self.APrevCut.Enabled := true;
+    self.actStartCutting.Enabled := true;
+    self.actCalculateResultingTimes.Enabled := true;
+    self.actSaveCutlistAs.Enabled := true;
+    self.actSaveCutlist.Enabled := true;
+    self.actCutlistUpload.Enabled := true;
+    self.actNextCut.Enabled := true;
+    self.actPrevCut.Enabled := true;
     for icut := 0 to cutlist.Count-1 do begin
       cut := cutlist[icut];
-      cut_view := self.Lcutlist.Items.Add;
+      cut_view := self.lvCutlist.Items.Add;
       cut_view.Caption := inttostr(icut); //inttostr(cut.index);
       cut_view.SubItems.Add(MovieInfo.FormatPosition(cut.pos_from));
       cut_view.SubItems.Add(MovieInfo.FormatPosition(cut.pos_to));
@@ -818,11 +816,11 @@ begin
     end;
 
     //Auto-Resize columns
-    for i_column := 0 to self.Lcutlist.Columns.Count -1 do begin
-      lcutlist.Columns[i_column].Width := -2;
+    for i_column := 0 to self.lvCutlist.Columns.Count -1 do begin
+      lvCutlist.Columns[i_column].Width := -2;
     end;
 
-    if LCutlist.ItemIndex = -1 then
+    if lvCutlist.ItemIndex = -1 then
       self.enable_del_buttons(false)
     else
       self.enable_del_buttons(true);
@@ -863,7 +861,7 @@ begin
   end;
 
   if cutlist.Author <> '' then begin
-    self.nl_lblCutlistAuthor.Caption := cutlist.Author;
+    self.lblCutlistAuthor_nl.Caption := cutlist.Author;
     self.pnlAuthor.Visible := true;
   end else begin
     self.pnlAuthor.Visible := false;
@@ -895,9 +893,9 @@ begin
         exit;
 
       if MovieInfo.MovieType in [ mtWMV ] then begin
-        self.ARepairMovie.Enabled := true;
+        self.actRepairMovie.Enabled := true;
       end else begin
-        self.ARepairMovie.Enabled := false;
+        self.actRepairMovie.Enabled := false;
       end;
 
       {if not batchmode then }begin
@@ -1147,8 +1145,8 @@ begin
       MovieInfo.frame_duration := 0.04;
     end;
 
-    self.OpenCutlist.Enabled := true;
-    self.ASearchCutlistByFileSize.Enabled := true;
+    self.actOpenCutlist.Enabled := true;
+    self.actSearchCutlistByFileSize.Enabled := true;
 
     self.lblDuration_nl.Caption := FormatMoviePosition(MovieInfo.FrameCount, MovieInfo.current_file_duration);
 
@@ -1587,9 +1585,9 @@ begin
     end;
   end;
   if self.TBFilePos.SelEnd-self.TBFilePos.SelStart > 0 then
-    AScanInterval.Enabled := true
+    actScanInterval.Enabled := true
   else
-    AScanInterval.Enabled := false;
+    actScanInterval.Enabled := false;
 end;
 
 procedure TFMain.WMDropFiles(var message: TWMDropFiles);
@@ -1718,14 +1716,14 @@ begin
   end;
 end;
 
-procedure TFMain.SaveCutlistAsExecute(Sender: TObject);
+procedure TFMain.actSaveCutlistAsExecute(Sender: TObject);
 begin
     if cutlist.Save(true) then
       if not batchmode then
         ShowMessageFmt(CAResources.RsCutlistSavedAs, [ cutlist.SavedToFilename ]);
 end;
 
-procedure TFMain.OpenMovieExecute(Sender: TObject);
+procedure TFMain.actOpenMovieExecute(Sender: TObject);
 var
   OpenDialog: TOpenDialog;
   ExtList, ExtListAllSupported: string;
@@ -1777,17 +1775,17 @@ begin
 
 end;
 
-procedure TFMain.OpenCutlistExecute(Sender: TObject);
+procedure TFMain.actOpenCutlistExecute(Sender: TObject);
 begin
   LoadCutlist;
 end;
 
-procedure TFMain.File_ExitExecute(Sender: TObject);
+procedure TFMain.actFileExitExecute(Sender: TObject);
 begin
   self.Close;
 end;
 
-procedure TFMain.AddCutExecute(Sender: TObject);
+procedure TFMain.actAddCutExecute(Sender: TObject);
 begin
   if cutlist.AddCut(pos_from, pos_to) then begin
     pos_from := 0;
@@ -1796,47 +1794,47 @@ begin
   end;
 end;
 
-procedure TFMain.ReplaceCutExecute(Sender: TObject);
+procedure TFMain.actReplaceCutExecute(Sender: TObject);
 var
   dcut: integer;
 begin
-  if self.Lcutlist.SelCount = 0 then begin
+  if self.lvCutlist.SelCount = 0 then begin
     self.enable_del_buttons(false);
     exit;
   end;
-  dcut := strtoint(self.Lcutlist.Selected.caption);
+  dcut := strtoint(self.lvCutlist.Selected.caption);
   cutlist.ReplaceCut(pos_from, pos_to, dCut);
 end;
 
-procedure TFMain.EditCutExecute(Sender: TObject);
+procedure TFMain.actEditCutExecute(Sender: TObject);
 var
   dcut: integer;
 begin
-  if self.Lcutlist.SelCount = 0 then begin
+  if self.lvCutlist.SelCount = 0 then begin
     self.enable_del_buttons(false);
     exit;
   end;
-  dcut := strtoint(self.Lcutlist.Selected.caption);
+  dcut := strtoint(self.lvCutlist.Selected.caption);
   pos_from := cutlist[dcut].pos_from;
   pos_to := cutlist[dcut].pos_to;
   refresh_times;
 end;
 
-procedure TFMain.DeleteCutExecute(Sender: TObject);
+procedure TFMain.actDeleteCutExecute(Sender: TObject);
 begin
-  if self.Lcutlist.SelCount = 0 then begin
+  if self.lvCutlist.SelCount = 0 then begin
     self.enable_del_buttons(false);
     exit;
   end;
-  cutlist.DeleteCut(strtoint(self.Lcutlist.Selected.caption));
+  cutlist.DeleteCut(strtoint(self.lvCutlist.Selected.caption));
 end;
 
-procedure TFMain.AShowFramesFormExecute(Sender: TObject);
+procedure TFMain.actShowFramesFormExecute(Sender: TObject);
 begin
   FFrames.Show;
 end;
 
-procedure TFMain.ANextFramesExecute(Sender: TObject);
+procedure TFMain.actNextFramesExecute(Sender: TObject);
 var
   c: TCursor;
 begin
@@ -1854,7 +1852,7 @@ begin
   end;
 end;
 
-procedure TFMain.ACurrentFramesExecute(Sender: TObject);
+procedure TFMain.actCurrentFramesExecute(Sender: TObject);
 var
   c: TCursor;
   halfFrames: integer;
@@ -1874,7 +1872,7 @@ begin
   end;
 end;
 
-procedure TFMain.APrevFramesExecute(Sender: TObject);
+procedure TFMain.actPrevFramesExecute(Sender: TObject);
 var
   c: TCursor;
 begin
@@ -1892,7 +1890,7 @@ begin
   end;
 end;
 
-procedure TFMain.AScanIntervalExecute(Sender: TObject);
+procedure TFMain.actScanIntervalExecute(Sender: TObject);
 var
   i1, i2: integer;
   pos1, pos2: double;
@@ -1921,40 +1919,40 @@ begin
   self.Cursor := crHourGlass;
   try
     EnableMovieControls(false);
-    self.AScanInterval.Enabled := false;
+    self.actScanInterval.Enabled := false;
     Application.ProcessMessages;
 
     showframesabs(pos1, pos2, FFrames.Count);
   finally
     EnableMovieControls(true);
-    self.AScanInterval.Enabled := true;
+    self.actScanInterval.Enabled := true;
     self.Cursor := c;
   end;
 end;
 
-procedure TFMain.EditSettingsExecute(Sender: TObject);
+procedure TFMain.actEditSettingsExecute(Sender: TObject);
 begin
   settings.edit;
   InitHttpProperties;
 end;
 
-procedure TFMain.AStartCuttingExecute(Sender: TObject);
+procedure TFMain.actStartCuttingExecute(Sender: TObject);
 begin
   StartCutting;
 end;
 
-procedure TFMain.MovieMetaDataExecute(Sender: TObject);
+procedure TFMain.actMovieMetaDataExecute(Sender: TObject);
 begin
   ShowMetaData;
 end;
 
-procedure TFMain.UsedFiltersExecute(Sender: TObject);
+procedure TFMain.actUsedFiltersExecute(Sender: TObject);
 begin
   FManageFilters.SourceGraph := FilterGraph;
   FManageFilters.ShowModal;
 end;
 
-procedure TFMain.AboutExecute(Sender: TObject);
+procedure TFMain.actAboutExecute(Sender: TObject);
 begin
   AboutBox.ShowModal();
 end;
@@ -1971,7 +1969,7 @@ begin
   end;
 end;
 
-procedure TFMain.WriteToRegistyExecute(Sender: TObject);
+procedure TFMain.actWriteToRegistyExecute(Sender: TObject);
 var
   reg : TRegistry;
   myDir: string;
@@ -2030,7 +2028,7 @@ begin
   end;
 end;
 
-procedure TFMain.RemoveRegistryEntriesExecute(Sender: TObject);
+procedure TFMain.actRemoveRegistryEntriesExecute(Sender: TObject);
 var
   reg : TRegistry;
   myDir: string;
@@ -2079,7 +2077,7 @@ begin
   end;
 end;
 
-procedure TFMain.CutlistUploadExecute(Sender: TObject);
+procedure TFMain.actCutlistUploadExecute(Sender: TObject);
 var
   message_String: string;
 begin
@@ -2097,7 +2095,7 @@ begin
   UploadCutlist(cutlist.SavedToFilename);
 end;
 
-procedure TFMain.AStepForwardExecute(Sender: TObject);
+procedure TFMain.actStepForwardExecute(Sender: TObject);
 var
   event: integer;
 begin
@@ -2112,23 +2110,23 @@ begin
       FilterGraph.Volume := tbVolume.Position;
   end else
   begin
-    self.AStepForward.Enabled := false;
+    self.actStepForward.Enabled := false;
   end;
 end;
 
-procedure TFMain.AStepBackwardExecute(Sender: TObject);
+procedure TFMain.actStepBackwardExecute(Sender: TObject);
 var
   timeToSkip: double;
 begin
   if not (FilterGraph.State = gsPaused) then GraphPause;
 
-  if Sender = ALargeSkipBackward then
+  if Sender = actLargeSkipBackward then
     timeToSkip := Settings.LargeSkipTime
-  else if Sender = ASmallSkipBackward then
+  else if Sender = actSmallSkipBackward then
     timeToSkip := Settings.SmallSkipTime
-  else if Sender = ALargeSkipForward then
+  else if Sender = actLargeSkipForward then
     timeToSkip := -Settings.LargeSkipTime
-  else if Sender = ASmallSkipForward then
+  else if Sender = actSmallSkipForward then
     timeToSkip := -Settings.SmallSkipTime
   else
     timeToSkip := MovieInfo.frame_duration;
@@ -2136,7 +2134,7 @@ begin
   JumpTo(currentPosition - timeToSkip);
 end;
 
-procedure TFMain.BrowseWWWHelpExecute(Sender: TObject);
+procedure TFMain.actBrowseWWWHelpExecute(Sender: TObject);
 begin
     ShellExecute(0, nil, PChar(settings.url_help), '', '', SW_SHOWNORMAL);
 end;
@@ -2150,17 +2148,17 @@ begin
   if Shift = [ ] then
     case key of
       ord('K'), ord(' '), VK_MEDIA_PLAY_PAUSE:
-          done := APlayPause.Execute;
+          done := actPlayPause.Execute;
       VK_MEDIA_STOP:
-          done := AStop.Execute;
+          done := actStop.Execute;
       VK_MEDIA_NEXT_TRACK:
-          done := ANextCut.Execute;
+          done := actNextCut.Execute;
       VK_MEDIA_PREV_TRACK:
-          done := APrevCut.Execute;
+          done := actPrevCut.Execute;
       VK_BROWSER_BACK:
-          done := AStepBackward.Execute;
+          done := actStepBackward.Execute;
       VK_BROWSER_FORWARD:
-          done := AStepForward.Execute;
+          done := actStepForward.Execute;
   end;
   if done then
     Key := 0;
@@ -2171,17 +2169,17 @@ procedure TFMain.AppCommandAppCommand(Handle: Cardinal; Cmd: Word;
 begin
   case Cmd of // Force Handled for specific commands ...
     APPCOMMAND_BROWSER_BACKWARD:
-      Handled := AStepBackward.Execute or true;
+      Handled := actStepBackward.Execute or true;
     APPCOMMAND_BROWSER_FORWARD:
-      Handled := AStepForward.Execute or true;
+      Handled := actStepForward.Execute or true;
     APPCOMMAND_MEDIA_PLAY_PAUSE:
-      Handled := APlayPause.Execute or true;
+      Handled := actPlayPause.Execute or true;
     APPCOMMAND_MEDIA_STOP:
-      Handled := AStop.Execute or true;
+      Handled := actStop.Execute or true;
     APPCOMMAND_MEDIA_NEXTTRACK:
-      Handled := ANextCut.Execute or true;
+      Handled := actNextCut.Execute or true;
     APPCOMMAND_MEDIA_PREVIOUSTRACK:
-      Handled := APrevCut.Execute or true;
+      Handled := actPrevCut.Execute or true;
   end;
 end;
 
@@ -2206,7 +2204,7 @@ begin
   end;
 end;
 
-procedure TFMain.OpenCutlistHomeExecute(Sender: TObject);
+procedure TFMain.actOpenCutlistHomeExecute(Sender: TObject);
 begin
   ShellExecute(0, nil, PChar(settings.url_cutlists_home), '', '', SW_SHOWNORMAL);
 end;
@@ -2303,24 +2301,24 @@ begin
   end;
 end;
 
-procedure TFMain.ARepairMovieExecute(Sender: TObject);
+procedure TFMain.actRepairMovieExecute(Sender: TObject);
 begin
   self.RepairMovie;
 end;
 
-procedure TFMain.ACutlistInfoExecute(Sender: TObject);
+procedure TFMain.actCutlistInfoExecute(Sender: TObject);
 begin
   cutlist.EditInfo;
 end;
 
-procedure TFMain.ASaveCutlistExecute(Sender: TObject);
+procedure TFMain.actSaveCutlistExecute(Sender: TObject);
 begin
   if cutlist.Save(false) then
     if not batchmode then
       ShowMessageFmt(CAResources.RsCutlistSavedAs, [ cutlist.SavedToFilename ]);
 end;
 
-procedure TFMain.ACalculateResultingTimesExecute(Sender: TObject);
+procedure TFMain.actCalculateResultingTimesExecute(Sender: TObject);
 var
   selectFileDlg: TOpenDialog;
 begin
@@ -2366,7 +2364,7 @@ begin
   end;
 end;
 
-procedure TFMain.AAsfbinInfoExecute(Sender: TObject);
+procedure TFMain.actAsfbinInfoExecute(Sender: TObject);
 var
   info: string;
   CutApplication: TCutApplicationBase;
@@ -2454,7 +2452,7 @@ begin
             if result then begin
               cutlist.IDOnServer :=  FCutlistSearchResults.Llinklist.Selected.Caption;
               cutlist.RatingOnServer := StrToFloatDef(FCutlistSearchResults.Llinklist.Selected.SubItems[1], -1);
-              self.ASendRating.Enabled := true;
+              self.actSendRating.Enabled := true;
             end;
           end;
       end else begin
@@ -2469,7 +2467,7 @@ begin
     end;
 end;
 
-procedure TFMain.ASearchCutlistByFileSizeExecute(Sender: TObject);
+procedure TFMain.actSearchCutlistByFileSizeExecute(Sender: TObject);
 begin
   self.SearchCutlistsByFileSize_XML;
 end;
@@ -2483,7 +2481,7 @@ var
 begin
   result := false;
   if cutlist.IDOnServer = '' then begin
-    ASendRating.Enabled := false;
+    actSendRating.Enabled := false;
     if not batchmode then
       Showmessage(CAResources.RsMsgSendRatingNotPossible);
     exit;
@@ -2520,7 +2518,7 @@ begin
   end;
 end;
 
-procedure TFMain.ASendRatingExecute(Sender: TObject);
+procedure TFMain.actSendRatingExecute(Sender: TObject);
 begin
   self.SendRating(cutlist);
 end;
@@ -2542,9 +2540,9 @@ begin
   end;
 end;
 
-procedure TFMain.LcutlistDblClick(Sender: TObject);
+procedure TFMain.lvCutlistDblClick(Sender: TObject);
 begin
-  self.EditCut.Execute;
+  self.actEditCut.Execute;
 end;
 
 function TFMain.UploadCutlist(filename: string): boolean;
@@ -2598,7 +2596,7 @@ begin
   end;
 end;
 
-procedure TFMain.ADeleteCutlistFromServerExecute(Sender: TObject);
+procedure TFMain.actDeleteCutlistFromServerExecute(Sender: TObject);
 var
   datestring: string;
   idx: integer;
@@ -2793,8 +2791,8 @@ end;
 
 procedure TFMain.VideoWindowClick(Sender: TObject);
 begin
-  if self.APlayPause.Enabled then
-    self.APlayPause.Execute;
+  if self.actPlayPause.Enabled then
+    self.actPlayPause.Execute;
 end;
 
 procedure TFMain.tbRateChange(Sender: TObject);
@@ -2827,7 +2825,7 @@ begin
   TBRate.Position := 0;
 end;
 
-procedure TFMain.ANextCutExecute(Sender: TObject);
+procedure TFMain.actNextCutExecute(Sender: TObject);
 var
   NewPos: double;
 begin
@@ -2835,7 +2833,7 @@ begin
   if NewPos >= 0 then jumpTo(NewPos);
 end;
 
-procedure TFMain.APrevCutExecute(Sender: TObject);
+procedure TFMain.actPrevCutExecute(Sender: TObject);
 var
   NewPos: double;
 begin
@@ -2877,20 +2875,20 @@ begin
   result := self.VideoWindow.FullScreen;
 end;
 
-procedure TFMain.AFullScreenExecute(Sender: TObject);
+procedure TFMain.actFullScreenExecute(Sender: TObject);
 begin
-  self.AFullScreen.Checked := ToggleFullScreen;
+  self.actFullScreen.Checked := ToggleFullScreen;
 end;
 
 procedure TFMain.VideoWindowKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if (Key = VK_ESCAPE) and self.VideoWindow.FullScreen then begin
-    self.AFullScreenExecute(Sender);
+    self.actFullScreenExecute(Sender);
   end;
 end;
 
-procedure TFMain.ACloseMovieExecute(Sender: TObject);
+procedure TFMain.actCloseMovieExecute(Sender: TObject);
 begin
   self.CloseMovieAndCutlist;
 end;
@@ -3148,12 +3146,12 @@ begin
   end;
 end;
 
-procedure TFMain.ASnapshotCopyExecute(Sender: TObject);
+procedure TFMain.actSnapshotCopyExecute(Sender: TObject);
 var
   tempBitmap: TBitmap;
   tempCutFrame: TCutFrame;
 begin
-  if MenuVideo.PopupComponent = VideoWindow then begin
+  if mnuVideo.PopupComponent = VideoWindow then begin
     if not assigned(seeking) then exit;
     //tempBitmap := TBitmap.Create;
     tempCutFrame := TCutFrame.create(nil);
@@ -3169,12 +3167,12 @@ begin
       FreeAndNIL(tempCutFrame);
     end;
   end;
-  if MenuVideo.PopupComponent is TImage then begin
-    clipboard.Assign((MenuVideo.PopupComponent as TImage).Picture.Bitmap);
+  if mnuVideo.PopupComponent is TImage then begin
+    clipboard.Assign((mnuVideo.PopupComponent as TImage).Picture.Bitmap);
   end;
 end;
 
-procedure TFMain.ASnapshotSaveExecute(Sender: TObject);
+procedure TFMain.actSnapshotSaveExecute(Sender: TObject);
 const
   BMP_EXTENSION = '.bmp';
   JPG_EXTENSION = '.jpg';
@@ -3224,7 +3222,7 @@ var
 begin
   if filtergraph.State = gsPlaying then GraphPause;
 
-  if MenuVideo.PopupComponent  = VideoWindow then begin
+  if mnuVideo.PopupComponent  = VideoWindow then begin
     if not assigned(seeking) then exit;
 
     //tempBitmap := TBitmap.Create;
@@ -3254,14 +3252,14 @@ begin
     end;
   end;
 
-  if MenuVideo.PopupComponent is TImage then begin
-    posString := MovieInfo.FormatPosition((MenuVideo.PopupComponent.Owner as TCutFrame).position);
+  if mnuVideo.PopupComponent is TImage then begin
+    posString := MovieInfo.FormatPosition((mnuVideo.PopupComponent.Owner as TCutFrame).position);
     posString := ansireplacetext(posString, ':', '''');
     fileName := extractfilename(MovieInfo.current_filename);
     fileName := changeFileExt(fileName, '_' + cleanFileName(posString));
     if not AskForFileName(FileName, FileType) then exit;
 
-    TempBitmap := (MenuVideo.PopupComponent as TImage).Picture.Bitmap;
+    TempBitmap := (mnuVideo.PopupComponent as TImage).Picture.Bitmap;
     if FileType = 1 then begin
       TempBitmap.SaveToFile(FileName);
     end else begin
@@ -3302,7 +3300,7 @@ begin
   result := true;
 end;
 
-procedure TFMain.APlayInMPlayerAndSkipExecute(Sender: TObject);
+procedure TFMain.actPlayInMPlayerAndSkipExecute(Sender: TObject);
 var
   edlfile, AppPath, command, message_string: string;
 begin
@@ -3329,10 +3327,10 @@ begin
   self.Caption := Application_Friendly_Name;
   application.Title := Application_Friendly_Name;
 
-  self.OpenCutlist.Enabled := false;
-  self.ASearchCutlistByFileSize.Enabled := false;
+  self.actOpenCutlist.Enabled := false;
+  self.actSearchCutlistByFileSize.Enabled := false;
   self.EnableMovieControls(false);
-  self.AStepForward.Enabled := false;
+  self.actStepForward.Enabled := false;
 
   self.lblDuration_nl.Caption := FormatMoviePosition(0);
   self.UpdateMovieInfoControls;
@@ -3340,24 +3338,24 @@ end;
 
 procedure TFMain.EnableMovieControls(value: boolean);
 begin
-    self.ANextFrames.Enabled := value;
-    self.ACurrentFrames.Enabled := value;
-    self.APrevFrames.Enabled := value;
+    self.actNextFrames.Enabled := value;
+    self.actCurrentFrames.Enabled := value;
+    self.actPrevFrames.Enabled := value;
     self.TBFilePos.Enabled := value;
     self.tbFinePos.Enabled := value;
-    self.ASmallSkipForward.Enabled := value;
-    self.ALargeSkipForward.Enabled := value;
-    self.AStepBackward.Enabled := value;
-    self.ASmallSkipBackward.Enabled := value;
-    self.ALargeSkipBackward.Enabled := value;
-    self.APlayPause.Enabled := value;
-    self.APlay.Enabled := value;
-    self.APause.Enabled := value;
-    self.AStop.Enabled:= value;
+    self.actSmallSkipForward.Enabled := value;
+    self.actLargeSkipForward.Enabled := value;
+    self.actStepBackward.Enabled := value;
+    self.actSmallSkipBackward.Enabled := value;
+    self.actLargeSkipBackward.Enabled := value;
+    self.actPlayPause.Enabled := value;
+    self.actPlay.Enabled := value;
+    self.actPause.Enabled := value;
+    self.actStop.Enabled:= value;
     if value and MovieInfo.CanStepForward then begin
-      self.AStepForward.Enabled := true;
+      self.actStepForward.Enabled := true;
     end else begin
-      self.AStepForward.Enabled := false;
+      self.actStepForward.Enabled := false;
     end;
     self.cmdJumpFrom.Enabled := value;
     self.cmdJumpTo.Enabled := value;
@@ -3480,27 +3478,27 @@ end;
 
 procedure TFMain.FramePopUpPrevious12FramesClick(Sender: TObject);
 begin
-  if MenuVideo.PopupComponent = VideoWindow then begin
-    self.APrevFrames.Execute;
+  if mnuVideo.PopupComponent = VideoWindow then begin
+    self.actPrevFrames.Execute;
   end;
-  if MenuVideo.PopupComponent is TImage then begin
-    ((MenuVideo.PopupComponent as TImage).Owner as TCutFrame).ImageDoubleClick(MenuVideo.PopupComponent);
-    self.APrevFrames.Execute;
+  if mnuVideo.PopupComponent is TImage then begin
+    ((mnuVideo.PopupComponent as TImage).Owner as TCutFrame).ImageDoubleClick(mnuVideo.PopupComponent);
+    self.actPrevFrames.Execute;
   end;
 end;
 
 procedure TFMain.FramePopUpNext12FramesClick(Sender: TObject);
 begin
-  if MenuVideo.PopupComponent = VideoWindow then begin
-    self.ANextFrames.Execute;
+  if mnuVideo.PopupComponent = VideoWindow then begin
+    self.actNextFrames.Execute;
   end;
-  if MenuVideo.PopupComponent is TImage then begin
-    ((MenuVideo.PopupComponent as TImage).Owner as TCutFrame).ImageDoubleClick(MenuVideo.PopupComponent);
-    self.ANextFrames.Execute;
+  if mnuVideo.PopupComponent is TImage then begin
+    ((mnuVideo.PopupComponent as TImage).Owner as TCutFrame).ImageDoubleClick(mnuVideo.PopupComponent);
+    self.actNextFrames.Execute;
   end;
 end;
 
-procedure TFMain.AShowLoggingExecute(Sender: TObject);
+procedure TFMain.actShowLoggingExecute(Sender: TObject);
 begin
   if not FLogging.Visible then
   begin
@@ -3511,17 +3509,17 @@ begin
   FLogging.Visible := true;
 end;
 
-procedure TFMain.ATestExceptionHandlingExecute(Sender: TObject);
+procedure TFMain.actTestExceptionHandlingExecute(Sender: TObject);
 begin
   raise Exception.Create('Exception handling test at ' + FormatDateTime('', Now));
 end;
 
-procedure TFMain.ACheckInfoOnServerExecute(Sender: TObject);
+procedure TFMain.actCheckInfoOnServerExecute(Sender: TObject);
 begin
   self.DownloadInfo(Settings, false, Utils.ShiftDown);
 end;
 
-procedure TFMain.AOpenCutassistantHomeExecute(Sender: TObject);
+procedure TFMain.actOpenCutassistantHomeExecute(Sender: TObject);
 begin
   ShellExecute(0, nil, 'http://sourceforge.net/projects/cutassistant/', '', '', SW_SHOWNORMAL);
 end;
@@ -3531,7 +3529,7 @@ begin
   if settings.CheckInfos then
     self.DownloadInfo(settings, true, false);
   if settings.NewSettingsCreated then
-    EditSettings.Execute;
+    actEditSettings.Execute;
 end;
 
 function TFMain.DoHttpGet(const url: string; const handleRedirects: boolean; const Error_message: string; var Response: string): boolean;
@@ -3566,7 +3564,7 @@ begin
       Break;
   end;
   if not RequestWorker.Stopped then
-    RequestProgressDialog.Execute;
+    dlgRequestProgress.Execute;
 
   Result := HandleWorkerException(data);
 end;
@@ -3605,7 +3603,7 @@ begin
   end;
 end;
 
-procedure TFMain.RequestProgressDialogShow(Sender: TObject);
+procedure TFMain.dlgRequestProgressShow(Sender: TObject);
 var
   dlg: TJvProgressDialog;
 begin
@@ -3614,13 +3612,13 @@ begin
   dlg.Position := 30;
 end;
 
-procedure TFMain.RequestProgressDialogCancel(Sender: TObject);
+procedure TFMain.dlgRequestProgressCancel(Sender: TObject);
 begin
-  IdHTTP.DisconnectSocket;
+  ihWebRequest.DisconnectSocket;
   RequestWorker.WaitFor;
 end;
 
-procedure TFMain.RequestProgressDialogProgress(Sender: TObject;
+procedure TFMain.dlgRequestProgressProgress(Sender: TObject;
   var AContinue: Boolean);
 var
   dlg: TJvProgressDialog;
@@ -3650,11 +3648,11 @@ begin
   end;
   Sender.ReturnValue := -1;
   try
-    IdHTTP.HandleRedirects := data.HandleRedirects;
+    ihWebRequest.HandleRedirects := data.HandleRedirects;
     if data.IsPostRequest then
-      Response := IdHTTP.Post(data.Url, data.PostData)
+      Response := ihWebRequest.Post(data.Url, data.PostData)
     else
-      Response := IdHTTP.Get(data.Url);
+      Response := ihWebRequest.Get(data.Url);
     data.Response := Response;
   finally
     // Only for testing purposes
@@ -3674,11 +3672,11 @@ begin
   Assert(Assigned(Sender));
   if not Assigned(Sender.Data) then
   begin
-    RequestProgressDialog.Text := CAResources.RsProgressTransferAborted;
+    dlgRequestProgress.Text := CAResources.RsProgressTransferAborted;
   end
   else begin
     data := Sender.Data as THttpRequest;
-    RequestProgressDialog.Text := CAResources.RsErrorTransferAborting;
+    dlgRequestProgress.Text := CAResources.RsErrorTransferAborting;
     data.Response := '';
   end;
 
@@ -3693,33 +3691,33 @@ end;
 
 procedure TFMain.InitHttpProperties;
 begin
-  self.IdHTTP.ConnectTimeout := 1000 * Settings.NetTimeout;
-  self.IdHTTP.ReadTimeout := 1000 * Settings.NetTimeout;
-  self.IdHTTP.ProxyParams.ProxyServer := Settings.proxyServerName;
-  self.IdHTTP.ProxyParams.ProxyPort := Settings.proxyPort;
-  self.IdHTTP.ProxyParams.ProxyUsername := Settings.proxyUserName;
-  self.IdHTTP.ProxyParams.ProxyPassword := Settings.proxyPassword;
+  self.ihWebRequest.ConnectTimeout := 1000 * Settings.NetTimeout;
+  self.ihWebRequest.ReadTimeout := 1000 * Settings.NetTimeout;
+  self.ihWebRequest.ProxyParams.ProxyServer := Settings.proxyServerName;
+  self.ihWebRequest.ProxyParams.ProxyPort := Settings.proxyPort;
+  self.ihWebRequest.ProxyParams.ProxyUsername := Settings.proxyUserName;
+  self.ihWebRequest.ProxyParams.ProxyPassword := Settings.proxyPassword;
 end;
 
-procedure TFMain.IdHTTPStatus(ASender: TObject; const AStatus: TIdStatus;
+procedure TFMain.ihWebRequestStatus(ASender: TObject; const AStatus: TIdStatus;
   const AStatusText: String);
 begin
-  RequestProgressDialog.Text := AStatusText;
+  dlgRequestProgress.Text := AStatusText;
 end;
 
-procedure TFMain.IdHTTPWork(Sender: TObject; AWorkMode: TWorkMode;
+procedure TFMain.ihWebRequestWork(Sender: TObject; AWorkMode: TWorkMode;
   const AWorkCount: Integer);
 begin
   case AWorkMode of
     wmRead:
-      RequestProgressDialog.Text := Format(CAResources.RsProgressReadData, [AWorkCount]);
+      dlgRequestProgress.Text := Format(CAResources.RsProgressReadData, [AWorkCount]);
     wmWrite:
-      RequestProgressDialog.Text := Format(CAResources.RsProgressWroteData, [AWorkCount]);
+      dlgRequestProgress.Text := Format(CAResources.RsProgressWroteData, [AWorkCount]);
   end;
 end;
 
 
-procedure TFMain.ASupportRequestExecute(Sender: TObject);
+procedure TFMain.actSupportRequestExecute(Sender: TObject);
 var
   AException: IMEException;
   AAssistant: INVAssistant;
@@ -3743,24 +3741,24 @@ begin
   end;
 end;
 
-procedure TFMain.AStopExecute(Sender: TObject);
+procedure TFMain.actStopExecute(Sender: TObject);
 begin
   GraphPause; //Set Play/Pause Button Caption
   jumpto(0);
   filtergraph.Stop;
 end;
 
-procedure TFMain.APlayPauseExecute(Sender: TObject);
+procedure TFMain.actPlayPauseExecute(Sender: TObject);
 begin
   GraphPlayPause;
 end;
 
-procedure TFMain.APlayExecute(Sender: TObject);
+procedure TFMain.actPlayExecute(Sender: TObject);
 begin
   GraphPlay;
 end;
 
-procedure TFMain.APauseExecute(Sender: TObject);
+procedure TFMain.actPauseExecute(Sender: TObject);
 begin
   GraphPause;
 end;

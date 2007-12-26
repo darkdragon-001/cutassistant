@@ -10,32 +10,32 @@ uses
 
 type
   TFResultingTimes = class(TForm)
-    LTimeList: TListView;
-    BClose: TButton;
+    lvTimeList: TListView;
+    cmdClose: TButton;
     Panel1: TPanel;
-    Label1: TLabel;
-    PanelVideoWindow: TPanel;
+    lblDuration: TLabel;
+    pnlVideoWindow: TPanel;
     VideoWindow: TVideoWindow;
     FilterGraph: TFilterGraph;
-    TVolume: TTrackBar;
+    tbVolume: TTrackBar;
     Label8: TLabel;
-    BPause: TButton;
-    BPlay: TButton;
-    DSTrackBar1: TDSTrackBar;
-    Label2: TLabel;
-    ESeconds: TEdit;
-    Label3: TLabel;
-    UDSeconds: TUpDown;
-    procedure BCloseClick(Sender: TObject);
-    procedure LTimeListDblClick(Sender: TObject);
-    procedure PanelVideoWindowResize(Sender: TObject);
-    procedure TVolumeChange(Sender: TObject);
-    procedure BPlayClick(Sender: TObject);
-    procedure BPauseClick(Sender: TObject);
+    cmdPause: TButton;
+    cmdPlay: TButton;
+    tbPosition: TDSTrackBar;
+    lblPosition: TLabel;
+    edtDuration: TEdit;
+    lblSeconds: TLabel;
+    udDuration: TUpDown;
+    procedure cmdCloseClick(Sender: TObject);
+    procedure lvTimeListDblClick(Sender: TObject);
+    procedure pnlVideoWindowResize(Sender: TObject);
+    procedure tbVolumeChange(Sender: TObject);
+    procedure cmdPlayClick(Sender: TObject);
+    procedure cmdPauseClick(Sender: TObject);
     procedure JumpTo(NewPosition: double);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
-    procedure UDSecondsChanging(Sender: TObject; var AllowChange: Boolean);
+    procedure udDurationChanging(Sender: TObject; var AllowChange: Boolean);
     procedure FormDestroy(Sender: TObject);
     function FilterGraphSelectedFilter(Moniker: IMoniker;
       FilterName: WideString; ClassID: TGUID): Boolean;
@@ -73,16 +73,16 @@ var
   time: double;
 begin
   if cutlist.Count = 0 then begin
-    self.LTimeList.Clear;
+    self.lvTimeList.Clear;
     exit;
   end;
   if cutlist.Mode = clmTrim then begin
-    self.LTimeList.Clear;
+    self.lvTimeList.Clear;
     time := 0;
     setlength(To_Array, cutlist.Count);
     for icut := 0 to cutlist.Count-1 do begin
       cut := cutlist[icut];
-      cut_view := self.LTimeList.Items.Add;
+      cut_view := self.lvTimeList.Items.Add;
       cut_view.Caption := inttostr(icut); //inttostr(cut.index);
       cut_view.SubItems.Add(MovieInfo.FormatPosition(time));
       time := time + cut.pos_to-cut.pos_from;
@@ -93,8 +93,8 @@ begin
     end;
 
     //Auto-Resize columns
-    for i_column := 0 to self.LTimeList.Columns.Count -1 do begin
-      LTimeList.Columns[i_column].Width := -2;
+    for i_column := 0 to self.lvTimeList.Columns.Count -1 do begin
+      lvTimeList.Columns[i_column].Width := -2;
     end;
   end else begin
     Converted_Cutlist := cutlist.convert;
@@ -103,18 +103,18 @@ begin
   end;
 end;
 
-procedure TFResultingTimes.BCloseClick(Sender: TObject);
+procedure TFResultingTimes.cmdCloseClick(Sender: TObject);
 begin
   self.Close;
 end;
 
-procedure TFResultingTimes.LTimeListDblClick(Sender: TObject);
+procedure TFResultingTimes.lvTimeListDblClick(Sender: TObject);
 var
   target_Time: double;
 begin
   if filtergraph.Active then begin
-    if self.LTimeList.ItemIndex < 0 then exit;
-    target_Time := self.To_array[self.LTimeList.ItemIndex] - FOffset;
+    if self.lvTimeList.ItemIndex < 0 then exit;
+    target_Time := self.To_array[self.lvTimeList.ItemIndex] - FOffset;
     if target_time > MovieInfo.current_file_duration then exit;
     if target_time < 0 then target_time := 0;
     JumpTo(Target_time);
@@ -145,18 +145,18 @@ begin
 end;
 
 
-procedure TFResultingTimes.PanelVideoWindowResize(Sender: TObject);
+procedure TFResultingTimes.pnlVideoWindowResize(Sender: TObject);
 var
   movie_ar: double;
   my_ar: double;
 begin
   movie_ar := MovieInfo.ratio;
-  my_ar := self.PanelVideoWindow.Width / self.PanelVideoWindow.Height;
+  my_ar := self.pnlVideoWindow.Width / self.pnlVideoWindow.Height;
   if my_ar > movie_ar then begin
-    self.VideoWindow.Height := self.PanelVideoWindow.Height;
+    self.VideoWindow.Height := self.pnlVideoWindow.Height;
     self.VideoWindow.Width := round (self.videowindow.Height * movie_ar);
   end else begin
-    self.VideoWindow.Width := self.PanelVideoWindow.Width;
+    self.VideoWindow.Width := self.pnlVideoWindow.Width;
     self.VideoWindow.Height := round(self.VideoWindow.Width / movie_ar);
   end; 
 end;
@@ -221,25 +221,25 @@ begin
       exit;
     end;
     filtergraph.Pause;
-    filtergraph.Volume := self.TVolume.Position;
+    filtergraph.Volume := self.tbVolume.Position;
     current_filename := filename;
-    self.DSTrackBar1.Position := 0;
+    self.tbPosition.Position := 0;
     result := true;
   end;
 end;
 
-procedure TFResultingTimes.TVolumeChange(Sender: TObject);
+procedure TFResultingTimes.tbVolumeChange(Sender: TObject);
 begin
-  FilterGraph.Volume := self.TVolume.Position;
+  FilterGraph.Volume := self.tbVolume.Position;
 end;
 
-procedure TFResultingTimes.BPlayClick(Sender: TObject);
+procedure TFResultingTimes.cmdPlayClick(Sender: TObject);
 begin
   if FilterGraph.Active then
     FilterGraph.Play;
 end;
 
-procedure TFResultingTimes.BPauseClick(Sender: TObject);
+procedure TFResultingTimes.cmdPauseClick(Sender: TObject);
 begin
   if FilterGraph.Active then
     FilterGraph.Pause
@@ -266,16 +266,16 @@ begin
   end;
   self.WindowState := Settings.PreviewFormWindowState;
 
-  self.UDSeconds.Position := settings.OffsetSecondsCutChecking;
+  self.udDuration.Position := settings.OffsetSecondsCutChecking;
   FOffset := settings.OffsetSecondsCutChecking;
   FMovieInfo := TMovieInfo.Create;
 end;
 
 
-procedure TFResultingTimes.UDSecondsChanging(Sender: TObject;
+procedure TFResultingTimes.udDurationChanging(Sender: TObject;
   var AllowChange: Boolean);
 begin
-  FOffset := self.UDSeconds.Position;
+  FOffset := self.udDuration.Position;
 end;
 
 procedure TFResultingTimes.FormDestroy(Sender: TObject);

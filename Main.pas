@@ -699,8 +699,6 @@ begin
       end;
   end;
   }
-  MovieInfo.target_filename := targetpath + targetfile;
-
   if not ForceDirectories(targetpath) then
   begin
       if not batchmode then
@@ -708,9 +706,10 @@ begin
       exit;
   end;
 
+  MovieInfo.target_filename := targetpath + targetfile;
+
   //Display Save Dialog?
   AskForPath := Settings.MovieNameAlwaysConfirm;
-
 
   if fileexists(MovieInfo.target_FileName) AND (NOT AskForPath) and (not batchmode) then begin
     message_string := Format(CAResources.RsTargetMovieAlreadyExists, [ MovieInfo.target_filename ]);
@@ -2325,8 +2324,12 @@ end;
 procedure TFMain.actCalculateResultingTimesExecute(Sender: TObject);
 var
   selectFileDlg: TOpenDialog;
+  AskForPath: boolean;
 begin
-  if (MovieInfo.target_filename = '') then begin
+  AskForPath := Settings.MovieNameAlwaysConfirm
+             or not FileExists(MovieInfo.target_filename)
+             or (MovieInfo.target_filename = '');
+  if not BatchMode and AskForPath then begin
     selectFileDlg := TOpenDialog.Create(self);
     try
       selectFileDlg.Filter := MakeFilterString(CAResources.RsFilterDescriptionAllSupported,
@@ -2337,7 +2340,12 @@ begin
 
       selectFileDlg.Options := selectFileDlg.Options + [ofPathMustExist, ofFileMustExist, ofNoChangeDir];
       selectFileDlg.Title := CAResources.RsTitleCheckCutMovie;
-      selectFileDlg.InitialDir := settings.CutMovieSaveDir;
+      if MovieInfo.target_filename = '' then begin
+        selectFileDlg.InitialDir := settings.CutMovieSaveDir;
+      end else begin
+        selectFileDlg.InitialDir := ExtractFileDir(MovieInfo.target_filename);
+        selectFileDlg.FileName := MovieInfo.target_filename;
+      end;
       if selectFileDlg.Execute then
         MovieInfo.target_filename := selectFileDlg.FileName
       else
@@ -2350,21 +2358,21 @@ begin
   if not fileexists(MovieInfo.target_filename) then begin
     if not batchmode then
       showmessage(CAResources.RsErrorMovieNotFound);
-  end else begin
-    try
-      if not FResultingTimes.loadMovie(MovieInfo.target_filename) then begin
-        if not batchmode then
-          showmessage(CAResources.RsErrorCouldNotLoadMovie);
-        exit;
-      end;
-      FResultingTimes.calculate(cutlist);
-      FResultingTimes.Show;
-    except
-      on E: Exception do
-        if not batchmode then
-          ShowMessageFmt(CAResources.RsErrorCouldNotLoadCutMovie, [ E.Message ]);
-    end;
+    Exit;
+  end;
 
+  try
+    if not FResultingTimes.loadMovie(MovieInfo.target_filename) then begin
+      if not batchmode then
+        showmessage(CAResources.RsErrorCouldNotLoadMovie);
+      exit;
+    end;
+    FResultingTimes.calculate(cutlist);
+    FResultingTimes.Show;
+  except
+    on E: Exception do
+      if not batchmode then
+        ShowMessageFmt(CAResources.RsErrorCouldNotLoadCutMovie, [ E.Message ]);
   end;
 end;
 
@@ -3788,10 +3796,7 @@ begin
   Settings.load;
 
   FreeLocalizer.AutoTranslate := True;
-  if Settings.Language = '' then
-    FreeLocalizer.LanguageFile := ChangeFileExt(Application_File, '.lng')
-  else
-    FreeLocalizer.LanguageFile := Settings.Language;
+  FreeLocalizer.LanguageFile := Settings.LanguageFile;
 
   //RegisterDSAMessage(1, 'CutlistRated', 'Cutlist rated');
   MovieInfo := TMovieInfo.Create;

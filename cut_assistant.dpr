@@ -66,7 +66,10 @@ begin
   Application.Title := 'Cut Assistant';
 
   if FreeLocalizer.Errors <> '' then
+  begin
     Application.MessageBox(pChar(FreeLocalizer.Errors), 'Localizer Errors');
+    FreeLocalizer.ClearErrors;
+  end;
 
   Application.CreateForm(TFMain, FMain);
   Application.CreateForm(TFSettings, FSettings);
@@ -84,7 +87,10 @@ begin
   FFrames.MainForm := FMain;
 
   if FreeLocalizer.Errors <> '' then
+  begin
     Application.MessageBox(pChar(FreeLocalizer.Errors), 'Localizer Errors');
+    FreeLocalizer.ClearErrors;
+  end;
 
   FileList := TStringList.Create;
   for iParam := 1 to ParamCount do begin

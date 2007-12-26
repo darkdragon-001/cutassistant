@@ -18,7 +18,6 @@ const
   smAutoSaveBeforeCutting = $40;      //Only Cutlist
   smAlwaysAsk = $80;
 
-
 type
 
   TFSettings = class(TForm)
@@ -187,6 +186,11 @@ type
     _SaveCutListMode, _SaveCutMovieMode: byte;
     _NewSettingsCreated: boolean;
     FCodecList: TCodecList;
+    FLanguageList: TStringList;
+    function GetLanguageIndex: integer;
+    function GetLanguageByIndex(index: integer): string;
+    function GetLangDesc(const langFile: TFileName): string;
+    function GetLanguageList: TStrings;
     function GetFilter(Index: Integer): TFilCatNode;
     property CodecList: TCodecList read FCodecList;
   public
@@ -200,9 +204,6 @@ type
 
     //User
     UserName, UserID: string;
-
-    // UI Language
-    Language: integer;
 
     // Preview frame window
     FramesWidth, FramesHeight, FramesCount: integer;
@@ -245,10 +246,17 @@ type
     InfoLastChecked: TDate;
     InfoShowMessages, InfoShowStable, InfoShowBeta: boolean;
 
+    // UI Language
+    Language: string;
+
+    procedure UpdateLanguageList;
+    property LanguageList: TStrings read GetLanguageList;
+
     function CheckInfos: boolean;
 
     constructor Create;
     destructor Destroy; override;
+
   protected
     //deprecated
     function GetCutAppNameByCutAppType(CAType: TCutApp): String;
@@ -288,7 +296,8 @@ uses
   UCutApplicationVirtualDub,
   UCutApplicationAviDemux,
   UCutApplicationMP4Box,
-  UCutlist, VFW, CAResources;
+  UCutlist, VFW, CAResources,
+  uFreeLocalizer, StrUtils;
 
 var
   EmptyRect: TRect;
@@ -352,6 +361,98 @@ end;
 
 { TSettings }
 
+function TSettings.GetLangDesc(const langFile: TFileName): string;
+const
+  DESC_PATTERN = 'description:';
+var
+  f: TextFile;
+  line: string;
+  idx: integer;
+begin
+  Result := ExtractFileName(langFile);
+  AssignFile(f, langFile);
+{$I-}
+  FileMode := fmOpenRead;
+  Reset(f);
+  if IOResult <> 0 then
+    Exit;
+  while IOResult = 0 do begin
+    ReadLn(f, line);
+    if (IOResult <> 0) or (line = '') then
+      Break;
+    if not AnsiStartsText(';', line) then
+      Continue;
+    idx := AnsiPos(DESC_PATTERN, AnsiLowerCase(line));
+    if idx < 1 then
+      Continue;
+    Delete(line, 1, idx + Length(DESC_PATTERN));
+    idx := AnsiPos('=', line);
+    if idx > 0 then
+      Delete(line, idx, MaxInt);
+    Result := Trim(line);
+    Break;
+  end;
+  CloseFile(f);
+{$I+}
+end;
+
+procedure TSettings.UpdateLanguageList;
+var
+  lang_dir, lang_desc: string;
+  lang_found: boolean;
+  sr: TSearchRec;
+begin
+  lang_dir := IncludeTrailingPathDelimiter(FreeLocalizer.LanguageDir);
+  FLanguageList.Clear;
+  lang_found := self.Language = '';
+  if FindFirst(lang_dir + ChangeFileExt(Application_File,'.*.lng'), faReadOnly, sr) = 0 then begin
+    repeat
+      lang_desc := GetLangDesc(lang_dir + sr.Name);
+      if AnsiSameText(sr.Name, self.Language) then
+        lang_found := true;
+      FLanguageList.Add(lang_desc + ' (' + sr.Name + ')');
+    until FindNext(sr) <> 0;
+  end;
+  if not lang_found then
+      FLanguageList.Add(self.Language + ' (' + self.Language + ')');
+  FLanguageList.Sort;
+  FLanguageList.Insert(0, 'Standard');
+end;
+
+function TSettings.GetLanguageList: TStrings;
+begin
+  Result := FLanguageList;
+end;
+
+function TSettings.GetLanguageIndex: integer;
+var
+  idx: integer;
+  lang: string;
+begin
+  if self.Language = '' then begin
+    Result := 0;
+    Exit;
+  end;
+  lang := '(' + self.Language + ')';
+  idx := 0;
+  while idx < FLanguageList.Count do begin
+    if AnsiEndsText(lang, FLanguageList[idx]) then
+      Break;
+    Inc(idx);
+  end;
+  Result := idx;
+end;
+
+function TSettings.GetLanguageByIndex(index: integer): string;
+var
+  lang: string;
+begin
+  lang := FLanguageList[index];
+  Delete(lang, 1, Pos('(', lang));
+  Delete(lang, Pos(')', lang), MaxInt);
+  Result := lang;
+end;
+
 function TSettings.CheckInfos: boolean;
 begin
   result := (self.InfoCheckInterval >= 0);
@@ -360,8 +461,13 @@ end;
 constructor TSettings.create;
 begin
   inherited;
+  FLanguageList := TStringList.Create;
+  FLanguageList.CaseSensitive := false;
+  UpdateLanguageList;
+
   FCodecList := TCodecList.Create;
   FCodecList.Fill;
+
   CutApplicationList := TObjectList.Create;
   CutApplicationList.Add(TCutApplicationAsfbin.Create);
   CutApplicationList.Add(TCutApplicationVirtualDub.Create);
@@ -395,6 +501,7 @@ end;
 
 destructor TSettings.destroy;
 begin
+  FreeAndNil(FLanguageList);
   FreeAndNil(FCodecList);
   FreeAndNIL(FilterBlackList);
   FreeAndNIL(SourceFilterList);
@@ -405,6 +512,7 @@ end;
 procedure TSettings.edit;
 var
   message_string: string;
+  newLanguage: string;
   Data_Valid: boolean;
   iTabSheet: Integer;
   TabSheet: TTabSheet;
@@ -457,7 +565,8 @@ begin
   FSettings.edtFrameHeight_nl.Text                 := IntToStr(self.FramesHeight);
   FSettings.edtFrameCount_nl.Text                  := IntToStr(self.FramesCount);
 
-  FSettings.cmbLanguage_nl.ItemIndex               := self.Language;
+  FSettings.cmbLanguage_nl.Items.Assign(self.FLanguageList);
+  FSettings.cmbLanguage_nl.ItemIndex               := self.GetLanguageIndex;
 
   FSettings.CBInfoCheckMessages.Checked   := self.InfoShowMessages            ;
   FSettings.CBInfoCheckStable.Checked     := self.InfoShowStable              ;
@@ -552,7 +661,11 @@ begin
       self.NetTimeout                  := StrToInt(FSettings.edtNetTimeout_nl.Text);
       self.AutoMuteOnSeek              := FSettings.cbAutoMuteOnSeek.Checked;
 
-      self.Language                    := FSettings.cmbLanguage_nl.ItemIndex;
+      newLanguage                      := GetLanguageByIndex(FSettings.cmbLanguage_nl.ItemIndex);
+      if self.Language <> newLanguage then begin
+        self.Language                  := newLanguage;
+        FreeLocalizer.LanguageFile     := self.Language;
+      end;
 
       self.InfoShowMessages            := FSettings.CBInfoCheckMessages.Checked  ;
       self.InfoShowStable              := FSettings.CBInfoCheckStable.Checked    ;
@@ -669,7 +782,7 @@ begin
     section := 'General';
     UserName :=  ini.ReadString(section, 'UserName', '');
     UserID :=  ini.ReadString(section, 'UserID', '');
-    Language := ini.ReadInteger(section, 'Language', 0);
+    Language := ini.ReadString(section, 'Language', '');
 
     section := 'FrameWindow';
     FramesWidth := ini.ReadInteger(section, 'Width', 180);
@@ -788,7 +901,7 @@ begin
     ini.WriteString(section, 'Version', Application_version);
     ini.WriteString(section, 'UserName', UserName);
     ini.WriteString(section, 'UserID', UserID);
-    ini.WriteInteger(section, 'Language', Language);
+    ini.WriteString(section, 'Language', Language);
 
     section := 'FrameWindow';
     ini.WriteInteger(section, 'Width', FramesWidth);

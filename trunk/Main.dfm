@@ -15,7 +15,7 @@ object FMain: TFMain
   Font.Pitch = fpVariable
   Font.Style = []
   KeyPreview = True
-  Menu = MainMenu
+  Menu = mnuMain
   OldCreateOrder = False
   OnClose = FormClose
   OnCloseQuery = FormCloseQuery
@@ -298,7 +298,7 @@ object FMain: TFMain
       VMROptions.Streams = 1
       Color = clBlack
       Anchors = [akLeft, akTop, akRight, akBottom]
-      PopupMenu = MenuVideo
+      PopupMenu = mnuVideo
       OnKeyDown = VideoWindowKeyDown
       OnClick = VideoWindowClick
       OnDblClick = VideoWindowDblClick
@@ -309,7 +309,7 @@ object FMain: TFMain
     Top = 283
     Width = 28
     Height = 27
-    Action = AStop
+    Action = actStop
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
@@ -320,13 +320,13 @@ object FMain: TFMain
     Top = 283
     Width = 28
     Height = 27
-    Action = APlayPause
+    Action = actPlayPause
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
     TabOrder = 19
   end
-  object Lcutlist: TListView
+  object lvCutlist: TListView
     Left = 360
     Top = 40
     Width = 253
@@ -360,15 +360,15 @@ object FMain: TFMain
     SortType = stText
     TabOrder = 2
     ViewStyle = vsReport
-    OnDblClick = LcutlistDblClick
-    OnSelectItem = LcutlistSelectItem
+    OnDblClick = lvCutlistDblClick
+    OnSelectItem = lvCutlistSelectItem
   end
   object cmdAddCut: TButton
     Left = 618
     Top = 42
     Width = 111
     Height = 20
-    Action = AddCut
+    Action = actAddCut
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
@@ -379,7 +379,7 @@ object FMain: TFMain
     Top = 123
     Width = 111
     Height = 20
-    Action = DeleteCut
+    Action = actDeleteCut
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
@@ -489,7 +489,7 @@ object FMain: TFMain
     Top = 69
     Width = 111
     Height = 20
-    Action = ReplaceCut
+    Action = actReplaceCut
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
@@ -500,7 +500,7 @@ object FMain: TFMain
     Top = 96
     Width = 111
     Height = 20
-    Action = EditCut
+    Action = actEditCut
     Anchors = [akTop, akRight]
     ParentShowHint = False
     ShowHint = True
@@ -530,7 +530,7 @@ object FMain: TFMain
     Top = 461
     Width = 111
     Height = 20
-    Action = APrevFrames
+    Action = actPrevFrames
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
@@ -542,7 +542,7 @@ object FMain: TFMain
     Width = 28
     Height = 27
     Hint = 'Previous Frame'
-    Action = AStepBackward
+    Action = actStepBackward
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
@@ -554,7 +554,7 @@ object FMain: TFMain
     Width = 28
     Height = 27
     Hint = 'Next Frame'
-    Action = AStepForward
+    Action = actStepForward
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
@@ -587,7 +587,7 @@ object FMain: TFMain
     Top = 461
     Width = 111
     Height = 20
-    Action = ANextFrames
+    Action = actNextFrames
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
@@ -635,7 +635,7 @@ object FMain: TFMain
     Top = 461
     Width = 88
     Height = 20
-    Action = AScanInterval
+    Action = actScanInterval
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
@@ -656,7 +656,7 @@ object FMain: TFMain
     Top = 149
     Width = 76
     Height = 20
-    Action = ACutlistInfo
+    Action = actCutlistInfo
     Anchors = [akRight, akBottom]
     Caption = 'Cutlist &Info'
     TabOrder = 7
@@ -670,7 +670,7 @@ object FMain: TFMain
     BevelInner = bvLowered
     TabOrder = 17
     Visible = False
-    object nl_lblCutlistAuthor: TLabel
+    object lblCutlistAuthor_nl: TLabel
       Left = 2
       Top = 2
       Width = 185
@@ -710,7 +710,7 @@ object FMain: TFMain
     Top = 283
     Width = 28
     Height = 27
-    Action = ANextCut
+    Action = actNextCut
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
@@ -721,7 +721,7 @@ object FMain: TFMain
     Top = 283
     Width = 28
     Height = 27
-    Action = APrevCut
+    Action = actPrevCut
     Anchors = [akRight, akBottom]
     ParentShowHint = False
     ShowHint = True
@@ -766,7 +766,7 @@ object FMain: TFMain
       Caption = 'Main'
     end
     object JvSpeedItem1: TJvSpeedItem
-      Action = File_Exit
+      Action = actFileExit
       BtnCaption = 'E&xit'
       Caption = 'JvSpeedItem1'
       Glyph.Data = {
@@ -809,11 +809,11 @@ object FMain: TFMain
       Left = 3
       Top = 3
       Visible = True
-      OnClick = File_ExitExecute
+      OnClick = actFileExitExecute
       SectionName = 'Main'
     end
     object JvSpeedItem2: TJvSpeedItem
-      Action = OpenCutlist
+      Action = actOpenCutlist
       BtnCaption = '&Open Cutlist...'
       Caption = 'JvSpeedItem2'
       Glyph.Data = {
@@ -856,11 +856,11 @@ object FMain: TFMain
       Left = 75
       Top = 3
       Visible = True
-      OnClick = OpenCutlistExecute
+      OnClick = actOpenCutlistExecute
       SectionName = 'Main'
     end
     object JvSpeedItem3: TJvSpeedItem
-      Action = OpenMovie
+      Action = actOpenMovie
       BtnCaption = '&Open Movie...'
       Caption = 'JvSpeedItem3'
       Glyph.Data = {
@@ -903,11 +903,11 @@ object FMain: TFMain
       Left = 43
       Top = 3
       Visible = True
-      OnClick = OpenMovieExecute
+      OnClick = actOpenMovieExecute
       SectionName = 'Main'
     end
     object JvSpeedItem4: TJvSpeedItem
-      Action = ASearchCutlistByFileSize
+      Action = actSearchCutlistByFileSize
       BtnCaption = 'Search &Cutlists on Server'
       Caption = 'JvSpeedItem4'
       Glyph.Data = {
@@ -950,11 +950,11 @@ object FMain: TFMain
       Left = 107
       Top = 3
       Visible = True
-      OnClick = ASearchCutlistByFileSizeExecute
+      OnClick = actSearchCutlistByFileSizeExecute
       SectionName = 'Main'
     end
     object JvSpeedItem6: TJvSpeedItem
-      Action = ASaveCutlist
+      Action = actSaveCutlist
       BtnCaption = '&Save Cutlist'
       Caption = 'JvSpeedItem6'
       Glyph.Data = {
@@ -997,11 +997,11 @@ object FMain: TFMain
       Left = 139
       Top = 3
       Visible = True
-      OnClick = ASaveCutlistExecute
+      OnClick = actSaveCutlistExecute
       SectionName = 'Main'
     end
     object JvSpeedItem5: TJvSpeedItem
-      Action = SaveCutlistAs
+      Action = actSaveCutlistAs
       BtnCaption = 'Save Cutlist &As...'
       Caption = 'JvSpeedItem5'
       Glyph.Data = {
@@ -1044,11 +1044,11 @@ object FMain: TFMain
       Left = 171
       Top = 3
       Visible = True
-      OnClick = SaveCutlistAsExecute
+      OnClick = actSaveCutlistAsExecute
       SectionName = 'Main'
     end
     object JvSpeedItem7: TJvSpeedItem
-      Action = CutlistUpload
+      Action = actCutlistUpload
       BtnCaption = '&Upload Cutlist to Server'
       Caption = 'JvSpeedItem7'
       Glyph.Data = {
@@ -1091,11 +1091,11 @@ object FMain: TFMain
       Left = 203
       Top = 3
       Visible = True
-      OnClick = CutlistUploadExecute
+      OnClick = actCutlistUploadExecute
       SectionName = 'Main'
     end
     object JvSpeedItem8: TJvSpeedItem
-      Action = ASendRating
+      Action = actSendRating
       BtnCaption = 'Send &Rating'
       Caption = 'JvSpeedItem8'
       Glyph.Data = {
@@ -1138,11 +1138,11 @@ object FMain: TFMain
       Left = 235
       Top = 3
       Visible = True
-      OnClick = ASendRatingExecute
+      OnClick = actSendRatingExecute
       SectionName = 'Main'
     end
     object JvSpeedItem9: TJvSpeedItem
-      Action = AShowFramesForm
+      Action = actShowFramesForm
       BtnCaption = '&Show Form'
       Caption = 'JvSpeedItem9'
       Glyph.Data = {
@@ -1185,11 +1185,11 @@ object FMain: TFMain
       Left = 283
       Top = 3
       Visible = True
-      OnClick = AShowFramesFormExecute
+      OnClick = actShowFramesFormExecute
       SectionName = 'Main'
     end
     object JvSpeedItem10: TJvSpeedItem
-      Action = AScanInterval
+      Action = actScanInterval
       BtnCaption = 'Scan &Interval'
       Caption = 'JvSpeedItem10'
       Glyph.Data = {
@@ -1232,11 +1232,11 @@ object FMain: TFMain
       Left = 315
       Top = 3
       Visible = True
-      OnClick = AScanIntervalExecute
+      OnClick = actScanIntervalExecute
       SectionName = 'Main'
     end
     object JvSpeedItem11: TJvSpeedItem
-      Action = APrevFrames
+      Action = actPrevFrames
       BtnCaption = '&Previous $$ Frames'
       Caption = 'JvSpeedItem11'
       Glyph.Data = {
@@ -1279,11 +1279,11 @@ object FMain: TFMain
       Left = 347
       Top = 3
       Visible = True
-      OnClick = APrevFramesExecute
+      OnClick = actPrevFramesExecute
       SectionName = 'Main'
     end
     object JvSpeedItem16: TJvSpeedItem
-      Action = ACurrentFrames
+      Action = actCurrentFrames
       BtnCaption = '$$ frames &around'
       Caption = 'JvSpeedItem16'
       Glyph.Data = {
@@ -1326,11 +1326,11 @@ object FMain: TFMain
       Left = 379
       Top = 3
       Visible = True
-      OnClick = ACurrentFramesExecute
+      OnClick = actCurrentFramesExecute
       SectionName = 'Main'
     end
     object JvSpeedItem12: TJvSpeedItem
-      Action = ANextFrames
+      Action = actNextFrames
       BtnCaption = '&Next $$ Frames'
       Caption = 'JvSpeedItem12'
       Glyph.Data = {
@@ -1373,11 +1373,11 @@ object FMain: TFMain
       Left = 411
       Top = 3
       Visible = True
-      OnClick = ANextFramesExecute
+      OnClick = actNextFramesExecute
       SectionName = 'Main'
     end
     object JvSpeedItem13: TJvSpeedItem
-      Action = AStartCutting
+      Action = actStartCutting
       BtnCaption = '&Start Cutting'
       Caption = 'JvSpeedItem13'
       Glyph.Data = {
@@ -1420,11 +1420,11 @@ object FMain: TFMain
       Left = 451
       Top = 3
       Visible = True
-      OnClick = AStartCuttingExecute
+      OnClick = actStartCuttingExecute
       SectionName = 'Main'
     end
     object JvSpeedItem14: TJvSpeedItem
-      Action = ACalculateResultingTimes
+      Action = actCalculateResultingTimes
       BtnCaption = 'C&heck cut Movie'
       Caption = 'JvSpeedItem14'
       Glyph.Data = {
@@ -1467,11 +1467,11 @@ object FMain: TFMain
       Left = 483
       Top = 3
       Visible = True
-      OnClick = ACalculateResultingTimesExecute
+      OnClick = actCalculateResultingTimesExecute
       SectionName = 'Main'
     end
     object JvSpeedItem15: TJvSpeedItem
-      Action = BrowseWWWHelp
+      Action = actBrowseWWWHelp
       BtnCaption = '&Internet Help Pages'
       Caption = 'JvSpeedItem15'
       Glyph.Data = {
@@ -1514,7 +1514,7 @@ object FMain: TFMain
       Left = 531
       Top = 3
       Visible = True
-      OnClick = BrowseWWWHelpExecute
+      OnClick = actBrowseWWWHelpExecute
       SectionName = 'Main'
     end
   end
@@ -2372,11 +2372,11 @@ object FMain: TFMain
       FC0300000000E07FFC0300010001F07F00000000000000000000000000000000
       000000000000}
   end
-  object IdHTTP: TIdHTTP
-    OnStatus = IdHTTPStatus
+  object ihWebRequest: TIdHTTP
+    OnStatus = ihWebRequestStatus
     MaxLineAction = maException
     ReadTimeout = 15000
-    OnWork = IdHTTPWork
+    OnWork = ihWebRequestWork
     AllowCookies = True
     HandleRedirects = True
     ProxyParams.BasicAuthentication = False
@@ -2393,23 +2393,23 @@ object FMain: TFMain
     Left = 208
     Top = 88
   end
-  object MenuVideo: TPopupMenu
+  object mnuVideo: TPopupMenu
     Left = 48
     Top = 192
-    object FramePopUpNext12Frames: TMenuItem
-      Action = ANextFrames
+    object miVideoNextXFrames_nl: TMenuItem
+      Action = actNextFrames
     end
-    object FramePopUpPrevious12Frames: TMenuItem
-      Action = APrevFrames
+    object miVideoPreviousXFrames_nl: TMenuItem
+      Action = actPrevFrames
     end
-    object N1: TMenuItem
+    object miN1_nl: TMenuItem
       Caption = '-'
     end
-    object CopySnapshottoClipboard1: TMenuItem
-      Action = ASnapshotCopy
+    object miVideoCopySnapshottoClipboard_nl: TMenuItem
+      Action = actSnapshotCopy
     end
-    object SaveSnapshotas1: TMenuItem
-      Action = ASnapshotSave
+    object miVideoSaveSnapshotas_nl: TMenuItem
+      Action = actSnapshotSave
     end
   end
   object XMLResponse: TJvSimpleXML
@@ -2421,16 +2421,16 @@ object FMain: TFMain
     Images = ImageList
     Left = 296
     Top = 192
-    object OpenMovie: TAction
+    object actOpenMovie: TAction
       Tag = 2
       Category = 'File'
       Caption = '&Open Movie...'
       Hint = 'Open movie file...'
       ImageIndex = 13
       ShortCut = 16463
-      OnExecute = OpenMovieExecute
+      OnExecute = actOpenMovieExecute
     end
-    object OpenCutlist: TAction
+    object actOpenCutlist: TAction
       Tag = 3
       Category = 'Cutlist'
       Caption = '&Open Cutlist...'
@@ -2438,9 +2438,9 @@ object FMain: TFMain
       Hint = 'Open cutlist file...'
       ImageIndex = 14
       ShortCut = 24655
-      OnExecute = OpenCutlistExecute
+      OnExecute = actOpenCutlistExecute
     end
-    object ASearchCutlistByFileSize: TAction
+    object actSearchCutlistByFileSize: TAction
       Tag = 4
       Category = 'Cutlist'
       Caption = 'Search &Cutlists on Server'
@@ -2448,9 +2448,9 @@ object FMain: TFMain
       Hint = 'Search matching cutlists on server'
       ImageIndex = 17
       ShortCut = 116
-      OnExecute = ASearchCutlistByFileSizeExecute
+      OnExecute = actSearchCutlistByFileSizeExecute
     end
-    object SaveCutlistAs: TAction
+    object actSaveCutlistAs: TAction
       Tag = 5
       Category = 'Cutlist'
       Caption = 'Save Cutlist &As...'
@@ -2458,18 +2458,18 @@ object FMain: TFMain
       Hint = 'Save cutlist as...'
       ImageIndex = 2
       ShortCut = 24659
-      OnExecute = SaveCutlistAsExecute
+      OnExecute = actSaveCutlistAsExecute
     end
-    object ASaveCutlist: TAction
+    object actSaveCutlist: TAction
       Tag = 6
       Category = 'Cutlist'
       Caption = '&Save Cutlist'
       Hint = 'Save Cutlist'
       ImageIndex = 1
       ShortCut = 16467
-      OnExecute = ASaveCutlistExecute
+      OnExecute = actSaveCutlistExecute
     end
-    object CutlistUpload: TAction
+    object actCutlistUpload: TAction
       Tag = 7
       Category = 'Cutlist'
       Caption = '&Upload Cutlist to Server'
@@ -2477,9 +2477,9 @@ object FMain: TFMain
       Hint = 'Upload Cutlist to internet'
       ImageIndex = 16
       ShortCut = 118
-      OnExecute = CutlistUploadExecute
+      OnExecute = actCutlistUploadExecute
     end
-    object AStartCutting: TAction
+    object actStartCutting: TAction
       Tag = 13
       Category = 'File'
       Caption = '&Start Cutting'
@@ -2487,76 +2487,76 @@ object FMain: TFMain
       Hint = 'Start external cut application...'
       ImageIndex = 8
       ShortCut = 120
-      OnExecute = AStartCuttingExecute
+      OnExecute = actStartCuttingExecute
     end
-    object APlayInMPlayerAndSkip: TAction
+    object actPlayInMPlayerAndSkip: TAction
       Category = 'File'
       Caption = '&Play Movie in MPlayer'
       Hint = 'Play Movie in MPlayer and skip at Cuts'
-      OnExecute = APlayInMPlayerAndSkipExecute
+      OnExecute = actPlayInMPlayerAndSkipExecute
     end
-    object ARepairMovie: TAction
+    object actRepairMovie: TAction
       Category = 'File'
       Caption = '&Repair Movie'
       Hint = 'Repair Movie using external cut application'
-      OnExecute = ARepairMovieExecute
+      OnExecute = actRepairMovieExecute
     end
-    object ACloseMovie: TAction
+    object actCloseMovie: TAction
       Category = 'File'
       Caption = '&Close Movie'
       ShortCut = 16499
-      OnExecute = ACloseMovieExecute
+      OnExecute = actCloseMovieExecute
     end
-    object File_Exit: TAction
+    object actFileExit: TAction
       Tag = 1
       Category = 'File'
       Caption = 'E&xit'
       Hint = 'Exit application'
       ImageIndex = 3
-      OnExecute = File_ExitExecute
+      OnExecute = actFileExitExecute
     end
-    object AddCut: TAction
+    object actAddCut: TAction
       Category = 'Edit'
       Caption = '&Add new cut'
       Enabled = False
       ImageIndex = 5
       ShortCut = 16449
-      OnExecute = AddCutExecute
+      OnExecute = actAddCutExecute
     end
-    object ReplaceCut: TAction
+    object actReplaceCut: TAction
       Category = 'Edit'
       Caption = '&Replace selected cut'
       Enabled = False
       ImageIndex = 7
       ShortCut = 16470
-      OnExecute = ReplaceCutExecute
+      OnExecute = actReplaceCutExecute
     end
-    object EditCut: TAction
+    object actEditCut: TAction
       Category = 'Edit'
       Caption = '&Edit selected cut'
       Enabled = False
       ImageIndex = 6
       ShortCut = 16451
-      OnExecute = EditCutExecute
+      OnExecute = actEditCutExecute
     end
-    object DeleteCut: TAction
+    object actDeleteCut: TAction
       Category = 'Edit'
       Caption = '&Delete selected cut'
       Enabled = False
       ImageIndex = 4
       ShortCut = 46
-      OnExecute = DeleteCutExecute
+      OnExecute = actDeleteCutExecute
     end
-    object AShowFramesForm: TAction
+    object actShowFramesForm: TAction
       Tag = 9
       Category = 'Frames'
       Caption = '&Show Form'
       Hint = 'Bring frames form to front'
       ImageIndex = 9
       ShortCut = 16454
-      OnExecute = AShowFramesFormExecute
+      OnExecute = actShowFramesFormExecute
     end
-    object APrevFrames: TAction
+    object actPrevFrames: TAction
       Tag = 11
       Category = 'Frames'
       Caption = '&Previous $$ Frames'
@@ -2564,18 +2564,18 @@ object FMain: TFMain
       Hint = 'Show last $$ frames before current position'
       ImageIndex = 10
       ShortCut = 8311
-      OnExecute = APrevFramesExecute
+      OnExecute = actPrevFramesExecute
     end
-    object ACurrentFrames: TAction
+    object actCurrentFrames: TAction
       Category = 'Frames'
       Caption = '$$ frames &around'
       Enabled = False
       Hint = 'Show $$ frames around the current position'
       ImageIndex = 21
       ShortCut = 119
-      OnExecute = ACurrentFramesExecute
+      OnExecute = actCurrentFramesExecute
     end
-    object ANextFrames: TAction
+    object actNextFrames: TAction
       Tag = 12
       Category = 'Frames'
       Caption = '&Next $$ Frames'
@@ -2583,9 +2583,9 @@ object FMain: TFMain
       Hint = 'Show next $$ frames from current position'
       ImageIndex = 11
       ShortCut = 16503
-      OnExecute = ANextFramesExecute
+      OnExecute = actNextFramesExecute
     end
-    object AScanInterval: TAction
+    object actScanInterval: TAction
       Tag = 10
       Category = 'Frames'
       Caption = 'Scan &Interval'
@@ -2593,46 +2593,46 @@ object FMain: TFMain
       Hint = 'Scans selected interval for $$ frames'
       ImageIndex = 12
       ShortCut = 16416
-      OnExecute = AScanIntervalExecute
+      OnExecute = actScanIntervalExecute
     end
-    object EditSettings: TAction
+    object actEditSettings: TAction
       Category = 'Options'
       Caption = '&Settings...'
-      OnExecute = EditSettingsExecute
+      OnExecute = actEditSettingsExecute
     end
-    object MovieMetaData: TAction
+    object actMovieMetaData: TAction
       Category = 'Info'
       Caption = 'Movie &Meta Data...'
       Hint = 'Show Meta Data of original movie file...'
-      OnExecute = MovieMetaDataExecute
+      OnExecute = actMovieMetaDataExecute
     end
-    object BrowseWWWHelp: TAction
+    object actBrowseWWWHelp: TAction
       Tag = 15
       Category = '?'
       Caption = '&Internet Help Pages'
       Hint = 'Browse Internet Help Pages on OTR Wiki'
       ImageIndex = 15
       ShortCut = 112
-      OnExecute = BrowseWWWHelpExecute
+      OnExecute = actBrowseWWWHelpExecute
     end
-    object UsedFilters: TAction
+    object actUsedFilters: TAction
       Category = 'Info'
       Caption = 'Used &Filters...'
       Hint = 'Show used filters of current FilterGraph'
-      OnExecute = UsedFiltersExecute
+      OnExecute = actUsedFiltersExecute
     end
-    object WriteToRegisty: TAction
+    object actWriteToRegisty: TAction
       Category = 'Options'
       Caption = '&Associate with file extensions'
       Hint = 'Register this application in the Windows(R) Registry'
-      OnExecute = WriteToRegistyExecute
+      OnExecute = actWriteToRegistyExecute
     end
-    object RemoveRegistryEntries: TAction
+    object actRemoveRegistryEntries: TAction
       Category = 'Options'
       Caption = '&Remove registry entries'
-      OnExecute = RemoveRegistryEntriesExecute
+      OnExecute = actRemoveRegistryEntriesExecute
     end
-    object AStepForward: TAction
+    object actStepForward: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = '>II'
@@ -2641,9 +2641,9 @@ object FMain: TFMain
       ShortCut = 39
       SecondaryShortCuts.Strings = (
         'l')
-      OnExecute = AStepForwardExecute
+      OnExecute = actStepForwardExecute
     end
-    object AStepBackward: TAction
+    object actStepBackward: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = 'II<'
@@ -2652,40 +2652,40 @@ object FMain: TFMain
       ShortCut = 37
       SecondaryShortCuts.Strings = (
         'j')
-      OnExecute = AStepBackwardExecute
+      OnExecute = actStepBackwardExecute
     end
-    object OpenCutlistHome: TAction
+    object actOpenCutlistHome: TAction
       Category = '?'
       Caption = 'Cutlist &Homepage'
       Hint = 'Open Homepage of Cutlist Server in Browser'
-      OnExecute = OpenCutlistHomeExecute
+      OnExecute = actOpenCutlistHomeExecute
     end
-    object AOpenCutassistantHome: TAction
+    object actOpenCutassistantHome: TAction
       Category = '?'
       Caption = '&Cut Assistant Project'
       Hint = 'Open project page of Cut Assistant in browser'
-      OnExecute = AOpenCutassistantHomeExecute
+      OnExecute = actOpenCutassistantHomeExecute
     end
-    object About: TAction
+    object actAbout: TAction
       Category = '?'
       Caption = '&About ...'
       Hint = 'Show About Dialog'
-      OnExecute = AboutExecute
+      OnExecute = actAboutExecute
     end
-    object ADeleteCutlistFromServer: TAction
+    object actDeleteCutlistFromServer: TAction
       Category = 'Cutlist'
       Caption = '&Delete Cutlist from Server'
       ImageIndex = 4
-      OnExecute = ADeleteCutlistFromServerExecute
+      OnExecute = actDeleteCutlistFromServerExecute
     end
-    object ACutlistInfo: TAction
+    object actCutlistInfo: TAction
       Category = 'Cutlist'
       Caption = 'Cutlist &Info'
       Hint = 'Edit Cutlist Info'
       ShortCut = 16457
-      OnExecute = ACutlistInfoExecute
+      OnExecute = actCutlistInfoExecute
     end
-    object ACalculateResultingTimes: TAction
+    object actCalculateResultingTimes: TAction
       Tag = 14
       Category = 'Cutlist'
       Caption = 'C&heck cut Movie'
@@ -2693,23 +2693,23 @@ object FMain: TFMain
       Hint = 'Check Cut Movie'
       ImageIndex = 20
       ShortCut = 16504
-      OnExecute = ACalculateResultingTimesExecute
+      OnExecute = actCalculateResultingTimesExecute
     end
-    object AAsfbinInfo: TAction
+    object actAsfbinInfo: TAction
       Category = 'Info'
       Caption = 'Cut &Applications...'
-      OnExecute = AAsfbinInfoExecute
+      OnExecute = actAsfbinInfoExecute
     end
-    object ASendRating: TAction
+    object actSendRating: TAction
       Tag = 8
       Category = 'Cutlist'
       Caption = 'Send &Rating'
       Hint = 'Send Rating to Server'
       ImageIndex = 19
       ShortCut = 117
-      OnExecute = ASendRatingExecute
+      OnExecute = actSendRatingExecute
     end
-    object ANextCut: TAction
+    object actNextCut: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = '>>|'
@@ -2718,9 +2718,9 @@ object FMain: TFMain
       ShortCut = 16423
       SecondaryShortCuts.Strings = (
         'BildAb')
-      OnExecute = ANextCutExecute
+      OnExecute = actNextCutExecute
     end
-    object APrevCut: TAction
+    object actPrevCut: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = '|<<'
@@ -2729,343 +2729,343 @@ object FMain: TFMain
       ShortCut = 16421
       SecondaryShortCuts.Strings = (
         'BildAuf')
-      OnExecute = APrevCutExecute
+      OnExecute = actPrevCutExecute
     end
-    object AFullScreen: TAction
+    object actFullScreen: TAction
       Tag = -1
       Category = 'Window'
       Caption = 'Full &Screen'
       ShortCut = 32781
-      OnExecute = AFullScreenExecute
+      OnExecute = actFullScreenExecute
     end
-    object ASnapshotCopy: TAction
+    object actSnapshotCopy: TAction
       Tag = -1
       Category = 'Video'
       Caption = 'Copy S&napshot to Clipboard'
       Hint = 'Copy Snapshot to Clipboard'
-      OnExecute = ASnapshotCopyExecute
+      OnExecute = actSnapshotCopyExecute
     end
-    object ASnapshotSave: TAction
+    object actSnapshotSave: TAction
       Tag = -1
       Category = 'Video'
       Caption = 'Save &Snapshot as...'
-      OnExecute = ASnapshotSaveExecute
+      OnExecute = actSnapshotSaveExecute
     end
-    object ASmallSkipForward: TAction
+    object actSmallSkipForward: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = '>III'
       Enabled = False
       Hint = 'Small Skip Forward'
       ShortCut = 8231
-      OnExecute = AStepBackwardExecute
+      OnExecute = actStepBackwardExecute
     end
-    object ASmallSkipBackward: TAction
+    object actSmallSkipBackward: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = 'III<'
       Enabled = False
       Hint = 'Small Skip Backward'
       ShortCut = 8229
-      OnExecute = AStepBackwardExecute
+      OnExecute = actStepBackwardExecute
     end
-    object ALargeSkipForward: TAction
+    object actLargeSkipForward: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = '>IIII'
       Enabled = False
       Hint = 'Large Skip Forward'
       ShortCut = 24615
-      OnExecute = AStepBackwardExecute
+      OnExecute = actStepBackwardExecute
     end
-    object ALargeSkipBackward: TAction
+    object actLargeSkipBackward: TAction
       Tag = -1
       Category = 'Navigation'
       Caption = 'IIII<'
       Enabled = False
       Hint = 'Large Skip Backward'
       ShortCut = 24613
-      OnExecute = AStepBackwardExecute
+      OnExecute = actStepBackwardExecute
     end
-    object AShowLogging: TAction
+    object actShowLogging: TAction
       Category = 'Info'
       Caption = 'Show &Logging Messages'
       Hint = 'Show the log message window'
       ShortCut = 123
       Visible = False
-      OnExecute = AShowLoggingExecute
+      OnExecute = actShowLoggingExecute
     end
-    object ATestExceptionHandling: TAction
+    object actTestExceptionHandling: TAction
       Category = 'Info'
       Caption = 'Test exception handling'
       Visible = False
-      OnExecute = ATestExceptionHandlingExecute
+      OnExecute = actTestExceptionHandlingExecute
     end
-    object ACheckInfoOnServer: TAction
+    object actCheckInfoOnServer: TAction
       Category = '?'
       Caption = 'Check Update &Infos on Server ...'
       Hint = 'Check update infos on server now.'
-      OnExecute = ACheckInfoOnServerExecute
+      OnExecute = actCheckInfoOnServerExecute
     end
-    object ASupportRequest: TAction
+    object actSupportRequest: TAction
       Category = 'Info'
       Caption = 'Make a &support request'
       Hint = 'Creates a support request ...'
       Visible = False
-      OnExecute = ASupportRequestExecute
+      OnExecute = actSupportRequestExecute
     end
-    object AStop: TAction
+    object actStop: TAction
       Category = 'Navigation'
       Caption = '[ ]'
       Hint = 'Stop movie'
       ShortCut = 123
-      OnExecute = AStopExecute
+      OnExecute = actStopExecute
     end
-    object APlayPause: TAction
+    object actPlayPause: TAction
       Category = 'Navigation'
       Caption = '>/||'
       Hint = 'Play / pause movie'
       ShortCut = 114
-      OnExecute = APlayPauseExecute
+      OnExecute = actPlayPauseExecute
     end
-    object APlay: TAction
+    object actPlay: TAction
       Category = 'Navigation'
       Caption = '>'
       Enabled = False
       Hint = 'Play'
-      OnExecute = APlayExecute
+      OnExecute = actPlayExecute
     end
-    object APause: TAction
+    object actPause: TAction
       Category = 'Navigation'
       Caption = '||'
       Enabled = False
       Hint = 'Pause'
-      OnExecute = APauseExecute
+      OnExecute = actPauseExecute
     end
   end
-  object MainMenu: TMainMenu
+  object mnuMain: TMainMenu
     Images = ImageList
     Left = 48
     Top = 88
-    object File1: TMenuItem
+    object miFile: TMenuItem
       Caption = '&File'
-      object OpenMovie1: TMenuItem
-        Action = OpenMovie
+      object miOpenMovie_nl: TMenuItem
+        Action = actOpenMovie
       end
-      object StartCutting1: TMenuItem
-        Action = AStartCutting
+      object miStartCutting_nl: TMenuItem
+        Action = actStartCutting
       end
-      object PlayMovieinMPlayer1: TMenuItem
-        Action = APlayInMPlayerAndSkip
+      object miPlayMovieinMPlayer_nl: TMenuItem
+        Action = actPlayInMPlayerAndSkip
       end
-      object RepairMovie1: TMenuItem
-        Action = ARepairMovie
+      object miRepairMovie_nl: TMenuItem
+        Action = actRepairMovie
       end
-      object CloseMovie1: TMenuItem
-        Action = ACloseMovie
+      object miCloseMovie_nl: TMenuItem
+        Action = actCloseMovie
       end
-      object N2: TMenuItem
+      object miN2_nl: TMenuItem
         Caption = '-'
       end
-      object Exit1: TMenuItem
-        Action = File_Exit
+      object miExit_nl: TMenuItem
+        Action = actFileExit
       end
     end
-    object Cutlist1: TMenuItem
+    object miCutlist: TMenuItem
       Caption = '&Cutlist'
-      object OpenCutlist1: TMenuItem
-        Action = OpenCutlist
+      object miOpenCutlist_nl: TMenuItem
+        Action = actOpenCutlist
       end
-      object SearchCutlistsonServer1: TMenuItem
-        Action = ASearchCutlistByFileSize
+      object miSearchCutlistsonServer_nl: TMenuItem
+        Action = actSearchCutlistByFileSize
       end
-      object N3: TMenuItem
+      object miN3_nl: TMenuItem
         Caption = '-'
       end
-      object SaveCutlistAs1: TMenuItem
-        Action = SaveCutlistAs
+      object miSaveCutlistAs_nl: TMenuItem
+        Action = actSaveCutlistAs
       end
-      object SaveCutlist1: TMenuItem
-        Action = ASaveCutlist
+      object miSaveCutlist_nl: TMenuItem
+        Action = actSaveCutlist
       end
-      object UploadCutlisttoServer1: TMenuItem
-        Action = CutlistUpload
+      object miUploadCutlisttoServer_nl: TMenuItem
+        Action = actCutlistUpload
       end
-      object DeleteCutlistfromServer1: TMenuItem
-        Action = ADeleteCutlistFromServer
+      object miDeleteCutlistfromServer_nl: TMenuItem
+        Action = actDeleteCutlistFromServer
       end
-      object N4: TMenuItem
+      object miN4_nl: TMenuItem
         Caption = '-'
       end
-      object CutlistInfo1: TMenuItem
-        Action = ACutlistInfo
+      object miCutlistInfo_nl: TMenuItem
+        Action = actCutlistInfo
       end
-      object CheckcutMovie1: TMenuItem
-        Action = ACalculateResultingTimes
+      object miCheckcutMovie_nl: TMenuItem
+        Action = actCalculateResultingTimes
       end
-      object SendRating1: TMenuItem
-        Action = ASendRating
+      object miSendRating_nl: TMenuItem
+        Action = actSendRating
       end
     end
-    object Navigation1: TMenuItem
+    object miNavigation: TMenuItem
       Caption = '&Navigation'
-      object N14: TMenuItem
-        Action = APlayPause
+      object miPlayPause_nl: TMenuItem
+        Action = actPlayPause
         Enabled = False
       end
-      object N17: TMenuItem
-        Action = APlay
+      object miPlay_nl: TMenuItem
+        Action = actPlay
       end
-      object N18: TMenuItem
-        Action = APause
+      object miPause_nl: TMenuItem
+        Action = actPause
       end
-      object N15: TMenuItem
-        Action = AStop
+      object miStop_nl: TMenuItem
+        Action = actStop
         Enabled = False
       end
-      object N16: TMenuItem
+      object miN16_nl: TMenuItem
         Caption = '-'
       end
-      object II1: TMenuItem
-        Action = AStepForward
+      object miStepForward_nl: TMenuItem
+        Action = actStepForward
       end
-      object II2: TMenuItem
-        Action = AStepBackward
+      object miStepBack_nl: TMenuItem
+        Action = actStepBackward
       end
-      object N10: TMenuItem
+      object miN10_nl: TMenuItem
         Caption = '-'
       end
-      object N11: TMenuItem
-        Action = ANextCut
+      object miNextCut_nl: TMenuItem
+        Action = actNextCut
       end
-      object N12: TMenuItem
-        Action = APrevCut
+      object miPrevCut_nl: TMenuItem
+        Action = actPrevCut
       end
-      object N8: TMenuItem
+      object miN8_nl: TMenuItem
         Caption = '-'
       end
-      object III1: TMenuItem
-        Action = ASmallSkipForward
+      object miSmallSkipForward_nl: TMenuItem
+        Action = actSmallSkipForward
       end
-      object III2: TMenuItem
-        Action = ASmallSkipBackward
+      object miSmallSkipBack_nl: TMenuItem
+        Action = actSmallSkipBackward
       end
-      object N9: TMenuItem
+      object miN9_nl: TMenuItem
         Caption = '-'
       end
-      object IIII1: TMenuItem
-        Action = ALargeSkipForward
+      object miLargeSkipForward_nl: TMenuItem
+        Action = actLargeSkipForward
       end
-      object IIII2: TMenuItem
-        Action = ALargeSkipBackward
+      object miLargeSkipBack_nl: TMenuItem
+        Action = actLargeSkipBackward
       end
     end
-    object Edit1: TMenuItem
+    object miEdit: TMenuItem
       Caption = '&Edit'
-      object Addnewcut1: TMenuItem
-        Action = AddCut
+      object miAddnewcut_nl: TMenuItem
+        Action = actAddCut
       end
-      object Replaceselectedcut1: TMenuItem
-        Action = ReplaceCut
+      object miReplaceselectedcut_nl: TMenuItem
+        Action = actReplaceCut
       end
-      object Editselectedcut1: TMenuItem
-        Action = EditCut
+      object miEditselectedcut_nl: TMenuItem
+        Action = actEditCut
       end
-      object Deleteselectedcut1: TMenuItem
-        Action = DeleteCut
+      object miDeleteselectedcut_nl: TMenuItem
+        Action = actDeleteCut
       end
     end
-    object Frames1: TMenuItem
+    object miFrames: TMenuItem
       Caption = '&Frames'
-      object ShowForm1: TMenuItem
-        Action = AShowFramesForm
+      object miShowForm_nl: TMenuItem
+        Action = actShowFramesForm
       end
-      object N5: TMenuItem
+      object miN5_nl: TMenuItem
         Caption = '-'
       end
-      object ScanInterval1: TMenuItem
-        Action = AScanInterval
+      object miScanInterval_nl: TMenuItem
+        Action = actScanInterval
       end
-      object Previous12Frames1: TMenuItem
-        Action = APrevFrames
+      object miPreviousXFrames_nl: TMenuItem
+        Action = actPrevFrames
       end
-      object framesaround1: TMenuItem
-        Action = ACurrentFrames
+      object miFramesAround_nl: TMenuItem
+        Action = actCurrentFrames
       end
-      object Next12Frames1: TMenuItem
-        Action = ANextFrames
+      object miNextXFrames_nl: TMenuItem
+        Action = actNextFrames
       end
     end
-    object Info1: TMenuItem
+    object miInfo: TMenuItem
       Caption = '&Info'
-      object MovieMetaData1: TMenuItem
-        Action = MovieMetaData
+      object miMovieMetaData_nl: TMenuItem
+        Action = actMovieMetaData
       end
-      object UsedFilters1: TMenuItem
-        Action = UsedFilters
+      object miUsedFilters_nl: TMenuItem
+        Action = actUsedFilters
       end
-      object CutApplications1: TMenuItem
-        Action = AAsfbinInfo
+      object miCutApplications_nl: TMenuItem
+        Action = actAsfbinInfo
       end
-      object N13: TMenuItem
+      object miN13_nl: TMenuItem
         Caption = '-'
       end
-      object Makeasupportrequest1: TMenuItem
-        Action = ASupportRequest
+      object miMakeasupportrequest_nl: TMenuItem
+        Action = actSupportRequest
       end
-      object ShowLoggingMessages1: TMenuItem
-        Action = AShowLogging
+      object miShowLoggingMessages_nl: TMenuItem
+        Action = actShowLogging
       end
-      object TestExceptionHandling1: TMenuItem
-        Action = ATestExceptionHandling
+      object miTestExceptionHandling_nl: TMenuItem
+        Action = actTestExceptionHandling
       end
     end
-    object Options1: TMenuItem
+    object miOptions: TMenuItem
       Caption = '&Options'
-      object Settings1: TMenuItem
-        Action = EditSettings
+      object miSettings_nl: TMenuItem
+        Action = actEditSettings
       end
-      object N6: TMenuItem
+      object miN6_nl: TMenuItem
         Caption = '-'
       end
-      object Associatewithfileextensions1: TMenuItem
-        Action = WriteToRegisty
+      object miAssociatewithfileextensions_nl: TMenuItem
+        Action = actWriteToRegisty
       end
-      object Removeregistryentries1: TMenuItem
-        Action = RemoveRegistryEntries
+      object miRemoveregistryentries_nl: TMenuItem
+        Action = actRemoveRegistryEntries
       end
     end
-    object Help1: TMenuItem
+    object miHelp: TMenuItem
       Caption = '&Help'
-      object InternetHelpPages1: TMenuItem
-        Action = BrowseWWWHelp
+      object miInternetHelpPages_nl: TMenuItem
+        Action = actBrowseWWWHelp
       end
-      object CutlistHomepage1: TMenuItem
-        Action = OpenCutlistHome
+      object miCutlistHomepage_nl: TMenuItem
+        Action = actOpenCutlistHome
       end
-      object CutAssistantProject1: TMenuItem
-        Action = AOpenCutassistantHome
+      object miCutAssistantProject_nl: TMenuItem
+        Action = actOpenCutassistantHome
       end
-      object Checkinfoonserver1: TMenuItem
-        Action = ACheckInfoOnServer
+      object miCheckinfoonserver_nl: TMenuItem
+        Action = actCheckInfoOnServer
       end
-      object N7: TMenuItem
+      object miN7_nl: TMenuItem
         Caption = '-'
       end
-      object About1: TMenuItem
-        Action = About
+      object miAbout_nl: TMenuItem
+        Action = actAbout
       end
     end
   end
-  object RequestProgressDialog: TJvProgressDialog
-    OnShow = RequestProgressDialogShow
+  object dlgRequestProgress: TJvProgressDialog
+    OnShow = dlgRequestProgressShow
     Caption = 'Web request progress'
     Interval = 50
     Max = 40
     Smooth = True
     ScreenPosition = poMainFormCenter
-    OnCancel = RequestProgressDialogCancel
-    OnProgress = RequestProgressDialogProgress
+    OnCancel = dlgRequestProgressCancel
+    OnProgress = dlgRequestProgressProgress
     Left = 207
     Top = 248
   end

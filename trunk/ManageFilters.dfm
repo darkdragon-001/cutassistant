@@ -25,7 +25,7 @@ object FManageFilters: TFManageFilters
     221)
   PixelsPerInch = 96
   TextHeight = 13
-  object Label1: TLabel
+  object lblClickOnFilter: TLabel
     Left = 148
     Top = 188
     Width = 103
@@ -34,7 +34,7 @@ object FManageFilters: TFManageFilters
     Caption = 'Double Click on Filter to show properties'
     WordWrap = True
   end
-  object BRemove: TButton
+  object cmdRemove: TButton
     Left = 4
     Top = 192
     Width = 131
@@ -44,9 +44,9 @@ object FManageFilters: TFManageFilters
     Enabled = False
     TabOrder = 0
     Visible = False
-    OnClick = BRemoveClick
+    OnClick = cmdRemoveClick
   end
-  object BClose: TButton
+  object cmdClose: TButton
     Left = 601
     Top = 192
     Width = 61
@@ -57,9 +57,9 @@ object FManageFilters: TFManageFilters
     Default = True
     ModalResult = 1
     TabOrder = 1
-    OnClick = BCloseClick
+    OnClick = cmdCloseClick
   end
-  object LFilters: TListBox
+  object lvFilters: TListBox
     Left = 0
     Top = 0
     Width = 666
@@ -76,10 +76,10 @@ object FManageFilters: TFManageFilters
     MultiSelect = True
     ParentFont = False
     TabOrder = 2
-    OnClick = LFiltersClick
-    OnDblClick = LFiltersDblClick
+    OnClick = lvFiltersClick
+    OnDblClick = lvFiltersDblClick
   end
-  object BCopy: TButton
+  object cmdCopy: TButton
     Left = 493
     Top = 192
     Width = 102
@@ -89,6 +89,6 @@ object FManageFilters: TFManageFilters
     Caption = 'Copy to clipboard'
     Default = True
     TabOrder = 3
-    OnClick = BCopyClick
+    OnClick = cmdCopyClick
   end
 end

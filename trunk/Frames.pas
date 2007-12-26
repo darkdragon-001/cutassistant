@@ -172,7 +172,7 @@ begin
   LIndex.Parent := AParent;
   FBorder.Parent := AParent;
   Image.Parent := Aparent;
-  Image.PopupMenu := FMain.MenuVideo;
+  Image.PopupMenu := FMain.mnuVideo;
   IsKeyFrame := false;
 end;
 
@@ -431,7 +431,7 @@ begin
           (self.Owner as TFFrames).MainForm.TBFilePos.SelStart := round(frame[scan_2].position);
           (self.Owner as TFFrames).MainForm.TBFilePos.SelEnd := round(frame[scan_1].position);
         end;
-        (self.Owner as TFFrames).MainForm.AScanInterval.Enabled := true;
+        (self.Owner as TFFrames).MainForm.actScanInterval.Enabled := true;
       end;
     end;
     self.BorderVisible := true;
@@ -457,12 +457,12 @@ begin
     VK_PRIOR:
       begin
         self.MainForm.JumpTo(self.Frame[0].position);
-        self.MainForm.APrevFrames.Execute;
+        self.MainForm.actPrevFrames.Execute;
       end;
     VK_NEXT:
       begin
         self.MainForm.JumpTo(self.Frame[self.Count - 1].position);
-        self.MainForm.ANextFrames.Execute;
+        self.MainForm.actNextFrames.Execute;
       end;
     VK_ESCAPE:
       begin

@@ -8,19 +8,19 @@ uses
 
 type
   TFManageFilters = class(TForm)
-    BRemove: TButton;
-    BClose: TButton;
-    LFilters: TListBox;
-    BCopy: TButton;
-    Label1: TLabel;
-    procedure BCloseClick(Sender: TObject);
+    cmdRemove: TButton;
+    cmdClose: TButton;
+    lvFilters: TListBox;
+    cmdCopy: TButton;
+    lblClickOnFilter: TLabel;
+    procedure cmdCloseClick(Sender: TObject);
     procedure FormShow(Sender: TObject);
-    procedure LFiltersClick(Sender: TObject);
+    procedure lvFiltersClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
-    procedure BRemoveClick(Sender: TObject);
+    procedure cmdRemoveClick(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
-    procedure BCopyClick(Sender: TObject);
-    procedure LFiltersDblClick(Sender: TObject);
+    procedure cmdCopyClick(Sender: TObject);
+    procedure lvFiltersDblClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     FilterList: TFIlterList;
@@ -40,7 +40,7 @@ implementation
 
 uses Main, ComObj;
 
-procedure TFManageFilters.BCloseClick(Sender: TObject);
+procedure TFManageFilters.cmdCloseClick(Sender: TObject);
 begin
   self.Hide;
 end;
@@ -66,10 +66,10 @@ begin
   graph.Stop;
   FilterList.Assign(Graph as IFIlterGRaph);
 
-  LFilters.Clear;
+  lvFilters.Clear;
   For iFilter := 0 to FilterList.Count-1 do begin
     FilterLIst.Items[iFilter].GetClassID(guid);
-    LFilters.Items.Add(guidtostring(guid) + '   ' + string(FilterList.FilterInfo[iFIlter].achName));
+    lvFilters.Items.Add(guidtostring(guid) + '   ' + string(FilterList.FilterInfo[iFIlter].achName));
   end;
 
 
@@ -77,9 +77,9 @@ begin
     OleCheck((Graph as IFilterGraph).EnumFilters(Filters));
     while Filters.Next(1, BaseFilter, nil) = S_OK do begin
       if failed(BaseFilter.QueryFilterInfo(FilterInfo)) then begin
-        LFilters.Items.Add('*** unknown Filter');
+        lvFilters.Items.Add('*** unknown Filter');
       end else begin
-        LFilters.Items.Add(FilterInfo.achName);
+        lvFilters.Items.Add(FilterInfo.achName);
 //        if filterinfo.pGraph <> nil then filterinfo.pGraph._Release;
       end;
       //BaseFilter._Release;
@@ -93,30 +93,30 @@ begin
 
 end;
 
-procedure TFManageFilters.LFiltersClick(Sender: TObject);
+procedure TFManageFilters.lvFiltersClick(Sender: TObject);
 var
   iItem: Integer;
   sel: boolean;
 begin
   sel := false;
-  for iItem := 0 to LFilters.Items.count -1 do begin
-    if lFilters.Selected[iItem] then sel := true;
+  for iItem := 0 to lvFilters.Items.count -1 do begin
+    if lvFilters.Selected[iItem] then sel := true;
   end;
-  self.BRemove.Enabled := sel;
+  self.cmdRemove.Enabled := sel;
 end;
 
 
-procedure TFManageFilters.BRemoveClick(Sender: TObject);
+procedure TFManageFilters.cmdRemoveClick(Sender: TObject);
 var
   iItem, iFIlter: Integer;
 begin
   exit; //*********************** funktioniert noch nicht richtig
 
-  LFiltersClick(self);
-  if BRemove.Enabled = false then exit;
+  lvFiltersClick(self);
+  if cmdRemove.Enabled = false then exit;
 
-  for iItem := 0 to LFilters.Items.count -1 do begin
-    if lFilters.Selected[iItem] then break;
+  for iItem := 0 to lvFilters.Items.count -1 do begin
+    if lvFilters.Selected[iItem] then break;
   end;
 
   Case (SourceGraph as IFIlterGRaph).RemoveFilter(filterlist.Items[iItem]) of
@@ -125,9 +125,9 @@ begin
   end;
   FilterList.Update;
 
-  LFilters.Clear;
+  lvFilters.Clear;
   For iFilter := 0 to FilterList.Count-1 do begin
-    LFilters.Items.Add(FilterList.FilterInfo[iFIlter].achName);
+    lvFilters.Items.Add(FilterList.FilterInfo[iFIlter].achName);
   end;
 
 end;
@@ -142,17 +142,17 @@ begin
   FreeAndNIL(FilterList);
 end;
 
-procedure TFManageFilters.BCopyClick(Sender: TObject);
+procedure TFManageFilters.cmdCopyClick(Sender: TObject);
 begin
-  ListBoxToClipboard(self.LFilters, 255, true);
+  ListBoxToClipboard(self.lvFilters, 255, true);
 end;
 
-procedure TFManageFilters.LFiltersDblClick(Sender: TObject);
+procedure TFManageFilters.lvFiltersDblClick(Sender: TObject);
 var
   Index: INteger;
 begin
-  //Index := self.LFilters.ItemAtPos(Mouse.CursorPos, true);
-  Index := self.LFilters.ItemIndex;
+  //Index := self.lvFilters.ItemAtPos(Mouse.CursorPos, true);
+  Index := self.lvFilters.ItemIndex;
   if Index >= 0 then begin
     ShowFilterPropertyPage(self.Handle, FilterList.Items[Index]);
   end;

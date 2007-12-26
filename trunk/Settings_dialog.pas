@@ -190,6 +190,7 @@ type
     function GetLanguageIndex: integer;
     function GetLanguageByIndex(index: integer): string;
     function GetLangDesc(const langFile: TFileName): string;
+    function GetLanguageFile: string;
     function GetLanguageList: TStrings;
     function GetFilter(Index: Integer): TFilCatNode;
     property CodecList: TCodecList read FCodecList;
@@ -251,6 +252,7 @@ type
 
     procedure UpdateLanguageList;
     property LanguageList: TStrings read GetLanguageList;
+    property LanguageFile: string read GetLanguageFile;
 
     function CheckInfos: boolean;
 
@@ -303,6 +305,7 @@ var
   EmptyRect: TRect;
 
 {$R *.dfm}
+{$WARN SYMBOL_PLATFORM OFF}
 
 function TFSettings.GetCodecList: TCodecList;
 begin
@@ -419,6 +422,13 @@ begin
   FLanguageList.Insert(0, 'Standard');
 end;
 
+function TSettings.GetLanguageFile: string;
+begin
+  Result := self.Language;
+  if Result = '' then
+    Result := ChangeFileExt(Application_File, '.lng');
+end;
+
 function TSettings.GetLanguageList: TStrings;
 begin
   Result := FLanguageList;
@@ -446,9 +456,12 @@ end;
 function TSettings.GetLanguageByIndex(index: integer): string;
 var
   lang: string;
+  idx: integer;
 begin
   lang := FLanguageList[index];
-  Delete(lang, 1, Pos('(', lang));
+  idx := Pos('(', lang);
+  if idx = 0 then idx := MaxInt;
+  Delete(lang, 1, idx);
   Delete(lang, Pos(')', lang), MaxInt);
   Result := lang;
 end;
@@ -664,7 +677,7 @@ begin
       newLanguage                      := GetLanguageByIndex(FSettings.cmbLanguage_nl.ItemIndex);
       if self.Language <> newLanguage then begin
         self.Language                  := newLanguage;
-        FreeLocalizer.LanguageFile     := self.Language;
+        FreeLocalizer.LanguageFile     := self.LanguageFile;
       end;
 
       self.InfoShowMessages            := FSettings.CBInfoCheckMessages.Checked  ;

@@ -20,7 +20,7 @@ object AboutBox: TAboutBox
     219)
   PixelsPerInch = 96
   TextHeight = 13
-  object Panel1: TPanel
+  object pnlAbout: TPanel
     Left = 8
     Top = 8
     Width = 426
@@ -33,7 +33,7 @@ object AboutBox: TAboutBox
     DesignSize = (
       426
       172)
-    object ProgramIcon: TImage
+    object iProgram_nl: TImage
       Left = 8
       Top = 8
       Width = 65
@@ -429,7 +429,7 @@ object AboutBox: TAboutBox
       Stretch = True
       IsControl = True
     end
-    object ProductName: TLabel
+    object lblProductName_nl: TLabel
       Left = 88
       Top = 16
       Width = 76
@@ -444,7 +444,7 @@ object AboutBox: TAboutBox
       ParentFont = False
       IsControl = True
     end
-    object Version: TLabel
+    object lblVersion_nl: TLabel
       Left = 88
       Top = 40
       Width = 86
@@ -459,12 +459,12 @@ object AboutBox: TAboutBox
       ParentFont = False
       IsControl = True
     end
-    object Copyright: TLabel
+    object lblAuthors: TLabel
       Left = 8
       Top = 80
-      Width = 113
+      Width = 48
       Height = 16
-      Caption = 'Author: 1248, a_s_z'
+      Caption = 'Authors:'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -13
@@ -474,21 +474,21 @@ object AboutBox: TAboutBox
       ParentFont = False
       IsControl = True
     end
-    object JvPoweredByJCL1: TJvPoweredByJCL
+    object JvPoweredByJCL_nl: TJvPoweredByJCL
       Left = 206
       Top = 8
       Width = 213
       Anchors = [akTop, akRight]
       URL = 'http://homepages.borland.com/jedi/jcl/'
     end
-    object JvPoweredByJVCL1: TJvPoweredByJVCL
+    object JvPoweredByJVCL_nl: TJvPoweredByJVCL
       Left = 206
       Top = 48
       Width = 211
       Anchors = [akTop, akRight]
       URL = 'http://homepages.borland.com/jedi/jvcl/PoweredByJVCL.htm'
     end
-    object Image1: TImage
+    object iIndy_nl: TImage
       Left = 206
       Top = 88
       Width = 209
@@ -679,7 +679,7 @@ object AboutBox: TAboutBox
         6E5E9349E458A1506E0DF4FF70F5867F09F8889FF88A1F098100003B}
       Proportional = True
     end
-    object Label1: TLabel
+    object lblDSPack_nl: TLabel
       Left = 206
       Top = 144
       Width = 173
@@ -694,14 +694,29 @@ object AboutBox: TAboutBox
       Font.Style = []
       ParentFont = False
     end
+    object lblCopyright_nl: TLabel
+      Left = 61
+      Top = 80
+      Width = 69
+      Height = 16
+      Caption = '1248, a_s_z'
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clWindowText
+      Font.Height = -13
+      Font.Name = 'MS Sans Serif'
+      Font.Pitch = fpVariable
+      Font.Style = []
+      ParentFont = False
+      IsControl = True
+    end
   end
-  object OKButton: TButton
+  object cmdOk: TButton
     Left = 359
     Top = 187
     Width = 75
     Height = 25
     Anchors = [akRight, akBottom]
-    Caption = 'OK'
+    Caption = '&Ok'
     Default = True
     ModalResult = 1
     TabOrder = 1

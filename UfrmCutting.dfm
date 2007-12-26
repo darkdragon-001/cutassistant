@@ -44,7 +44,7 @@ object frmCutting: TfrmCutting
     WordWrap = False
     OnClick = memOutputClick
   end
-  object btnClose: TButton
+  object cmdClose_nl: TButton
     Left = 592
     Top = 409
     Width = 105
@@ -52,31 +52,31 @@ object frmCutting: TfrmCutting
     Anchors = [akRight, akBottom]
     Caption = '&Close'
     Enabled = False
-    TabOrder = 1
+    TabOrder = 4
   end
-  object btnAbort: TButton
-    Left = 481
+  object cmdAbort: TButton
+    Left = 473
     Top = 409
     Width = 105
     Height = 25
     Anchors = [akRight, akBottom]
     Cancel = True
     Caption = '&Abort'
-    TabOrder = 2
-    OnClick = btnAbortClick
+    TabOrder = 3
+    OnClick = cmdAbortClick
   end
-  object btnCopyClipbrd: TButton
+  object cmdCopyClipbrd: TButton
     Left = 6
     Top = 409
     Width = 105
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Copy to Clip&board'
-    TabOrder = 3
-    OnClick = btnCopyClipbrdClick
+    TabOrder = 1
+    OnClick = cmdCopyClipbrdClick
   end
-  object btnEmergencyExit: TButton
-    Left = 370
+  object cmdEmergencyExit: TButton
+    Left = 362
     Top = 409
     Width = 105
     Height = 25
@@ -89,8 +89,8 @@ object frmCutting: TfrmCutting
     Font.Pitch = fpVariable
     Font.Style = []
     ParentFont = False
-    TabOrder = 4
-    OnClick = btnEmergencyExitClick
+    TabOrder = 2
+    OnClick = cmdEmergencyExitClick
   end
   object timAutoClose: TTimer
     Enabled = False

@@ -14,12 +14,12 @@ type
 
   TfrmCutApplicationAviDemux = class(TfrmCutApplicationBase)
     edtADCommandLineOptions: TEdit;
-    CBADRebuildIndex: TCheckBox;
-    CBADScanVBR: TCheckBox;
-    CBADSmartCopy: TCheckBox;
-    CBADNoGUI: TCheckBox;
-    CBADAutoSave: TCheckBox;
-    CBADNotClose: TCheckBox;
+    cbADRebuildIndex: TCheckBox;
+    cbADScanVBR: TCheckBox;
+    cbADSmartCopy: TCheckBox;
+    cbADNoGUI: TCheckBox;
+    cbADAutoSave: TCheckBox;
+    cbADNotClose: TCheckBox;
     lblCommandLineOptions: TLabel;
   private
     { Private declarations }

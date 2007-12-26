@@ -15,18 +15,18 @@ object FUploadList: TFUploadList
   Position = poMainFormCenter
   PixelsPerInch = 96
   TextHeight = 13
-  object Panel1: TPanel
+  object pnlButtons: TPanel
     Left = 0
     Top = 254
     Width = 805
     Height = 34
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 1
     DesignSize = (
       805
       34)
-    object BCancel: TButton
+    object cmdCancel: TButton
       Left = 705
       Top = 6
       Width = 95
@@ -37,7 +37,7 @@ object FUploadList: TFUploadList
       ModalResult = 2
       TabOrder = 0
     end
-    object BDelete: TButton
+    object cmdDelete: TButton
       Left = 604
       Top = 6
       Width = 95
@@ -48,7 +48,7 @@ object FUploadList: TFUploadList
       TabOrder = 1
     end
   end
-  object LLinklist: TListView
+  object lvLinklist: TListView
     Left = 0
     Top = 0
     Width = 805
@@ -72,7 +72,7 @@ object FUploadList: TFUploadList
     ReadOnly = True
     RowSelect = True
     SortType = stText
-    TabOrder = 1
+    TabOrder = 0
     ViewStyle = vsReport
   end
 end

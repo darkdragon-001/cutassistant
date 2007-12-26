@@ -466,7 +466,8 @@ var
 implementation
   uses madExcept, madNVBitmap, madNVAssistant, Frames, CutlistRate_Dialog, ResultingTimes, CutlistSearchResults,
     PBOnceOnly, UfrmCutting, UCutApplicationBase, UCutApplicationAsfbin, UCutApplicationMP4Box, UMemoDialog,
-    DateTools, UAbout, ULogging, UDSAStorage, IdResourceStrings, CAResources;
+    DateTools, UAbout, ULogging, UDSAStorage, IdResourceStrings, CAResources,
+    uFreeLocalizer;
 
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
@@ -3779,8 +3780,19 @@ end;
 initialization
 begin
   randomize;
+
+  FreeLocalizer.LanguageDir := Application_Dir;
+  FreeLocalizer.ErrorProcessing := epErrors;
+
   Settings := TSettings.Create;
   Settings.load;
+
+  FreeLocalizer.AutoTranslate := True;
+  if Settings.Language = '' then
+    FreeLocalizer.LanguageFile := ChangeFileExt(Application_File, '.lng')
+  else
+    FreeLocalizer.LanguageFile := Settings.Language;
+
   //RegisterDSAMessage(1, 'CutlistRated', 'Cutlist rated');
   MovieInfo := TMovieInfo.Create;
   Cutlist := TCutList.Create(Settings, MovieInfo);

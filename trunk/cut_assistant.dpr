@@ -4,6 +4,8 @@ program cut_assistant;
 {%File 'news.txt'}
 {%File 'license.txt'}
 {%File 'cut_assistant_info.xml'}
+{%File 'cut_assistant.en.lng'}
+{%File 'cut_assistant.lng'}
 
 uses
   madExcept,
@@ -62,10 +64,6 @@ begin
 
   Application.Initialize;
   Application.Title := 'Cut Assistant';
-
-  FreeLocalizer.ErrorProcessing := epErrors;
-  FreeLocalizer.AutoTranslate := True;
-  FreeLocalizer.LanguageFile := ChangeFileExt(Application.ExeName, '.lng');
 
   if FreeLocalizer.Errors <> '' then
     Application.MessageBox(pChar(FreeLocalizer.Errors), 'Localizer Errors');

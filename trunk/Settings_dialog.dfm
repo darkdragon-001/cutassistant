@@ -301,9 +301,9 @@ object FSettings: TFSettings
         ItemHeight = 13
         ItemIndex = 0
         TabOrder = 10
-        Text = 'Standard'
+        Text = ' Standard'
         Items.Strings = (
-          'Standard')
+          ' Standard')
       end
     end
     object tabSaveMovie: TTabSheet
@@ -806,7 +806,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 1
         OnChange = cmbCodecChange
       end
@@ -836,7 +836,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 5
         OnChange = cmbCodecChange
       end
@@ -866,7 +866,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 13
         OnChange = cmbCodecChange
       end
@@ -896,7 +896,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 17
         OnChange = cmbCodecChange
       end
@@ -938,7 +938,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 9
         OnChange = cmbCodecChange
       end
@@ -1057,7 +1057,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 3
         Text = '(none)'
@@ -1075,7 +1075,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 5
         Text = '(none)'
@@ -1093,7 +1093,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 6
         Text = '(none)'
@@ -1121,7 +1121,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
@@ -1156,7 +1156,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 4
         Text = '(none)'

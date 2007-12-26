@@ -169,6 +169,7 @@ type
   function Get_File_Version(const FileName: string; var FileVersionMS, FileVersionLS: DWORD): boolean; overload;
   function Application_version: string;
   function Application_Dir: string;
+  function Application_File: string;
   function Application_Friendly_Name: string;
   function UploadData_Path(useCSV: boolean): string;
   function cleanURL(aURL: String): String;
@@ -921,6 +922,11 @@ end;
 function Application_Dir: string;
 begin
   result := includeTrailingPathDelimiter(extractFileDir(Application.ExeName));
+end;
+
+function Application_File: string;
+begin
+  result := ExtractFileName(Application.ExeName);
 end;
 
 function Application_Friendly_Name: string;

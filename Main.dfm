@@ -72,10 +72,11 @@ object FMain: TFMain
     Caption = 'To'
   end
   object lblVolume: TLabel
-    Left = 363
-    Top = 317
+    Left = 366
+    Top = 320
     Width = 35
     Height = 13
+    Alignment = taRightJustify
     Anchors = [akRight, akBottom]
     Caption = 'Volume'
   end
@@ -214,10 +215,11 @@ object FMain: TFMain
     ParentFont = False
   end
   object lblRate: TLabel
-    Left = 376
-    Top = 350
+    Left = 379
+    Top = 353
     Width = 23
     Height = 13
+    Alignment = taRightJustify
     Anchors = [akRight, akBottom]
     Caption = 'Rate'
   end
@@ -577,7 +579,7 @@ object FMain: TFMain
   end
   object cbMute: TCheckBox
     Left = 532
-    Top = 317
+    Top = 320
     Width = 48
     Height = 14
     Anchors = [akRight, akBottom]

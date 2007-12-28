@@ -169,6 +169,14 @@ object FSettings: TFSettings
         Anchors = [akTop, akRight]
         Caption = 'Language:'
       end
+      object lblLanguageChangeHint: TLabel
+        Left = 338
+        Top = 203
+        Width = 114
+        Height = 13
+        Anchors = [akTop, akRight]
+        Caption = '(change requires restart)'
+      end
       object edtUserName_nl: TEdit
         Left = 120
         Top = 3
@@ -298,6 +306,7 @@ object FSettings: TFSettings
         Width = 213
         Height = 21
         Style = csDropDownList
+        Anchors = [akLeft, akTop, akRight]
         ItemHeight = 13
         ItemIndex = 0
         TabOrder = 10

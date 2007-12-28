@@ -837,7 +837,7 @@ begin
     total_cutoff := MovieInfo.current_file_duration - resulting_duration;
   end;
   self.lblTotalCutoff_nl.Caption := Format(CAResources.RsCaptionTotalCutoff, [ secondsToTimeString(total_cutoff) ]);
-  self.lblResultingDuration_nl.Caption := Format(CAResources.RsCaptionTotalCutoff, [ secondsToTimeString(resulting_duration) ]);
+  self.lblResultingDuration_nl.Caption := Format(CAResources.RsCaptionResultingDuration, [ secondsToTimeString(resulting_duration) ]);
 
 
   //Cuts in Trackbar are taken from global var "cutlist"!
@@ -965,7 +965,6 @@ begin
 
         GraphPause;
 
-        TBFilePos.TriggerTimer;
         self.pnlVideoWindowResize(self);
       end;
 
@@ -2102,7 +2101,7 @@ procedure TFMain.actStepForwardExecute(Sender: TObject);
 var
   event: integer;
 begin
-  if not (FilterGraph.State = gsPaused) then GraphPause;
+  if FilterGraph.State <> gsPaused then GraphPause;
   if assigned(FrameStep) then begin
     if Settings.AutoMuteOnSeek and not CBMute.Checked then
       FilterGraph.Volume := 0;
@@ -2121,7 +2120,7 @@ procedure TFMain.actStepBackwardExecute(Sender: TObject);
 var
   timeToSkip: double;
 begin
-  if not (FilterGraph.State = gsPaused) then GraphPause;
+  if FilterGraph.State <> gsPaused then GraphPause;
 
   if Sender = actLargeSkipBackward then
     timeToSkip := Settings.LargeSkipTime
@@ -2775,18 +2774,10 @@ begin
 end;
 
 function TFMain.GraphPause: boolean;
-{var
-  event: integer;  }
 begin
-  result := filtergraph.Pause;
-  {if assigned(FrameStep) then begin
-    FrameStep.Step(1, nil);
-    MediaEvent.WaitForCompletion(500, event);
-  end;              }
+  if FilterGraph.State = gsPaused then Result := true
+  else Result := FilterGraph.Pause;
   if Result then begin
-    //BPlayPause.Caption := APlay.Caption;
-    //BPlayPause.Hint := APlay.Hint;
-    //BPlayPause.Enabled := APlay.Enabled;
     self.cmdFF.Enabled := false;
     TBFilePos.TriggerTimer;
   end;
@@ -2794,12 +2785,11 @@ end;
 
 function TFMain.GraphPlay: boolean;
 begin
-  result := filtergraph.Play;
+  if FilterGraph.State = gsPlaying then Result := true
+  else Result := FilterGraph.Play;
   if result then begin
-    //BPlayPause.Caption := APause.Caption;
-    //BPlayPause.Hint := APause.Hint;
-    //BPlayPause.Enabled := APause.Enabled;
     self.cmdFF.Enabled := true;
+    TBFilePos.TriggerTimer;
   end;
 end;
 
@@ -3795,8 +3785,9 @@ begin
   Settings := TSettings.Create;
   Settings.load;
 
-  FreeLocalizer.AutoTranslate := True;
-  FreeLocalizer.LanguageFile := Settings.LanguageFile;
+  FreeLocalizer.AutoTranslate := Settings.LanguageFile <> '';
+  if FreeLocalizer.AutoTranslate then
+    FreeLocalizer.LanguageFile := Settings.LanguageFile;
 
   //RegisterDSAMessage(1, 'CutlistRated', 'Cutlist rated');
   MovieInfo := TMovieInfo.Create;

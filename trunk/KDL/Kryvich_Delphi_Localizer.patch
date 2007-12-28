@@ -1,18 +1,6 @@
-diff -u Kryvich_Delphi_Localizer.orig/kdlscan.ini Kryvich_Delphi_Localizer/kdlscan.ini
---- Kryvich_Delphi_Localizer.orig/kdlscan.ini	2007-09-20 12:50:00.000000000 +0200
-+++ Kryvich_Delphi_Localizer/kdlscan.ini	2007-11-02 22:48:23.390625000 +0100
-@@ -16,7 +16,7 @@
- SkipComponents=TDatabase
- 
- ; Skip resource strings in given units (comma separated list)
--SkipUnits=Consts,HelpIntfs,RTLConsts,SysConst,ComConst,VDBConsts,DBConsts,ComStrs,WinHelpViewer,OleConst,ExtCtrls,MidConst,JvResources
-+SkipUnits=Consts,HelpIntfs,RTLConsts,SysConst,ComConst,VDBConsts,DBConsts,ComStrs,WinHelpViewer,OleConst,ExtCtrls,MidConst,JvResources,JclResources,JConsts
- 
- ; Use Humanize option to "humanize" processed strings, i.e. to make
- ; strings more suitable for a viewing and a manually editing.
-diff -u Kryvich_Delphi_Localizer.orig/uFreeLocalizer.pas Kryvich_Delphi_Localizer/uFreeLocalizer.pas
+diff -r -u -b Kryvich_Delphi_Localizer.orig/uFreeLocalizer.pas Kryvich_Delphi_Localizer/uFreeLocalizer.pas
 --- Kryvich_Delphi_Localizer.orig/uFreeLocalizer.pas	2007-09-20 12:50:00.000000000 +0200
-+++ Kryvich_Delphi_Localizer/uFreeLocalizer.pas	2007-11-05 23:30:52.000000000 +0100
++++ Kryvich_Delphi_Localizer/uFreeLocalizer.pas	2007-12-28 00:39:34.000000000 +0100
 @@ -20,7 +20,9 @@
    TErrorProcessing = (
      epSilent,  // Just skip errors (default) - use for public releases
@@ -128,7 +116,7 @@ diff -u Kryvich_Delphi_Localizer.orig/uFreeLocalizer.pas Kryvich_Delphi_Localize
      end;
    end;
  
-@@ -606,15 +643,16 @@
+@@ -606,17 +643,18 @@
      end;
  
      // yet untranslated...
@@ -136,18 +124,144 @@ diff -u Kryvich_Delphi_Localizer.orig/uFreeLocalizer.pas Kryvich_Delphi_Localize
 +    raise EKdlSilentError.Create();
  
    except
-+    on E: EKdlSilentError do begin
-+      s := 'Unknown property "%s" found in component "%s".'#13#10 +
-+           'Remove it from language file';
-+      Error(Format(s, [PropName, RootComp.Name]));
-+    end;
-     on E: Exception do begin
+-    on E: Exception do begin
 -      if E.Message <> '' then
 -        s := 'Translation error of property "%s" in component "%s"'#13#10 + E.Message
 -      else
--        s := 'Unknown property "%s" found in component "%s".'#13#10 +
--          'Remove it from language file';
-+      s := 'Translation error of property "%s" in component "%s"'#13#10 + E.Message;
++    on E: EKdlSilentError do begin
+         s := 'Unknown property "%s" found in component "%s".'#13#10 +
+           'Remove it from language file';
        Error(Format(s, [PropName, RootComp.Name]));
      end;
++    on E: Exception do begin
++      s := 'Translation error of property "%s" in component "%s"'#13#10 + E.Message;
++      Error(Format(s, [PropName, RootComp.Name]));
++    end;
    end;
+ end;
+ 
+@@ -704,8 +742,9 @@
+ 
+ Initialization
+   AnsiCP := GetACP;
++{$ifndef D7}
+   SetMultiByteConversionCodePage(CP_THREAD_ACP);
+-
++{$endif}
+   FreeLocalizer := TFreeLocalizer.Create;
+ Finalization
+   FreeLocalizer.Free;
+diff -r -u -b Kryvich_Delphi_Localizer.orig/uLegacyCode.pas Kryvich_Delphi_Localizer/uLegacyCode.pas
+--- Kryvich_Delphi_Localizer.orig/uLegacyCode.pas	2007-09-20 12:50:00.000000000 +0200
++++ Kryvich_Delphi_Localizer/uLegacyCode.pas	2007-12-28 01:14:44.000000000 +0100
+@@ -26,17 +26,20 @@
+ const
+   CP_THREAD_ACP = 3;  // current thread's ANSI code page
+ 
+-procedure My_WStrFromStr(const Source: string; var Dest: WideString;
+-  CodePage: LongWord);
+ function TStringsGetValueFromIndex(Strings: TStrings; Index: Integer): string;
+ {$endif}
+ 
+ {$ifdef D7}
+-// Set a codepage for Wide <--> ANSI convertion operations
+-procedure SetMultiByteConversionCodePage(cp: UINT);
++procedure My_WStrFromStr(const Source: string; var Dest: WideString;
++  CodePage: LongWord);
++procedure My_StrFromWStr(const Source: WideString; var Dest: string;
++  CodePage: LongWord);
+ // Widestring replacement for StringReplace
+ function WideStringReplace(const S, OldPattern, NewPattern: Widestring;
+   Flags: TReplaceFlags): Widestring;
++{$else}
++// Set a codepage for Wide <--> ANSI convertion operations
++procedure SetMultiByteConversionCodePage(cp: UINT);
+ {$endif}
+ 
+ implementation
+@@ -72,7 +75,7 @@
+ end;
+ {$endif}
+ 
+-{$ifdef D6}
++{$ifdef D7}
+ procedure My_WStrFromStr(const Source: string; var Dest: WideString;
+   CodePage: LongWord);
+ var
+@@ -88,6 +91,23 @@
+   MultiByteToWideChar(CodePage, 0, @Source[1], SourLen, @Dest[1], DestLen);
+ end;
+ 
++procedure My_StrFromWStr(const Source: WideString; var Dest: string;
++  CodePage: LongWord);
++var
++  SourLen, DestLen: Integer;
++begin
++  SourLen := length(Source);
++  if SourLen <= 0 then begin
++    Dest := '';
++    Exit;
++  end;
++  DestLen := WideCharToMultiByte(CodePage, 0, @Source[1], SourLen, Nil, 0, nil, nil);
++  SetLength(Dest, DestLen);
++  WideCharToMultiByte(CodePage, 0, @Source[1], SourLen, @Dest[1], DestLen, nil, nil);
++end;
++{$endif}
++
++{$ifdef D6}
+ function TStringsGetValueFromIndex(Strings: TStrings; Index: Integer): string;
+ var
+   s: string;
+@@ -104,23 +124,19 @@
+ end;
+ {$endif}
+ 
+-{$ifdef D7}
+-{$ifdef D6}
+-procedure SetMultiByteConversionCodePage(cp: UINT);
+-begin
+-  // Do nothing...
+-end;
+-{$else}
++{$ifndef D7}
+ // Set a codepage for Wide <--> ANSI convertion operations
+ procedure SetMultiByteConversionCodePage(cp: UINT);
+ var
+   DefUserCP: ^integer;
+ begin
++  //ToDo: Fix for Win9x??
+   DefUserCP := pointer(integer(@ModuleUnloadList) + $2588);
+   DefUserCP^ := cp;
+ end;
+ {$endif}
+ 
++{$ifdef D7}
+ // Widestring replacement for StringReplace
+ function WideStringReplace(const S, OldPattern, NewPattern: Widestring;
+   Flags: TReplaceFlags): Widestring;
+diff -r -u -b Kryvich_Delphi_Localizer.orig/uStringUtils.pas Kryvich_Delphi_Localizer/uStringUtils.pas
+--- Kryvich_Delphi_Localizer.orig/uStringUtils.pas	2007-09-20 12:50:00.000000000 +0200
++++ Kryvich_Delphi_Localizer/uStringUtils.pas	2007-12-28 00:34:18.000000000 +0100
+@@ -72,7 +72,7 @@
+ 
+ procedure AnsiToWideString(const s: AnsiString; var ws: WideString; AnsiCodepage: LongWord);
+ begin
+-{$ifdef D6}
++{$ifdef D7}
+   My_WStrFromStr(s, ws, AnsiCodepage);
+ {$else}
+   SetMultiByteConversionCodePage(AnsiCodepage);
+@@ -83,9 +83,13 @@
+ 
+ procedure WideToAnsiString(const ws: WideString; var s: AnsiString; AnsiCodepage: LongWord);
+ begin
++{$ifdef D7}
++  My_StrFromWStr(ws, s, AnsiCodepage);
++{$else}
+   SetMultiByteConversionCodePage(AnsiCodepage);
+   s := ws;
+   SetMultiByteConversionCodePage(CP_THREAD_ACP);
++{$endif}
+ end;
+ 
+ // Encode string to delphi style string

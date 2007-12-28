@@ -140,6 +140,7 @@ type
     cmbSourceFilterListHQAVI_nl: TComboBox;
     lblLanguage: TLabel;
     cmbLanguage_nl: TComboBox;
+    lblLanguageChangeHint: TLabel;
     procedure cmdCutMovieSaveDirClick(Sender: TObject);
     procedure cmdCutlistSaveDirClick(Sender: TObject);
     procedure edtProxyPort_nlKeyPress(Sender: TObject; var Key: Char);
@@ -425,8 +426,8 @@ end;
 function TSettings.GetLanguageFile: string;
 begin
   Result := self.Language;
-  if Result = '' then
-    Result := ChangeFileExt(Application_File, '.lng');
+  //if Result = '' then
+  //  Result := ChangeFileExt(Application_File, '.lng');
 end;
 
 function TSettings.GetLanguageList: TStrings;
@@ -677,7 +678,7 @@ begin
       newLanguage                      := GetLanguageByIndex(FSettings.cmbLanguage_nl.ItemIndex);
       if self.Language <> newLanguage then begin
         self.Language                  := newLanguage;
-        FreeLocalizer.LanguageFile     := self.LanguageFile;
+        //ShowMessage(CAResources.RsChangeLanguageNeedsRestart);
       end;
 
       self.InfoShowMessages            := FSettings.CBInfoCheckMessages.Checked  ;

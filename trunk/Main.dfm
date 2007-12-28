@@ -45,10 +45,11 @@ object FMain: TFMain
     ShowHint = True
   end
   object lblCutFrom: TLabel
-    Left = 390
+    Left = 392
     Top = 188
     Width = 23
     Height = 13
+    Alignment = taRightJustify
     Anchors = [akRight, akBottom]
     Caption = 'From'
   end
@@ -57,6 +58,7 @@ object FMain: TFMain
     Top = 238
     Width = 40
     Height = 13
+    Alignment = taRightJustify
     Anchors = [akRight, akBottom]
     Caption = 'Duration'
   end
@@ -65,6 +67,7 @@ object FMain: TFMain
     Top = 214
     Width = 13
     Height = 13
+    Alignment = taRightJustify
     Anchors = [akRight, akBottom]
     Caption = 'To'
   end

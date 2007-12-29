@@ -6,6 +6,7 @@ program cut_assistant;
 {%File 'cut_assistant_info.xml'}
 {%File 'cut_assistant.en.lng'}
 {%File 'cut_assistant.lng'}
+{%File 'cut_assistant.de.lng'}
 
 uses
   madExcept,

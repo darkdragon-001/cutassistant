@@ -1,3 +1,15 @@
+New in 0.9.13.5 (development)
+- Do not use TopMost style for Check cut movie window.
+- Added handling of special keys on multimedia keyboards.
+- Improved error message in some places.
+- Fixed some issues in DSPack components.
+- Show "real" frame number in frames form.
+- Added new action xx framea around to open frames form around current position.
+- FR 1849353: Changed usage of term "crop" to "trim".
+- FR 1834206: Improved tab order and shortcuts in cutlist info and rate dialog.
+- Added localization of user interface.
+- Added ability to log all exceptions to cut_assistant.debug.log.
+
 New in 0.9.12.1
 - Fixed codec detection for some Windows versions (e.g. Win98).
 - Sort codec list by description.

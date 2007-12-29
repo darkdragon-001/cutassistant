@@ -14,7 +14,7 @@ zip -9 -r %CA_ARC% Cut_Assistant_%CA_VER%
 cd Cut_Assistant_%CA_VER%
 delphi32 -m cut_assistant.dpr
 upx -9 cut_assistant.exe
-zip -9 ..\%CA_BIN_ARC% cut_assistant.exe license.txt readme.txt news.txt
+zip -9 ..\%CA_BIN_ARC% cut_assistant.exe cut_assistant.de.lng license.txt readme.txt news.txt
 
 cd ..
 if exist Cut_Assistant_%CA_VER%.build.rar del Cut_Assistant_%CA_VER%.build.zip

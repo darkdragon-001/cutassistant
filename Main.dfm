@@ -114,7 +114,7 @@ object FMain: TFMain
   end
   object lblDuration_nl: TLabel
     Left = 707
-    Top = 441
+    Top = 437
     Width = 74
     Height = 13
     Alignment = taRightJustify
@@ -132,7 +132,7 @@ object FMain: TFMain
   end
   object lblStartPosition_nl: TLabel
     Left = 13
-    Top = 435
+    Top = 437
     Width = 6
     Height = 13
     Anchors = [akLeft, akBottom]

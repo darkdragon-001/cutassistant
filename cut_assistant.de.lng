@@ -7,44 +7,44 @@ HumanizeDivider=\^
 Codepage=65001
 
 [TFCutlistInfo]
-Caption=Cutliste Info 
-lblInfoCaption.Caption=Infos in Cutlist speichern:
-lblComment.Caption=User Kommentar:
+Caption=Cutliste-Informationen 
+lblInfoCaption.Caption=In der Cutlist gespeicherte Informationen:
+lblComment.Caption=Benutzerkommentar:
 lblSuggestedFilename.Caption=Vorgeschlagener Titel (ohne Dateierweiterung):
 lblFrameRate.Caption=Frame rate: N/A (-)
 rgRatingByAuthor.Caption=Wie bewertest du deine Cutliste?
-rgRatingByAuthor.Items.Strings=&0 - Test, nicht benutzen, oder Probecutlist um Informationen über den Film zu sammeln\^&1 - Ich habe Anfang und Ende geschnitten, aber es können noch ein oder mehrere Werbeblöcke enthalten sein\^&2 - Alle Werbeblöcke sind grob ausgeschnitten (+/- 5 sec.)\^&3 - ... Ich habe relativ genau geschnitten (+/- 1 sec.)\^&4 - ... Ich habe sehr genau geschnitten (Frame genau)\^&5 - ... und ich habe doppelte Szenen entfernt wenn es notwendig war
-grpDetails.Caption=Infos über den Film:
-grpDetails.cbEPGError.Caption=Falscher Inhalt, EPG Fehler (Dateiname stimmt nicht mit dem Inhalt über ein). Tatsächlicher Inhalt:
+rgRatingByAuthor.Items.Strings=&0 - Test, nicht benutzen, oder Probecutlist um Informationen über den Film zu sammeln (siehe unten)\^&1 - Ich habe Anfang und Ende geschnitten, aber es können noch ein oder mehrere Werbeblöcke enthalten sein\^&2 - Alle Werbeblöcke sind grob ausgeschnitten (+/- 5 sec.)\^&3 - ... Ich habe relativ genau geschnitten (+/- 1 sec.)\^&4 - ... Ich habe sehr genau geschnitten (Frame genau)\^&5 - ... und ich habe doppelte Szenen entfernt wenn es notwendig war
+grpDetails.Caption=Infos über den Film
+grpDetails.cbEPGError.Caption=Falscher Inhalt, EPG Fehler (Dateiname stimmt nicht mit dem Inhalt überein). Tatsächlicher Inhalt:
 grpDetails.cbMissingBeginning.Caption=Fehlender Anfang
 grpDetails.cbMissingEnding.Caption=Fehlendes Ende
-grpDetails.cbMissingVideo.Caption=Fehlender Video track
-grpDetails.cbMissingAudio.Caption=Fehlender Audio track
+grpDetails.cbMissingVideo.Caption=Fehlende Filmspur
+grpDetails.cbMissingAudio.Caption=Fehlende Tonspur
 grpDetails.cbOtherError.Caption=Anderer Fehler:
-cmdCancel.Caption=&Cancel
-cmdOk.Caption=&OK
-pnlAuthor.lblAuthor.Caption=Cutlist Autor unbekannt
-cbFramesPresent.Caption=Anzahl der Frames
+cmdCancel.Caption=&Abbrechen
+cmdOk.Caption=&Ok
+pnlAuthor.lblAuthor.Caption=Autor der Cutliste unbekannt
+cbFramesPresent.Caption=Frame-Informationen vorhanden
 cmdMovieNameCopy.Caption=Kopiere vom Dateinamen
 
 [TFCutlistRate]
-Caption=Cutliste Info
-lblSendRating.Caption=Sende Cutliste Bewertung zum Server:
+Caption=Cutliste bewerten
+lblSendRating.Caption=Sende Cutlisten-Bewertung zum Server:
 RGRatingByAuthor.Caption=Wie bewertest du die Cutliste?
 RGRatingByAuthor.Items.Strings=&0 - Test, nicht benutzen, oder Probecutlist um Informationen über den Film zu sammeln\^&1 - Ich habe Anfang und Ende geschnitten, aber es können noch ein oder mehrere Werbeblöcke enthalten sein\^&2 - Alle Werbeblöcke sind grob ausgeschnitten (+/- 5 sec.)\^&3 - ... Ich habe relativ genau geschnitten (+/- 1 sec.)\^&4 - ... Ich habe sehr genau geschnitten (Frame genau)\^&5 - ... und ich habe doppelte Szenen entfernt wenn es notwendig war
-cmdCancel.Caption=Abbruch
-cmdOk.Caption=OK
+cmdCancel.Caption=&Abbruch
+cmdOk.Caption=&Ok
 
 [TFCutlistSearchResults]
-Caption=Cutliste Suchergebnisse
+Caption=Cutlisten-Suchergebnisse
 pnlButtons.cmdCancel.Caption=&Abbruch
-pnlButtons.cmdOk.Caption=&OK
+pnlButtons.cmdOk.Caption=&Ok
 lvLinklist.Columns.(0).Caption=#
 lvLinklist.Columns.(1).Caption=Datei
 lvLinklist.Columns.(2).Caption=Benutzerwertung
 lvLinklist.Columns.(3).Caption=Benutzer #
 lvLinklist.Columns.(4).Caption=Autorwertung
-lvLinklist.Columns.(5).Caption=Autor Name
+lvLinklist.Columns.(5).Caption=Autorenname
 lvLinklist.Columns.(6).Caption=Kommentar
 lvLinklist.Columns.(7).Caption=Tatsächlicher Inhalt
 
@@ -52,7 +52,7 @@ lvLinklist.Columns.(7).Caption=Tatsächlicher Inhalt
 Caption=Frames
 
 [TFLogging]
-Caption=Log Informationen
+Caption=Nachrichtenfenster
 
 [TFMain]
 Caption=Cut Assistant
@@ -188,9 +188,9 @@ dlgRequestProgress.Caption=Web Fortschrittsanzeige
 [TFManageFilters]
 Caption=Filter
 lblClickOnFilter.Caption=Doppelklick auf Filter um die Einstellungen zu zeigen
-cmdRemove.Caption=Entferne aus Filterauswahl
-cmdClose.Caption=Schliessen
-cmdCopy.Caption=Kopiere in die Zwischenablage
+cmdRemove.Caption=Entferne aus &Filterauswahl
+cmdClose.Caption=S&chliessen
+cmdCopy.Caption=&Kopiere in die Zwischenablage
 
 [TFResultingTimes]
 Caption=Prüfe Schnitte nach dem Schneiden
@@ -198,8 +198,8 @@ lvTimeList.Columns.(0).Caption=Teil
 lvTimeList.Columns.(1).Caption=Von
 lvTimeList.Columns.(2).Caption=Bis
 lvTimeList.Columns.(3).Caption=Dauer
-pnlMovieControl.lblDuration.Hint=Doppleklick auf den Eintrag um <x> Sekunden vor das Ende zu springen.
-pnlMovieControl.lblDuration.Caption=Prüf-Dauer
+pnlMovieControl.lblDuration.Hint=Doppelklick auf den Eintrag um <x> Sekunden vor das Ende zu springen.
+pnlMovieControl.lblDuration.Caption=Prüf- Dauer
 pnlMovieControl.Label8.Caption=Lautst.
 pnlMovieControl.lblPosition.Caption=Pos.
 pnlMovieControl.lblSeconds.Caption=Sek.

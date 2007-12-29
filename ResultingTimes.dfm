@@ -80,13 +80,13 @@ object FResultingTimes: TFResultingTimes
       WordWrap = True
     end
     object Label8: TLabel
-      Left = 214
+      Left = 219
       Top = 10
-      Width = 18
+      Width = 35
       Height = 13
       Alignment = taRightJustify
       Anchors = [akTop, akRight]
-      Caption = 'Vol.'
+      Caption = 'Volume'
     end
     object lblPosition: TLabel
       Left = 77
@@ -117,9 +117,9 @@ object FResultingTimes: TFResultingTimes
       OnClick = cmdCloseClick
     end
     object tbVolume: TTrackBar
-      Left = 233
+      Left = 256
       Top = 7
-      Width = 122
+      Width = 99
       Height = 26
       Anchors = [akTop, akRight]
       Max = 10000

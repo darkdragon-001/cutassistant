@@ -432,13 +432,12 @@ type
     procedure WMCopyData(var msg: TWMCopyData); message WM_COPYDATA;
     function DoHttpGet(const url: string; const handleRedirects: boolean; const Error_message: string; var Response: string): boolean;
     function DoHttpRequest(data: THttpRequest): boolean;
-    procedure InitHttpProperties;
+    procedure SettingsChanged;
     function HandleWorkerException(data: THttpRequest): boolean;
     procedure InitFramesProperties(const AAction: TAction; const s: string);
     function FormatMoviePosition(const position: double): string; overload;
     function FormatMoviePosition(const frame: longint; const duration: double): string; overload;
   end;
-
 
 var
   FMain: TFMain;
@@ -471,6 +470,8 @@ implementation
 
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
+
+procedure UpdateStaticSettings; forward;
 
 function TFMain.FormatMoviePosition(const position: double): string;
 begin
@@ -594,7 +595,7 @@ end;
     ConvertUploadData;
   end;
 
-  InitHttpProperties;
+  SettingsChanged;
 
   self.rgCutMode.ItemIndex := settings.DefaultCutMode;
 
@@ -1935,7 +1936,22 @@ end;
 procedure TFMain.actEditSettingsExecute(Sender: TObject);
 begin
   settings.edit;
-  InitHttpProperties;
+  SettingsChanged;
+end;
+
+procedure TFMain.SettingsChanged;
+begin
+  UpdateStaticSettings;
+  with self.WebRequest_nl do begin
+    ConnectTimeout := 1000 * Settings.NetTimeout;
+    ReadTimeout := 1000 * Settings.NetTimeout;
+    with ProxyParams do begin
+      ProxyServer := Settings.proxyServerName;
+      ProxyPort := Settings.proxyPort;
+      ProxyUsername := Settings.proxyUserName;
+      ProxyPassword := Settings.proxyPassword;
+    end;
+  end;
 end;
 
 procedure TFMain.actStartCuttingExecute(Sender: TObject);
@@ -3693,16 +3709,6 @@ begin
   Sender.Stop;
 end;
 
-procedure TFMain.InitHttpProperties;
-begin
-  self.WebRequest_nl.ConnectTimeout := 1000 * Settings.NetTimeout;
-  self.WebRequest_nl.ReadTimeout := 1000 * Settings.NetTimeout;
-  self.WebRequest_nl.ProxyParams.ProxyServer := Settings.proxyServerName;
-  self.WebRequest_nl.ProxyParams.ProxyPort := Settings.proxyPort;
-  self.WebRequest_nl.ProxyParams.ProxyUsername := Settings.proxyUserName;
-  self.WebRequest_nl.ProxyParams.ProxyPassword := Settings.proxyPassword;
-end;
-
 procedure TFMain.WebRequest_nlStatus(ASender: TObject; const AStatus: TIdStatus;
   const AStatusText: String);
 begin
@@ -3774,16 +3780,78 @@ begin
   //ShowMessage('Complete');
 end;
 
+procedure AppendToFile(const fileName: string; const text: string);
+var
+  f: TextFile;
+begin
+  try
+    OutputDebugString(PChar(text));
+    AssignFile(f, fileName);
+    FileMode := fmOpenWrite or fmShareDenyWrite;
+{$I-}
+    Append(f);
+    if IOResult <> 0 then Rewrite(f);
+    if IOResult = 0 then WriteLn(f, text);
+    Flush(f);
+    CloseFile(f);
+{$I+}
+  except
+    // Ignore exception
+  end;
+end;
+
+var
+  DebugFile : string;
+  InDebugHandler: boolean;
+
+procedure DebugExceptionHandler( const exceptIntf : IMEException;
+                                 var handled      : boolean);
+var
+  bugReport: string;
+begin
+  if (DebugFile = '') or InDebugHandler then
+    Exit;
+  if exceptIntf.ExceptClass = 'EKdlSilentError' then
+    Exit;
+  InDebugHandler := true;
+  try
+    bugReport := exceptIntf.GetBugReport(true);
+    AppendToFile(DebugFile, bugReport);
+    //AutoSaveBugReport(bugReport);
+  finally
+    InDebugHandler := false;
+  end;
+end;
+
+procedure UpdateStaticSettings;
+var
+  ExceptionLogging: boolean;
+begin
+  ExceptionLogging := true;
+  if Assigned(Settings) then begin
+    ExceptionLogging := Settings.ExceptionLogging;
+  end;
+
+  DebugFile := IfThen(ExceptionLogging, ChangeFileExt(Application.ExeName, '.debug.log'), '');
+end;
 
 initialization
 begin
-  randomize;
+  Settings := nil;
+  UpdateStaticSettings;
+  Randomize;
+
+  InDebugHandler := false;
+  RegisterHiddenExceptionHandler(DebugExceptionHandler, stDontSync);
+  RegisterExceptionHandler(DebugExceptionHandler, stDontSync, epCompleteReport);
 
   FreeLocalizer.LanguageDir := Application_Dir;
   FreeLocalizer.ErrorProcessing := epErrors;
 
   Settings := TSettings.Create;
   Settings.load;
+
+  UpdateStaticSettings;
 
   FreeLocalizer.AutoTranslate := Settings.LanguageFile <> '';
   if FreeLocalizer.AutoTranslate then
@@ -3800,6 +3868,9 @@ begin
   FreeAndNIL(MovieInfo);
   Settings.save;
   FreeAndNIL(Settings);
+  
+  UnregisterExceptionHandler(DebugExceptionHandler);
+  UnregisterHiddenExceptionHandler(DebugExceptionHandler);
 end;
 
 end.

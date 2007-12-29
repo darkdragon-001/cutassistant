@@ -141,6 +141,7 @@ type
     lblLanguage: TLabel;
     cmbLanguage_nl: TComboBox;
     lblLanguageChangeHint: TLabel;
+    cbExceptionLogging: TCheckBox;
     procedure cmdCutMovieSaveDirClick(Sender: TObject);
     procedure cmdCutlistSaveDirClick(Sender: TObject);
     procedure edtProxyPort_nlKeyPress(Sender: TObject; var Key: Char);
@@ -247,6 +248,7 @@ type
     InfoCheckInterval: Integer;
     InfoLastChecked: TDate;
     InfoShowMessages, InfoShowStable, InfoShowBeta: boolean;
+    ExceptionLogging: boolean;
 
     // UI Language
     Language: string;
@@ -475,6 +477,10 @@ end;
 constructor TSettings.create;
 begin
   inherited;
+
+  Language := '';
+  ExceptionLogging := false;
+
   FLanguageList := TStringList.Create;
   FLanguageList.CaseSensitive := false;
   UpdateLanguageList;
@@ -561,6 +567,7 @@ begin
   FSettings.edtLargeSkip_nl.Text                   := IntToStr(LargeSkipTime);
   FSettings.edtNetTimeout_nl.Text                  := IntToStr(NetTimeout);
   FSettings.cbAutoMuteOnSeek.Checked               := AutoMuteOnSeek;
+  FSettings.cbExceptionLogging.Checked             := ExceptionLogging;
 
   Fsettings.edtURL_Cutlist_Home_nl.Text            := self.url_cutlists_home;
   Fsettings.edtURL_Info_File_nl.Text               := self.url_info_file;
@@ -674,6 +681,7 @@ begin
       self.LargeSkipTime               := StrToInt(FSettings.edtLargeSkip_nl.Text);
       self.NetTimeout                  := StrToInt(FSettings.edtNetTimeout_nl.Text);
       self.AutoMuteOnSeek              := FSettings.cbAutoMuteOnSeek.Checked;
+      self.ExceptionLogging            := FSettings.cbExceptionLogging.Checked;
 
       newLanguage                      := GetLanguageByIndex(FSettings.cmbLanguage_nl.ItemIndex);
       if self.Language <> newLanguage then begin
@@ -797,6 +805,7 @@ begin
     UserName :=  ini.ReadString(section, 'UserName', '');
     UserID :=  ini.ReadString(section, 'UserID', '');
     Language := ini.ReadString(section, 'Language', '');
+    ExceptionLogging := ini.ReadBool(section, 'ExceptionLogging', false);
 
     section := 'FrameWindow';
     FramesWidth := ini.ReadInteger(section, 'Width', 180);
@@ -916,6 +925,9 @@ begin
     ini.WriteString(section, 'UserName', UserName);
     ini.WriteString(section, 'UserID', UserID);
     ini.WriteString(section, 'Language', Language);
+
+    if not ExceptionLogging then ini.DeleteKey(section, 'ExceptionLogging')
+    else ini.WriteBool(section, 'ExceptionLogging', true);
 
     section := 'FrameWindow';
     ini.WriteInteger(section, 'Width', FramesWidth);

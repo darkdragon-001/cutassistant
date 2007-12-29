@@ -1,9 +1,0 @@
-Index: src/DSPack/DSPack.pas
-===================================================================
-RCS file: /cvsroot/dspack/DSPACK/src/DSPack/DSPack.pas,v
-retrieving revision 1.18
-diff -r1.18 DSPack.pas
-4657c4657
-<         Application.ProcessMessages;
----
->         //Application.ProcessMessages;

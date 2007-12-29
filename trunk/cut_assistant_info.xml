@@ -68,7 +68,7 @@ Neue Version 0.9.12.1:
 		</message>
 		<message>
 			<id>6</id>
-			<date_day>29</date_day>
+			<date_day>30</date_day>
 			<date_month>12</date_month>
 			<date_year>2007</date_year>
 			<text>
@@ -93,7 +93,7 @@ Download: http://sourceforge.net/projects/cutassistant/
 or        http://www.cutlist.de/</version_text>
 	</stable>
 	<beta>
-		<date_day>29</date_day>
+		<date_day>30</date_day>
 		<date_month>12</date_month>
 		<date_year>2007</date_year>
 		<version>0x00000009000D0005</version>

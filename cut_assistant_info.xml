@@ -66,6 +66,18 @@ Neue Version 0.9.12.1:
 - Fehler in Codec-Konfiguration behoben (möglicher Programmabsturz).
 </text>
 		</message>
+		<message>
+			<id>6</id>
+			<date_day>29</date_day>
+			<date_month>12</date_month>
+			<date_year>2007</date_year>
+			<text>
+Neue Version 0.9.13.5 (Entwicklungs-Zweig):
+- Internationalisierte Oberfläche.
+- Einige kleinere Verbesserungen.
+- Implementierung von FR 1849353 und 1834206.
+</text>
+		</message>
 	</messages>
 	<stable>
 		<date_day>3</date_day>
@@ -81,18 +93,17 @@ Download: http://sourceforge.net/projects/cutassistant/
 or        http://www.cutlist.de/</version_text>
 	</stable>
 	<beta>
-		<date_day>07</date_day>
-		<date_month>09</date_month>
+		<date_day>29</date_day>
+		<date_month>12</date_month>
 		<date_year>2007</date_year>
-		<version>0x00000009000B0019</version>
+		<version>0x00000009000D0005</version>
 		<version_text>
-Letzte Entwicklungs-Version: 0.9.11.25 (RC für 0.9.12.0)
+Letzte Entwicklungs-Version: 0.9.13.5
 
 Änderungen gegenüber der vorherigen Version:
-- Bug 1787080 behoben: Windows-Look&Feel für Dialoge.
-- Shortcuts für viele Menü-Befehle hinzugefügt.
-- Springen zwischen den Cuts funktionierte nicht immer zuverlässig.
-- Neue Shortcuts für Frames-Anzeige.
+- Internationalisierte Oberfläche.
+- Einige kleinere Verbesserungen.
+- Implementierung von FR 1849353 und 1834206.
 
 </version_text>
 	</beta>

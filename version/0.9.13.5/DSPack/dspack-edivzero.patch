@@ -1,0 +1,9 @@
+Index: src/DSPack/DSPack.pas
+===================================================================
+RCS file: /cvsroot/dspack/DSPACK/src/DSPack/DSPack.pas,v
+retrieving revision 1.18
+diff -r1.18 DSPack.pas
+3861c3874
+<      if assigned(FMediaSeeking) then
+---
+>      if assigned(FMediaSeeking) and (max <> 0) then

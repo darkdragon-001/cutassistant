@@ -17,6 +17,7 @@ object FSettings: TFSettings
   Font.Style = []
   OldCreateOrder = False
   Position = poOwnerFormCenter
+  ShowHint = True
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   PixelsPerInch = 96
@@ -235,16 +236,15 @@ object FSettings: TFSettings
         OnKeyPress = edtProxyPort_nlKeyPress
       end
       object rgCutMode: TRadioGroup
-        Left = 364
+        Left = 384
         Top = 60
-        Width = 181
-        Height = 45
+        Width = 161
+        Height = 73
         Hint = 
           'Cut out: New file is everything except cuts.'#13#10'Trim: New file is ' +
           'sum of cuts.'
         Anchors = [akTop, akRight]
         Caption = 'Default Cut Mode'
-        Columns = 2
         ItemIndex = 1
         Items.Strings = (
           'Cut out'
@@ -313,6 +313,14 @@ object FSettings: TFSettings
         Text = ' Standard'
         Items.Strings = (
           ' Standard')
+      end
+      object cbExceptionLogging: TCheckBox
+        Left = 219
+        Top = 143
+        Width = 162
+        Height = 17
+        Caption = 'Exception logging'
+        TabOrder = 11
       end
     end
     object tabSaveMovie: TTabSheet

@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, StrUtils, Variants, Classes,  Graphics,
   Controls, Forms, Dialogs, StdCtrls, ExtCtrls,
 
-  UCutlist, Utils;
+  UCutlist, Utils, JvExStdCtrls, JvCheckBox;
 
 const
   movie_file_extensions: array [0..7] of string
@@ -17,12 +17,6 @@ type
     lblInfoCaption: TLabel;
     rgRatingByAuthor: TRadioGroup;
     grpDetails: TGroupBox;
-    cbEPGError: TCheckBox;
-    cbMissingBeginning: TCheckBox;
-    cbMissingEnding: TCheckBox;
-    cbMissingVideo: TCheckBox;
-    cbMissingAudio: TCheckBox;
-    cbOtherError: TCheckBox;
     edtOtherErrorDescription: TEdit;
     edtActualContent: TEdit;
     cmdCancel: TButton;
@@ -31,11 +25,17 @@ type
     lblComment: TLabel;
     lblAuthor: TLabel;
     pnlAuthor: TPanel;
-    cbFramesPresent: TCheckBox;
     lblSuggestedFilename: TLabel;
     edtMovieName: TEdit;
     cmdMovieNameCopy: TButton;
     lblFrameRate: TLabel;
+    cbEPGError: TJvCheckBox;
+    cbMissingBeginning: TJvCheckBox;
+    cbMissingEnding: TJvCheckBox;
+    cbMissingVideo: TJvCheckBox;
+    cbMissingAudio: TJvCheckBox;
+    cbOtherError: TJvCheckBox;
+    cbFramesPresent: TJvCheckBox;
     procedure FormShow(Sender: TObject);
     procedure cbEPGErrorClick(Sender: TObject);
     procedure cbOtherErrorClick(Sender: TObject);
@@ -60,6 +60,7 @@ implementation
 
 procedure TFCutlistInfo.FormShow(Sender: TObject);
 begin
+  cbFramesPresent.Left := rgRatingByAuthor.BoundsRect.Right - cbFramesPresent.Width;
   CBEPGErrorClick(sender);
   CBOtherErrorClick(sender);
   self.cmdOk.Enabled := false;

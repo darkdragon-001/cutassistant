@@ -1,12 +1,12 @@
 object FCutlistInfo: TFCutlistInfo
-  Left = 371
-  Top = 200
-  BorderStyle = bsSingle
+  Left = 360
+  Top = 341
+  Width = 580
+  Height = 550
   Caption = 'Cutlist Info'
-  ClientHeight = 520
-  ClientWidth = 572
   Color = clBtnFace
-  Constraints.MinHeight = 553
+  Constraints.MaxHeight = 550
+  Constraints.MinHeight = 550
   Constraints.MinWidth = 580
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
@@ -19,7 +19,7 @@ object FCutlistInfo: TFCutlistInfo
   OnShow = FormShow
   DesignSize = (
     572
-    520)
+    516)
   PixelsPerInch = 96
   TextHeight = 13
   object lblInfoCaption: TLabel
@@ -38,7 +38,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object lblComment: TLabel
     Left = 7
-    Top = 442
+    Top = 438
     Width = 72
     Height = 13
     Anchors = [akLeft, akBottom]
@@ -46,7 +46,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object lblSuggestedFilename: TLabel
     Left = 7
-    Top = 397
+    Top = 393
     Width = 221
     Height = 13
     Anchors = [akLeft, akBottom]
@@ -54,11 +54,10 @@ object FCutlistInfo: TFCutlistInfo
   end
   object lblFrameRate: TLabel
     Left = 249
-    Top = 9
+    Top = 8
     Width = 88
     Height = 13
     Alignment = taRightJustify
-    Anchors = [akLeft, akBottom]
     Caption = 'Frame rate: N/A (-)'
     Layout = tlCenter
   end
@@ -66,7 +65,7 @@ object FCutlistInfo: TFCutlistInfo
     Left = 7
     Top = 33
     Width = 559
-    Height = 156
+    Height = 152
     Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = 'How do you rate your cutlist?'
     Items.Strings = (
@@ -87,7 +86,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object grpDetails: TGroupBox
     Left = 7
-    Top = 202
+    Top = 198
     Width = 559
     Height = 185
     Anchors = [akLeft, akRight, akBottom]
@@ -119,7 +118,6 @@ object FCutlistInfo: TFCutlistInfo
       Top = 20
       Width = 385
       Height = 17
-      Alignment = taRightJustify
       Caption = 
         'Wrong content, EPG error (filename does not match content). Actu' +
         'al content:'
@@ -138,7 +136,6 @@ object FCutlistInfo: TFCutlistInfo
       Top = 67
       Width = 106
       Height = 17
-      Alignment = taRightJustify
       Caption = 'Missing Beginning'
       TabOrder = 2
       OnClick = EnableOK
@@ -155,7 +152,6 @@ object FCutlistInfo: TFCutlistInfo
       Top = 84
       Width = 92
       Height = 17
-      Alignment = taRightJustify
       Caption = 'Missing Ending'
       TabOrder = 3
       OnClick = EnableOK
@@ -172,7 +168,6 @@ object FCutlistInfo: TFCutlistInfo
       Top = 102
       Width = 113
       Height = 17
-      Alignment = taRightJustify
       Caption = 'Missing Video track'
       TabOrder = 4
       OnClick = EnableOK
@@ -189,7 +184,6 @@ object FCutlistInfo: TFCutlistInfo
       Top = 119
       Width = 113
       Height = 17
-      Alignment = taRightJustify
       Caption = 'Missing Audio track'
       TabOrder = 5
       OnClick = EnableOK
@@ -206,7 +200,6 @@ object FCutlistInfo: TFCutlistInfo
       Top = 136
       Width = 75
       Height = 17
-      Alignment = taRightJustify
       Caption = 'Other Error:'
       TabOrder = 6
       OnClick = cbOtherErrorClick
@@ -221,7 +214,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object cmdCancel: TButton
     Left = 480
-    Top = 490
+    Top = 486
     Width = 85
     Height = 23
     Anchors = [akRight, akBottom]
@@ -232,7 +225,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object cmdOk: TButton
     Left = 390
-    Top = 490
+    Top = 486
     Width = 85
     Height = 23
     Anchors = [akRight, akBottom]
@@ -242,7 +235,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object edtUserComment: TEdit
     Left = 7
-    Top = 462
+    Top = 458
     Width = 559
     Height = 21
     Anchors = [akLeft, akRight, akBottom]
@@ -251,7 +244,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object pnlAuthor: TPanel
     Left = 7
-    Top = 489
+    Top = 485
     Width = 376
     Height = 25
     Anchors = [akLeft, akRight, akBottom]
@@ -280,7 +273,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object edtMovieName: TEdit
     Left = 7
-    Top = 416
+    Top = 412
     Width = 422
     Height = 21
     Anchors = [akLeft, akRight, akBottom]
@@ -289,7 +282,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object cmdMovieNameCopy: TButton
     Left = 435
-    Top = 415
+    Top = 411
     Width = 131
     Height = 23
     Anchors = [akRight, akBottom]
@@ -303,7 +296,6 @@ object FCutlistInfo: TFCutlistInfo
     Width = 131
     Height = 17
     TabStop = False
-    Alignment = taRightJustify
     Anchors = [akTop, akRight]
     Caption = 'Frame numbers present'
     Enabled = False

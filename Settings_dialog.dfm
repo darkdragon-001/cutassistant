@@ -39,7 +39,7 @@ object FSettings: TFSettings
         554
         250)
       object lblUsername: TLabel
-        Left = 12
+        Left = 20
         Top = 6
         Width = 102
         Height = 13
@@ -47,7 +47,7 @@ object FSettings: TFSettings
         Caption = 'User Name (optional):'
       end
       object lblUserID: TLabel
-        Left = 31
+        Left = 39
         Top = 33
         Width = 83
         Height = 13
@@ -55,123 +55,110 @@ object FSettings: TFSettings
         Caption = 'User ID (random):'
       end
       object lblFramesSize: TLabel
-        Left = 21
+        Left = 29
         Top = 60
         Width = 93
         Height = 13
         Alignment = taRightJustify
-        Anchors = [akTop, akRight]
         Caption = 'Frame preview size:'
       end
       object lblFramesSizex_nl: TLabel
-        Left = 148
+        Left = 156
         Top = 60
         Width = 19
         Height = 13
-        Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 'px x'
       end
       object lblFramesCount: TLabel
-        Left = 12
+        Left = 20
         Top = 87
         Width = 102
         Height = 13
         Alignment = taRightJustify
-        Anchors = [akTop, akRight]
         Caption = 'Frame preview count:'
       end
       object lblFramesSizeChangeHint: TLabel
-        Left = 218
+        Left = 226
         Top = 60
         Width = 114
         Height = 13
-        Anchors = [akTop, akRight]
         Caption = '(change requires restart)'
       end
       object lblFramesCountChangeHint: TLabel
-        Left = 218
+        Left = 226
         Top = 87
         Width = 114
         Height = 13
-        Anchors = [akTop, akRight]
         Caption = '(change requires restart)'
       end
       object lblSmallSkip: TLabel
-        Left = 42
+        Left = 50
         Top = 116
         Width = 72
         Height = 13
         Alignment = taRightJustify
-        Anchors = [akTop, akRight]
         Caption = 'Small skip time:'
       end
       object lblLargeSkip: TLabel
-        Left = 41
+        Left = 49
         Top = 144
         Width = 74
         Height = 13
         Alignment = taRightJustify
-        Anchors = [akTop, akRight]
         Caption = 'Large skip time:'
       end
       object lblSmallSkipSecs: TLabel
-        Left = 148
+        Left = 156
         Top = 116
         Width = 15
         Height = 14
-        Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 's'
       end
       object lblLargeSkipSecs: TLabel
-        Left = 148
+        Left = 156
         Top = 144
         Width = 15
         Height = 14
-        Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 's'
       end
       object lblFramesSizey_nl: TLabel
-        Left = 200
+        Left = 208
         Top = 60
         Width = 11
         Height = 13
         Alignment = taCenter
-        Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 'px'
       end
       object lblNetTimeout: TLabel
-        Left = 35
+        Left = 43
         Top = 173
         Width = 80
         Height = 13
         Alignment = taRightJustify
-        Anchors = [akTop, akRight]
         Caption = 'Network timeout:'
       end
       object lblNetTimeoutSecs: TLabel
-        Left = 148
+        Left = 156
         Top = 173
         Width = 15
         Height = 14
-        Anchors = [akTop, akRight]
         AutoSize = False
         Caption = 's'
       end
       object lblLanguage: TLabel
-        Left = 64
+        Left = 72
         Top = 202
         Width = 51
         Height = 13
         Alignment = taRightJustify
-        Anchors = [akTop, akRight]
         Caption = 'Language:'
       end
       object lblLanguageChangeHint: TLabel
-        Left = 338
+        Left = 346
         Top = 203
         Width = 114
         Height = 13
@@ -179,17 +166,17 @@ object FSettings: TFSettings
         Caption = '(change requires restart)'
       end
       object edtUserName_nl: TEdit
-        Left = 120
+        Left = 128
         Top = 3
-        Width = 425
+        Width = 417
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
       end
       object edtUserID_nl: TEdit
-        Left = 120
+        Left = 128
         Top = 30
-        Width = 425
+        Width = 417
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         Color = clBtnFace
@@ -197,11 +184,10 @@ object FSettings: TFSettings
         TabOrder = 1
       end
       object edtFrameWidth_nl: TEdit
-        Left = 120
+        Left = 128
         Top = 57
         Width = 26
         Height = 21
-        Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 3
         TabOrder = 2
@@ -210,11 +196,10 @@ object FSettings: TFSettings
         OnKeyPress = edtProxyPort_nlKeyPress
       end
       object edtFrameHeight_nl: TEdit
-        Left = 172
+        Left = 180
         Top = 57
         Width = 26
         Height = 21
-        Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 3
         TabOrder = 3
@@ -223,11 +208,10 @@ object FSettings: TFSettings
         OnKeyPress = edtProxyPort_nlKeyPress
       end
       object edtFrameCount_nl: TEdit
-        Left = 120
+        Left = 128
         Top = 84
         Width = 26
         Height = 21
-        Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 2
         TabOrder = 4
@@ -254,24 +238,22 @@ object FSettings: TFSettings
         TabOrder = 5
       end
       object edtLargeSkip_nl: TEdit
-        Left = 120
+        Left = 128
         Top = 141
         Width = 26
         Height = 21
-        Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 2
-        TabOrder = 8
+        TabOrder = 7
         Text = '25'
         OnExit = edtFrameWidth_nlExit
         OnKeyPress = edtProxyPort_nlKeyPress
       end
       object edtSmallSkip_nl: TEdit
-        Left = 120
+        Left = 128
         Top = 113
         Width = 26
         Height = 21
-        Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 2
         TabOrder = 6
@@ -280,11 +262,10 @@ object FSettings: TFSettings
         OnKeyPress = edtProxyPort_nlKeyPress
       end
       object edtNetTimeout_nl: TEdit
-        Left = 120
+        Left = 128
         Top = 170
         Width = 26
         Height = 21
-        Anchors = [akTop, akRight]
         AutoSize = False
         MaxLength = 2
         TabOrder = 9
@@ -292,16 +273,8 @@ object FSettings: TFSettings
         OnExit = edtFrameWidth_nlExit
         OnKeyPress = edtProxyPort_nlKeyPress
       end
-      object cbAutoMuteOnSeek: TCheckBox
-        Left = 219
-        Top = 115
-        Width = 122
-        Height = 17
-        Caption = 'Auto mute on seek'
-        TabOrder = 7
-      end
       object cmbLanguage_nl: TComboBox
-        Left = 120
+        Left = 128
         Top = 199
         Width = 213
         Height = 21
@@ -309,18 +282,40 @@ object FSettings: TFSettings
         Anchors = [akLeft, akTop, akRight]
         ItemHeight = 13
         ItemIndex = 0
-        TabOrder = 10
+        TabOrder = 11
         Text = ' Standard'
         Items.Strings = (
           ' Standard')
       end
-      object cbExceptionLogging: TCheckBox
-        Left = 219
-        Top = 143
-        Width = 162
+      object cbAutoMuteOnSeek: TJvCheckBox
+        Left = 227
+        Top = 142
+        Width = 110
+        Height = 17
+        Caption = 'Auto mute on seek'
+        TabOrder = 8
+        LinkedControls = <>
+        HotTrackFont.Charset = DEFAULT_CHARSET
+        HotTrackFont.Color = clWindowText
+        HotTrackFont.Height = -11
+        HotTrackFont.Name = 'Microsoft Sans Serif'
+        HotTrackFont.Pitch = fpVariable
+        HotTrackFont.Style = []
+      end
+      object cbExceptionLogging: TJvCheckBox
+        Left = 227
+        Top = 170
+        Width = 105
         Height = 17
         Caption = 'Exception logging'
-        TabOrder = 11
+        TabOrder = 10
+        LinkedControls = <>
+        HotTrackFont.Charset = DEFAULT_CHARSET
+        HotTrackFont.Color = clWindowText
+        HotTrackFont.Height = -11
+        HotTrackFont.Name = 'Microsoft Sans Serif'
+        HotTrackFont.Pitch = fpVariable
+        HotTrackFont.Style = []
       end
     end
     object tabSaveMovie: TTabSheet
@@ -332,9 +327,9 @@ object FSettings: TFSettings
       object lblCutMovieExtension: TLabel
         Left = 3
         Top = 68
-        Width = 193
+        Width = 190
         Height = 13
-        Caption = 'Automatically insert  before file extension:'
+        Caption = 'Automatically insert before file extension:'
         WordWrap = True
       end
       object rgSaveCutMovieMode: TRadioGroup
@@ -344,18 +339,11 @@ object FSettings: TFSettings
         Height = 56
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Save cut movie:'
+        ItemIndex = 0
         Items.Strings = (
           'with source movie'
           'always in this directory:')
         TabOrder = 0
-      end
-      object cbMovieNameAlwaysConfirm: TCheckBox
-        Left = 3
-        Top = 112
-        Width = 330
-        Height = 13
-        Caption = 'Always confirm filename before cutting'
-        TabOrder = 5
       end
       object edtCutMovieSaveDir_nl: TEdit
         Left = 142
@@ -364,7 +352,6 @@ object FSettings: TFSettings
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
-        Text = 'edtCutMovieSaveDir_nl'
       end
       object edtCutMovieExtension_nl: TEdit
         Left = 212
@@ -373,7 +360,7 @@ object FSettings: TFSettings
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 3
-        Text = 'edtCutMovieExtension_nl'
+        Text = '.cut'
       end
       object cmdCutMovieSaveDir: TButton
         Left = 510
@@ -385,13 +372,35 @@ object FSettings: TFSettings
         TabOrder = 2
         OnClick = cmdCutMovieSaveDirClick
       end
-      object cbUseMovieNameSuggestion: TCheckBox
+      object cbMovieNameAlwaysConfirm: TJvCheckBox
+        Left = 3
+        Top = 112
+        Width = 201
+        Height = 17
+        Caption = 'Always confirm filename before cutting'
+        TabOrder = 5
+        LinkedControls = <>
+        HotTrackFont.Charset = DEFAULT_CHARSET
+        HotTrackFont.Color = clWindowText
+        HotTrackFont.Height = -11
+        HotTrackFont.Name = 'Microsoft Sans Serif'
+        HotTrackFont.Pitch = fpVariable
+        HotTrackFont.Style = []
+      end
+      object cbUseMovieNameSuggestion: TJvCheckBox
         Left = 3
         Top = 92
-        Width = 334
-        Height = 14
+        Width = 264
+        Height = 17
         Caption = 'Use movie file name suggested by cutlist (if present)'
         TabOrder = 4
+        LinkedControls = <>
+        HotTrackFont.Charset = DEFAULT_CHARSET
+        HotTrackFont.Color = clWindowText
+        HotTrackFont.Height = -11
+        HotTrackFont.Name = 'Microsoft Sans Serif'
+        HotTrackFont.Pitch = fpVariable
+        HotTrackFont.Style = []
       end
     end
     object tabSaveCutlist: TTabSheet
@@ -407,18 +416,11 @@ object FSettings: TFSettings
         Height = 56
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Save cutlist:'
+        ItemIndex = 0
         Items.Strings = (
           'with source movie'
           'always in this directory:')
         TabOrder = 0
-      end
-      object cbCutlistNameAlwaysConfirm: TCheckBox
-        Left = 3
-        Top = 66
-        Width = 209
-        Height = 14
-        Caption = 'Always confirm filename before saving'
-        TabOrder = 3
       end
       object edtCutListSaveDir_nl: TEdit
         Left = 142
@@ -427,14 +429,6 @@ object FSettings: TFSettings
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
-      end
-      object cbCutlistAutoSaveBeforeCutting: TCheckBox
-        Left = 3
-        Top = 86
-        Width = 209
-        Height = 13
-        Caption = 'Auto save before cutting'
-        TabOrder = 4
       end
       object cmdCutlistSaveDir: TButton
         Left = 509
@@ -445,6 +439,36 @@ object FSettings: TFSettings
         Caption = '...'
         TabOrder = 2
         OnClick = cmdCutlistSaveDirClick
+      end
+      object cbCutlistNameAlwaysConfirm: TJvCheckBox
+        Left = 3
+        Top = 66
+        Width = 200
+        Height = 17
+        Caption = 'Always confirm filename before saving'
+        TabOrder = 3
+        LinkedControls = <>
+        HotTrackFont.Charset = DEFAULT_CHARSET
+        HotTrackFont.Color = clWindowText
+        HotTrackFont.Height = -11
+        HotTrackFont.Name = 'Microsoft Sans Serif'
+        HotTrackFont.Pitch = fpVariable
+        HotTrackFont.Style = []
+      end
+      object cbCutlistAutoSaveBeforeCutting: TJvCheckBox
+        Left = 3
+        Top = 86
+        Width = 137
+        Height = 17
+        Caption = 'Auto save before cutting'
+        TabOrder = 4
+        LinkedControls = <>
+        HotTrackFont.Charset = DEFAULT_CHARSET
+        HotTrackFont.Color = clWindowText
+        HotTrackFont.Height = -11
+        HotTrackFont.Name = 'Microsoft Sans Serif'
+        HotTrackFont.Pitch = fpVariable
+        HotTrackFont.Style = []
       end
     end
     object tabURLs: TTabSheet
@@ -626,14 +650,6 @@ object FSettings: TFSettings
           Alignment = taRightJustify
           Caption = 'Days between checking for Infos on server: '
         end
-        object CBInfoCheckStable: TCheckBox
-          Left = 13
-          Top = 65
-          Width = 241
-          Height = 13
-          Caption = 'Check on server for new stable versions'
-          TabOrder = 2
-        end
         object ECheckInfoInterval_nl: TEdit
           Left = 244
           Top = 19
@@ -643,30 +659,66 @@ object FSettings: TFSettings
           Text = '0'
           OnKeyPress = ECheckInfoInterval_nlKeyPress
         end
-        object CBInfoCheckBeta: TCheckBox
+        object CBInfoCheckStable: TJvCheckBox
+          Left = 13
+          Top = 65
+          Width = 210
+          Height = 17
+          Caption = 'Check on server for new stable versions'
+          TabOrder = 2
+          LinkedControls = <>
+          HotTrackFont.Charset = DEFAULT_CHARSET
+          HotTrackFont.Color = clWindowText
+          HotTrackFont.Height = -11
+          HotTrackFont.Name = 'Microsoft Sans Serif'
+          HotTrackFont.Pitch = fpVariable
+          HotTrackFont.Style = []
+        end
+        object CBInfoCheckBeta: TJvCheckBox
           Left = 13
           Top = 84
-          Width = 241
-          Height = 13
+          Width = 203
+          Height = 17
           Caption = 'Check on server for new beta versions'
           TabOrder = 3
+          LinkedControls = <>
+          HotTrackFont.Charset = DEFAULT_CHARSET
+          HotTrackFont.Color = clWindowText
+          HotTrackFont.Height = -11
+          HotTrackFont.Name = 'Microsoft Sans Serif'
+          HotTrackFont.Pitch = fpVariable
+          HotTrackFont.Style = []
         end
-        object CBInfoCheckMessages: TCheckBox
+        object CBInfoCheckMessages: TJvCheckBox
           Left = 13
           Top = 46
-          Width = 176
-          Height = 13
+          Width = 164
+          Height = 17
           Caption = 'Check on server for messages'
           TabOrder = 1
+          LinkedControls = <>
+          HotTrackFont.Charset = DEFAULT_CHARSET
+          HotTrackFont.Color = clWindowText
+          HotTrackFont.Height = -11
+          HotTrackFont.Name = 'Microsoft Sans Serif'
+          HotTrackFont.Pitch = fpVariable
+          HotTrackFont.Style = []
         end
       end
-      object CBInfoCheckEnabled: TCheckBox
+      object CBInfoCheckEnabled: TJvCheckBox
         Left = 3
         Top = 3
-        Width = 290
-        Height = 14
+        Width = 179
+        Height = 17
         Caption = 'Check Infos on Server on Startup'
         TabOrder = 0
+        LinkedControls = <>
+        HotTrackFont.Charset = DEFAULT_CHARSET
+        HotTrackFont.Color = clWindowText
+        HotTrackFont.Height = -11
+        HotTrackFont.Name = 'Microsoft Sans Serif'
+        HotTrackFont.Pitch = fpVariable
+        HotTrackFont.Style = []
       end
     end
     object TabExternalCutApplication: TTabSheet
@@ -721,7 +773,7 @@ object FSettings: TFSettings
         Caption = 'Cut MP4 Iso Files with:'
       end
       object lblAutoCloseCuttingWindow: TLabel
-        Left = 2
+        Left = 31
         Top = 162
         Width = 274
         Height = 13
@@ -823,7 +875,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 1
         OnChange = cmbCodecChange
       end
@@ -853,7 +905,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 5
         OnChange = cmbCodecChange
       end
@@ -883,7 +935,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 13
         OnChange = cmbCodecChange
       end
@@ -913,7 +965,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 17
         OnChange = cmbCodecChange
       end
@@ -955,7 +1007,7 @@ object FSettings: TFSettings
         Width = 137
         Height = 21
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 9
         OnChange = cmbCodecChange
       end
@@ -1074,7 +1126,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 3
         Text = '(none)'
@@ -1092,7 +1144,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 5
         Text = '(none)'
@@ -1110,7 +1162,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 6
         Text = '(none)'
@@ -1138,7 +1190,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
@@ -1173,7 +1225,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 14
+        ItemHeight = 0
         ParentFont = False
         TabOrder = 4
         Text = '(none)'

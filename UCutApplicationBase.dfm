@@ -70,32 +70,50 @@ object frmCutApplicationBase: TfrmCutApplicationBase
     TabOrder = 3
     OnClick = btnBrowseTempDirClick
   end
-  object cbRedirectOutput: TCheckBox
+  object cbRedirectOutput: TJvCheckBox
     Left = 6
     Top = 95
-    Width = 369
+    Width = 172
     Height = 17
-    Anchors = [akLeft, akTop, akRight]
     Caption = 'Redirect Output to Cut Assistant'
     TabOrder = 4
+    LinkedControls = <>
+    HotTrackFont.Charset = ANSI_CHARSET
+    HotTrackFont.Color = clWindowText
+    HotTrackFont.Height = -11
+    HotTrackFont.Name = 'Microsoft Sans Serif'
+    HotTrackFont.Pitch = fpVariable
+    HotTrackFont.Style = []
   end
-  object cbShowAppWindow: TCheckBox
+  object cbShowAppWindow: TJvCheckBox
     Left = 6
     Top = 118
-    Width = 369
+    Width = 181
     Height = 17
-    Anchors = [akLeft, akTop, akRight]
     Caption = 'Show original Application Window'
     TabOrder = 5
+    LinkedControls = <>
+    HotTrackFont.Charset = ANSI_CHARSET
+    HotTrackFont.Color = clWindowText
+    HotTrackFont.Height = -11
+    HotTrackFont.Name = 'Microsoft Sans Serif'
+    HotTrackFont.Pitch = fpVariable
+    HotTrackFont.Style = []
   end
-  object cbCleanUp: TCheckBox
+  object cbCleanUp: TJvCheckBox
     Left = 6
     Top = 141
-    Width = 369
+    Width = 166
     Height = 17
-    Anchors = [akLeft, akTop, akRight]
     Caption = 'Delete Temp Files after Cutting'
     TabOrder = 6
+    LinkedControls = <>
+    HotTrackFont.Charset = ANSI_CHARSET
+    HotTrackFont.Color = clWindowText
+    HotTrackFont.Height = -11
+    HotTrackFont.Name = 'Microsoft Sans Serif'
+    HotTrackFont.Pitch = fpVariable
+    HotTrackFont.Style = []
   end
   object selectFileDlg: TOpenDialog
     Filter = 'Executables (*.exe)|*.exe|All files|*.*'

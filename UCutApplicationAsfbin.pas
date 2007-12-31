@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UCutApplicationBase, StdCtrls, IniFiles, Contnrs;
+  Dialogs, UCutApplicationBase, StdCtrls, IniFiles, Contnrs, JvExStdCtrls,
+  JvCheckBox;
 
 const
   ASFBIN_DEFAULT_EXENAME_1 = 'asfbin.exe';
@@ -21,7 +22,7 @@ type
   TfrmCutApplicationAsfbin = class(TfrmCutApplicationBase)
     edtCommandLineOptions: TEdit;
     lblCommandLineOptions: TLabel;
-    cbRkf: TCheckBox;
+    cbRkf: TJvCheckBox;
     procedure cbRkfClick(Sender: TObject);
     procedure edtCommandLineOptionsChange(Sender: TObject);
   private

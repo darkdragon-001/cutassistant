@@ -65,6 +65,8 @@ type
     FramesPresent: boolean;
     SavedToFilename: string;
     RatingSent: boolean;
+    OriginalFileSize: longint;
+
     constructor create(Settings: TSettings; MovieInfo: TMovieInfo);
     property FrameDuration: double read FFrameDuration write SetFrameDuration;
     property FrameRate: double read FFrameRate write SetFrameRate;
@@ -93,7 +95,8 @@ type
     procedure init;
     procedure Sort;
     function convert: TCutlist;
-    function LoadFromFile(Filename: String): boolean;
+    function LoadFromFile(Filename: String; noWarnings: boolean): boolean; overload;
+    function LoadFromFile(Filename: String): boolean; overload;
     function EditInfo: boolean;
     function Save(AskForPath: boolean): boolean;
     function SaveAs(Filename: String): boolean;
@@ -275,7 +278,7 @@ var
   CanClear: boolean;
 begin
   canClear := true;
-  if self.HasChanged then begin
+  if not batchmode and self.HasChanged then begin
     case application.messagebox(PChar(CAResources.RsMsgCutlistSaveChanges), PChar(CAResources.RsTitleCutlistSaveChanges), MB_YESNOCANCEL + MB_DEFBUTTON3 + MB_ICONQUESTION) of
       IDYES: begin
           CanClear := self.Save(false);      //Can Clear if saved successfully
@@ -317,6 +320,7 @@ begin
   newCutlist.MissingEnding := self.MissingEnding;
   newCutlist.MissingVideo := self.MissingVideo;
   newCutlist.MissingAudio := self.MissingAudio;
+  newCutlist.OriginalFileSize := self.OriginalFileSize;
   newCutlist.OtherError := self.OtherError;
   newCutlist.OtherErrorDescription := self.OtherErrorDescription;
   newCutlist.SuggestedMovieName := self.SuggestedMovieName;
@@ -555,12 +559,18 @@ begin
   self.IDOnServer := '';
   self.FRatingOnServer := -1;
   self.RatingSent := false;
+  self.OriginalFileSize := -1;
   self.FHasChanged := false;
 
   self.RefreshGUI;
 end;
 
 function TCutlist.LoadFromFile(Filename: String): boolean;
+begin
+  Result := LoadFromFile(Filename, batchmode);
+end;
+
+function TCutlist.LoadFromFile(Filename: String; noWarnings: boolean): boolean;
 var
   section: string;
   apply_to_file, my_file, intended_options, intendedCutApp, intendedCutAppVersionStr, myCutApp, myOptions: string;
@@ -577,11 +587,13 @@ var
 begin
   result := false;
   if not fileexists(filename) then begin
+    if not noWarnings then
       ShowMessageFmt(CAResources.RsErrorFileNotFound, [ filename ]);
-      exit;
+    exit;
   end;
 
-  if not self.clear_after_confirm then exit;
+  if not noWarnings and not self.clear_after_confirm then
+    exit;
 
   cutlistfile := TInifile.Create(filename);
   Temp_DecimalSeparator := DecimalSeparator;
@@ -590,13 +602,14 @@ begin
     section := 'General';
     apply_to_file := cutlistfile.ReadString(section, 'ApplyToFile', Format('(%s)', [ CAResources.RsCutlistTargetUnknown ]));
     my_file := extractfilename(FMovieInfo.current_filename);
-    if (not ansiSameText(apply_to_file, my_file)) and (not batchmode) then begin
+    if (not ansiSameText(apply_to_file, my_file)) and (not noWarnings) then begin
       message_string := Format(CAResources.RsMsgCutlistTargetMismatch, [ apply_to_file, my_file ]);
       if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
         exit;
       end;
     end;
 
+    OriginalFileSize := cutlistfile.ReadInteger(section, 'OriginalFileSizeBytes', -1);
     //App + version
     if self.CutApplication <> nil then begin
       intendedCutApp := cutlistfile.ReadString(section, 'IntendedCutApplication', '');
@@ -605,7 +618,7 @@ begin
       myCutApp := extractfilename(CutApplication.Path);
       myCutAppVersionWords := Parse_File_Version(CutApplication.Version);
 
-      if (not batchmode) then begin
+      if (not noWarnings) then begin
         if not ansiSameText(intendedCutApp, myCutApp) then begin
           message_string := Format(CAResources.RsMsgCutlistCutAppMismatch, [ IntendedCutApp, myCutApp ]);
           if not (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
@@ -626,9 +639,9 @@ begin
         CutAppAsfBin := self.CutApplication as TCutApplicationAsfbin;
         myOptions := CutAppAsfBin.CommandLineOptions;
         intended_options := cutlistfile.ReadString(section, 'IntendedCutApplicationOptions', myOptions);
-        if not ansiSameText(intended_options, myOptions) and (not batchmode) then begin
+        if not ansiSameText(intended_options, myOptions) then begin
           message_string := Format(CAResources.RsMsgCutlistAsfbinOptionMismatch, [ intended_options, myOptions ]);
-          if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES then begin
+          if noWarnings or (application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONINFORMATION) = IDYES) then begin
             CutAppAsfBin.CommandLineOptions := intended_options;
           end;
         end;
@@ -642,7 +655,7 @@ begin
     if (FrameRate > 0) and (FMovieInfo.frame_duration > 0) then
     begin
       iFramesDifference := FMovieInfo.FrameCount - Trunc(FrameRate * FMovieInfo.current_file_duration);
-      if (not batchmode) and (Abs(iFramesDifference) > 1) then
+      if (not noWarnings) and (Abs(iFramesDifference) > 1) then
       begin
         message_string := Format(CAResources.RsMsgCutlistFrameRateMismatch, [ FrameRate, 1/FMovieInfo.frame_duration, Abs(iFramesDifference) ]);
         if Application.MessageBox(
@@ -715,7 +728,7 @@ begin
   self.FHasChanged := false;
   self.SavedToFilename := filename;
   result := true;
-  if not batchmode then begin
+  if not noWarnings then begin
     ShowMessageFmt(CAResources.RsMsgCutlistLoaded, [ self.Count, cCuts]);
   end;
   self.RefreshGUI;
@@ -877,7 +890,10 @@ begin
       cutlistfile.WriteString(section, 'Version', Application_version);
       iniWriteStrings(cutlistfile, section, 'comment', false, CAResources.RsCutlistInternalComment);
       cutlistfile.WriteString(section, 'ApplyToFile', extractfilename(FMovieInfo.current_filename));
-      cutlistfile.WriteInteger(section, 'OriginalFileSizeBytes', FMovieInfo.current_filesize);
+      if OriginalFileSize < 0 then
+        cutlistfile.WriteInteger(section, 'OriginalFileSizeBytes', FMovieInfo.current_filesize)
+      else
+        cutlistfile.WriteInteger(section, 'OriginalFileSizeBytes', OriginalFileSize);
       if (FrameRate = 0) or (FrameDuration = 0) then
         FrameDuration := FMovieInfo.frame_duration;
       cutlistfile.WriteFloat(section, 'FramesPerSecond', FrameRate);

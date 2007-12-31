@@ -406,6 +406,7 @@ type
 
     function OpenFile(Filename: String): boolean;
     function BuildFilterGraph(FileName: String; FileType: TMovieType):boolean;
+    function CloseCutlist: boolean;
     function CloseMovieAndCutlist: boolean;
     procedure CloseMovie;
     function GraphPlayPause: boolean;
@@ -421,7 +422,9 @@ type
     function DownloadInfo(settings: TSettings; const UseDate, ShowAll: boolean): boolean;
     procedure LoadCutList;
 //    function search_cutlist: boolean;
-    function SearchCutlistsByFileSize_XML: boolean;
+    procedure SearchCutlistByFileSize(AutoOpen: boolean; LocalOnly: boolean);
+    function SearchCutlistsByFileSize_Local: integer;
+    function SearchCutlistsByFileSize_XML: integer;
 //    function DownloadCutlist(cutlist_name: string): boolean;
     function DownloadCutlistByID(cutlist_id, TargetFileName: string): boolean;
     function UploadCutlist(filename: string): boolean;
@@ -1772,6 +1775,8 @@ begin
     if OpenDialog.Execute then begin
       settings.CurrentMovieDir := ExtractFilePath(openDialog.FileName);
       OpenFile(opendialog.FileName);
+      if MovieInfo.MovieLoaded and Settings.AutoSearchCutlists then
+        SearchCutlistByFileSize(true, ShiftDown);
     end;
   finally
     FreeAndNil(OpenDialog);
@@ -2435,69 +2440,158 @@ begin
   frmMemoDialog.ShowModal;
 end;
 
-function TFMain.SearchCutlistsByFileSize_XML: boolean;
+function TFMain.SearchCutlistsByFileSize_Local: integer;
+var
+  Error_message: string;
+  searchDir: string;
+  sr: TSearchRec;
+  ACutlist: TCutlist;
+begin
+  Result := 0;
+  if (MovieInfo.current_filesize = 0) or (MovieInfo.current_filename = '') then
+    exit;
+  Error_message := CAResources.RsErrorUnknown;
+
+  if Settings.SaveCutlistMode = smGivenDir then
+    searchDir := MovieInfo.current_filename
+  else begin
+    searchDir := Settings.CutlistSaveDir;
+    if not IsPathRooted(searchDir) then
+      searchDir := PathCombine(ExtractFileDir(MovieInfo.current_filename), searchDir);
+  end;
+
+  if FindFirst(PathCombine(searchDir, '*.cutlist'), faArchive, sr) = 0 then begin
+    repeat
+      ACutlist := TCutlist.create(Settings, MovieInfo);
+      try
+        if not ACutlist.LoadFromFile(PathCombine(searchDir, sr.Name), true) then
+          Continue;
+        if ACutlist.OriginalFileSize <> MovieInfo.current_filesize then
+          Continue;
+        with FCutlistSearchResults.lvLinklist.Items.Add do begin
+          Caption := ACutlist.IDOnServer;
+          SubItems.Add(ExtractFileName(ACutlist.SavedToFilename));
+          SubItems.Add('');
+          SubItems.Add('0');
+          SubItems.Add(IfThen(ACutlist.RatingByAuthorPresent, IntToStr(ACutlist.RatingByAuthor),''));
+          SubItems.Add(ACutlist.Author);
+          SubItems.Add(ACutlist.UserComment);
+          SubItems.Add(ACutlist.ActualContent);
+          SubItems.Add(ExtractFileDir(ACutlist.SavedToFilename));
+        end;
+        Inc(Result);
+      finally
+        FreeAndNil(ACutlist);
+      end;
+    until FindNext(sr) <> 0;
+    FindClose(sr);
+  end;
+end;
+
+function TFMain.SearchCutlistsByFileSize_XML: integer;
 const
   php_name = 'getxml.php';
   command = '?ofsb=';
 var
-  url, error_message: string;
+  WebResult: boolean;
+  url, Error_message: string;
   Response: string;
   Node, CutNode: TJCLSimpleXMLElems;
   idx: integer;
 begin
-  result := false;
+  result := 0;
   if (MovieInfo.current_filesize = 0) or (MovieInfo.current_filename = '') then
     exit;
   Error_message := CAResources.RsErrorUnknown;
 
   url := settings.url_cutlists_home + php_name + command + inttostr(MovieInfo.current_filesize) +'&version=' + Application_Version;
-  Result := DoHttpGet(url, false, error_message, Response);
+  WebResult := DoHttpGet(url, false, error_message, Response);
 
+  if WebResult and (Length(response) > 5) then begin
     try
-      if result and (Length(response) > 5) then begin
-          XMLResponse.LoadFromString(Response);
-          FCutlistSearchResults.lvLinklist.Clear;
+      XMLResponse.LoadFromString(Response);
 
-          if XMLResponse.Root.ChildsCount > 0 then begin
-            Node := XMLResponse.Root.Items;
-            for idx := 0 to node.Count - 1 do begin
-              CutNode := node.Item[idx].Items;
-              with FCutlistSearchResults.lvLinklist.Items.Add do begin
-                Caption := CutNode.ItemNamed['id'].Value;
-                SubItems.Add(CutNode.ItemNamed['name'].Value);
-                SubItems.Add(CutNode.ItemNamed['rating'].Value);
-                SubItems.Add(CutNode.ItemNamed['ratingcount'].Value);
-                SubItems.Add(CutNode.ItemNamed['ratingbyauthor'].Value);
-                SubItems.Add(CutNode.ItemNamed['author'].Value);
-                SubItems.Add(CutNode.ItemNamed['usercomment'].Value);
-                SubItems.Add(CutNode.ItemNamed['actualcontent'].Value);
-              end;
-            end;
+      if XMLResponse.Root.ChildsCount > 0 then begin
+        Node := XMLResponse.Root.Items;
+        for idx := 0 to node.Count - 1 do begin
+          CutNode := node.Item[idx].Items;
+          with FCutlistSearchResults.lvLinklist.Items.Add do begin
+            Caption := CutNode.ItemNamed['id'].Value;
+            SubItems.Add(CutNode.ItemNamed['name'].Value);
+            SubItems.Add(CutNode.ItemNamed['rating'].Value);
+            SubItems.Add(CutNode.ItemNamed['ratingcount'].Value);
+            SubItems.Add(CutNode.ItemNamed['ratingbyauthor'].Value);
+            SubItems.Add(CutNode.ItemNamed['author'].Value);
+            SubItems.Add(CutNode.ItemNamed['usercomment'].Value);
+            SubItems.Add(CutNode.ItemNamed['actualcontent'].Value);
+            SubItems.Add(''); // path information
           end;
-
-          if FCutlistSearchResults.ShowModal = mrOK then begin
-            result := self.DownloadCutlistByID(FCutlistSearchResults.lvLinklist.Selected.Caption, FCutlistSearchResults.lvLinklist.Selected.SubItems[0]);
-            if result then begin
-              cutlist.IDOnServer :=  FCutlistSearchResults.lvLinklist.Selected.Caption;
-              cutlist.RatingOnServer := StrToFloatDef(FCutlistSearchResults.lvLinklist.Selected.SubItems[1], -1);
-              self.actSendRating.Enabled := true;
-            end;
-          end;
-      end else begin
-        if not batchmode then
-          showmessage(CAResources.RsMsgSearchCutlistNoneFound);
+          Inc(Result);
+        end;
       end;
     except
-    on E: EJclSimpleXMLError do begin
+      on E: EJclSimpleXMLError do begin
         if not batchmode then
           ShowMessageFmt(CAresources.RsErrorSearchCutlistXml, [ E.Message ]);
       end;
     end;
+  end;
 end;
 
 procedure TFMain.actSearchCutlistByFileSizeExecute(Sender: TObject);
 begin
-  self.SearchCutlistsByFileSize_XML;
+  SearchCutlistByFileSize(false, ShiftDown);
+end;
+
+procedure TFMain.SearchCutlistByFileSize(AutoOpen: boolean; LocalOnly: boolean);
+var
+  numFound : integer;
+  WebResult: boolean;
+  selectedItem: TListItem;
+  cutFilename: string;
+begin
+  FCutlistSearchResults.lvLinklist.Clear;
+  numFound := 0;
+
+  if not LocalOnly or not Settings.SearchLocalCutlists then
+    numFound := self.SearchCutlistsByFileSize_XML;
+
+  if LocalOnly and Settings.SearchLocalCutlists then
+    numFound := numFound + self.SearchCutlistsByFileSize_Local;
+
+  if numFound < 0 then
+    Exit;
+
+  if numFound = 0 then begin
+    if not batchmode then
+      showmessage(CAResources.RsMsgSearchCutlistNoneFound);
+    Exit;
+  end;
+
+  if AutoOpen and (numFound = 1) then
+    selectedItem := FCutlistSearchResults.lvLinklist.Items[0]
+  else if FCutlistSearchResults.ShowModal = mrOK then
+    selectedItem := FCutlistSearchResults.lvLinklist.Selected
+  else
+    selectedItem := nil;
+
+  if Assigned(selectedItem) then begin
+    cutFilename := selectedItem.SubItems[0];
+    if selectedItem.Caption = '' then begin
+      if not self.CloseCutlist then
+        Exit;
+      cutFilename := PathCombine(selectedItem.SubItems[selectedItem.SubItems.Count-1], cutFilename);
+      CutList.LoadFromFile(cutFilename);
+      self.actSendRating.Enabled := false;
+    end else begin
+      WebResult := self.DownloadCutlistByID(selectedItem.Caption, cutFilename);
+      if WebResult then begin
+        cutlist.IDOnServer := selectedItem.Caption;
+        cutlist.RatingOnServer := StrToFloatDef(selectedItem.SubItems[1], -1);
+        self.actSendRating.Enabled := true;
+      end;
+    end;
+  end;
 end;
 
 function TFMain.SendRating(Cutlist: TCutlist): boolean;
@@ -2914,11 +3008,18 @@ begin
   self.CloseMovieAndCutlist;
 end;
 
-function TFMain.CloseMovieAndCutlist: boolean;
+function TFMain.CloseCutlist: boolean;
 begin
   result := false;
   if not AskForUserRating(cutlist) then exit;
-  if not cutlist.clear_after_confirm then exit;
+  if not CutList.clear_after_confirm then exit;
+  result := true;
+end;
+
+function TFMain.CloseMovieAndCutlist: boolean;
+begin
+  result := false;
+  if not CloseCutlist then exit;
   if movieInfo.MovieLoaded then CloseMovie;
   result := true;
 end;

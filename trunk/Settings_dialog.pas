@@ -143,6 +143,8 @@ type
     CBInfoCheckBeta: TJvCheckBox;
     CBInfoCheckMessages: TJvCheckBox;
     CBInfoCheckEnabled: TJvCheckBox;
+    cbAutoSearchCutlists: TJvCheckBox;
+    cbSearchLocalCutlists: TJvCheckBox;
     procedure cmdCutMovieSaveDirClick(Sender: TObject);
     procedure cmdCutlistSaveDirClick(Sender: TObject);
     procedure edtProxyPort_nlKeyPress(Sender: TObject; var Key: Char);
@@ -219,6 +221,8 @@ type
     SmallSkipTime, LargeSkipTime: integer;
     NetTimeout: integer;
     AutoMuteOnSeek: boolean;
+    AutoSearchCutlists: boolean;
+    SearchLocalCutlists: boolean;
 
     //Warnings
     WarnOnWrongCutApp: boolean;
@@ -553,22 +557,25 @@ begin
   FSettings.SetCutAppSettings(mtMP4, self.CutAppSettingsMP4);
   FSettings.SetCutAppSettings(mtUnknown, self.CutAppSettingsOther);
 
-  FSettings.spnWaitTimeout.AsInteger               := CuttingWaitTimeout;
-  FSettings.rgSaveCutMovieMode.ItemIndex           := SaveCutMovieMode;
-  FSettings.edtCutMovieSaveDir_nl.Text             := CutMovieSaveDir;
-  FSettings.edtCutMovieExtension_nl.Text           := CutMovieExtension;
-  FSettings.cbUseMovieNameSuggestion.Checked       := UseMovieNameSuggestion;
-  FSettings.cbMovieNameAlwaysConfirm.Checked       := MovieNameAlwaysConfirm;
-  FSettings.rgSaveCutlistMode.ItemIndex            := SaveCutlistMode;
-  FSettings.edtCutlistSaveDir_nl.Text              := CutlistSaveDir;
-  FSettings.cbCutlistNameAlwaysConfirm.Checked     := CutlistNameAlwaysConfirm;
-  Fsettings.cbCutlistAutoSaveBeforeCutting.Checked := CutlistAutoSaveBeforeCutting;
-  Fsettings.rgCutMode.ItemIndex                    := DefaultCutMode;
-  FSettings.edtSmallSkip_nl.Text                   := IntToStr(SmallSkipTime);
-  FSettings.edtLargeSkip_nl.Text                   := IntToStr(LargeSkipTime);
-  FSettings.edtNetTimeout_nl.Text                  := IntToStr(NetTimeout);
-  FSettings.cbAutoMuteOnSeek.Checked               := AutoMuteOnSeek;
-  FSettings.cbExceptionLogging.Checked             := ExceptionLogging;
+  FSettings.spnWaitTimeout.AsInteger               := self.CuttingWaitTimeout;
+  FSettings.rgSaveCutMovieMode.ItemIndex           := self.SaveCutMovieMode;
+  FSettings.edtCutMovieSaveDir_nl.Text             := self.CutMovieSaveDir;
+  FSettings.edtCutMovieExtension_nl.Text           := self.CutMovieExtension;
+  FSettings.cbUseMovieNameSuggestion.Checked       := self.UseMovieNameSuggestion;
+  FSettings.cbMovieNameAlwaysConfirm.Checked       := self.MovieNameAlwaysConfirm;
+  FSettings.rgSaveCutlistMode.ItemIndex            := self.SaveCutlistMode;
+  FSettings.edtCutlistSaveDir_nl.Text              := self.CutlistSaveDir;
+  FSettings.cbCutlistNameAlwaysConfirm.Checked     := self.CutlistNameAlwaysConfirm;
+  Fsettings.cbCutlistAutoSaveBeforeCutting.Checked := self.CutlistAutoSaveBeforeCutting;
+  Fsettings.rgCutMode.ItemIndex                    := self.DefaultCutMode;
+  FSettings.edtSmallSkip_nl.Text                   := IntToStr(self.SmallSkipTime);
+  FSettings.edtLargeSkip_nl.Text                   := IntToStr(self.LargeSkipTime);
+  FSettings.edtNetTimeout_nl.Text                  := IntToStr(self.NetTimeout);
+  FSettings.cbAutoMuteOnSeek.Checked               := self.AutoMuteOnSeek;
+  FSettings.cbExceptionLogging.Checked             := self.ExceptionLogging;
+
+  FSettings.cbAutoSearchCutlists.Checked           := self.AutoSearchCutlists;
+  FSettings.cbSearchLocalCutlists.Checked          := self.SearchLocalCutlists;
 
   Fsettings.edtURL_Cutlist_Home_nl.Text            := self.url_cutlists_home;
   Fsettings.edtURL_Info_File_nl.Text               := self.url_info_file;
@@ -683,6 +690,9 @@ begin
       self.NetTimeout                  := StrToInt(FSettings.edtNetTimeout_nl.Text);
       self.AutoMuteOnSeek              := FSettings.cbAutoMuteOnSeek.Checked;
       self.ExceptionLogging            := FSettings.cbExceptionLogging.Checked;
+
+      self.AutoSearchCutlists := FSettings.cbAutoSearchCutlists.Checked;
+      self.SearchLocalCutlists := FSettings.cbSearchLocalCutlists.Checked;
 
       newLanguage                      := GetLanguageByIndex(FSettings.cmbLanguage_nl.ItemIndex);
       if self.Language <> newLanguage then begin
@@ -876,6 +886,8 @@ begin
     self.SmallSkipTime := ini.ReadInteger(section, 'SmallSkipTime', 2);
     self.LargeSkipTime := ini.ReadInteger(section, 'LargeSkipTime', 25);
     self.AutoMuteOnSeek := ini.ReadBool(section, 'AutoMuteOnSeek', false);
+    self.AutoSearchCutlists := ini.ReadBool(section, 'AutoSearchCutlists', false);
+    self.SearchLocalCutlists := ini.ReadBool(section, 'SearchLocalCutlists', false);
 
     section := 'Warnings';
     self.WarnOnWrongCutApp := ini.ReadBool(section, 'WarnOnWrongCutApp', true);
@@ -992,6 +1004,8 @@ begin
     ini.WriteInteger(section, 'SmallSkipTime', self.SmallSkipTime);
     ini.WriteInteger(section, 'LargeSkipTime', self.LargeSkipTime);
     ini.WriteBool(section, 'AutoMuteOnSeek', self.AutoMuteOnSeek);
+    ini.WriteBool(section, 'AutoSearchCutlists', self.AutoSearchCutlists);
+    ini.WriteBool(section, 'SearchLocalCutlists', self.SearchLocalCutlists);
 
     section := 'Warnings';
     ini.WriteBool(section, 'WarnOnWrongCutApp', WarnOnWrongCutApp);

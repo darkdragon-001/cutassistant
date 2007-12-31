@@ -186,6 +186,8 @@ type
 
   function IsPathRooted(const Path: string): boolean;
 
+  function PathCombine(const aPath, otherPath: string): string;
+
   function CtrlDown : Boolean;
   function ShiftDown : Boolean;
   function AltDown : Boolean;
@@ -784,6 +786,14 @@ begin
         and (ARect.Right > -1) and (ARect.Right > ARect.Left)
         and (ARect.Top > -1)
         and (ARect.Bottom > -1) and (ARect.Bottom > ARect.Top);
+end;
+
+function PathCombine(const aPath, otherPath: string): string;
+begin
+  Result := otherPath;
+  if IsPathDelimiter(Result, 1) then
+    Delete(Result, 1, 1);
+  Result := IncludeTrailingPathDelimiter(aPath) + Result;
 end;
 
 function CtrlDown : Boolean;

@@ -116,7 +116,6 @@ object frmCutApplicationBase: TfrmCutApplicationBase
     HotTrackFont.Style = []
   end
   object selectFileDlg: TOpenDialog
-    Filter = 'Executables (*.exe)|*.exe|All files|*.*'
     Options = [ofHideReadOnly, ofNoChangeDir, ofPathMustExist, ofFileMustExist, ofEnableSizing]
     Left = 352
     Top = 128

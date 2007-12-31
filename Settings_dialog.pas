@@ -487,7 +487,7 @@ begin
   UpdateLanguageList;
 
   FCodecList := TCodecList.Create;
-  FCodecList.Fill;
+  //FCodecList.Fill;
 
   CutApplicationList := TObjectList.Create;
   CutApplicationList.Add(TCutApplicationAsfbin.Create);
@@ -1069,6 +1069,7 @@ begin
   CBHQAviApp_nl.Items.Assign(CBOtherApp_nl.Items);
   CBMP4App_nl.Items.Assign(CBOtherApp_nl.Items);
 
+  CodecList.Fill;
   cmbCodecWmv_nl.Items := CodecList;
   cmbCodecAvi_nl.Items := CodecList;
   cmbCodecHQAvi_nl.Items := CodecList;

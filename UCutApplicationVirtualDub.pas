@@ -34,7 +34,6 @@ type
     procedure SetShowProgressWindow(const Value: boolean);
     procedure FindProgressWindow(Sender: TObject);
   protected
-    FCodecList: TCodecList;
     FNotClose: boolean;
     FUseSmartRendering: boolean;
     FScriptFileName: string;
@@ -86,8 +85,6 @@ end;
 constructor TCutApplicationVirtualDub.create;
 begin
   inherited;
-  FCodecList := TCodecList.Create;
-  FCodecList.Fill;
   FrameClass := TfrmCutApplicationVirtualDub;
   DefaultExeNames.Add(VIRTUALDUB_DEFAULT_EXENAME);
   Name := 'VirtualDub';

@@ -320,7 +320,7 @@ var
   InfoObject: TICInfoObject;
 begin
   InfoObject := TICInfoObject.CreateDummy;
-  self.AddObject(Format('(%s) %s', [ CAResources.RsCodecUseDefault, InfoObject.Name] ), InfoObject);
+  self.AddObject(Format('(%s) %s', [ InfoObject.Name, CAResources.RsCodecUseDefault ] ), InfoObject);
 end;
 
 function TCodecList.GetCodecInfo(i: Integer): TICInfo;

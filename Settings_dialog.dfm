@@ -5,10 +5,10 @@ object FSettings: TFSettings
   BorderIcons = []
   Caption = 'Settings'
   ClientHeight = 307
-  ClientWidth = 562
+  ClientWidth = 582
   Color = clBtnFace
   Constraints.MinHeight = 310
-  Constraints.MinWidth = 570
+  Constraints.MinWidth = 590
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
@@ -25,7 +25,7 @@ object FSettings: TFSettings
   object pgSettings: TPageControl
     Left = 0
     Top = 0
-    Width = 562
+    Width = 582
     Height = 281
     ActivePage = tabUserData
     Align = alClient
@@ -36,7 +36,7 @@ object FSettings: TFSettings
       Caption = 'General'
       ImageIndex = 4
       DesignSize = (
-        554
+        574
         250)
       object lblUsername: TLabel
         Left = 20
@@ -158,7 +158,7 @@ object FSettings: TFSettings
         Caption = 'Language:'
       end
       object lblLanguageChangeHint: TLabel
-        Left = 346
+        Left = 366
         Top = 203
         Width = 114
         Height = 13
@@ -168,7 +168,7 @@ object FSettings: TFSettings
       object edtUserName_nl: TEdit
         Left = 128
         Top = 3
-        Width = 417
+        Width = 437
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
@@ -176,7 +176,7 @@ object FSettings: TFSettings
       object edtUserID_nl: TEdit
         Left = 128
         Top = 30
-        Width = 417
+        Width = 437
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         Color = clBtnFace
@@ -220,7 +220,7 @@ object FSettings: TFSettings
         OnKeyPress = edtProxyPort_nlKeyPress
       end
       object rgCutMode: TRadioGroup
-        Left = 384
+        Left = 404
         Top = 60
         Width = 161
         Height = 73
@@ -276,7 +276,7 @@ object FSettings: TFSettings
       object cmbLanguage_nl: TComboBox
         Left = 128
         Top = 199
-        Width = 213
+        Width = 233
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
@@ -322,7 +322,7 @@ object FSettings: TFSettings
       Caption = 'Save movie'
       ImageIndex = 1
       DesignSize = (
-        554
+        574
         250)
       object lblCutMovieExtension: TLabel
         Left = 3
@@ -335,7 +335,7 @@ object FSettings: TFSettings
       object rgSaveCutMovieMode: TRadioGroup
         Left = 3
         Top = 3
-        Width = 543
+        Width = 563
         Height = 56
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Save cut movie:'
@@ -348,7 +348,7 @@ object FSettings: TFSettings
       object edtCutMovieSaveDir_nl: TEdit
         Left = 142
         Top = 34
-        Width = 362
+        Width = 382
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
@@ -356,14 +356,14 @@ object FSettings: TFSettings
       object edtCutMovieExtension_nl: TEdit
         Left = 212
         Top = 65
-        Width = 333
+        Width = 353
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 3
         Text = '.cut'
       end
       object cmdCutMovieSaveDir: TButton
-        Left = 510
+        Left = 530
         Top = 34
         Width = 27
         Height = 21
@@ -407,12 +407,12 @@ object FSettings: TFSettings
       Caption = 'Save cutlist'
       ImageIndex = 2
       DesignSize = (
-        554
+        574
         250)
       object rgSaveCutlistMode: TRadioGroup
         Left = 3
         Top = 3
-        Width = 542
+        Width = 562
         Height = 56
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Save cutlist:'
@@ -425,13 +425,13 @@ object FSettings: TFSettings
       object edtCutListSaveDir_nl: TEdit
         Left = 142
         Top = 34
-        Width = 361
+        Width = 381
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
       end
       object cmdCutlistSaveDir: TButton
-        Left = 509
+        Left = 529
         Top = 34
         Width = 27
         Height = 21
@@ -476,7 +476,7 @@ object FSettings: TFSettings
       ImageIndex = 3
       Constraints.MinHeight = 210
       DesignSize = (
-        554
+        574
         250)
       object lblServerUrl: TLabel
         Left = 66
@@ -513,7 +513,7 @@ object FSettings: TFSettings
       object edtURL_Cutlist_Home_nl: TEdit
         Left = 134
         Top = 3
-        Width = 411
+        Width = 431
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 0
@@ -521,7 +521,7 @@ object FSettings: TFSettings
       object edtURL_Info_File_nl: TEdit
         Left = 134
         Top = 57
-        Width = 411
+        Width = 431
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
@@ -529,7 +529,7 @@ object FSettings: TFSettings
       object edtURL_Cutlist_Upload_nl: TEdit
         Left = 134
         Top = 30
-        Width = 411
+        Width = 431
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
@@ -537,7 +537,7 @@ object FSettings: TFSettings
       object edtURL_Help_nl: TEdit
         Left = 134
         Top = 84
-        Width = 411
+        Width = 431
         Height = 21
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 3
@@ -545,13 +545,13 @@ object FSettings: TFSettings
       object grpProxy: TGroupBox
         Left = 3
         Top = 111
-        Width = 542
+        Width = 562
         Height = 92
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Proxy Prameters'
         TabOrder = 4
         DesignSize = (
-          542
+          562
           92)
         object lblProxyServer: TLabel
           Left = 34
@@ -562,7 +562,7 @@ object FSettings: TFSettings
           Caption = 'Server'
         end
         object lblProxyPort: TLabel
-          Left = 458
+          Left = 478
           Top = 22
           Width = 19
           Height = 13
@@ -571,7 +571,7 @@ object FSettings: TFSettings
           Caption = 'Port'
         end
         object lblProxyPass: TLabel
-          Left = 329
+          Left = 349
           Top = 49
           Width = 46
           Height = 13
@@ -588,7 +588,7 @@ object FSettings: TFSettings
           Caption = 'User Name'
         end
         object lblProxyPassWarning: TLabel
-          Left = 263
+          Left = 283
           Top = 72
           Width = 266
           Height = 13
@@ -599,13 +599,13 @@ object FSettings: TFSettings
         object edtProxyServerName_nl: TEdit
           Left = 71
           Top = 19
-          Width = 363
+          Width = 383
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 0
         end
         object edtProxyPort_nl: TEdit
-          Left = 483
+          Left = 503
           Top = 18
           Width = 46
           Height = 21
@@ -615,7 +615,7 @@ object FSettings: TFSettings
           OnKeyPress = edtProxyPort_nlKeyPress
         end
         object edtProxyPassword_nl: TEdit
-          Left = 381
+          Left = 401
           Top = 45
           Width = 148
           Height = 21
@@ -626,7 +626,7 @@ object FSettings: TFSettings
         object edtProxyUserName_nl: TEdit
           Left = 71
           Top = 46
-          Width = 230
+          Width = 250
           Height = 21
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 2
@@ -724,7 +724,7 @@ object FSettings: TFSettings
     object TabExternalCutApplication: TTabSheet
       Caption = 'External cut application'
       DesignSize = (
-        554
+        574
         250)
       object lblCutWithWMV: TLabel
         Left = 3
@@ -872,15 +872,16 @@ object FSettings: TFSettings
       object cmbCodecWmv_nl: TComboBox
         Left = 314
         Top = 21
-        Width = 137
+        Width = 157
         Height = 21
+        Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 1
         OnChange = cmbCodecChange
       end
       object btnCodecConfigWmv: TButton
-        Left = 457
+        Left = 477
         Top = 21
         Width = 65
         Height = 21
@@ -890,7 +891,7 @@ object FSettings: TFSettings
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutWmv: TButton
-        Left = 528
+        Left = 548
         Top = 21
         Width = 25
         Height = 21
@@ -902,15 +903,16 @@ object FSettings: TFSettings
       object cmbCodecAvi_nl: TComboBox
         Left = 314
         Top = 48
-        Width = 137
+        Width = 157
         Height = 21
+        Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 5
         OnChange = cmbCodecChange
       end
       object btnCodecConfigAvi: TButton
-        Left = 457
+        Left = 477
         Top = 48
         Width = 65
         Height = 21
@@ -920,7 +922,7 @@ object FSettings: TFSettings
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutAvi: TButton
-        Left = 528
+        Left = 548
         Top = 48
         Width = 25
         Height = 21
@@ -932,15 +934,16 @@ object FSettings: TFSettings
       object cmbCodecMP4_nl: TComboBox
         Left = 314
         Top = 103
-        Width = 137
+        Width = 157
         Height = 21
+        Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 13
         OnChange = cmbCodecChange
       end
       object btnCodecConfigMP4: TButton
-        Left = 457
+        Left = 477
         Top = 103
         Width = 65
         Height = 21
@@ -950,7 +953,7 @@ object FSettings: TFSettings
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutMP4: TButton
-        Left = 528
+        Left = 548
         Top = 103
         Width = 25
         Height = 21
@@ -962,15 +965,16 @@ object FSettings: TFSettings
       object cmbCodecOther_nl: TComboBox
         Left = 314
         Top = 130
-        Width = 137
+        Width = 157
         Height = 21
+        Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 17
         OnChange = cmbCodecChange
       end
       object btnCodecConfigOther: TButton
-        Left = 457
+        Left = 477
         Top = 130
         Width = 65
         Height = 21
@@ -980,7 +984,7 @@ object FSettings: TFSettings
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutOther: TButton
-        Left = 528
+        Left = 548
         Top = 130
         Width = 25
         Height = 21
@@ -1004,15 +1008,16 @@ object FSettings: TFSettings
       object cmbCodecHQAvi_nl: TComboBox
         Left = 314
         Top = 76
-        Width = 137
+        Width = 157
         Height = 21
+        Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 9
         OnChange = cmbCodecChange
       end
       object btnCodecConfigHQAvi: TButton
-        Left = 457
+        Left = 477
         Top = 75
         Width = 65
         Height = 21
@@ -1022,7 +1027,7 @@ object FSettings: TFSettings
         OnClick = btnCodecConfigClick
       end
       object btnCodecAboutHQAvi: TButton
-        Left = 527
+        Left = 547
         Top = 75
         Width = 25
         Height = 21
@@ -1039,7 +1044,7 @@ object FSettings: TFSettings
       Constraints.MinWidth = 548
       OnShow = tabSourceFilterShow
       DesignSize = (
-        554
+        574
         250)
       object lblSourceFilter: TLabel
         Left = 3
@@ -1099,7 +1104,7 @@ object FSettings: TFSettings
       object pnlPleaseWait_nl: TPanel
         Left = 122
         Top = 3
-        Width = 296
+        Width = 316
         Height = 25
         Anchors = [akLeft, akTop, akRight]
         Caption = 'Checking Filters. Please Wait...'
@@ -1117,7 +1122,7 @@ object FSettings: TFSettings
       object cmbSourceFilterListAVI_nl: TComboBox
         Left = 122
         Top = 63
-        Width = 424
+        Width = 444
         Height = 22
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -1126,7 +1131,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 3
         Text = '(none)'
@@ -1135,7 +1140,7 @@ object FSettings: TFSettings
       object cmbSourceFilterListMP4_nl: TComboBox
         Left = 122
         Top = 117
-        Width = 424
+        Width = 444
         Height = 22
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -1144,7 +1149,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 5
         Text = '(none)'
@@ -1153,7 +1158,7 @@ object FSettings: TFSettings
       object cmbSourceFilterListOther_nl: TComboBox
         Left = 122
         Top = 145
-        Width = 424
+        Width = 444
         Height = 22
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -1162,14 +1167,14 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 6
         Text = '(none)'
         OnChange = cmbSourceFilterListChange
       end
       object cmdRefreshFilterList: TButton
-        Left = 424
+        Left = 444
         Top = 6
         Width = 121
         Height = 21
@@ -1181,7 +1186,7 @@ object FSettings: TFSettings
       object cmbSourceFilterListWMV_nl: TComboBox
         Left = 122
         Top = 35
-        Width = 424
+        Width = 444
         Height = 22
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -1190,7 +1195,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
@@ -1199,7 +1204,7 @@ object FSettings: TFSettings
       object lbchkBlackList_nl: TCheckListBox
         Left = 122
         Top = 173
-        Width = 423
+        Width = 443
         Height = 67
         OnClickCheck = lbchkBlackList_nlClickCheck
         Anchors = [akLeft, akTop, akRight, akBottom]
@@ -1216,7 +1221,7 @@ object FSettings: TFSettings
       object cmbSourceFilterListHQAVI_nl: TComboBox
         Left = 122
         Top = 90
-        Width = 424
+        Width = 444
         Height = 22
         Anchors = [akLeft, akTop, akRight]
         Font.Charset = DEFAULT_CHARSET
@@ -1225,7 +1230,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 4
         Text = '(none)'
@@ -1236,16 +1241,16 @@ object FSettings: TFSettings
   object pnlButtons: TPanel
     Left = 0
     Top = 281
-    Width = 562
+    Width = 582
     Height = 26
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 1
     DesignSize = (
-      562
+      582
       26)
     object cmdCancel: TButton
-      Left = 471
+      Left = 491
       Top = 0
       Width = 85
       Height = 21
@@ -1256,7 +1261,7 @@ object FSettings: TFSettings
       TabOrder = 1
     end
     object cmdOK: TButton
-      Left = 380
+      Left = 400
       Top = 0
       Width = 85
       Height = 21

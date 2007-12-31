@@ -136,14 +136,7 @@ begin
 end;
 
 procedure TfrmCutApplicationBase.btnBrowsePathClick(Sender: TObject);
-var
-  i: Integer;
 begin
-    for i := 0 to CutApplication.DefaultExeNames.Count-1 do begin
-      selectFileDlg.Filter := CutApplication.DefaultExeNames.Strings[i] + '|'
-                            + CutApplication.DefaultExeNames.Strings[i] + '|'
-                            + selectFileDlg.Filter;
-    end;
     selectFileDlg.Title := Format(CAResources.RsTitleSelectCutApplication, [ CutApplication.Name ]);
     selectFileDlg.InitialDir := ExtractFilePath(self.edtPath.Text);
     selectFileDlg.FileName := ExtractFileName(self.edtPath.Text);
@@ -155,33 +148,52 @@ begin
 end;
 
 procedure TfrmCutApplicationBase.Init;
+  procedure AppendFilterString(const description: string; const extensions: string); overload;
+  var
+    filter: string;
+  begin
+    filter := MakeFilterString(description, extensions);
+    if selectFileDlg.Filter <> '' then
+      selectFileDlg.Filter := selectFileDlg.Filter + '|' + filter
+    else
+      selectFileDlg.Filter := filter
+  end;
 begin
   self.edtPath.Text := CutApplication.Path;
   self.edtTempDir.Text := CutApplication.TempDir;
   self.cbRedirectOutput.Checked := CutApplication.RedirectOutput;
   self.cbShowAppWindow.Checked := CutApplication.ShowAppWindow;
   self.cbCleanUp.Checked := CutApplication.CleanUp;
+  selectFileDlg.Filter := '';
+  AppendFilterString(CutApplication.Name, CutApplication.DefaultExeNames.DelimitedText);
+  AppendFilterString(CAResources.RsFilterDescriptionExecutables, '*.exe');
+  AppendFilterString(CAResources.RsFilterDescriptionAll, '*.*');
 end;
 
 procedure TfrmCutApplicationBase.SetCutApplication(
   const Value: TCutApplicationBase);
 var
-  i: INteger;
   lbl: string;
+  {
+  i: INteger;
   exeNames: TStrings;
   cnt: integer;
+  }
 begin
   FCutApplication := Value;
+  lbl := Format(CAResources.RsCutAppPathTo, [ FCutApplication.Name ]);
+  {
   exeNames := FCutApplication.DefaultExeNames;
   cnt := exeNames.Count;
-  if cnt = 0 then
-    lbl := Format(CAResources.RsCutAppPathTo, [ self.Name ])
-  else
-    lbl := Format(CAResources.RsCutAppPathTo, [ exeNames[0] ]);
-
-  for i := 0 to cnt - 1 do begin
-    lbl := Format(CAResources.RsCutAppPathToMore, [ lbl, exeNames[i] ]);
+  if cnt > 0 then begin
+    lbl := lbl + ' (' + exeNames[0];
+    for i := 1 to cnt - 1 do begin
+      lbl := Format(CAResources.RsCutAppPathToMore, [ lbl, exeNames[i] ]);
+    end;
+    lbl := lbl + ')';
   end;
+  }
+  lblAppPath.Caption := lbl;
 end;
 
 procedure TfrmCutApplicationBase.btnBrowseTempDirClick(Sender: TObject);
@@ -216,6 +228,7 @@ constructor TCutApplicationBase.create;
 begin
   inherited;
   FDefaultExeNames := TSTringList.Create;
+  FDefaultExeNames.Delimiter := ';';
   FCommandLines := TStringList.Create;
   FjvcpAppProcess := TJvCreateProcess.Create(nil);
   FjvcpAppProcess.OnTerminate := self.jvcpAppProcessTerminate;

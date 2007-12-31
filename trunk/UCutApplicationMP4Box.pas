@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UCutApplicationBase, StdCtrls, IniFiles, Contnrs;
+  Dialogs, UCutApplicationBase, StdCtrls, IniFiles, Contnrs, JvExStdCtrls,
+  JvCheckBox;
 
 const
   MP4BOX_DEFAULT_EXENAME = 'MP4Box.exe';

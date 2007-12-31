@@ -30,13 +30,4 @@ inherited frmCutApplicationMP4Box: TfrmCutApplicationMP4Box
     Left = 356
     Enabled = False
   end
-  inherited cbRedirectOutput: TCheckBox
-    Width = 365
-  end
-  inherited cbShowAppWindow: TCheckBox
-    Width = 365
-  end
-  inherited cbCleanUp: TCheckBox
-    Width = 365
-  end
 end

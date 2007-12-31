@@ -4,7 +4,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UCutApplicationBase, StdCtrls, IniFiles, Contnrs;
+  Dialogs, UCutApplicationBase, StdCtrls, IniFiles, Contnrs, JvExStdCtrls,
+  JvCheckBox;
 
 const
   AVIDEMUX_DEFAULT_EXENAME = 'avidemux2.exe';
@@ -14,13 +15,13 @@ type
 
   TfrmCutApplicationAviDemux = class(TfrmCutApplicationBase)
     edtADCommandLineOptions: TEdit;
-    cbADRebuildIndex: TCheckBox;
-    cbADScanVBR: TCheckBox;
-    cbADSmartCopy: TCheckBox;
-    cbADNoGUI: TCheckBox;
-    cbADAutoSave: TCheckBox;
-    cbADNotClose: TCheckBox;
     lblCommandLineOptions: TLabel;
+    cbADRebuildIndex: TJvCheckBox;
+    cbADScanVBR: TJvCheckBox;
+    cbADSmartCopy: TJvCheckBox;
+    cbADNoGUI: TJvCheckBox;
+    cbADAutoSave: TJvCheckBox;
+    cbADNotClose: TJvCheckBox;
   private
     { Private declarations }
     procedure SetCutApplication(const Value: TCutApplicationAviDemux);

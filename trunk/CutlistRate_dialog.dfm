@@ -1,11 +1,11 @@
 object FCutlistRate: TFCutlistRate
-  Left = 492
-  Top = 267
+  Left = 371
+  Top = 160
   ActiveControl = RGRatingByAuthor
   BorderStyle = bsSingle
-  Caption = 'Cutlist Info'
+  Caption = 'Cutlist Rating'
   ClientHeight = 223
-  ClientWidth = 493
+  ClientWidth = 572
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -17,7 +17,7 @@ object FCutlistRate: TFCutlistRate
   Position = poMainFormCenter
   OnCloseQuery = FormCloseQuery
   DesignSize = (
-    493
+    572
     223)
   PixelsPerInch = 96
   TextHeight = 13
@@ -38,7 +38,7 @@ object FCutlistRate: TFCutlistRate
   object RGRatingByAuthor: TRadioGroup
     Left = 7
     Top = 33
-    Width = 481
+    Width = 560
     Height = 156
     Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = 'How do you rate this cutlist?'
@@ -61,7 +61,7 @@ object FCutlistRate: TFCutlistRate
     OnClick = RGRatingByAuthorClick
   end
   object cmdCancel: TButton
-    Left = 403
+    Left = 482
     Top = 196
     Width = 85
     Height = 21
@@ -72,7 +72,7 @@ object FCutlistRate: TFCutlistRate
     TabOrder = 2
   end
   object cmdOk: TButton
-    Left = 313
+    Left = 392
     Top = 196
     Width = 85
     Height = 21

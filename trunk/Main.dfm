@@ -577,16 +577,6 @@ object FMain: TFMain
     TabOrder = 25
     OnChange = tbVolumeChange
   end
-  object cbMute: TCheckBox
-    Left = 543
-    Top = 320
-    Width = 48
-    Height = 14
-    Anchors = [akRight, akBottom]
-    Caption = 'Mute'
-    TabOrder = 26
-    OnClick = cbMuteClick
-  end
   object cmdNext12: TButton
     Left = 671
     Top = 461
@@ -1522,6 +1512,23 @@ object FMain: TFMain
       OnClick = actBrowseWWWHelpExecute
       SectionName = 'Main'
     end
+  end
+  object cbMute: TJvCheckBox
+    Left = 543
+    Top = 320
+    Width = 45
+    Height = 17
+    Anchors = [akRight, akBottom]
+    Caption = 'Mute'
+    TabOrder = 26
+    OnClick = cbMuteClick
+    LinkedControls = <>
+    HotTrackFont.Charset = ANSI_CHARSET
+    HotTrackFont.Color = clWindowText
+    HotTrackFont.Height = -11
+    HotTrackFont.Name = 'Microsoft Sans Serif'
+    HotTrackFont.Pitch = fpVariable
+    HotTrackFont.Style = []
   end
   object odCutlist: TOpenDialog
     Filter = 'Cut Lists|*.cutlist|All FIles|*.*'

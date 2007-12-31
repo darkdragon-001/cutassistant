@@ -18,7 +18,8 @@ uses
   Movie, Unit_DSTrackBarEx, trackBarEx, Utils, CodecSettings,
 
   JvComponentBase, JvSimpleXml, JclSimpleXML, JvGIF, JvSpeedbar, JvExExtCtrls,
-  JvExtComponent, JvExControls, JvBaseDlg, JvProgressDialog, JvAppCommand;
+  JvExtComponent, JvExControls, JvBaseDlg, JvProgressDialog, JvAppCommand,
+  JvExStdCtrls, JvCheckBox;
 
 const
   //Registry Keys
@@ -55,7 +56,6 @@ type
     cmdStepForwards: TButton;
     tbVolume: TTrackBar;
     lblVolume: TLabel;
-    cbMute: TCheckBox;
     lblPos_nl: TLabel;
     cmdNext12: TButton;
     tbFinePos: TtrackBarEx;
@@ -246,6 +246,7 @@ type
     actCurrentFrames: TAction;
     miFramesAround_nl: TMenuItem;
     JvSpeedItem16: TJvSpeedItem;
+    cbMute: TJvCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);

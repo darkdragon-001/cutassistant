@@ -5,7 +5,7 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UCutApplicationBase, CodecSettings, StdCtrls, IniFiles, Contnrs, MMSystem,
-  ExtCtrls;
+  ExtCtrls, JvExStdCtrls, JvCheckBox;
 
 const
   VIRTUALDUB_DEFAULT_EXENAME = 'virtualdub.exe';
@@ -14,9 +14,9 @@ type
   TCutApplicationVirtualDub = class;
 
   TfrmCutApplicationVirtualDub = class(TfrmCutApplicationBase)
-    cbNotClose: TCheckBox;
-    cbUseSmartRendering: TCheckBox;
-    cbShowProgressWindow: TCheckBox;
+    cbNotClose: TJvCheckBox;
+    cbUseSmartRendering: TJvCheckBox;
+    cbShowProgressWindow: TJvCheckBox;
   private
     { Private declarations }
     procedure SetCutApplication(const Value: TCutApplicationVirtualDub);

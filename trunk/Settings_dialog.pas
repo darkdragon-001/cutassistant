@@ -9,7 +9,8 @@ uses
   Dialogs, FileCtrl, StdCtrls, ComCtrls, ExtCtrls, IniFiles, Utils, CodecSettings, MMSystem,
   Movie, UCutApplicationBase,
 
-  DirectShow9, DSPack, DSUtil, CheckLst, Mask, JvExMask, JvSpin;
+  DirectShow9, DSPack, DSUtil, CheckLst, Mask, JvExMask, JvSpin,
+  JvExStdCtrls, JvCheckBox;
 
 const
   //Settings Save...Mode
@@ -32,16 +33,12 @@ type
     tabSaveMovie: TTabSheet;
     lblCutMovieExtension: TLabel;
     rgSaveCutMovieMode: TRadioGroup;
-    cbMovieNameAlwaysConfirm: TCheckBox;
     edtCutMovieSaveDir_nl: TEdit;
     edtCutMovieExtension_nl: TEdit;
     cmdCutMovieSaveDir: TButton;
-    cbUseMovieNameSuggestion: TCheckBox;
     tabSaveCutlist: TTabSheet;
     rgSaveCutlistMode: TRadioGroup;
-    cbCutlistNameAlwaysConfirm: TCheckBox;
     edtCutListSaveDir_nl: TEdit;
-    cbCutlistAutoSaveBeforeCutting: TCheckBox;
     cmdCutlistSaveDir: TButton;
     tabURLs: TTabSheet;
     lblServerUrl: TLabel;
@@ -65,11 +62,7 @@ type
     tabInfoCheck: TTabSheet;
     grpInfoCheck: TGroupBox;
     lblCheckInterval: TLabel;
-    CBInfoCheckStable: TCheckBox;
     ECheckInfoInterval_nl: TEdit;
-    CBInfoCheckBeta: TCheckBox;
-    CBInfoCheckMessages: TCheckBox;
-    CBInfoCheckEnabled: TCheckBox;
     TabExternalCutApplication: TTabSheet;
     lblCutWithWMV: TLabel;
     lblCutWithAvi: TLabel;
@@ -117,7 +110,6 @@ type
     edtNetTimeout_nl: TEdit;
     lblNetTimeout: TLabel;
     lblNetTimeoutSecs: TLabel;
-    cbAutoMuteOnSeek: TCheckBox;
     cmbCodecWmv_nl: TComboBox;
     btnCodecConfigWmv: TButton;
     btnCodecAboutWmv: TButton;
@@ -141,7 +133,16 @@ type
     lblLanguage: TLabel;
     cmbLanguage_nl: TComboBox;
     lblLanguageChangeHint: TLabel;
-    cbExceptionLogging: TCheckBox;
+    cbAutoMuteOnSeek: TJvCheckBox;
+    cbExceptionLogging: TJvCheckBox;
+    cbMovieNameAlwaysConfirm: TJvCheckBox;
+    cbUseMovieNameSuggestion: TJvCheckBox;
+    cbCutlistNameAlwaysConfirm: TJvCheckBox;
+    cbCutlistAutoSaveBeforeCutting: TJvCheckBox;
+    CBInfoCheckStable: TJvCheckBox;
+    CBInfoCheckBeta: TJvCheckBox;
+    CBInfoCheckMessages: TJvCheckBox;
+    CBInfoCheckEnabled: TJvCheckBox;
     procedure cmdCutMovieSaveDirClick(Sender: TObject);
     procedure cmdCutlistSaveDirClick(Sender: TObject);
     procedure edtProxyPort_nlKeyPress(Sender: TObject; var Key: Char);

@@ -6,7 +6,7 @@ uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
   Dialogs, StdCtrls,
   IniFiles, Contnrs,
-  JvComponentBase, JvCreateProcess, Utils;
+  JvComponentBase, JvCreateProcess, Utils, JvExStdCtrls, JvCheckBox;
 
 type
   TCutApplicationFrameClass = class of TfrmCutApplicationBase;
@@ -20,10 +20,10 @@ type
     edtTempDir: TEdit;
     lblTempDir: TLabel;
     btnBrowseTempDir: TButton;
-    cbRedirectOutput: TCheckBox;
-    cbShowAppWindow: TCheckBox;
-    cbCleanUp: TCheckBox;
     selectFileDlg: TOpenDialog;
+    cbRedirectOutput: TJvCheckBox;
+    cbShowAppWindow: TJvCheckBox;
+    cbCleanUp: TJvCheckBox;
     procedure btnBrowsePathClick(Sender: TObject);
     procedure btnBrowseTempDirClick(Sender: TObject);
   private

@@ -153,7 +153,7 @@ RESOURCESTRING
                                    + 'ClassID: %s'#13#10
                                    + 'Error: %s';
   RsCheckingSourceFilterEnd        = 'Checking Filters. Done.';
-  RsCodecUseDefault                = '%s use default';
+  RsCodecUseDefault                = 'use default';
   RsCodecDummyName                 = 'none';
   RsCodecDummyDesc                 = '(Do not include Codec information)';
   RsErrorCloseCodec                = 'Could not close Compressor.';
@@ -291,7 +291,7 @@ RESOURCESTRING
 
   { UCutApplicationAsfBin }
   RsCutAppInfoAsfBin                  = '%sOptions: %s'#13#10;
-
+  RsFilterDescriptionExecutables      = 'Executable files';
 
 IMPLEMENTATION
 

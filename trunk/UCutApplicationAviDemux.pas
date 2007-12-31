@@ -9,6 +9,9 @@ uses
 
 const
   AVIDEMUX_DEFAULT_EXENAME = 'avidemux2.exe';
+  AVIDEMUX_DEFAULT_EXENAME_GTK = 'avidemux2_gtk.exe';
+  AVIDEMUX_DEFAULT_EXENAME_QT4 = 'avidemux2_qt4.exe';
+  AVIDEMUX_DEFAULT_EXENAME_CLI = 'avidemux2_cli.exe';
 
 type
   TCutApplicationAviDemux = class;
@@ -79,6 +82,9 @@ begin
   FrameClass := TfrmCutApplicationAviDemux;
   Name := 'AviDemux';
   DefaultExeNames.Add(AVIDEMUX_DEFAULT_EXENAME);
+  DefaultExeNames.Add(AVIDEMUX_DEFAULT_EXENAME_GTK);
+  DefaultExeNames.Add(AVIDEMUX_DEFAULT_EXENAME_QT4);
+  DefaultExeNames.Add(AVIDEMUX_DEFAULT_EXENAME_CLI);
   RedirectOutput := false;
   ShowAppWindow := true;
 end;

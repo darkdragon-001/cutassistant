@@ -68,7 +68,7 @@ object frmCutting: TfrmCutting
   object cmdCopyClipbrd: TButton
     Left = 6
     Top = 409
-    Width = 105
+    Width = 155
     Height = 25
     Anchors = [akLeft, akBottom]
     Caption = 'Copy to Clip&board'

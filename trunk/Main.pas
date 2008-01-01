@@ -247,6 +247,9 @@ type
     miFramesAround_nl: TMenuItem;
     JvSpeedItem16: TJvSpeedItem;
     cbMute: TJvCheckBox;
+    actSearchCutlistLocal: TAction;
+    JvSpeedItem17: TJvSpeedItem;
+    SearchCutlistsinDirectory_nl: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -366,6 +369,7 @@ type
     procedure actCurrentFramesExecute(Sender: TObject);
     procedure FilterGraphGraphComplete(sender: TObject; Result: HRESULT;
       Renderer: IBaseFilter);
+    procedure actSearchCutlistLocalExecute(Sender: TObject);
   private
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -422,7 +426,7 @@ type
     function DownloadInfo(settings: TSettings; const UseDate, ShowAll: boolean): boolean;
     procedure LoadCutList;
 //    function search_cutlist: boolean;
-    procedure SearchCutlistByFileSize(AutoOpen: boolean; LocalOnly: boolean);
+    procedure SearchCutlistByFileSize(AutoOpen: boolean; SearchLocal, SearchWeb: boolean);
     function SearchCutlistsByFileSize_Local: integer;
     function SearchCutlistsByFileSize_XML: integer;
 //    function DownloadCutlist(cutlist_name: string): boolean;
@@ -1154,6 +1158,7 @@ begin
 
     self.actOpenCutlist.Enabled := true;
     self.actSearchCutlistByFileSize.Enabled := true;
+    self.actSearchCutlistLocal.Enabled := true;
 
     self.lblDuration_nl.Caption := FormatMoviePosition(MovieInfo.FrameCount, MovieInfo.current_file_duration);
 
@@ -1776,12 +1781,11 @@ begin
       settings.CurrentMovieDir := ExtractFilePath(openDialog.FileName);
       OpenFile(opendialog.FileName);
       if MovieInfo.MovieLoaded and Settings.AutoSearchCutlists then
-        SearchCutlistByFileSize(true, ShiftDown);
+        SearchCutlistByFileSize(true, ShiftDown or Settings.SearchLocalCutlists, CtrlDown or Settings.SearchServerCutlists);
     end;
   finally
     FreeAndNil(OpenDialog);
   end;
-
 end;
 
 procedure TFMain.actOpenCutlistExecute(Sender: TObject);
@@ -2540,10 +2544,15 @@ end;
 
 procedure TFMain.actSearchCutlistByFileSizeExecute(Sender: TObject);
 begin
-  SearchCutlistByFileSize(false, ShiftDown);
+  SearchCutlistByFileSize(false, ShiftDown, true);
 end;
 
-procedure TFMain.SearchCutlistByFileSize(AutoOpen: boolean; LocalOnly: boolean);
+procedure TFMain.actSearchCutlistLocalExecute(Sender: TObject);
+begin
+  SearchCutlistByFileSize(false, true, ShiftDown);
+end;
+
+procedure TFMain.SearchCutlistByFileSize(AutoOpen: boolean; SearchLocal, SearchWeb: boolean);
 var
   numFound : integer;
   WebResult: boolean;
@@ -2553,10 +2562,9 @@ begin
   FCutlistSearchResults.lvLinklist.Clear;
   numFound := 0;
 
-  if not LocalOnly or not Settings.SearchLocalCutlists then
-    numFound := self.SearchCutlistsByFileSize_XML;
-
-  if LocalOnly and Settings.SearchLocalCutlists then
+  if SearchWeb then
+    numFound := numFound + self.SearchCutlistsByFileSize_XML;
+  if SearchLocal then
     numFound := numFound + self.SearchCutlistsByFileSize_Local;
 
   if numFound < 0 then
@@ -3451,6 +3459,7 @@ begin
 
   self.actOpenCutlist.Enabled := false;
   self.actSearchCutlistByFileSize.Enabled := false;
+  self.actSearchCutlistLocal.Enabled := false;
   self.EnableMovieControls(false);
   self.actStepForward.Enabled := false;
 

@@ -145,6 +145,7 @@ type
     CBInfoCheckEnabled: TJvCheckBox;
     cbAutoSearchCutlists: TJvCheckBox;
     cbSearchLocalCutlists: TJvCheckBox;
+    cbSearchServerCutlists: TJvCheckBox;
     procedure cmdCutMovieSaveDirClick(Sender: TObject);
     procedure cmdCutlistSaveDirClick(Sender: TObject);
     procedure edtProxyPort_nlKeyPress(Sender: TObject; var Key: Char);
@@ -223,6 +224,7 @@ type
     AutoMuteOnSeek: boolean;
     AutoSearchCutlists: boolean;
     SearchLocalCutlists: boolean;
+    SearchServerCutlists: boolean;
 
     //Warnings
     WarnOnWrongCutApp: boolean;
@@ -576,6 +578,7 @@ begin
 
   FSettings.cbAutoSearchCutlists.Checked           := self.AutoSearchCutlists;
   FSettings.cbSearchLocalCutlists.Checked          := self.SearchLocalCutlists;
+  FSettings.cbSearchServerCutlists.Checked         := self.SearchServerCutlists;
 
   Fsettings.edtURL_Cutlist_Home_nl.Text            := self.url_cutlists_home;
   Fsettings.edtURL_Info_File_nl.Text               := self.url_info_file;
@@ -693,6 +696,7 @@ begin
 
       self.AutoSearchCutlists := FSettings.cbAutoSearchCutlists.Checked;
       self.SearchLocalCutlists := FSettings.cbSearchLocalCutlists.Checked;
+      self.SearchServerCutlists := FSettings.cbSearchServerCutlists.Checked;
 
       newLanguage                      := GetLanguageByIndex(FSettings.cmbLanguage_nl.ItemIndex);
       if self.Language <> newLanguage then begin
@@ -888,6 +892,7 @@ begin
     self.AutoMuteOnSeek := ini.ReadBool(section, 'AutoMuteOnSeek', false);
     self.AutoSearchCutlists := ini.ReadBool(section, 'AutoSearchCutlists', false);
     self.SearchLocalCutlists := ini.ReadBool(section, 'SearchLocalCutlists', false);
+    self.SearchServerCutlists := ini.ReadBool(section, 'SearchServerCutlists', true);
 
     section := 'Warnings';
     self.WarnOnWrongCutApp := ini.ReadBool(section, 'WarnOnWrongCutApp', true);
@@ -1006,6 +1011,7 @@ begin
     ini.WriteBool(section, 'AutoMuteOnSeek', self.AutoMuteOnSeek);
     ini.WriteBool(section, 'AutoSearchCutlists', self.AutoSearchCutlists);
     ini.WriteBool(section, 'SearchLocalCutlists', self.SearchLocalCutlists);
+    ini.WriteBool(section, 'SearchServerCutlists', self.SearchServerCutlists);
 
     section := 'Warnings';
     ini.WriteBool(section, 'WarnOnWrongCutApp', WarnOnWrongCutApp);

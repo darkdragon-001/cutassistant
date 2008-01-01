@@ -488,9 +488,11 @@ object FSettings: TFSettings
       object cbSearchLocalCutlists: TJvCheckBox
         Left = 3
         Top = 108
-        Width = 301
+        Width = 325
         Height = 17
-        Caption = 'Include cutlist standard directory when searching for cutlists'
+        Caption = 
+          'Include cutlist standard directory when auto-searching for cutli' +
+          'sts'
         TabOrder = 5
         LinkedControls = <>
         HotTrackFont.Charset = DEFAULT_CHARSET
@@ -574,7 +576,7 @@ object FSettings: TFSettings
       end
       object grpProxy: TGroupBox
         Left = 3
-        Top = 111
+        Top = 139
         Width = 562
         Height = 92
         Anchors = [akLeft, akTop, akRight]
@@ -661,6 +663,23 @@ object FSettings: TFSettings
           Anchors = [akLeft, akTop, akRight]
           TabOrder = 2
         end
+      end
+      object cbSearchServerCutlists: TJvCheckBox
+        Left = 135
+        Top = 116
+        Width = 255
+        Height = 17
+        Caption = 'Use Cutlist server when auto-searching for cutlists'
+        Checked = True
+        State = cbChecked
+        TabOrder = 5
+        LinkedControls = <>
+        HotTrackFont.Charset = DEFAULT_CHARSET
+        HotTrackFont.Color = clWindowText
+        HotTrackFont.Height = -11
+        HotTrackFont.Name = 'Microsoft Sans Serif'
+        HotTrackFont.Pitch = fpVariable
+        HotTrackFont.Style = []
       end
     end
     object tabInfoCheck: TTabSheet
@@ -906,7 +925,7 @@ object FSettings: TFSettings
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 1
         OnChange = cmbCodecChange
       end
@@ -937,7 +956,7 @@ object FSettings: TFSettings
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 5
         OnChange = cmbCodecChange
       end
@@ -968,7 +987,7 @@ object FSettings: TFSettings
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 13
         OnChange = cmbCodecChange
       end
@@ -999,7 +1018,7 @@ object FSettings: TFSettings
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 17
         OnChange = cmbCodecChange
       end
@@ -1042,7 +1061,7 @@ object FSettings: TFSettings
         Height = 21
         Style = csDropDownList
         Anchors = [akLeft, akTop, akRight]
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 9
         OnChange = cmbCodecChange
       end
@@ -1161,7 +1180,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 3
         Text = '(none)'
@@ -1179,7 +1198,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 5
         Text = '(none)'
@@ -1197,7 +1216,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 6
         Text = '(none)'
@@ -1225,7 +1244,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 2
         Text = '(none)'
@@ -1260,7 +1279,7 @@ object FSettings: TFSettings
         Font.Name = 'Courier New'
         Font.Pitch = fpVariable
         Font.Style = []
-        ItemHeight = 0
+        ItemHeight = 14
         ParentFont = False
         TabOrder = 4
         Text = '(none)'

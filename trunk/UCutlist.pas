@@ -94,7 +94,7 @@ type
     function clear_after_confirm: boolean;
     procedure init;
     procedure Sort;
-    function convert: TCutlist;
+    function Convert: TCutlist;
     function LoadFromFile(Filename: String; noWarnings: boolean): boolean; overload;
     function LoadFromFile(Filename: String): boolean; overload;
     function EditInfo: boolean;
@@ -297,15 +297,27 @@ begin
   result := CanClear;
 end;
 
-function TCutlist.convert: TCutlist;
+function TCutlist.Convert: TCutlist;
 var
   newCutlist: TcutLIst;
   iCut: integer;
-  pos_Prev, dur, _pos_From : double;
+  pos_Prev: double;
   Frame_prev: integer;
-  newCut: TCut;
+  curCut, newCut: TCut;
+  procedure AddCut(_pos_from, _pos_to: double; _frame_from, _frame_to: integer);
+  begin
+    if _pos_from < _pos_to then begin
+      if self.FramesPresent and ( _frame_from <= _frame_to ) then begin
+        newCut := TCut.Create( _pos_from,   _pos_to,
+                               _frame_from, _frame_to);
+      end else begin
+        newCut := TCut.Create( _pos_from,   _pos_to);
+        newCutlist.FramesPresent := false;
+      end;
+      newCutlist.Add(newCut);
+    end;
+  end;
 begin
-  self.sort;
   newCutlist := TCutlist.Create(FSettings, FMovieInfo);
   newCutlist.FFrameRate := self.FFrameRate;
   newCutlist.FFrameDuration := self.FFrameDuration;
@@ -325,48 +337,33 @@ begin
   newCutlist.OtherErrorDescription := self.OtherErrorDescription;
   newCutlist.SuggestedMovieName := self.SuggestedMovieName;
   newCutlist.UserComment := self.UserComment;
-  newCutlist.IDOnServer := self.IDOnServer;
-  newCutlist.RatingOnServer := self.RatingOnServer;
+  newCutlist.FRatingOnServer := self.RatingOnServer;
   newCutlist.RatingSent := self.RatingSent;
-
-  if self.Count > 0 then begin
-    pos_prev := 0;
-    Frame_prev := 0;
-    for iCut := 0 to self.Count-1 do begin
-      dur := self[iCut].pos_from - pos_prev;
-      if dur > 0 then begin
-        newCut := TCut.Create;
-        newCut.pos_from := pos_prev;
-        newCut.pos_to := self[iCut].pos_from - FrameDuration;
-        if self.FramesPresent then begin
-          newCut.frame_from := frame_prev;
-          newCut.frame_to := self[iCut].frame_from - 1;
-        end;
-        newCutlist.Add(newCut);
-      end;
-      pos_prev := self[iCut].pos_to + FrameDuration;
-      frame_prev := self[iCut].frame_to + 1;
-    end;
-
-    //rest to End of File
-    _pos_From :=  self.FMovieInfo.current_file_duration + FrameDuration;
-    dur := _pos_From - pos_prev;
-    if dur > 0 then begin
-        newCut := TCut.Create(pos_prev, _pos_From - FrameDuration);
-        if self.FramesPresent then begin
-          newCut.frame_from := frame_prev;
-          newCut.frame_to := round(self.FMovieInfo.current_file_duration*FrameRate);   // this could be more accurate
-        end;
-        newCutlist.Add(newCut);
-    end;
-  end;
   if self.Mode = clmCutOut then
     newcutlist.FMode := clmTrim
   else
     newcutlist.FMode := clmCutOut;
-  newCutlist.FHasChanged := self.HasChanged;
-  newCutlist.FIDOnServer := self.FIDOnServer;
+
+  if self.Count > 0 then begin
+    self.Sort;
+    pos_prev := 0;
+    Frame_prev := 0;
+    for iCut := 0 to self.Count-1 do begin
+      curCut := self[iCut];
+      AddCut( pos_prev, curCut.pos_from - FrameDuration,
+              frame_prev, curCut.frame_from - 1);
+      pos_prev := curCut.pos_to + FrameDuration;
+      frame_prev := curCut.frame_to + 1;
+    end;
+
+    //rest to End of File
+    AddCut( pos_prev, self.FMovieInfo.current_file_duration,
+            frame_prev, round(self.FMovieInfo.current_file_duration * FrameRate)); // this could be more accurate
+  end;
+
   newCutlist.Sort;
+  newCutlist.FHasChanged := self.HasChanged;
+  newCutlist.IDOnServer := self.IDOnServer;
 
   result := newcutlist;
 end;

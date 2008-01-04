@@ -2632,7 +2632,7 @@ BEGIN
 
       IF result THEN BEGIN
         IF AnsiContainsText(Response, '<html>') THEN BEGIN
-          cutlist.RatingSent := true;
+          cutlist.RatingSent := FCutlistRate.SelectedRating;
           IF NOT batchmode THEN
             showmessage(CAResources.RsMsgSendRatingDone);
         END ELSE BEGIN

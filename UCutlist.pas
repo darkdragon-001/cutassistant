@@ -589,6 +589,7 @@ BEGIN
 
   IF NOT noWarnings AND NOT self.clear_after_confirm THEN
     exit;
+  self.Init;
 
   cutlistfile := TInifile.Create(filename);
   Temp_DecimalSeparator := DecimalSeparator;
@@ -1027,7 +1028,7 @@ END;
 
 FUNCTION TCutlist.UserShouldSendRating: boolean;
 BEGIN
-  result := (NOT self.RatingSent AND (self.IDOnServer > ''));
+  result := (NOT self.RatingSent) AND (self.IDOnServer > '');
 END;
 
 END.

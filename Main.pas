@@ -891,7 +891,7 @@ BEGIN
   result := false;
   IF fileexists(filename) THEN BEGIN
     IF MovieInfo.MovieLoaded THEN BEGIN
-      IF NOT self.CloseMovieAndCutlist THEN exit; ;
+      IF NOT self.CloseMovieAndCutlist THEN exit;
     END;
 
     TempCursor := screen.Cursor;
@@ -1775,9 +1775,11 @@ BEGIN
     OpenDialog.InitialDir := settings.CurrentMovieDir;
     IF OpenDialog.Execute THEN BEGIN
       settings.CurrentMovieDir := ExtractFilePath(openDialog.FileName);
-      OpenFile(opendialog.FileName);
-      IF MovieInfo.MovieLoaded AND Settings.AutoSearchCutlists THEN
-        SearchCutlistByFileSize(true, ShiftDown OR Settings.SearchLocalCutlists, CtrlDown OR Settings.SearchServerCutlists);
+      IF OpenFile(opendialog.FileName) THEN BEGIN
+        IF MovieInfo.MovieLoaded AND Settings.AutoSearchCutlists THEN BEGIN
+          SearchCutlistByFileSize(true, ShiftDown OR Settings.SearchLocalCutlists, CtrlDown OR Settings.SearchServerCutlists);
+        END;
+      END;
     END;
   FINALLY
     FreeAndNil(OpenDialog);

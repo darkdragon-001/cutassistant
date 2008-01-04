@@ -64,7 +64,7 @@ TYPE
 
     FramesPresent: boolean;
     SavedToFilename: STRING;
-    RatingSent: boolean;
+    RatingSent: integer;
     OriginalFileSize: longint;
 
     CONSTRUCTOR create(Settings: TSettings; MovieInfo: TMovieInfo);
@@ -553,7 +553,7 @@ BEGIN
   self.UserComment := '';
   self.IDOnServer := '';
   self.FRatingOnServer := -1;
-  self.RatingSent := false;
+  self.RatingSent := -1;
   self.OriginalFileSize := -1;
   self.FHasChanged := false;
 
@@ -664,6 +664,11 @@ BEGIN
     ELSE BEGIN
       FrameDuration := FMovieInfo.frame_duration;
     END;
+
+    section := 'Server';
+    self.FIDOnServer := cutlistfile.ReadString(section, 'ID', '');
+    self.FRatingOnServer := cutlistfile.ReadFloat(section, 'Rating', -1);
+    self.RatingSent := cutlistfile.ReadInteger(section, 'RatingSent', -1);
 
     //info
     section := 'Info';
@@ -859,12 +864,14 @@ BEGIN
     IF self.HasChanged THEN BEGIN
       IF self.Author = '' THEN BEGIN
         self.Author := Fsettings.UserName;
+        self.IDOnServer := '';
         RefreshGUI;
       END ELSE BEGIN
         IF self.Author <> Fsettings.UserName THEN BEGIN
           message_string := Format(CAResources.RsMsgCutlistReplaceAuthor, [self.Author]);
           IF (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONINFORMATION) = IDYES) THEN BEGIN
             self.Author := Fsettings.UserName;
+            self.IDOnServer := '';
             RefreshGUI;
           END;
         END;
@@ -923,6 +930,15 @@ BEGIN
         cutlistfile.WriteString(section, 'CutCommandLine', cutCommand);
       END;
 
+      section := 'Server';
+      cutlistfile.EraseSection(section);
+      IF self.IDOnServer <> '' THEN BEGIN
+        cutlistfile.WriteString(section, 'ID', self.IDOnServer);
+        cutlistfile.WriteFloat(section, 'Rating', self.RatingOnServer);
+      END;
+      IF self.RatingSent <> -1 THEN
+        cutlistfile.WriteInteger(section, 'RatingSent', self.RatingSent);
+
       section := 'Info';
       cutlistfile.WriteString(section, 'Author', self.Author);
       IF self.RatingByAuthorPresent THEN
@@ -958,7 +974,6 @@ BEGIN
       result := true;
 
       IF self.FHasChanged THEN BEGIN
-        self.FIDOnServer := '';
         self.FHasChanged := false;
       END;
       self.SavedToFilename := filename;
@@ -1028,7 +1043,7 @@ END;
 
 FUNCTION TCutlist.UserShouldSendRating: boolean;
 BEGIN
-  result := (NOT self.RatingSent) AND (self.IDOnServer > '');
+  result := (self.RatingSent = -1) AND (self.IDOnServer > '');
 END;
 
 END.

@@ -1,76 +1,76 @@
-unit ManageFilters;
+UNIT ManageFilters;
 
-interface
+INTERFACE
 
-uses
+USES
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, DSPack, DSUtil, DirectShow9, Utils;
 
-type
-  TFManageFilters = class(TForm)
+TYPE
+  TFManageFilters = CLASS(TForm)
     cmdRemove: TButton;
     cmdClose: TButton;
     lvFilters: TListBox;
     cmdCopy: TButton;
     lblClickOnFilter: TLabel;
-    procedure cmdCloseClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
-    procedure lvFiltersClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
-    procedure cmdRemoveClick(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-    procedure cmdCopyClick(Sender: TObject);
-    procedure lvFiltersDblClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-  private
+    PROCEDURE cmdCloseClick(Sender: TObject);
+    PROCEDURE FormShow(Sender: TObject);
+    PROCEDURE lvFiltersClick(Sender: TObject);
+    PROCEDURE FormCreate(Sender: TObject);
+    PROCEDURE cmdRemoveClick(Sender: TObject);
+    PROCEDURE FormDestroy(Sender: TObject);
+    PROCEDURE cmdCopyClick(Sender: TObject);
+    PROCEDURE lvFiltersDblClick(Sender: TObject);
+    PROCEDURE FormClose(Sender: TObject; VAR Action: TCloseAction);
+  PRIVATE
     FilterList: TFIlterList;
     { Private declarations }
-    procedure refresh_FilterList(Graph: TFilterGraph);
-  public
+    PROCEDURE refresh_FilterList(Graph: TFilterGraph);
+  PUBLIC
     { Public declarations }
     SourceGraph: TFilterGraph;
-  end;
+  END;
 
-var
-  FManageFilters: TFManageFilters;
+VAR
+  FManageFilters                   : TFManageFilters;
 
-implementation
+IMPLEMENTATION
 
 {$R *.dfm}
 
-uses Main, ComObj;
+USES Main, ComObj;
 
-procedure TFManageFilters.cmdCloseClick(Sender: TObject);
-begin
+PROCEDURE TFManageFilters.cmdCloseClick(Sender: TObject);
+BEGIN
   self.Hide;
-end;
+END;
 
-procedure TFManageFilters.FormShow(Sender: TObject);
-begin
+PROCEDURE TFManageFilters.FormShow(Sender: TObject);
+BEGIN
   // Show taskbar button for this form ...
   // SetWindowLong(Handle, GWL_ExStyle, WS_Ex_AppWindow);
   Refresh_Filterlist(self.SourceGraph);
-end;
+END;
 
-procedure TFManageFilters.refresh_FilterList(Graph: TFilterGraph);
-var
+PROCEDURE TFManageFilters.refresh_FilterList(Graph: TFilterGraph);
+VAR
   //Filters: IEnumFilters;
   //BaseFilter: IBaseFilter;
   //cFetched: ULONG;
   //FilterInfo: _FilterInfo;
 
-  iFilter: Integer;
-  guid: TGUID;
-begin
-  if not graph.Active then exit;
+  iFilter                          : Integer;
+  guid                             : TGUID;
+BEGIN
+  IF NOT graph.Active THEN exit;
   graph.Stop;
-  FilterList.Assign(Graph as IFIlterGRaph);
+  FilterList.Assign(Graph AS IFIlterGRaph);
 
   lvFilters.Clear;
-  For iFilter := 0 to FilterList.Count-1 do begin
+  FOR iFilter := 0 TO FilterList.Count - 1 DO BEGIN
     FilterLIst.Items[iFilter].GetClassID(guid);
-    lvFilters.Items.Add(guidtostring(guid) + '   ' + string(FilterList.FilterInfo[iFIlter].achName));
-  end;
+    lvFilters.Items.Add(guidtostring(guid) + '   ' + STRING(FilterList.FilterInfo[iFIlter].achName));
+  END;
 
 
   {try
@@ -91,78 +91,78 @@ begin
     raise;
   end;}
 
-end;
+END;
 
-procedure TFManageFilters.lvFiltersClick(Sender: TObject);
-var
-  iItem: Integer;
-  sel: boolean;
-begin
+PROCEDURE TFManageFilters.lvFiltersClick(Sender: TObject);
+VAR
+  iItem                            : Integer;
+  sel                              : boolean;
+BEGIN
   sel := false;
-  for iItem := 0 to lvFilters.Items.count -1 do begin
-    if lvFilters.Selected[iItem] then sel := true;
-  end;
+  FOR iItem := 0 TO lvFilters.Items.count - 1 DO BEGIN
+    IF lvFilters.Selected[iItem] THEN sel := true;
+  END;
   self.cmdRemove.Enabled := sel;
-end;
+END;
 
 
-procedure TFManageFilters.cmdRemoveClick(Sender: TObject);
-var
-  iItem, iFIlter: Integer;
-begin
+PROCEDURE TFManageFilters.cmdRemoveClick(Sender: TObject);
+VAR
+  iItem, iFIlter                   : Integer;
+BEGIN
   exit; //*********************** funktioniert noch nicht richtig
 
   lvFiltersClick(self);
-  if cmdRemove.Enabled = false then exit;
+  IF cmdRemove.Enabled = false THEN exit;
 
-  for iItem := 0 to lvFilters.Items.count -1 do begin
-    if lvFilters.Selected[iItem] then break;
-  end;
+  FOR iItem := 0 TO lvFilters.Items.count - 1 DO BEGIN
+    IF lvFilters.Selected[iItem] THEN break;
+  END;
 
-  Case (SourceGraph as IFIlterGRaph).RemoveFilter(filterlist.Items[iItem]) of
+  CASE (SourceGraph AS IFIlterGRaph).RemoveFilter(filterlist.Items[iItem]) OF
     S_OK: showmessage('Removed.');
-    else showmessage('Failed.');
-  end;
+  ELSE showmessage('Failed.');
+  END;
   FilterList.Update;
 
   lvFilters.Clear;
-  For iFilter := 0 to FilterList.Count-1 do begin
+  FOR iFilter := 0 TO FilterList.Count - 1 DO BEGIN
     lvFilters.Items.Add(FilterList.FilterInfo[iFIlter].achName);
-  end;
+  END;
 
-end;
+END;
 
-procedure TFManageFilters.FormCreate(Sender: TObject);
-begin
+PROCEDURE TFManageFilters.FormCreate(Sender: TObject);
+BEGIN
   FIlterLIst := TFilterLIst.Create;
-end;
+END;
 
-procedure TFManageFilters.FormDestroy(Sender: TObject);
-begin
+PROCEDURE TFManageFilters.FormDestroy(Sender: TObject);
+BEGIN
   FreeAndNIL(FilterList);
-end;
+END;
 
-procedure TFManageFilters.cmdCopyClick(Sender: TObject);
-begin
+PROCEDURE TFManageFilters.cmdCopyClick(Sender: TObject);
+BEGIN
   ListBoxToClipboard(self.lvFilters, 255, true);
-end;
+END;
 
-procedure TFManageFilters.lvFiltersDblClick(Sender: TObject);
-var
-  Index: INteger;
-begin
+PROCEDURE TFManageFilters.lvFiltersDblClick(Sender: TObject);
+VAR
+  Index                            : INteger;
+BEGIN
   //Index := self.lvFilters.ItemAtPos(Mouse.CursorPos, true);
   Index := self.lvFilters.ItemIndex;
-  if Index >= 0 then begin
+  IF Index >= 0 THEN BEGIN
     ShowFilterPropertyPage(self.Handle, FilterList.Items[Index]);
-  end;
-end;
+  END;
+END;
 
-procedure TFManageFilters.FormClose(Sender: TObject;
-  var Action: TCloseAction);
-begin
+PROCEDURE TFManageFilters.FormClose(Sender: TObject;
+  VAR Action: TCloseAction);
+BEGIN
   Action := caHide;
   ModalResult := mrOk;
-end;
+END;
 
-end.
+END.

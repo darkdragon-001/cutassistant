@@ -13,8 +13,8 @@ TYPE
     reMessages: TRichEdit;
     timScroll: TTimer;
     PROCEDURE timScrollTimer(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
+    PROCEDURE FormCreate(Sender: TObject);
+    PROCEDURE FormDestroy(Sender: TObject);
   PRIVATE
     { Private-Deklarationen }
   PROTECTED
@@ -29,11 +29,11 @@ TYPE
   END;
 
 VAR
-  FLogging                    : TFLogging;
+  FLogging                         : TFLogging;
 
 IMPLEMENTATION
 
-uses Main, Utils, Math;
+USES Main, Utils, Math;
 
 {$R *.dfm}
 
@@ -60,16 +60,16 @@ END;
 
 PROCEDURE TFLogging.AppendToFile(CONST ADate: TDate);
 VAR
-  fName                       : STRING;
-begin
+  fName                            : STRING;
+BEGIN
   fName := ExpandUNCFileName(Application.ExeName);
   //Delete(fName, Length(fName) - Length(ExtractFileExt(fName)) + 1, MaxInt);
   AppendToFile(ChangeFileExt(fName, ''), ADate);
-end;
+END;
 
 PROCEDURE TFLogging.AppendToFile(CONST AFileBasename: STRING; CONST ADate: TDate);
 VAR
-  fName                       : STRING;
+  fName                            : STRING;
 BEGIN
   fName := AFileBasename + FormatDateTime('-yyyy-mm-dd', ADate) + '.log';
   AppendToFile(fName);
@@ -77,7 +77,7 @@ END;
 
 PROCEDURE TFLogging.AppendToFile(CONST AFilename: STRING);
 VAR
-  stream                      : TFileStream;
+  stream                           : TFileStream;
 BEGIN
   stream := TFileStream.Create(AFilename, fmCreate OR fmOpenReadWrite, fmShareDenyWrite);
   TRY
@@ -93,24 +93,22 @@ BEGIN
   timScroll.Enabled := true;
 END;
 
-procedure TFLogging.FormCreate(Sender: TObject);
-begin
-  if ValidRect(Settings.LoggingFormBounds) then
+PROCEDURE TFLogging.FormCreate(Sender: TObject);
+BEGIN
+  IF ValidRect(Settings.LoggingFormBounds) THEN
     self.BoundsRect := Settings.LoggingFormBounds
-  else
-  begin
-    self.Top := Screen.WorkAreaTop + Max(0, (Screen.WorkAreaHeight - self.Height) div 2);
-    self.Left := Screen.WorkAreaLeft + Max(0, (Screen.WorkAreaWidth - self.Width) div 2);
-  end;
+  ELSE BEGIN
+    self.Top := Screen.WorkAreaTop + Max(0, (Screen.WorkAreaHeight - self.Height) DIV 2);
+    self.Left := Screen.WorkAreaLeft + Max(0, (Screen.WorkAreaWidth - self.Width) DIV 2);
+  END;
 
   self.Visible := Settings.LoggingFormVisible;
-end;
+END;
 
-procedure TFLogging.FormDestroy(Sender: TObject);
-begin
+PROCEDURE TFLogging.FormDestroy(Sender: TObject);
+BEGIN
   Settings.LoggingFormBounds := self.BoundsRect;
   Settings.LoggingFormVisible := self.Visible;
-end;
+END;
 
 END.
-

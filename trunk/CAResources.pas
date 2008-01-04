@@ -3,7 +3,7 @@ UNIT CAResources;
 INTERFACE
 
 RESOURCESTRING
-
+{(*}
   { Main }
   RsNotAvailable                   = 'N/A';
   RsCaptionCutApplication          = 'Cut app.: %s';
@@ -292,8 +292,7 @@ RESOURCESTRING
   { UCutApplicationAsfBin }
   RsCutAppInfoAsfBin                  = '%sOptions: %s'#13#10;
   RsFilterDescriptionExecutables      = 'Executable files';
-
+{*)}
 IMPLEMENTATION
 
 END.
-

@@ -1,33 +1,33 @@
-unit UMemoDialog;
+UNIT UMemoDialog;
 
-interface
+INTERFACE
 
-uses
+USES
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls;
 
-type
-  TfrmMemoDialog = class(TForm)
+TYPE
+  TfrmMemoDialog = CLASS(TForm)
     cmdClose: TButton;
     memInfo: TMemo;
-    procedure cmdCloseClick(Sender: TObject);
-  private
+    PROCEDURE cmdCloseClick(Sender: TObject);
+  PRIVATE
     { Private declarations }
-  public
+  PUBLIC
     { Public declarations }
-  end;
+  END;
 
-var
-  frmMemoDialog: TfrmMemoDialog;
+VAR
+  frmMemoDialog                    : TfrmMemoDialog;
 
-implementation
+IMPLEMENTATION
 
 {$R *.dfm}
 
 
-procedure TfrmMemoDialog.cmdCloseClick(Sender: TObject);
-begin
+PROCEDURE TfrmMemoDialog.cmdCloseClick(Sender: TObject);
+BEGIN
   self.Hide;
-end;
+END;
 
-end.
+END.

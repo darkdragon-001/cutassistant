@@ -1,76 +1,76 @@
-unit ManageFilters;
+UNIT ManageFilters;
 
-interface
+INTERFACE
 
-uses
+USES
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, DSPack, DSUtil, DirectShow9, Utils;
 
-type
-  TFManageFilters = class(TForm)
+TYPE
+  TFManageFilters = CLASS(TForm)
     BRemove: TButton;
     BClose: TButton;
     LFilters: TListBox;
     BCopy: TButton;
     Label1: TLabel;
-    procedure BCloseClick(Sender: TObject);
-    procedure FormShow(Sender: TObject);
-    procedure LFiltersClick(Sender: TObject);
-    procedure FormCreate(Sender: TObject);
-    procedure BRemoveClick(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-    procedure BCopyClick(Sender: TObject);
-    procedure LFiltersDblClick(Sender: TObject);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-  private
+    PROCEDURE BCloseClick(Sender: TObject);
+    PROCEDURE FormShow(Sender: TObject);
+    PROCEDURE LFiltersClick(Sender: TObject);
+    PROCEDURE FormCreate(Sender: TObject);
+    PROCEDURE BRemoveClick(Sender: TObject);
+    PROCEDURE FormDestroy(Sender: TObject);
+    PROCEDURE BCopyClick(Sender: TObject);
+    PROCEDURE LFiltersDblClick(Sender: TObject);
+    PROCEDURE FormClose(Sender: TObject; VAR Action: TCloseAction);
+  PRIVATE
     FilterList: TFIlterList;
     { Private declarations }
-    procedure refresh_FilterList(Graph: TFilterGraph);
-  public
+    PROCEDURE refresh_FilterList(Graph: TFilterGraph);
+  PUBLIC
     { Public declarations }
     SourceGraph: TFilterGraph;
-  end;
+  END;
 
-var
-  FManageFilters: TFManageFilters;
+VAR
+  FManageFilters                   : TFManageFilters;
 
-implementation
+IMPLEMENTATION
 
 {$R *.dfm}
 
-uses Main, ComObj;
+USES Main, ComObj;
 
-procedure TFManageFilters.BCloseClick(Sender: TObject);
-begin
+PROCEDURE TFManageFilters.BCloseClick(Sender: TObject);
+BEGIN
   self.Hide;
-end;
+END;
 
-procedure TFManageFilters.FormShow(Sender: TObject);
-begin
+PROCEDURE TFManageFilters.FormShow(Sender: TObject);
+BEGIN
   // Show taskbar button for this form ...
   // SetWindowLong(Handle, GWL_ExStyle, WS_Ex_AppWindow);
   Refresh_Filterlist(self.SourceGraph);
-end;
+END;
 
-procedure TFManageFilters.refresh_FilterList(Graph: TFilterGraph);
-var
+PROCEDURE TFManageFilters.refresh_FilterList(Graph: TFilterGraph);
+VAR
   //Filters: IEnumFilters;
   //BaseFilter: IBaseFilter;
   //cFetched: ULONG;
   //FilterInfo: _FilterInfo;
 
-  iFilter: Integer;
-  guid: TGUID;
-begin
-  if not graph.Active then exit;
+  iFilter                          : Integer;
+  guid                             : TGUID;
+BEGIN
+  IF NOT graph.Active THEN exit;
   graph.Stop;
-  FilterList.Assign(Graph as IFIlterGRaph);
+  FilterList.Assign(Graph AS IFIlterGRaph);
 
   LFilters.Clear;
-  For iFilter := 0 to FilterList.Count-1 do begin
+  FOR iFilter := 0 TO FilterList.Count - 1 DO BEGIN
     FilterLIst.Items[iFilter].GetClassID(guid);
-    LFilters.Items.Add(guidtostring(guid) + '   ' + string(FilterList.FilterInfo[iFIlter].achName));
-  end;
+    LFilters.Items.Add(guidtostring(guid) + '   ' + STRING(FilterList.FilterInfo[iFIlter].achName));
+  END;
 
 
   {try
@@ -91,78 +91,78 @@ begin
     raise;
   end;}
 
-end;
+END;
 
-procedure TFManageFilters.LFiltersClick(Sender: TObject);
-var
-  iItem: Integer;
-  sel: boolean;
-begin
+PROCEDURE TFManageFilters.LFiltersClick(Sender: TObject);
+VAR
+  iItem                            : Integer;
+  sel                              : boolean;
+BEGIN
   sel := false;
-  for iItem := 0 to LFilters.Items.count -1 do begin
-    if lFilters.Selected[iItem] then sel := true;
-  end;
+  FOR iItem := 0 TO LFilters.Items.count - 1 DO BEGIN
+    IF lFilters.Selected[iItem] THEN sel := true;
+  END;
   self.BRemove.Enabled := sel;
-end;
+END;
 
 
-procedure TFManageFilters.BRemoveClick(Sender: TObject);
-var
-  iItem, iFIlter: Integer;
-begin
+PROCEDURE TFManageFilters.BRemoveClick(Sender: TObject);
+VAR
+  iItem, iFIlter                   : Integer;
+BEGIN
   exit; //*********************** funktioniert noch nicht richtig
 
   LFiltersClick(self);
-  if BRemove.Enabled = false then exit;
+  IF BRemove.Enabled = false THEN exit;
 
-  for iItem := 0 to LFilters.Items.count -1 do begin
-    if lFilters.Selected[iItem] then break;
-  end;
+  FOR iItem := 0 TO LFilters.Items.count - 1 DO BEGIN
+    IF lFilters.Selected[iItem] THEN break;
+  END;
 
-  Case (SourceGraph as IFIlterGRaph).RemoveFilter(filterlist.Items[iItem]) of
+  CASE (SourceGraph AS IFIlterGRaph).RemoveFilter(filterlist.Items[iItem]) OF
     S_OK: showmessage('Removed.');
-    else showmessage('Failed.');
-  end;
+  ELSE showmessage('Failed.');
+  END;
   FilterList.Update;
 
   LFilters.Clear;
-  For iFilter := 0 to FilterList.Count-1 do begin
+  FOR iFilter := 0 TO FilterList.Count - 1 DO BEGIN
     LFilters.Items.Add(FilterList.FilterInfo[iFIlter].achName);
-  end;
+  END;
 
-end;
+END;
 
-procedure TFManageFilters.FormCreate(Sender: TObject);
-begin
+PROCEDURE TFManageFilters.FormCreate(Sender: TObject);
+BEGIN
   FIlterLIst := TFilterLIst.Create;
-end;
+END;
 
-procedure TFManageFilters.FormDestroy(Sender: TObject);
-begin
+PROCEDURE TFManageFilters.FormDestroy(Sender: TObject);
+BEGIN
   FreeAndNIL(FilterList);
-end;
+END;
 
-procedure TFManageFilters.BCopyClick(Sender: TObject);
-begin
+PROCEDURE TFManageFilters.BCopyClick(Sender: TObject);
+BEGIN
   ListBoxToClipboard(self.LFilters, 255, true);
-end;
+END;
 
-procedure TFManageFilters.LFiltersDblClick(Sender: TObject);
-var
-  Index: INteger;
-begin
+PROCEDURE TFManageFilters.LFiltersDblClick(Sender: TObject);
+VAR
+  Index                            : INteger;
+BEGIN
   //Index := self.LFilters.ItemAtPos(Mouse.CursorPos, true);
   Index := self.LFilters.ItemIndex;
-  if Index >= 0 then begin
+  IF Index >= 0 THEN BEGIN
     ShowFilterPropertyPage(self.Handle, FilterList.Items[Index]);
-  end;
-end;
+  END;
+END;
 
-procedure TFManageFilters.FormClose(Sender: TObject;
-  var Action: TCloseAction);
-begin
+PROCEDURE TFManageFilters.FormClose(Sender: TObject;
+  VAR Action: TCloseAction);
+BEGIN
   Action := caHide;
   ModalResult := mrOk;
-end;
+END;
 
-end.
+END.

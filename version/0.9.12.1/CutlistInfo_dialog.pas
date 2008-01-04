@@ -1,19 +1,19 @@
-unit CutlistInfo_dialog;
+UNIT CutlistInfo_dialog;
 
-interface
+INTERFACE
 
-uses
-  Windows, Messages, SysUtils, StrUtils, Variants, Classes,  Graphics,
+USES
+  Windows, Messages, SysUtils, StrUtils, Variants, Classes, Graphics,
   Controls, Forms, Dialogs, StdCtrls, ExtCtrls,
 
   UCutlist, Utils;
 
-const
-  movie_file_extensions: array [0..7] of string
-    = ('.avi', '.mpg', '.mpeg', '.wmv', '.asf', '.mp2', '.mp4', '.mg4');
+CONST
+  movie_file_extensions            : ARRAY[0..7] OF STRING
+                                   = ('.avi', '.mpg', '.mpeg', '.wmv', '.asf', '.mp2', '.mp4', '.mg4');
 
-type
-  TFCutlistInfo = class(TForm)
+TYPE
+  TFCutlistInfo = CLASS(TForm)
     Label1: TLabel;
     RGRatingByAuthor: TRadioGroup;
     GroupBox1: TGroupBox;
@@ -36,65 +36,65 @@ type
     EMovieName: TEdit;
     BMovieNameCopy: TButton;
     lblFrameRate: TLabel;
-    procedure FormShow(Sender: TObject);
-    procedure CBEPGErrorClick(Sender: TObject);
-    procedure CBOtherErrorClick(Sender: TObject);
-    procedure EnableOK(Sender: TObject);
-    procedure BMovieNameCopyClick(Sender: TObject);
-  private
+    PROCEDURE FormShow(Sender: TObject);
+    PROCEDURE CBEPGErrorClick(Sender: TObject);
+    PROCEDURE CBOtherErrorClick(Sender: TObject);
+    PROCEDURE EnableOK(Sender: TObject);
+    PROCEDURE BMovieNameCopyClick(Sender: TObject);
+  PRIVATE
     { Private declarations }
-  public
+  PUBLIC
     { Public declarations }
-    original_movie_filename: string;
-  end;
+    original_movie_filename: STRING;
+  END;
 
 
-var
-  FCutlistInfo: TFCutlistInfo;
+VAR
+  FCutlistInfo                     : TFCutlistInfo;
 
-implementation
+IMPLEMENTATION
 
 
 
 {$R *.dfm}
 
-procedure TFCutlistInfo.FormShow(Sender: TObject);
-begin
+PROCEDURE TFCutlistInfo.FormShow(Sender: TObject);
+BEGIN
   CBEPGErrorClick(sender);
   CBOtherErrorClick(sender);
   self.Button2.Enabled := false;
-end;
+END;
 
-procedure TFCutlistInfo.CBEPGErrorClick(Sender: TObject);
-begin
+PROCEDURE TFCutlistInfo.CBEPGErrorClick(Sender: TObject);
+BEGIN
   self.EActualContent.Enabled := self.CBEPGError.Checked;
   self.EnableOK(sender);
-end;
+END;
 
-procedure TFCutlistInfo.CBOtherErrorClick(Sender: TObject);
-begin
+PROCEDURE TFCutlistInfo.CBOtherErrorClick(Sender: TObject);
+BEGIN
   self.EOtherErrorDescription.Enabled := self.CBOtherError.Checked;
   self.EnableOK(sender);
-end;   
+END;
 
-procedure TFCutlistInfo.EnableOK(Sender: TObject);
-begin
-  if self.RGRatingByAuthor.ItemIndex < 0 then exit;
+PROCEDURE TFCutlistInfo.EnableOK(Sender: TObject);
+BEGIN
+  IF self.RGRatingByAuthor.ItemIndex < 0 THEN exit;
   self.Button2.Enabled := true;
-end;
+END;
 
-procedure TFCutlistInfo.BMovieNameCopyClick(Sender: TObject);
-var
-  s, e: string;
-begin
+PROCEDURE TFCutlistInfo.BMovieNameCopyClick(Sender: TObject);
+VAR
+  s, e                             : STRING;
+BEGIN
   s := extractfilename(original_movie_filename);
   e := extractFileExt(s);
-  while AnsiMatchText(e, movie_file_extensions) do begin
+  WHILE AnsiMatchText(e, movie_file_extensions) DO BEGIN
     s := changefileExt(s, '');
     e := extractFileExt(s);
-  end;
+  END;
   s := AnsiReplaceText(s, '_', ' ');
   self.EMovieName.Text := s;
-end;
+END;
 
-end.
+END.

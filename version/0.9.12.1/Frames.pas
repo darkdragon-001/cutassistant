@@ -1,165 +1,166 @@
-unit Frames;
+UNIT Frames;
 
-interface
+INTERFACE
 
-uses
+USES
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms,
   Dialogs, ExtCtrls, StdCtrls, Controls, contnrs, main;
 
-type
+TYPE
 
-  TCutFrame = class(TComponent)
-  private
+  TCutFrame = CLASS(TComponent)
+  PRIVATE
     BStart, BStop: TButton;
     LTime: TLabel;
     LIndex: TLabel;
     FImage: TImage;
-    FPosition : double;
+    FPosition: double;
     FIndex: Integer;
     FKeyFrame: boolean;
     FBorderVisible: boolean;
     FBorder: TShape;
     FUpdateLocked: integer;
-    procedure setPosition(APosition: Double);
-    procedure setKeyFrame(Value: boolean);
-    procedure setBorderVisible(Value: boolean);
-  public
-    property IsKeyFrame: boolean read FKeyFrame write SetKeyFrame;
-    property BorderVisible: boolean read FBorderVisible write SetBorderVisible;
-    property index: integer read FIndex;
-    property position: double read FPosition write setPosition;
-    constructor Create(AParent: TWinControl); reintroduce;
-    destructor Destroy; override;
-    procedure DisableUpdate;
-    procedure EnableUpdate;
-    procedure UpdateFrame;
-    procedure init(image_height, image_width: INteger);
-    procedure Adjust_position(pos_top, pos_left: Integer);
-    procedure BStartClick(Sender: TObject);
-    procedure BStopClick(Sender: TObject);
-    procedure ImageClick(Sender: TObject);
-    procedure ImageDoubleClick(Sender: TObject);
-    property Image:TImage read FImage;
-  end;
+    PROCEDURE setPosition(APosition: Double);
+    PROCEDURE setKeyFrame(Value: boolean);
+    PROCEDURE setBorderVisible(Value: boolean);
+  PUBLIC
+    PROPERTY IsKeyFrame: boolean READ FKeyFrame WRITE SetKeyFrame;
+    PROPERTY BorderVisible: boolean READ FBorderVisible WRITE SetBorderVisible;
+    PROPERTY index: integer READ FIndex;
+    PROPERTY position: double READ FPosition WRITE setPosition;
+    CONSTRUCTOR Create(AParent: TWinControl); REINTRODUCE;
+    DESTRUCTOR Destroy; OVERRIDE;
+    PROCEDURE DisableUpdate;
+    PROCEDURE EnableUpdate;
+    PROCEDURE UpdateFrame;
+    PROCEDURE init(image_height, image_width: INteger);
+    PROCEDURE Adjust_position(pos_top, pos_left: Integer);
+    PROCEDURE BStartClick(Sender: TObject);
+    PROCEDURE BStopClick(Sender: TObject);
+    PROCEDURE ImageClick(Sender: TObject);
+    PROCEDURE ImageDoubleClick(Sender: TObject);
+    PROPERTY Image: TImage READ FImage;
+  END;
 
-  TFFrames = class(TForm)
-    procedure FormCreate(Sender: TObject);
-    procedure FormResize(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-    procedure FormShow(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-    procedure FormKeyUp(Sender: TObject; var Key: Word;
+  TFFrames = CLASS(TForm)
+    PROCEDURE FormCreate(Sender: TObject);
+    PROCEDURE FormResize(Sender: TObject);
+    PROCEDURE FormDestroy(Sender: TObject);
+    PROCEDURE FormShow(Sender: TObject);
+    PROCEDURE FormCloseQuery(Sender: TObject; VAR CanClose: Boolean);
+    PROCEDURE FormKeyUp(Sender: TObject; VAR Key: Word;
       Shift: TShiftState);
-  private
+  PRIVATE
     { Private declarations }
     FrameList: TObjectList;
-    function getCutFrame(Index: integer): TCUtFrame;
-    function getCount: integer;
-    procedure adjust_frame_position;
-  public
+    FUNCTION getCutFrame(Index: integer): TCUtFrame;
+    FUNCTION getCount: integer;
+    PROCEDURE adjust_frame_position;
+  PUBLIC
     { Public declarations }
     MainForm: TFMain;
     scan_1, scan_2: integer; //index of CutFrame
     CanClose: boolean;
-    procedure Init(IFrames: Integer; FrameHeight, FrameWidth: Integer);
-    procedure HideFrames;
-    property Frame[Index: Integer]: TCutFrame read getCutFrame;
-    property Count: Integer read getCount;
-  end;
+    PROCEDURE Init(IFrames: Integer; FrameHeight, FrameWidth: Integer);
+    PROCEDURE HideFrames;
+    PROPERTY Frame[Index: Integer]: TCutFrame READ getCutFrame;
+    PROPERTY Count: Integer READ getCount;
+  END;
 
-  const bdistance = 0.03; //distance between buttons as % of image_width
-  const distance = 0.05; //distance between frames as % of framewidth
+CONST bdistance                    = 0.03; //distance between buttons as % of image_width
+CONST distance                     = 0.05; //distance between frames as % of framewidth
 
 
-var
-  FFrames: TFFrames;
+VAR
+  FFrames                          : TFFrames;
 
-implementation
+IMPLEMENTATION
 
-  uses Utils, Math;
+USES Utils, Math;
 
 {$R *.dfm}
 
 { TFFrames }
-procedure TFFrames.HideFrames;
-var
-  iFrame: integer;
-begin
-  for iFrame := 0 to Framelist.Count-1 do
-    with Frame[iFrame] do begin
+
+PROCEDURE TFFrames.HideFrames;
+VAR
+  iFrame                           : integer;
+BEGIN
+  FOR iFrame := 0 TO Framelist.Count - 1 DO
+    WITH Frame[iFrame] DO BEGIN
       Image.Visible := false;
       Position := 0;
-    end;
-end;
+    END;
+END;
 
-function TFFrames.getCount: integer;
-begin
+FUNCTION TFFrames.getCount: integer;
+BEGIN
   Result := FrameList.Count;
-end;
+END;
 
-procedure TFFrames.init(IFrames: Integer; FrameHeight, FrameWidth: Integer);
-var
-  iFrame, Line, F_per_line: integer;
+PROCEDURE TFFrames.init(IFrames: Integer; FrameHeight, FrameWidth: Integer);
+VAR
+  iFrame, Line, F_per_line         : integer;
   buttonheight, top_dist, hor_dist, LineHeight: integer;
-  AFrame: TCutFrame;
-begin
+  AFrame                           : TCutFrame;
+BEGIN
   scan_1 := -1;
   scan_2 := -1;
   buttonheight := round(Screen.PixelsPerInch / 4);
   top_dist := round(distance * FrameHeight);
   hor_dist := round(distance * FrameWidth);
-  LineHeight := 2*top_dist + buttonHeight+FrameHeight;
-  F_per_line := trunc(self.ClientWidth / ((1+distance) * FrameWidth));
+  LineHeight := 2 * top_dist + buttonHeight + FrameHeight;
+  F_per_line := trunc(self.ClientWidth / ((1 + distance) * FrameWidth));
   //self.ClientHeight := (trunc(IFrames-1 / F_per_Line) + 1) * LineHeight + top_dist;
 
-  self.Constraints.MinWidth := Framewidth + 5* hor_dist + self.VertScrollBar.Size;
+  self.Constraints.MinWidth := Framewidth + 5 * hor_dist + self.VertScrollBar.Size;
 
-  for iFrame := 0 to IFrames-1 do begin
+  FOR iFrame := 0 TO IFrames - 1 DO BEGIN
     Line := trunc(iFrame / F_per_line);
     AFrame := TCutFrame.Create(self);
     AFrame.Findex := Framelist.Add(AFrame);
-    AFrame.Init(FrameHeight,FrameWidth);
+    AFrame.Init(FrameHeight, FrameWidth);
     AFrame.Adjust_position(Line * LineHeight + top_dist,
-                (iFrame mod F_per_Line) * (Framewidth + hor_dist) + hor_dist);
-  end;
+      (iFrame MOD F_per_Line) * (Framewidth + hor_dist) + hor_dist);
+  END;
 
-end;
+END;
 
-procedure TFFrames.adjust_frame_position;
-var
-  iFrame, Line, F_per_line: integer;
+PROCEDURE TFFrames.adjust_frame_position;
+VAR
+  iFrame, Line, F_per_line         : integer;
   framewidth, frameheight, buttonheight, top_dist, hor_dist, LineHeight: integer;
-  AFrame: TCutFrame;
-begin
-  if framelist.Count = 0 then
+  AFrame                           : TCutFrame;
+BEGIN
+  IF framelist.Count = 0 THEN
     Exit;
   buttonheight := round(Screen.PixelsPerInch / 4);
-  framewidth := (framelist[0] as TCutFrame).Image.Width;
-  frameheight := (framelist[0] as TCutFrame).Image.Height;
+  framewidth := (framelist[0] AS TCutFrame).Image.Width;
+  frameheight := (framelist[0] AS TCutFrame).Image.Height;
   top_dist := round(distance * FrameHeight);
   hor_dist := round(distance * FrameWidth);
-  LineHeight := 2*top_dist + buttonHeight+FrameHeight;
-  F_per_line := trunc(self.ClientWidth / ((1+distance) * FrameWidth));
+  LineHeight := 2 * top_dist + buttonHeight + FrameHeight;
+  F_per_line := trunc(self.ClientWidth / ((1 + distance) * FrameWidth));
 
   self.VertScrollBar.Position := 0;
-  for iFrame := 0 to Framelist.Count-1 do begin
+  FOR iFrame := 0 TO Framelist.Count - 1 DO BEGIN
     Line := trunc(iFrame / F_per_line);
-    AFrame := (framelist[iFrame] as TCutFrame);
+    AFrame := (framelist[iFrame] AS TCutFrame);
     AFrame.Adjust_position(Line * LineHeight + top_dist,
-                (iFrame mod F_per_Line) * (Framewidth + hor_dist) + hor_dist);
-  end;
-end;
+      (iFrame MOD F_per_Line) * (Framewidth + hor_dist) + hor_dist);
+  END;
+END;
 
-function TFFrames.getCutFrame(Index: integer): TCUtFrame;
-begin
-  result := (self.FrameList[Index] as TCutFrame)
-end;
+FUNCTION TFFrames.getCutFrame(Index: integer): TCUtFrame;
+BEGIN
+  result := (self.FrameList[Index] AS TCutFrame)
+END;
 
 { TCutFrame }
 
-constructor TCutFrame.Create(AParent: TWinControl);
-begin
-  inherited create(AParent);
+CONSTRUCTOR TCutFrame.Create(AParent: TWinControl);
+BEGIN
+  INHERITED create(AParent);
   BStart := TButton.Create(self);
   BStop := TButton.Create(self);
   LTime := TLabel.Create(self);
@@ -174,30 +175,30 @@ begin
   Image.Parent := Aparent;
   Image.PopupMenu := FMain.MenuVideo;
   IsKeyFrame := false;
-end;
+END;
 
-destructor TCutFrame.Destroy;
-begin
+DESTRUCTOR TCutFrame.Destroy;
+BEGIN
   //FreeAndNIL(Bstart);
   //FreeAndNIL(Bstop);
   //FreeAndNIL(LTime);
   //FreeAndNIL(LIndex);
   //FreeAndNIL(FImage);
   //FreeAndNIL(FBorder);
-  inherited;
-end;
+  INHERITED;
+END;
 
-procedure TCutFrame.Adjust_position(pos_top, pos_left: integer);
-const
-  Index_width = 2.0/3.0;  //in width_units
-  Time_width = 3;
-  Button_width = 2;
-  border_distance = 2;
-  Border_Width = 2;
-var
-  top2: integer;
+PROCEDURE TCutFrame.Adjust_position(pos_top, pos_left: integer);
+CONST
+  Index_width                      = 2.0 / 3.0; //in width_units
+  Time_width                       = 3;
+  Button_width                     = 2;
+  border_distance                  = 2;
+  Border_Width                     = 2;
+VAR
+  top2                             : integer;
   width_unit, button_distance, image_height, image_width: integer;
-begin
+BEGIN
 
   image_height := image.Height;
   image_width := image.Width;
@@ -210,70 +211,68 @@ begin
   FBorder.left := pos_left - border_distance - border_width;
 
   top2 := pos_top + image_height + button_distance;
-  width_unit := round((image_width - 3*button_distance) / (Index_width + Time_width + Button_width + Button_width));
+  width_unit := round((image_width - 3 * button_distance) / (Index_width + Time_width + Button_width + Button_width));
   LIndex.Top := top2;
   LIndex.Left := pos_Left;
 
   LTime.Top := top2;
-  LTime.Left := pos_left + round(Index_width*width_unit) + button_distance;
+  LTime.Left := pos_left + round(Index_width * width_unit) + button_distance;
 
   BStart.Top := top2;
-  BStart.Left := pos_left + round((Index_width+TIme_width)*width_unit) + 2*button_distance;
+  BStart.Left := pos_left + round((Index_width + TIme_width) * width_unit) + 2 * button_distance;
 
   BStop.Top := top2;
-  BStop.Left := pos_left + round((Index_width+TIme_width+Button_width)*width_unit) + 3*button_distance;
+  BStop.Left := pos_left + round((Index_width + TIme_width + Button_width) * width_unit) + 3 * button_distance;
 
-end;
+END;
 
-procedure TFFrames.FormCreate(Sender: TObject);
-var
-  MainBounds: TRect;
-begin
+PROCEDURE TFFrames.FormCreate(Sender: TObject);
+VAR
+  MainBounds                       : TRect;
+BEGIN
   FrameList := TObjectlist.Create;
   Init(Settings.FramesCount, Settings.FramesHeight, Settings.FramesWidth);
 
-  if ValidRect(Settings.FramesFormBounds) then
+  IF ValidRect(Settings.FramesFormBounds) THEN
     self.BoundsRect := Settings.FramesFormBounds
-  else
-  begin
+  ELSE BEGIN
     MainBounds := Settings.MainFormBounds;
-    if ValidRect(MainBounds) then begin
+    IF ValidRect(MainBounds) THEN BEGIN
       // Use top of main form if possible
-      if MainBounds.Top + self.Height <= Screen.DesktopHeight then
+      IF MainBounds.Top + self.Height <= Screen.DesktopHeight THEN
         self.Top := MainBounds.Top
-      else // Center around main form if possible
-        self.Top := Math.Max(0, MainBounds.Top + (MainBounds.Bottom - MainBounds.Top - self.Height) div 2);
+      ELSE // Center around main form if possible
+        self.Top := Math.Max(0, MainBounds.Top + (MainBounds.Bottom - MainBounds.Top - self.Height) DIV 2);
       // force at least visible width of 100 pixels
       self.Left := Math.Min(MainBounds.Left + MainBounds.Right - MainBounds.Left, Screen.DesktopWidth - 100);
-    end
-    else
-    begin
-      self.Top := Screen.WorkAreaTop + Max(0, (Screen.WorkAreaHeight - self.Height) div 2);
+    END
+    ELSE BEGIN
+      self.Top := Screen.WorkAreaTop + Max(0, (Screen.WorkAreaHeight - self.Height) DIV 2);
       self.Left := Screen.WorkAreaLeft + Max(0, Screen.WorkAreaWidth - self.Width);
-    end;
-  end;
+    END;
+  END;
   self.WindowState := Settings.FramesFormWindowState;
   adjust_frame_position;
-end;
+END;
 
-procedure TFFrames.FormDestroy(Sender: TObject);
-begin
+PROCEDURE TFFrames.FormDestroy(Sender: TObject);
+BEGIN
   Settings.FramesFormBounds := self.BoundsRect;
   Settings.FramesFormWindowState := self.WindowState;
-end;
+END;
 
-procedure TCutFrame.init(image_height, image_width: INteger);
-const
-  Index_width = 1;  //in width_units
-  Time_width = 3;
-  Button_width = 2;
-  Border_Distance = 2;
-  Border_Style = psSolid;
-  Border_Width = 2;
-  Border_Color = clYellow;
-var
+PROCEDURE TCutFrame.init(image_height, image_width: INteger);
+CONST
+  Index_width                      = 1; //in width_units
+  Time_width                       = 3;
+  Button_width                     = 2;
+  Border_Distance                  = 2;
+  Border_Style                     = psSolid;
+  Border_Width                     = 2;
+  Border_Color                     = clYellow;
+VAR
   width_unit, button_height, button_distance: integer;
-begin
+BEGIN
   button_height := round(Screen.PixelsPerInch / 4);
   button_distance := round(image_Width * bdistance);
   position := 0;
@@ -286,11 +285,11 @@ begin
   image.Picture.Bitmap.Canvas.FillRect(image.ClientRect);
   image.OnClick := ImageClick;
   image.OnDblClick := ImageDoubleClick;
-{  FFrames.Canvas.Brush.Color := clBlack;
-  FFrames.Canvas.Brush.Style := bsSolid;
-  FFrames.Canvas.FillRect(Rect(0,0,100,100)); }
+  {  FFrames.Canvas.Brush.Color := clBlack;
+    FFrames.Canvas.Brush.Style := bsSolid;
+    FFrames.Canvas.FillRect(Rect(0,0,100,100)); }
 
-  width_unit := round((image_width - 3*button_distance) / (Index_width + Time_width + Button_width + Button_width));
+  width_unit := round((image_width - 3 * button_distance) / (Index_width + Time_width + Button_width + Button_width));
   Lindex.Caption := inttostr(self.index);
   LIndex.Height := Button_height;
 
@@ -311,161 +310,157 @@ begin
   BStop.OnClick := BStopClick;
 
   FBorder.Visible := false;
-  FBorder.Height := Image.Height + 2*Border_Distance+2*Border_width;
-  FBorder.Width := Image.Width + 2*Border_Distance+2*Border_width;
+  FBorder.Height := Image.Height + 2 * Border_Distance + 2 * Border_width;
+  FBorder.Width := Image.Width + 2 * Border_Distance + 2 * Border_width;
   FBorder.Brush.Style := bsClear;
   FBorder.Pen.Style := Border_Style;
   FBorder.Pen.Width := Border_width;
   FBorder.Pen.Color := Border_Color;
   self.BorderVisible := false;
-end;
+END;
 
-procedure TFFrames.FormResize(Sender: TObject);
-begin
+PROCEDURE TFFrames.FormResize(Sender: TObject);
+BEGIN
 
   self.adjust_frame_position;
-end;
+END;
 
-procedure TCutFrame.BStartClick(Sender: TObject);
-var
-  _pos : double;
-begin
-  _pos := ((sender as TButton).Owner as TCutFrame).position;
-  (self.Owner as TFFrames).MainForm.SetStartPosition(_pos);
-end;
+PROCEDURE TCutFrame.BStartClick(Sender: TObject);
+VAR
+  _pos                             : double;
+BEGIN
+  _pos := ((sender AS TButton).Owner AS TCutFrame).position;
+  (self.Owner AS TFFrames).MainForm.SetStartPosition(_pos);
+END;
 
-procedure TCutFrame.BStopClick(Sender: TObject);
-var
-  _pos : double;
-begin
-  _pos := ((sender as TButton).Owner as TCutFrame).position;
-  (self.Owner as TFFrames).MainForm.SetStopPosition(_pos);
-end;
+PROCEDURE TCutFrame.BStopClick(Sender: TObject);
+VAR
+  _pos                             : double;
+BEGIN
+  _pos := ((sender AS TButton).Owner AS TCutFrame).position;
+  (self.Owner AS TFFrames).MainForm.SetStopPosition(_pos);
+END;
 
-procedure TCutFrame.DisableUpdate;
-begin
+PROCEDURE TCutFrame.DisableUpdate;
+BEGIN
   Inc(FUpdateLocked);
-end;
+END;
 
-procedure TCutFrame.EnableUpdate;
-begin
+PROCEDURE TCutFrame.EnableUpdate;
+BEGIN
   Dec(FUpdateLocked);
-  if FUpdateLocked > 0 then
+  IF FUpdateLocked > 0 THEN
     exit;
   FUpdateLocked := 0;
   UpdateFrame;
-end;
+END;
 
-procedure TCutFrame.UpdateFrame;
-begin
+PROCEDURE TCutFrame.UpdateFrame;
+BEGIN
   LTime.Caption := MovieInfo.FormatPosition(FPosition);
-end;
+END;
 
-procedure TCutFrame.setPosition(APosition: Double);
-begin
+PROCEDURE TCutFrame.setPosition(APosition: Double);
+BEGIN
   FPosition := APosition;
-  if FUpdateLocked > 0 then
+  IF FUpdateLocked > 0 THEN
     exit;
   UpdateFrame;
-end;
+END;
 
-procedure TCutFrame.setKeyFrame(Value: boolean);
-begin
+PROCEDURE TCutFrame.setKeyFrame(Value: boolean);
+BEGIN
   FKeyFrame := Value;
-  if Value then begin
+  IF Value THEN BEGIN
     self.LTime.Color := clYellow;
-//    self.LTime.Transparent := false;
-  end else
+    //    self.LTime.Transparent := false;
+  END ELSE
     self.LTime.ParentColor := true;
-//    self.LTime.Transparent := true;
-end;
+  //    self.LTime.Transparent := true;
+END;
 
-procedure TCutFrame.ImageDoubleClick(Sender: TObject);
-var
-  _pos : double;
-begin
-  _pos := ((sender as TImage).Owner as TCutFrame).position;
-  (self.Owner as TFFrames).MainForm.JumpTo(_pos);
-end;
+PROCEDURE TCutFrame.ImageDoubleClick(Sender: TObject);
+VAR
+  _pos                             : double;
+BEGIN
+  _pos := ((sender AS TImage).Owner AS TCutFrame).position;
+  (self.Owner AS TFFrames).MainForm.JumpTo(_pos);
+END;
 
-procedure TCutFrame.setBorderVisible(Value: boolean);
-begin
+PROCEDURE TCutFrame.setBorderVisible(Value: boolean);
+BEGIN
   self.FBorderVisible := Value;
   self.FBorder.Visible := value;
-end;
+END;
 
-procedure TCutFrame.ImageClick(Sender: TObject);
-begin
-  if self.BorderVisible then begin
-    with (self.Owner as TFFrames) do begin
-      if scan_1 = self.index  then begin
+PROCEDURE TCutFrame.ImageClick(Sender: TObject);
+BEGIN
+  IF self.BorderVisible THEN BEGIN
+    WITH (self.Owner AS TFFrames) DO BEGIN
+      IF scan_1 = self.index THEN BEGIN
         scan_1 := scan_2;
         scan_2 := -1;
-      end;
-      if scan_2 = self.index then scan_2 := -1;
-    end;
+      END;
+      IF scan_2 = self.index THEN scan_2 := -1;
+    END;
     self.BorderVisible := false;
-  end else begin
-    with (self.Owner as TFFrames) do begin
-      if scan_1 = -1  then begin
+  END ELSE BEGIN
+    WITH (self.Owner AS TFFrames) DO BEGIN
+      IF scan_1 = -1 THEN BEGIN
         scan_1 := self.index;
-      end else begin
-        if scan_2 = -1 then begin
+      END ELSE BEGIN
+        IF scan_2 = -1 THEN BEGIN
           scan_2 := self.index;
-        end else begin
+        END ELSE BEGIN
           Frame[scan_1].BorderVisible := false;
           scan_1 := scan_2;
           scan_2 := self.index;
-        end;
-        if frame[scan_1].position < frame[scan_2].position then begin
-          (self.Owner as TFFrames).MainForm.TBFilePos.SelStart := round(frame[scan_1].position);
-          (self.Owner as TFFrames).MainForm.TBFilePos.SelEnd := round(frame[scan_2].position);
-        end else begin
-          (self.Owner as TFFrames).MainForm.TBFilePos.SelStart := round(frame[scan_2].position);
-          (self.Owner as TFFrames).MainForm.TBFilePos.SelEnd := round(frame[scan_1].position);
-        end;
-        (self.Owner as TFFrames).MainForm.AScanInterval.Enabled := true;
-      end;
-    end;
+        END;
+        IF frame[scan_1].position < frame[scan_2].position THEN BEGIN
+          (self.Owner AS TFFrames).MainForm.TBFilePos.SelStart := round(frame[scan_1].position);
+          (self.Owner AS TFFrames).MainForm.TBFilePos.SelEnd := round(frame[scan_2].position);
+        END ELSE BEGIN
+          (self.Owner AS TFFrames).MainForm.TBFilePos.SelStart := round(frame[scan_2].position);
+          (self.Owner AS TFFrames).MainForm.TBFilePos.SelEnd := round(frame[scan_1].position);
+        END;
+        (self.Owner AS TFFrames).MainForm.AScanInterval.Enabled := true;
+      END;
+    END;
     self.BorderVisible := true;
-  end;
-end;
+  END;
+END;
 
-procedure TFFrames.FormShow(Sender: TObject);
-begin
+PROCEDURE TFFrames.FormShow(Sender: TObject);
+BEGIN
   // Show taskbar button for this form ...
   SetWindowLong(Handle, GWL_ExStyle, WS_Ex_AppWindow);
   CanClose := true;
-end;
+END;
 
-procedure TFFrames.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-begin
+PROCEDURE TFFrames.FormCloseQuery(Sender: TObject; VAR CanClose: Boolean);
+BEGIN
   CanClose := self.CanClose;
-end;
+END;
 
-procedure TFFrames.FormKeyUp(Sender: TObject; var Key: Word;
+PROCEDURE TFFrames.FormKeyUp(Sender: TObject; VAR Key: Word;
   Shift: TShiftState);
-begin
-  case Key of
-    VK_PRIOR:
-      begin
+BEGIN
+  CASE Key OF
+    VK_PRIOR: BEGIN
         self.MainForm.JumpTo(self.Frame[0].position);
         self.MainForm.APrevFrames.Execute;
-      end;
-    VK_NEXT:
-      begin
+      END;
+    VK_NEXT: BEGIN
         self.MainForm.JumpTo(self.Frame[self.Count - 1].position);
         self.MainForm.ANextFrames.Execute;
-      end;
-    VK_ESCAPE:
-      begin
+      END;
+    VK_ESCAPE: BEGIN
         Hide;
-      end;
-    VK_RETURN:
-      begin
+      END;
+    VK_RETURN: BEGIN
         self.MainForm.BringToFront;
-      end;
-  end;
-end;
+      END;
+  END;
+END;
 
-end.
+END.

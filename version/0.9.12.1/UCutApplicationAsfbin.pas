@@ -1,221 +1,221 @@
-unit UCutApplicationAsfBin;
+UNIT UCutApplicationAsfBin;
 
-interface
+INTERFACE
 
-uses
+USES
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UCutApplicationBase, StdCtrls, IniFiles, Contnrs;
 
-const
-  ASFBIN_DEFAULT_EXENAME_1 = 'asfbin.exe';
-  ASFBIN_DEFAULT_EXENAME_2 = 'asfcut.exe';
+CONST
+  ASFBIN_DEFAULT_EXENAME_1         = 'asfbin.exe';
+  ASFBIN_DEFAULT_EXENAME_2         = 'asfcut.exe';
 
   //rkf Options Syntax
-  RKF_1 = '-rkf';
-  RKF_2 = '-recreatekf';
+  RKF_1                            = '-rkf';
+  RKF_2                            = '-recreatekf';
 
 
-type
-  TCutApplicationAsfbin = class;
+TYPE
+  TCutApplicationAsfbin = CLASS;
 
-  TfrmCutApplicationAsfbin = class(TfrmCutApplicationBase)
+  TfrmCutApplicationAsfbin = CLASS(TfrmCutApplicationBase)
     edtCommandLineOptions: TEdit;
     lblCommandLineOptions: TLabel;
     cbRkf: TCheckBox;
-    procedure cbRkfClick(Sender: TObject);
-    procedure edtCommandLineOptionsChange(Sender: TObject);
-  private
+    PROCEDURE cbRkfClick(Sender: TObject);
+    PROCEDURE edtCommandLineOptionsChange(Sender: TObject);
+  PRIVATE
     { Private declarations }
-    procedure SetCutApplication(const Value: TCutApplicationAsfbin);
-    function GetCutApplication: TCutApplicationAsfbin;
-  public
+    PROCEDURE SetCutApplication(CONST Value: TCutApplicationAsfbin);
+    FUNCTION GetCutApplication: TCutApplicationAsfbin;
+  PUBLIC
     { Public declarations }
-    property CutApplication: TCutApplicationAsfbin read GetCutApplication write SetCutApplication;
-    procedure Init; override;
-    procedure Apply; override;
-  end;
+    PROPERTY CutApplication: TCutApplicationAsfbin READ GetCutApplication WRITE SetCutApplication;
+    PROCEDURE Init; OVERRIDE;
+    PROCEDURE Apply; OVERRIDE;
+  END;
 
-  TCutApplicationAsfbin = class(TCutApplicationBase)
-  protected
-  public
-    CommandLineOptions: string;
+  TCutApplicationAsfbin = CLASS(TCutApplicationBase)
+  PROTECTED
+  PUBLIC
+    CommandLineOptions: STRING;
     //TempDir: string;
-    constructor create; override;
-    function LoadSettings(IniFile: TCustomIniFile): boolean; override;
-    function SaveSettings(IniFile: TCustomIniFile): boolean; override;
-    function InfoString: string; override;
-    function WriteCutlistInfo(CutlistFile: TCustomIniFile; section: string): boolean; override;
-    function PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean; override;
-  end;
+    CONSTRUCTOR create; OVERRIDE;
+    FUNCTION LoadSettings(IniFile: TCustomIniFile): boolean; OVERRIDE;
+    FUNCTION SaveSettings(IniFile: TCustomIniFile): boolean; OVERRIDE;
+    FUNCTION InfoString: STRING; OVERRIDE;
+    FUNCTION WriteCutlistInfo(CutlistFile: TCustomIniFile; section: STRING): boolean; OVERRIDE;
+    FUNCTION PrepareCutting(SourceFileName: STRING; VAR DestFileName: STRING; Cutlist: TObjectList): boolean; OVERRIDE;
+  END;
 
-var
-  frmCutApplicationAsfbin: TfrmCutApplicationAsfbin;
+VAR
+  frmCutApplicationAsfbin          : TfrmCutApplicationAsfbin;
 
-implementation
+IMPLEMENTATION
 
 {$R *.dfm}
 
 {$WARN UNIT_PLATFORM OFF}
 
-uses
+USES
   FileCtrl, StrUtils,
   UCutlist, UfrmCutting, Utils;
 
 
 { TCutApplicationAsfbin }
 
-constructor TCutApplicationAsfbin.create;
-begin
-  inherited;
+CONSTRUCTOR TCutApplicationAsfbin.create;
+BEGIN
+  INHERITED;
   FrameClass := TfrmCutApplicationAsfbin;
   Name := 'Asfbin';
   DefaultExeNames.Add(ASFBIN_DEFAULT_EXENAME_1);
   DefaultExeNames.Add(ASFBIN_DEFAULT_EXENAME_2);
   RedirectOutput := true;
   ShowAppWindow := false;
-end;
+END;
 
-function TCutApplicationAsfbin.LoadSettings(IniFile: TCustomIniFile): boolean;
-var
-  section: string;
-  success: boolean;
-begin
+FUNCTION TCutApplicationAsfbin.LoadSettings(IniFile: TCustomIniFile): boolean;
+VAR
+  section                          : STRING;
+  success                          : boolean;
+BEGIN
   //This part only for compatibility issues for versions below 0.9.9
   //These Settings may be overwritten below
   self.Path := IniFile.ReadString('External Cut Application', 'Path', '');
   self.CommandLineOptions := IniFile.ReadString('External Cut Application', 'CommandLineOptions', '');
 
-  success := inherited LoadSettings(IniFile);
+  success := INHERITED LoadSettings(IniFile);
   section := GetIniSectionName;
   CommandLineOptions := IniFile.ReadString(section, 'CommandLineOptions', CommandLineOptions);
   result := success;
-end;
+END;
 
-function TCutApplicationAsfbin.SaveSettings(IniFile: TCustomIniFile): boolean;
-var
-  section: string;
-  success: boolean;
-begin
-  success := inherited SaveSettings(IniFile);
+FUNCTION TCutApplicationAsfbin.SaveSettings(IniFile: TCustomIniFile): boolean;
+VAR
+  section                          : STRING;
+  success                          : boolean;
+BEGIN
+  success := INHERITED SaveSettings(IniFile);
 
   section := GetIniSectionName;
   IniFile.WriteString(section, 'CommandLineOptions', CommandLineOptions);
   result := success;
-end;
+END;
 
-function TCutApplicationAsfbin.PrepareCutting(SourceFileName: string;
-  var DestFileName: string; Cutlist: TObjectList): boolean;
-var
-  TempCutlist: TCutlist;
-  iCut: Integer;
-  MustFreeTempCutlist: boolean;
-  CommandLine, ExeName: string;
-begin
+FUNCTION TCutApplicationAsfbin.PrepareCutting(SourceFileName: STRING;
+  VAR DestFileName: STRING; Cutlist: TObjectList): boolean;
+VAR
+  TempCutlist                      : TCutlist;
+  iCut                             : Integer;
+  MustFreeTempCutlist              : boolean;
+  CommandLine, ExeName             : STRING;
+BEGIN
   result := false;
-  if not fileexists(self.Path) then begin
+  IF NOT fileexists(self.Path) THEN BEGIN
     ExeName := ExtractFileName(Path);
-    if ExeName ='' then ExeName := DefaultExeNames[0];
-    if ExeName ='' then ExeName := 'Application';
+    IF ExeName = '' THEN ExeName := DefaultExeNames[0];
+    IF ExeName = '' THEN ExeName := 'Application';
     showmessage(ExeName + ' not found. Please check settings.');
     exit;
-  end;
+  END;
 
   MustFreeTempCutlist := false;
-  TempCutlist := (Cutlist as TCutlist);
+  TempCutlist := (Cutlist AS TCutlist);
   self.FCommandLines.Clear;
 
   CommandLine := '-i "' + SourceFileName + '" -o "' + DestFileName + '" ';
 
-  if TempCutlist.Mode <> clmCrop then begin
+  IF TempCutlist.Mode <> clmCrop THEN BEGIN
     TempCutlist := TempCutlist.convert;
     MustFreeTempCutlist := True;
-  end;
-  try
+  END;
+  TRY
     TempCutlist.sort;
-    for iCut := 0 to TempCutlist.Count-1 do begin
+    FOR iCut := 0 TO TempCutlist.Count - 1 DO BEGIN
       CommandLine := CommandLine + ' -start ' + FloatToStrInvariant(TempCutlist[iCut].pos_from);
       CommandLine := CommandLine + ' -duration ' + FloatToStrInvariant(TempCutlist[iCut].pos_to - TempCutlist[iCut].pos_from);
-    end;
+    END;
 
-    CommandLine := CommandLine +  ' ' + self.CommandLineOptions;
+    CommandLine := CommandLine + ' ' + self.CommandLineOptions;
     self.FCommandLines.Add(CommandLine);
     result := true;
-  finally
-    if MustFreeTempCutlist then
+  FINALLY
+    IF MustFreeTempCutlist THEN
       FreeAndNIL(TempCutlist);
-  end;
-end;
+  END;
+END;
 
 
-function TCutApplicationAsfbin.InfoString: string;
-begin
-  result := inherited InfoString
-          + 'Options: ' + self.CommandLineOptions + #13#10;
-end;
+FUNCTION TCutApplicationAsfbin.InfoString: STRING;
+BEGIN
+  result := INHERITED InfoString
+    + 'Options: ' + self.CommandLineOptions + #13#10;
+END;
 
-function TCutApplicationAsfbin.WriteCutlistInfo(CutlistFile: TCustomIniFile;
-  section: string): boolean;
-begin
-  result := inherited WriteCutlistInfo(CutlistFile, section);
-  if result then begin
+FUNCTION TCutApplicationAsfbin.WriteCutlistInfo(CutlistFile: TCustomIniFile;
+  section: STRING): boolean;
+BEGIN
+  result := INHERITED WriteCutlistInfo(CutlistFile, section);
+  IF result THEN BEGIN
     cutlistfile.WriteString(section, 'IntendedCutApplicationOptions', self.CommandLineOptions);
     result := true;
-  end;
-end;
+  END;
+END;
 
 { TfrmCutApplicationAsfbin }
 
-procedure TfrmCutApplicationAsfbin.Init;
-begin
-  inherited;
+PROCEDURE TfrmCutApplicationAsfbin.Init;
+BEGIN
+  INHERITED;
   self.edtCommandLineOptions.Text := CutApplication.CommandLineOptions;
-  self.edtCommandLineOptionsChange(nil);
-end;
+  self.edtCommandLineOptionsChange(NIL);
+END;
 
-procedure TfrmCutApplicationAsfbin.Apply;
-begin
-  inherited;
+PROCEDURE TfrmCutApplicationAsfbin.Apply;
+BEGIN
+  INHERITED;
   CutApplication.CommandLineOptions := edtCommandLIneOptions.Text;
-end;
+END;
 
-procedure TfrmCutApplicationAsfbin.SetCutApplication(
-  const Value: TCutApplicationAsfbin);
-begin
+PROCEDURE TfrmCutApplicationAsfbin.SetCutApplication(
+  CONST Value: TCutApplicationAsfbin);
+BEGIN
   FCutApplication := Value;
-end;
+END;
 
-function TfrmCutApplicationAsfbin.GetCutApplication: TCutApplicationAsfbin;
-begin
-  result := (self.FCutApplication as TCutApplicationAsfbin);
-end;   
+FUNCTION TfrmCutApplicationAsfbin.GetCutApplication: TCutApplicationAsfbin;
+BEGIN
+  result := (self.FCutApplication AS TCutApplicationAsfbin);
+END;
 
-procedure TfrmCutApplicationAsfbin.cbRkfClick(Sender: TObject);
-var
-  s: string;
-begin
+PROCEDURE TfrmCutApplicationAsfbin.cbRkfClick(Sender: TObject);
+VAR
+  s                                : STRING;
+BEGIN
   s := edtCommandLineOptions.Text;
-  if cbRkf.Checked then begin
-    if not (AnsiContainsText(s, RKF_1) or AnsiContainsText(s, RKF_2)) then begin
+  IF cbRkf.Checked THEN BEGIN
+    IF NOT (AnsiContainsText(s, RKF_1) OR AnsiContainsText(s, RKF_2)) THEN BEGIN
       s := RKF_1 + ' ' + s;
-    end;
-  end else begin
+    END;
+  END ELSE BEGIN
     s := AnsiReplaceText(s, RKF_1, '');
     s := AnsiReplaceText(s, RKF_2, '');
     //remove double spaces
-    while AnsiPos('  ', s) > 0 do begin
+    WHILE AnsiPos('  ', s) > 0 DO BEGIN
       s := AnsiReplaceText(s, '  ', ' ');
-    end;
-  end;
+    END;
+  END;
   edtCommandLineOptions.Text := trim(s);
-end;
+END;
 
-procedure TfrmCutApplicationAsfbin.edtCommandLineOptionsChange(
+PROCEDURE TfrmCutApplicationAsfbin.edtCommandLineOptionsChange(
   Sender: TObject);
-var
-  s: string;
-begin
+VAR
+  s                                : STRING;
+BEGIN
   s := edtCommandLineOptions.Text;
-  self.cbRkf.Checked := (AnsiContainsText(s, RKF_1) or AnsiContainsText(s, RKF_2));
-end;
+  self.cbRkf.Checked := (AnsiContainsText(s, RKF_1) OR AnsiContainsText(s, RKF_2));
+END;
 
-end.
+END.

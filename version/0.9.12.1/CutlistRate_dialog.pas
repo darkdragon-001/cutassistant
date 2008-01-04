@@ -1,86 +1,84 @@
-unit CutlistRate_dialog;
+UNIT CutlistRate_dialog;
 
-interface
+INTERFACE
 
-uses
+USES
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ExtCtrls;
 
-type
-  TFCutlistRate = class(TForm)
+TYPE
+  TFCutlistRate = CLASS(TForm)
     Label1: TLabel;
     RGRatingByAuthor: TRadioGroup;
     btnCancel: TButton;
     ButtonOK: TButton;
-    procedure RGRatingByAuthorClick(Sender: TObject);
-    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
-  private
+    PROCEDURE RGRatingByAuthorClick(Sender: TObject);
+    PROCEDURE FormCloseQuery(Sender: TObject; VAR CanClose: Boolean);
+  PRIVATE
     { Private declarations }
     FRatingSelectedByUser: boolean;
-    function GetSelectedRating: integer;
-    procedure SetSelectedRating(rating: integer);
-    function GetSelectedRatingText: string;
-  public
+    FUNCTION GetSelectedRating: integer;
+    PROCEDURE SetSelectedRating(rating: integer);
+    FUNCTION GetSelectedRatingText: STRING;
+  PUBLIC
     { Public declarations }
-    property SelectedRating: integer read GetSelectedRating write SetSelectedRating;
-    property SelectedRatingText: string read GetSelectedRatingText;
-  end;
+    PROPERTY SelectedRating: integer READ GetSelectedRating WRITE SetSelectedRating;
+    PROPERTY SelectedRatingText: STRING READ GetSelectedRatingText;
+  END;
 
-var
-  FCutlistRate: TFCutlistRate;
+VAR
+  FCutlistRate                     : TFCutlistRate;
 
-implementation
+IMPLEMENTATION
 
 {$R *.dfm}
 
-procedure TFCutlistRate.RGRatingByAuthorClick(Sender: TObject);
-begin
-  if self.RGRatingByAuthor.ItemIndex >= 0 then
-  begin
+PROCEDURE TFCutlistRate.RGRatingByAuthorClick(Sender: TObject);
+BEGIN
+  IF self.RGRatingByAuthor.ItemIndex >= 0 THEN BEGIN
     self.ButtonOK.Enabled := true;
     FRatingSelectedByUser := (Sender = RGRatingByAuthor);
-  end;
-end;
+  END;
+END;
 
-function TFCutlistRate.GetSelectedRatingText: string;
-begin
-  if SelectedRating < 0 then
+FUNCTION TFCutlistRate.GetSelectedRatingText: STRING;
+BEGIN
+  IF SelectedRating < 0 THEN
     Result := ''
-  else
+  ELSE
     Result := RGRatingByAuthor.Items.Strings[SelectedRating];
-end;
+END;
 
-function TFCutlistRate.GetSelectedRating: integer;
-begin
+FUNCTION TFCutlistRate.GetSelectedRating: integer;
+BEGIN
   Result := RGRatingByAuthor.ItemIndex;
-end;
+END;
 
-procedure TFCutlistRate.SetSelectedRating(rating: integer);
-begin
-  if rating >= RGRatingByAuthor.Items.Count then
+PROCEDURE TFCutlistRate.SetSelectedRating(rating: integer);
+BEGIN
+  IF rating >= RGRatingByAuthor.Items.Count THEN
     rating := -1;
   RGRatingByAuthor.ItemIndex := rating;
   FRatingSelectedByUser := false;
-end;
+END;
 
-procedure TFCutlistRate.FormCloseQuery(Sender: TObject;
-  var CanClose: Boolean);
-var
-  title, msg: string;
-begin
-  if ModalResult <> mrOk then
+PROCEDURE TFCutlistRate.FormCloseQuery(Sender: TObject;
+  VAR CanClose: Boolean);
+VAR
+  title, msg                       : STRING;
+BEGIN
+  IF ModalResult <> mrOk THEN
     Exit;
-  if SelectedRating < 0 then CanClose := false
-  else if not FRatingSelectedByUser then
-  begin
+  IF SelectedRating < 0 THEN CanClose := false
+  ELSE IF NOT FRatingSelectedByUser THEN BEGIN
     title := 'Please confirm preselected rating ...';
     msg := 'Do you want to use the proposed rating for the cutlist?'#13#10#13#10'  '
-        +  SelectedRatingText;
-    FRatingSelectedByUser := IDOK = Application.MessageBox(PChar(msg), PChar(title), MB_ICONQUESTION or MB_OKCANCEL or MB_DEFBUTTON2);
+      + SelectedRatingText;
+    FRatingSelectedByUser := IDOK = Application.MessageBox(PChar(msg), PChar(title), MB_ICONQUESTION OR MB_OKCANCEL OR MB_DEFBUTTON2);
     CanClose := FRatingSelectedByUser;
-  end;
-  if not CanClose then
+  END;
+  IF NOT CanClose THEN
     RGRatingByAuthor.SetFocus;
-end;
+END;
 
-end.
+END.

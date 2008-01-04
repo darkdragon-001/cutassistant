@@ -30,62 +30,62 @@ between. This process can be configured by setting the MAX_RETRIES and
 RETRIES_INTERVAL variables before calling AlreadyRunning.   }
 {======================================================================}
 {$BOOLEVAL OFF} {Unit depends on shortcut boolean evaluation}
-unit PBOnceOnly;
+UNIT PBOnceOnly;
 
-interface
+INTERFACE
 
-uses Windows;
+USES Windows;
 
-var
+VAR
   {: Specifies how often we retry to find the first instances main
      window. }
-  MAX_RETRIES: Integer = 10;
+  MAX_RETRIES                      : Integer = 10;
 
   {: Specifies how long, in milliseconds, we sleep between retries. }
-  RETRIES_INTERVAL: Integer = 1000;
+  RETRIES_INTERVAL                 : Integer = 1000;
 
-{-- AlreadyRunning ----------------------------------------------------}
-{: Checks for another instance of the program and optionally passes over
-  this instances command line.
-@Param aProcessName is a unique name to be used to identify this program.
-@Param aMainformClass is the programs main form class, can be nil.
-@Param passCommandline indicates whether to pass the command line, true
-  by default.
-@Param allowMultiuserInstances indicates whether to allow other
-  instances of the program to run in another user context. Only applies
-  to Windows terminal server or XP. True by default.
-@Returns true if there is another instance running, false if not.
-@Precondition The function has not been called already. It must only
-  be called once per program run.
-@Desc Creates a memory mapped file with the passed process name,
-  optionally with an added 'Global' prefix. If the MMF already existed
-  we know that this is a second instance. The first instance stores its
-  main thread ID into the MMF, the second one uses that with
-  EnumThreadWindows to find the first instances main window and sends
-  the command line via WM_COPYDATA to this window, if requested.
-@Raises Exception if creation of the MMF fails for some reason.
-}{ Created 2003-02-23 by P. Below
------------------------------------------------------------------------}
-function AlreadyRunning(const aProcessName: string;
-  aMainformClass: TClass = nil;
-  aPassCommandLineToClass: TClass = nil;
+  {-- AlreadyRunning ----------------------------------------------------}
+  {: Checks for another instance of the program and optionally passes over
+    this instances command line.
+  @Param aProcessName is a unique name to be used to identify this program.
+  @Param aMainformClass is the programs main form class, can be nil.
+  @Param passCommandline indicates whether to pass the command line, true
+    by default.
+  @Param allowMultiuserInstances indicates whether to allow other
+    instances of the program to run in another user context. Only applies
+    to Windows terminal server or XP. True by default.
+  @Returns true if there is another instance running, false if not.
+  @Precondition The function has not been called already. It must only
+    be called once per program run.
+  @Desc Creates a memory mapped file with the passed process name,
+    optionally with an added 'Global' prefix. If the MMF already existed
+    we know that this is a second instance. The first instance stores its
+    main thread ID into the MMF, the second one uses that with
+    EnumThreadWindows to find the first instances main window and sends
+    the command line via WM_COPYDATA to this window, if requested.
+  @Raises Exception if creation of the MMF fails for some reason.
+  }{ Created 2003-02-23 by P. Below
+  -----------------------------------------------------------------------}
+FUNCTION AlreadyRunning(CONST aProcessName: STRING;
+  aMainformClass: TClass = NIL;
+  aPassCommandLineToClass: TClass = NIL;
   passCommandline: Boolean = true;
   allowMultiuserInstances: Boolean = true): Boolean;
 
-type
+TYPE
   {: Callback type used by HandleSendCommandline. The callback will
      be handed one parameter at a time. }
-  TParameterEvent = procedure(const aParam: string) of object;
+  TParameterEvent = PROCEDURE(CONST aParam: STRING) OF OBJECT;
 
-{-- HandleSendCommandline ---------------------------------------------}
-{: Dissect a command line passed via WM_COPYDATA from another instance
-@Param data contains the data received via WM_COPYDATA.
-@Param onParameter is a callback that will be called with every passed
-  parameter in turn.
-@Precondition  onParameter <> nil
-}{ Created 2003-02-23 by P. Below
------------------------------------------------------------------------}
-procedure HandleSendCommandline(const data: TCopyDataStruct;
+  {-- HandleSendCommandline ---------------------------------------------}
+  {: Dissect a command line passed via WM_COPYDATA from another instance
+  @Param data contains the data received via WM_COPYDATA.
+  @Param onParameter is a callback that will be called with every passed
+    parameter in turn.
+  @Precondition  onParameter <> nil
+  }{ Created 2003-02-23 by P. Below
+  -----------------------------------------------------------------------}
+PROCEDURE HandleSendCommandline(CONST data: TCopyDataStruct;
   onParameter: TParameterEvent);
 
 {-- HandleCommandline -------------------------------------------------}
@@ -96,289 +96,286 @@ procedure HandleSendCommandline(const data: TCopyDataStruct;
 @Precondition  onParameter <> nil
 }{ Created 2003-02-23 by P. Below
 -----------------------------------------------------------------------}
-procedure HandleCommandline(onParameter: TParameterEvent);
+PROCEDURE HandleCommandline(onParameter: TParameterEvent);
 
-implementation
+IMPLEMENTATION
 
-uses Messages, Classes, Sysutils;
+USES Messages, Classes, Sysutils;
 
 { The THandledObject and TShareMem classes come from the D6 IPCDemos
   demo project. }
 
-type
-  THandledObject = class(TObject)
-  protected
+TYPE
+  THandledObject = CLASS(TObject)
+  PROTECTED
     FHandle: THandle;
-  public
-    destructor Destroy; override;
-    property Handle: THandle read FHandle;
-  end;
+  PUBLIC
+    DESTRUCTOR Destroy; OVERRIDE;
+    PROPERTY Handle: THandle READ FHandle;
+  END;
 
-{ This class simplifies the process of creating a region of shared memory.
-  In Win32, this is accomplished by using the CreateFileMapping and
-  MapViewOfFile functions. }
+  { This class simplifies the process of creating a region of shared memory.
+    In Win32, this is accomplished by using the CreateFileMapping and
+    MapViewOfFile functions. }
 
-  TSharedMem = class(THandledObject)
-  private
-    FName: string;
+  TSharedMem = CLASS(THandledObject)
+  PRIVATE
+    FName: STRING;
     FSize: Integer;
     FCreated: Boolean;
     FFileView: Pointer;
-  public
-    constructor Create(const Name: string; Size: Integer);
-    destructor Destroy; override;
-    property Name: string read FName;
-    property Size: Integer read FSize;
-    property Buffer: Pointer read FFileView;
-    property Created: Boolean read FCreated;
-  end;
+  PUBLIC
+    CONSTRUCTOR Create(CONST Name: STRING; Size: Integer);
+    DESTRUCTOR Destroy; OVERRIDE;
+    PROPERTY Name: STRING READ FName;
+    PROPERTY Size: Integer READ FSize;
+    PROPERTY Buffer: Pointer READ FFileView;
+    PROPERTY Created: Boolean READ FCreated;
+  END;
 
-procedure Error(const Msg: string);
-begin
-  raise Exception.Create(Msg);
-end;
+PROCEDURE Error(CONST Msg: STRING);
+BEGIN
+  RAISE Exception.Create(Msg);
+END;
 
 { THandledObject }
 
-destructor THandledObject.Destroy;
-begin
-  if FHandle <> 0 then
+DESTRUCTOR THandledObject.Destroy;
+BEGIN
+  IF FHandle <> 0 THEN
     CloseHandle(FHandle);
-end;
+END;
 
 { TSharedMem }
 
-constructor TSharedMem.Create(const Name: string; Size: Integer);
-begin
-  try
+CONSTRUCTOR TSharedMem.Create(CONST Name: STRING; Size: Integer);
+BEGIN
+  TRY
     FName := Name;
     FSize := Size;
     { CreateFileMapping, when called with $FFFFFFFF for the handle value,
       creates a region of shared memory }
-    FHandle := CreateFileMapping($FFFFFFFF, nil, PAGE_READWRITE, 0,
+    FHandle := CreateFileMapping($FFFFFFFF, NIL, PAGE_READWRITE, 0,
       Size, PChar(Name));
-    if FHandle = 0 then abort;
+    IF FHandle = 0 THEN abort;
     FCreated := GetLastError = 0;
     { We still need to map a pointer to the handle of the shared memory region
 }
     FFileView := MapViewOfFile(FHandle, FILE_MAP_WRITE, 0, 0, Size);
-    if FFileView = nil then abort;
-  except
+    IF FFileView = NIL THEN abort;
+  EXCEPT
     Error(Format('Error creating shared memory %s (%d)', [Name,
       GetLastError]));
-  end;
-end;
+  END;
+END;
 
-destructor TSharedMem.Destroy;
-begin
-  if FFileView <> nil then
+DESTRUCTOR TSharedMem.Destroy;
+BEGIN
+  IF FFileView <> NIL THEN
     UnmapViewOfFile(FFileView);
-  inherited Destroy;
-end;
+  INHERITED Destroy;
+END;
 
 
-var
+VAR
   { This object is destroyed by the unit finalization }
-  ProcessInfo: TSharedMem = nil;
+  ProcessInfo                      : TSharedMem = NIL;
 
-{ Check if we are running in a terminal client session }
+  { Check if we are running in a terminal client session }
 
-function IsRemoteSession: Boolean;
-const
-  sm_RemoteSession = $1000; { from WinUser.h }
-begin
+FUNCTION IsRemoteSession: Boolean;
+CONST
+  sm_RemoteSession                 = $1000; { from WinUser.h }
+BEGIN
   Result := GetSystemMetrics(sm_RemoteSession) <> 0;
-end;
+END;
 
 { Check if we are running on XP or a newer version. XP is Windows NT 5.1 }
 
-function IsXP: Boolean;
-begin
+FUNCTION IsXP: Boolean;
+BEGIN
   Result :=
     (Sysutils.Win32Platform = VER_PLATFORM_WIN32_NT)
-    and
+    AND
     ((Sysutils.Win32MajorVersion > 5)
-    or
+    OR
     ((Sysutils.Win32MajorVersion = 5)
-    and
+    AND
     (Sysutils.Win32MinorVersion > 0)
     )
     );
-end;
+END;
 
 { Check if we are running in a Windows terminal client session or on
   Windows XP.  }
 
-function IsWTSOrXP: Boolean;
-begin
-  Result := IsRemoteSession or IsXP
-end;
+FUNCTION IsWTSOrXP: Boolean;
+BEGIN
+  Result := IsRemoteSession OR IsXP
+END;
 
-type
+TYPE
   { Helper class to hold classname and found window handle for
     EnumThreadWindows }
-  TEnumhelper = class
-  public
-    FClassname: string;
+  TEnumhelper = CLASS
+  PUBLIC
+    FClassname: STRING;
     FWnd: HWND;
-    constructor Create(const aClassname: string);
-    function Matches(wnd: HWND): Boolean;
-  end;
+    CONSTRUCTOR Create(CONST aClassname: STRING);
+    FUNCTION Matches(wnd: HWND): Boolean;
+  END;
 
-constructor TEnumhelper.Create(const aClassname: string);
-begin
-  inherited Create;
+CONSTRUCTOR TEnumhelper.Create(CONST aClassname: STRING);
+BEGIN
+  INHERITED Create;
   FClassname := aClassname;
-end;
+END;
 
-function TEnumhelper.Matches(wnd: HWND): Boolean;
-var
-  classname: array[0..127] of Char;
-begin
+FUNCTION TEnumhelper.Matches(wnd: HWND): Boolean;
+VAR
+  classname                        : ARRAY[0..127] OF Char;
+BEGIN
   classname[0] := #0;
   Windows.GetClassname(wnd, classname, sizeof(classname));
   Result := AnsiSametext(Fclassname, classname);
-  if result then
+  IF result THEN
     FWnd := wnd;
-end;
+END;
 
-function EnumProc(wnd: HWND; helper: TEnumHelper): BOOL; stdcall;
-begin
-  Result := not helper.Matches(wnd);
-end;
+FUNCTION EnumProc(wnd: HWND; helper: TEnumHelper): BOOL; STDCALL;
+BEGIN
+  Result := NOT helper.Matches(wnd);
+END;
 
-function FindFirstInstanceMainform(const aClassname: string): HWND;
-var
-  threadID: DWORD;
-  helper: TEnumHelper;
-begin
+FUNCTION FindFirstInstanceMainform(CONST aClassname: STRING): HWND;
+VAR
+  threadID                         : DWORD;
+  helper                           : TEnumHelper;
+BEGIN
   threadID := PDWORD(Processinfo.FFileView)^;
   helper := TEnumHelper.Create(aclassname);
-  try
+  TRY
     EnumThreadWindows(threadID, @EnumProc, Integer(helper));
     Result := helper.FWnd;
-  finally
+  FINALLY
     FreeAndNIL(helper);
-  end;
-end;
+  END;
+END;
 
-function AlreadyRunning(const aProcessName: string;
-  aMainformClass: TClass = nil; aPassCommandLineToClass: TClass = nil;
+FUNCTION AlreadyRunning(CONST aProcessName: STRING;
+  aMainformClass: TClass = NIL; aPassCommandLineToClass: TClass = NIL;
   passCommandline: Boolean = true;
   allowMultiuserInstances: Boolean = true): Boolean;
-  function Processname: string;
-  begin
-    if not allowMultiuserInstances and IsWTSorXP then
+  FUNCTION Processname: STRING;
+  BEGIN
+    IF NOT allowMultiuserInstances AND IsWTSorXP THEN
       Result := 'Global\' + aProcessName
-    else
+    ELSE
       Result := aProcessName;
-  end;
+  END;
 
-  procedure StoreThreadID;
-  begin
+  PROCEDURE StoreThreadID;
+  BEGIN
     PDWORD(ProcessInfo.FFileView)^ := GetCurrentThreadID;
-  end;
+  END;
 
-  function GetCommandline: string;
-  var
-    sl: TStringlist;
-    i: Integer;
-  begin
-    if ParamCount = 1 then
+  FUNCTION GetCommandline: STRING;
+  VAR
+    sl                             : TStringlist;
+    i                              : Integer;
+  BEGIN
+    IF ParamCount = 1 THEN
       Result := ParamStr(1)
-    else begin
+    ELSE BEGIN
       sl := TStringlist.Create;
-      try
-        for i := 1 to ParamCount do
+      TRY
+        FOR i := 1 TO ParamCount DO
           sl.Add(ParamStr(i));
         Result := sl.Text;
-      finally
+      FINALLY
         FreeAndNIL(sl);
-      end; { Finally }
-    end;
-  end;
+      END; { Finally }
+    END;
+  END;
 
-  procedure DoPassCommandline(ToClass: TClass);
-  var
-    wnd: HWND;
-    S: string;
-    copydata: TCopyDataStruct;
-    retries: Integer;
-  begin
+  PROCEDURE DoPassCommandline(ToClass: TClass);
+  VAR
+    wnd                            : HWND;
+    S                              : STRING;
+    copydata                       : TCopyDataStruct;
+    retries                        : Integer;
+  BEGIN
     retries := 0;
-    repeat
+    REPEAT
       wnd := FindFirstInstanceMainform(ToClass.Classname);
-      if wnd <> 0 then
-      begin
+      IF wnd <> 0 THEN BEGIN
         S := GetCommandline;
         copydata.dwData := Paramcount;
         copydata.cbData := Length(S) + 1;
         copydata.lpData := PChar(S);
         SendMessage(wnd, WM_COPYDATA, 0, integer(@copydata));
-      end
-      else begin
+      END
+      ELSE BEGIN
         Inc(retries);
         Sleep(RETRIES_INTERVAL);
-      end;
-    until (wnd <> 0) or (retries > MAX_RETRIES);
-  end;
+      END;
+    UNTIL (wnd <> 0) OR (retries > MAX_RETRIES);
+  END;
 
-var
-  AppMainWnd: HWND;
-  ActivePopUpWnd: HWND;
+VAR
+  AppMainWnd                       : HWND;
+  ActivePopUpWnd                   : HWND;
 
-begin
-  Assert(not Assigned(ProcessInfo),
+BEGIN
+  Assert(NOT Assigned(ProcessInfo),
     'Do not call AlreadyRunning more than once!');
   ProcessInfo := TSharedMem.Create(Processname, Sizeof(DWORD));
-  Result := not ProcessInfo.Created;
-  if Result then
-  begin
+  Result := NOT ProcessInfo.Created;
+  IF Result THEN BEGIN
     //Added by 1248
     AppMainWnd := FindFirstInstanceMainform(aMainformclass.Classname);
-    ActivePopUpWnd :=  GetLastActivePopup(AppMainWnd);
+    ActivePopUpWnd := GetLastActivePopup(AppMainWnd);
     SetForegroundWindow(ActivePopUpWnd);
     //End 1248
 
-    if passCommandline and Assigned(aPassCommandLineToClass) and (ParamCount > 0) then
-        DoPassCommandline(aPassCommandLineToClass);
-  end
-  else
+    IF passCommandline AND Assigned(aPassCommandLineToClass) AND (ParamCount > 0) THEN
+      DoPassCommandline(aPassCommandLineToClass);
+  END
+  ELSE
     StoreThreadID;
-end;
+END;
 
-procedure HandleSendCommandline(const data: TCopyDataStruct;
+PROCEDURE HandleSendCommandline(CONST data: TCopyDataStruct;
   onParameter: TParameterEvent);
-var
-  i: Integer;
-  sl: TStringlist;
-begin
+VAR
+  i                                : Integer;
+  sl                               : TStringlist;
+BEGIN
   Assert(Assigned(onParameter), 'OnParameter cannot be nil');
-  if data.dwData = 1 then
+  IF data.dwData = 1 THEN
     onParameter(PChar(data.lpData))
-  else
-  begin
+  ELSE BEGIN
     sl := TStringlist.Create;
-    try
+    TRY
       sl.Text := PChar(data.lpData);
-      for i := 0 to sl.Count - 1 do
+      FOR i := 0 TO sl.Count - 1 DO
         onParameter(sl[i]);
-    finally
+    FINALLY
       FreeAndNIL(sl);
-    end; { Finally }
-  end;
-end;
+    END; { Finally }
+  END;
+END;
 
-procedure HandleCommandline(onParameter: TParameterEvent);
-var
-  i: Integer;
-begin
+PROCEDURE HandleCommandline(onParameter: TParameterEvent);
+VAR
+  i                                : Integer;
+BEGIN
   Assert(Assigned(onParameter), 'OnParameter cannot be nil');
-  for i := 1 to ParamCount do
+  FOR i := 1 TO ParamCount DO
     onParameter(ParamStr(i));
-end;
+END;
 
-initialization
-finalization
+INITIALIZATION
+FINALIZATION
   FreeAndNIL(ProcessInfo);
-end.
+END.

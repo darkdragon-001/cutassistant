@@ -1,30 +1,30 @@
-unit UploadList;
+UNIT UploadList;
 
-interface
+INTERFACE
 
-uses
+USES
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, StdCtrls, ComCtrls, ExtCtrls;
 
-type
-  TFUploadList = class(TForm)
+TYPE
+  TFUploadList = CLASS(TForm)
     pnlButtons: TPanel;
     lvLinklist: TListView;
     cmdCancel: TButton;
     cmdDelete: TButton;
-  private
+  PRIVATE
     { Private declarations }
-  public
+  PUBLIC
     { Public declarations }
-  end;
+  END;
 
-var
-  FUploadLIst: TFUploadLIst;
+VAR
+  FUploadLIst                      : TFUploadLIst;
 
-implementation
+IMPLEMENTATION
 
 {$R *.dfm}
 
 { TFCutlistSearchResults }
 
-end.
+END.

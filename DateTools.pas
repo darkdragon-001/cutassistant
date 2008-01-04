@@ -84,13 +84,13 @@ USES SysUtils, DateUtils, Windows;
 FUNCTION DateTimeStrEval(CONST DateTimeFormat: STRING;
   CONST DateTimeStr: STRING): TDateTime;
 VAR
-  i, ii, iii                  : integer;
-  Retvar                      : TDateTime;
+  i, ii, iii                       : integer;
+  Retvar                           : TDateTime;
   Tmp,
     Fmt, Data, Mask, CaseMask, Spec: STRING;
   Year, Month, Day, Hour,
-    Minute, Second, MSec      : word;
-  AmPm                        : integer;
+    Minute, Second, MSec           : word;
+  AmPm                             : integer;
   FUNCTION GetChar(s: STRING; i: integer): Char;
   BEGIN
     IF (i < 1) OR (i > Length(s)) THEN BEGIN
@@ -323,7 +323,7 @@ END;
 
 FUNCTION NowUTC: TDateTime;
 VAR
-  sysnow                      : TSystemTime;
+  sysnow                           : TSystemTime;
 BEGIN
   GetSystemTime(sysnow);
   Result := SystemTimeToDateTime(sysnow);
@@ -340,4 +340,3 @@ BEGIN
 END; { DateUTC }
 
 END.
-

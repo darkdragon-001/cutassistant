@@ -1,29 +1,29 @@
-unit trackBarEx;
+UNIT trackBarEx;
 
-interface
+INTERFACE
 
-uses
+USES
   SysUtils, Classes, Controls, ComCtrls;
 
-type
-  TtrackBarEx = class(TTrackBar)
-  private
+TYPE
+  TtrackBarEx = CLASS(TTrackBar)
+  PRIVATE
     { Private declarations }
-  protected
+  PROTECTED
     { Protected declarations }
-  public
+  PUBLIC
     { Public declarations }
-  published
-    property OnMOuseUp;
-  end;
+  PUBLISHED
+    PROPERTY OnMOuseUp;
+  END;
 
-procedure Register;
+PROCEDURE Register;
 
-implementation
+IMPLEMENTATION
 
-procedure Register;
-begin
+PROCEDURE Register;
+BEGIN
   RegisterComponents('Win32', [TtrackBarEx]);
-end;
+END;
 
-end.
+END.

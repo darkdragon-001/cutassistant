@@ -1,17 +1,17 @@
-unit Unit_DSTrackBarEx;
+UNIT Unit_DSTrackBarEx;
 
-interface
+INTERFACE
 
-uses
+USES
   SysUtils, Classes, Controls, ComCtrls, DSPack, Forms, Graphics, Messages, Windows;
 
-type
-  TDSTrackBarEx = class;
+TYPE
+  TDSTrackBarEx = CLASS;
 
-  TTBCustomDrawEvent = procedure(Sender: TDSTrackBarEx; const ARect: TRect) of object;
+  TTBCustomDrawEvent = PROCEDURE(Sender: TDSTrackBarEx; CONST ARect: TRect) OF OBJECT;
 
-  TDSTrackBarEx = class(TDSTrackBar)
-  private
+  TDSTrackBarEx = CLASS(TDSTrackBar)
+  PRIVATE
     { Private declarations }
     FOnPositionChangedByMouse: TNotifyEvent;
     FOnSelChanged: TNotifyEvent;
@@ -20,85 +20,82 @@ type
     FMarkingStart, FMarkingEnd: Integer;
     FChannelCanvas: TCanvas;
     FOnChannelPostPaint: TTBCustomDrawEvent;
-    procedure SetOnChannelPostPaint(const Value: TTBCUstomDrawEvent);
-  protected
+    PROCEDURE SetOnChannelPostPaint(CONST Value: TTBCUstomDrawEvent);
+  PROTECTED
     { Protected declarations }
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
-    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
-    property OnMouseUp;
-    procedure CNNotify(var Message: TWMNotify); message CN_NOTIFY;
-  public
+    PROCEDURE MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); OVERRIDE;
+    PROCEDURE MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); OVERRIDE;
+    PROCEDURE MouseMove(Shift: TShiftState; X, Y: Integer); OVERRIDE;
+    PROPERTY OnMouseUp;
+    PROCEDURE CNNotify(VAR Message: TWMNotify); MESSAGE CN_NOTIFY;
+  PUBLIC
     { Public declarations }
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
+    CONSTRUCTOR Create(AOwner: TComponent); OVERRIDE;
+    DESTRUCTOR Destroy; OVERRIDE;
 
-    procedure TriggerTimer;
-    property IsMouseDown: boolean read FMouseDown;
-    property UserIsMarking: boolean read FUserIsMarking;
-  published
+    PROCEDURE TriggerTimer;
+    PROPERTY IsMouseDown: boolean READ FMouseDown;
+    PROPERTY UserIsMarking: boolean READ FUserIsMarking;
+  PUBLISHED
     { Published declarations }
-    property OnPositionChangedByMouse: TNotifyEvent read FOnPositionChangedByMouse write FOnPositionChangedByMouse;
-    property OnSelChanged: TNotifyEvent read FOnSelChanged write FOnSelChanged;
-    property ChannelCanvas: TCanvas read FChannelCanvas;
-    property OnChannelPostPaint: TTBCUstomDrawEvent  read FOnChannelPostPaint write SetOnChannelPostPaint;
-  end;
+    PROPERTY OnPositionChangedByMouse: TNotifyEvent READ FOnPositionChangedByMouse WRITE FOnPositionChangedByMouse;
+    PROPERTY OnSelChanged: TNotifyEvent READ FOnSelChanged WRITE FOnSelChanged;
+    PROPERTY ChannelCanvas: TCanvas READ FChannelCanvas;
+    PROPERTY OnChannelPostPaint: TTBCUstomDrawEvent READ FOnChannelPostPaint WRITE SetOnChannelPostPaint;
+  END;
 
-procedure Register;
+PROCEDURE Register;
 
-implementation
+IMPLEMENTATION
 
-uses CommCtrl;
+USES CommCtrl;
 
-procedure Register;
-begin
+PROCEDURE Register;
+BEGIN
   RegisterComponents('DSPack', [TDSTrackBarEx]);
-end;
+END;
 
 { TDSTrackBarEx }
 
-constructor TDSTrackBarEx.Create(AOwner: TComponent);
-begin
-  inherited Create(AOwner);
-  FMouseDown    := false;
+CONSTRUCTOR TDSTrackBarEx.Create(AOwner: TComponent);
+BEGIN
+  INHERITED Create(AOwner);
+  FMouseDown := false;
   FUserIsMarking := false;
-  FChannelCanvas:= TCanvas.create;
-end;
+  FChannelCanvas := TCanvas.create;
+END;
 
-procedure TDSTrackBarEx.CNNotify(var Message: TWMNotify);
-var
-  Info: PNMCustomDraw;
-//  R: TRect;
-//  Rgn: HRGN;
-//  Details: TThemedElementDetails;
-//  Offset: Integer;
-begin
-  with Message do begin
-    if NMHdr.code = NM_CUSTOMDRAW then begin
+PROCEDURE TDSTrackBarEx.CNNotify(VAR Message: TWMNotify);
+VAR
+  Info                             : PNMCustomDraw;
+  //  R: TRect;
+  //  Rgn: HRGN;
+  //  Details: TThemedElementDetails;
+  //  Offset: Integer;
+BEGIN
+  WITH Message DO BEGIN
+    IF NMHdr.code = NM_CUSTOMDRAW THEN BEGIN
       Info := Pointer(NMHdr);
-      case Info.dwDrawStage of
+      CASE Info.dwDrawStage OF
         CDDS_PREPAINT:
           // return CDRF_NOTIFYITEMDRAW so that we will get subsequent
           // CDDS_ITEMPREPAINT notifications
           Result := CDRF_NOTIFYITEMDRAW;
-        CDDS_ITEMPREPAINT:
-          begin
-            case Info.dwItemSpec of
+        CDDS_ITEMPREPAINT: BEGIN
+            CASE Info.dwItemSpec OF
               TBCD_CHANNEL:
-                Result := CDRF_DODEFAULT or CDRF_NOTIFYPOSTPAINT;
-              else Result := CDRF_DODEFAULT;
-            end;
-          end;
-        CDDS_ITEMPOSTPAINT:
-          begin
-            case Info.dwItemSpec of
-              TBCD_CHANNEL:
-                begin
+                Result := CDRF_DODEFAULT OR CDRF_NOTIFYPOSTPAINT;
+            ELSE Result := CDRF_DODEFAULT;
+            END;
+          END;
+        CDDS_ITEMPOSTPAINT: BEGIN
+            CASE Info.dwItemSpec OF
+              TBCD_CHANNEL: BEGIN
                   //info.hdc  = DC Handle
                   //info.rc   = Rect
                   inflateRect(info.rc, -4, -2);
                   FChannelCanvas.Handle := info.hdc;
-                  if Assigned(FOnChannelPostPaint) then FOnChannelPostPaint(self, info.rc);
+                  IF Assigned(FOnChannelPostPaint) THEN FOnChannelPostPaint(self, info.rc);
 
                   {FChannelCanvas.Brush.Color := clred;
                   FChannelCanvas.Brush.Style := bsSolid;
@@ -131,72 +128,72 @@ begin
                   SelectClipRgn(Info.hDC, 0);
                  }
                   Result := CDRF_SKIPDEFAULT
-                end;
-              else Result := CDRF_DODEFAULT;
-            end;
-          end;
-      else
+                END;
+            ELSE Result := CDRF_DODEFAULT;
+            END;
+          END;
+      ELSE
         Result := CDRF_DODEFAULT;
-      end;
-    end else
-      inherited;
-  end;
-end;
+      END;
+    END ELSE
+      INHERITED;
+  END;
+END;
 
-procedure TDSTrackBarEx.TriggerTimer;
-begin
+PROCEDURE TDSTrackBarEx.TriggerTimer;
+BEGIN
   self.Timer;
-end;
+END;
 
-procedure TDSTrackBarEx.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin
-  inherited MouseUp(Button, Shift, X, Y);
-  if Button = mbLeft then FMouseDown := False;
-  if FUserIsMarking then begin
+PROCEDURE TDSTrackBarEx.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+BEGIN
+  INHERITED MouseUp(Button, Shift, X, Y);
+  IF Button = mbLeft THEN FMouseDown := False;
+  IF FUserIsMarking THEN BEGIN
     FUserIsMarking := false;
     FOnSelChanged(self);
-  end;
+  END;
   FOnPositionChangedByMouse(self);
-end;
+END;
 
 
-procedure TDSTrackBarEx.MouseDown(Button: TMouseButton; Shift: TShiftState;
+PROCEDURE TDSTrackBarEx.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
-begin
-    inherited MouseDown(Button, Shift, X, Y);
-    if Button = mbLeft then FMouseDown := true;
-    if ssShift in Shift then begin
-      FMarkingStart := self.Position;
-      FMarkingEnd := self.Position;
-      FUserIsMarking := true;
-    end;
-end;
+BEGIN
+  INHERITED MouseDown(Button, Shift, X, Y);
+  IF Button = mbLeft THEN FMouseDown := true;
+  IF ssShift IN Shift THEN BEGIN
+    FMarkingStart := self.Position;
+    FMarkingEnd := self.Position;
+    FUserIsMarking := true;
+  END;
+END;
 
-procedure TDSTrackBarEx.MouseMove(Shift: TShiftState; X, Y: Integer);
-begin
-  inherited MouseMove(Shift, X, Y);
-  if (ssShift in Shift) and FUserIsMarking then begin
+PROCEDURE TDSTrackBarEx.MouseMove(Shift: TShiftState; X, Y: Integer);
+BEGIN
+  INHERITED MouseMove(Shift, X, Y);
+  IF (ssShift IN Shift) AND FUserIsMarking THEN BEGIN
     FMarkingEnd := Position;
-    if FMarkingStart <= FMarkingEnd then begin
+    IF FMarkingStart <= FMarkingEnd THEN BEGIN
       SelStart := FMarkingStart;
       SelEnd := FMarkingEnd;
-    end else begin
+    END ELSE BEGIN
       SelStart := FMarkingEnd;
       SelEnd := FMarkingStart;
-    end;
-  end;
-end;
+    END;
+  END;
+END;
 
-destructor TDSTrackBarEx.Destroy;
-begin
+DESTRUCTOR TDSTrackBarEx.Destroy;
+BEGIN
   FreeAndNIL(FChannelCanvas);
-  inherited Destroy;
-end;
+  INHERITED Destroy;
+END;
 
-procedure TDSTrackBarEx.SetOnChannelPostPaint(const Value: TTBCUstomDrawEvent);
-begin
+PROCEDURE TDSTrackBarEx.SetOnChannelPostPaint(CONST Value: TTBCUstomDrawEvent);
+BEGIN
   FOnChannelPostPaint := Value;
-end;
+END;
 
 
-end.
+END.

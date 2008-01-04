@@ -1,22 +1,22 @@
-unit UCutApplicationAviDemux;
+UNIT UCutApplicationAviDemux;
 
-interface
+INTERFACE
 
-uses
+USES
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, UCutApplicationBase, StdCtrls, IniFiles, Contnrs, JvExStdCtrls,
   JvCheckBox;
 
-const
-  AVIDEMUX_DEFAULT_EXENAME = 'avidemux2.exe';
-  AVIDEMUX_DEFAULT_EXENAME_GTK = 'avidemux2_gtk.exe';
-  AVIDEMUX_DEFAULT_EXENAME_QT4 = 'avidemux2_qt4.exe';
-  AVIDEMUX_DEFAULT_EXENAME_CLI = 'avidemux2_cli.exe';
+CONST
+  AVIDEMUX_DEFAULT_EXENAME         = 'avidemux2.exe';
+  AVIDEMUX_DEFAULT_EXENAME_GTK     = 'avidemux2_gtk.exe';
+  AVIDEMUX_DEFAULT_EXENAME_QT4     = 'avidemux2_qt4.exe';
+  AVIDEMUX_DEFAULT_EXENAME_CLI     = 'avidemux2_cli.exe';
 
-type
-  TCutApplicationAviDemux = class;
+TYPE
+  TCutApplicationAviDemux = CLASS;
 
-  TfrmCutApplicationAviDemux = class(TfrmCutApplicationBase)
+  TfrmCutApplicationAviDemux = CLASS(TfrmCutApplicationBase)
     edtADCommandLineOptions: TEdit;
     lblCommandLineOptions: TLabel;
     cbADRebuildIndex: TJvCheckBox;
@@ -25,50 +25,50 @@ type
     cbADNoGUI: TJvCheckBox;
     cbADAutoSave: TJvCheckBox;
     cbADNotClose: TJvCheckBox;
-  private
+  PRIVATE
     { Private declarations }
-    procedure SetCutApplication(const Value: TCutApplicationAviDemux);
-    function GetCutApplication: TCutApplicationAviDemux;
-  public
+    PROCEDURE SetCutApplication(CONST Value: TCutApplicationAviDemux);
+    FUNCTION GetCutApplication: TCutApplicationAviDemux;
+  PUBLIC
     { Public declarations }
-    property CutApplication: TCutApplicationAviDemux read GetCutApplication write SetCutApplication;
-    procedure Init; override;
-    procedure Apply; override;
-  end;
+    PROPERTY CutApplication: TCutApplicationAviDemux READ GetCutApplication WRITE SetCutApplication;
+    PROCEDURE Init; OVERRIDE;
+    PROCEDURE Apply; OVERRIDE;
+  END;
 
-  TCutApplicationAviDemux = class(TCutApplicationBase)
-  protected
-    FScriptFileName: string;
-    function CreateADScript(cutlist: TObjectList; Inputfile, Outputfile: String; var scriptfile: string): boolean;
-  public
-    CommandLineOptions: string;
+  TCutApplicationAviDemux = CLASS(TCutApplicationBase)
+  PROTECTED
+    FScriptFileName: STRING;
+    FUNCTION CreateADScript(cutlist: TObjectList; Inputfile, Outputfile: STRING; VAR scriptfile: STRING): boolean;
+  PUBLIC
+    CommandLineOptions: STRING;
     RebuildIndex,
-    ScanVBR,
-    SmartCopy,
-    NoGUI,
-    AutoSave,
-    NotClose: boolean;
+      ScanVBR,
+      SmartCopy,
+      NoGUI,
+      AutoSave,
+      NotClose: boolean;
 
     //TempDir: string;
-    constructor create; override;
-    function LoadSettings(IniFile: TCustomIniFile): boolean; override;
-    function SaveSettings(IniFile: TCustomIniFile): boolean; override;
-    function InfoString: string; override;
-    function WriteCutlistInfo(CutlistFile: TCustomIniFile; section: string): boolean; override;
-    function PrepareCutting(SourceFileName: string; var DestFileName: string; Cutlist: TObjectList): boolean; override;
-    function CleanUpAfterCutting: boolean; override;
-  end;
+    CONSTRUCTOR create; OVERRIDE;
+    FUNCTION LoadSettings(IniFile: TCustomIniFile): boolean; OVERRIDE;
+    FUNCTION SaveSettings(IniFile: TCustomIniFile): boolean; OVERRIDE;
+    FUNCTION InfoString: STRING; OVERRIDE;
+    FUNCTION WriteCutlistInfo(CutlistFile: TCustomIniFile; section: STRING): boolean; OVERRIDE;
+    FUNCTION PrepareCutting(SourceFileName: STRING; VAR DestFileName: STRING; Cutlist: TObjectList): boolean; OVERRIDE;
+    FUNCTION CleanUpAfterCutting: boolean; OVERRIDE;
+  END;
 
-var
-  frmCutApplicationAviDemux: TfrmCutApplicationAviDemux;
+VAR
+  frmCutApplicationAviDemux        : TfrmCutApplicationAviDemux;
 
-implementation
+IMPLEMENTATION
 
 {$R *.dfm}
 
 {$WARN UNIT_PLATFORM OFF}
 
-uses
+USES
   CAResources,
   FileCtrl, StrUtils,
   Utils, UCutlist, UfrmCutting, Main;
@@ -76,9 +76,9 @@ uses
 
 { TCutApplicationAviDemux }
 
-constructor TCutApplicationAviDemux.create;
-begin
-  inherited;
+CONSTRUCTOR TCutApplicationAviDemux.create;
+BEGIN
+  INHERITED;
   FrameClass := TfrmCutApplicationAviDemux;
   Name := 'AviDemux';
   DefaultExeNames.Add(AVIDEMUX_DEFAULT_EXENAME);
@@ -87,18 +87,18 @@ begin
   DefaultExeNames.Add(AVIDEMUX_DEFAULT_EXENAME_CLI);
   RedirectOutput := false;
   ShowAppWindow := true;
-end;
+END;
 
-function TCutApplicationAviDemux.LoadSettings(IniFile: TCustomIniFile): boolean;
-var
-  section: string;
-  success: boolean;
-begin
+FUNCTION TCutApplicationAviDemux.LoadSettings(IniFile: TCustomIniFile): boolean;
+VAR
+  section                          : STRING;
+  success                          : boolean;
+BEGIN
   //This part only for compatibility issues for versions below 0.9.9
   //This Setting may be overwritten below
   self.TempDir := IniFile.ReadString('AviDemux', 'ScriptsPath', '');
 
-  success := inherited LoadSettings(IniFile);
+  success := INHERITED LoadSettings(IniFile);
   section := GetIniSectionName;
   CommandLineOptions := IniFile.ReadString(section, 'CommandLineOptions', CommandLineOptions);
 
@@ -110,14 +110,14 @@ begin
   self.SmartCopy := IniFile.ReadBool(section, 'SmartCopy', true);
   self.NoGUI := IniFile.ReadBool(section, 'NoGUI', false);
   result := success;
-end;
+END;
 
-function TCutApplicationAviDemux.SaveSettings(IniFile: TCustomIniFile): boolean;
-var
-  section: string;
-  success: boolean;
-begin
-  success := inherited SaveSettings(IniFile);
+FUNCTION TCutApplicationAviDemux.SaveSettings(IniFile: TCustomIniFile): boolean;
+VAR
+  section                          : STRING;
+  success                          : boolean;
+BEGIN
+  success := INHERITED SaveSettings(IniFile);
 
   section := GetIniSectionName;
   IniFile.WriteString(section, 'CommandLineOptions', CommandLineOptions);
@@ -129,109 +129,108 @@ begin
   IniFile.WriteBool(section, 'NotClose', self.NotClose);
   IniFile.WriteBool(section, 'SmartCopy', self.SmartCopy);
   result := success;
-end;
+END;
 
-function TCutApplicationAviDemux.PrepareCutting(SourceFileName: string;
-  var DestFileName: string; Cutlist: TObjectList): boolean;
-var
-  TempCutlist: TCutlist;
-  MustFreeTempCutlist: boolean;
-  CommandLine, message_string: string;
-begin
-  result := inherited PrepareCutting(SourceFileName, DestFileName, Cutlist);
-  If not Result then
+FUNCTION TCutApplicationAviDemux.PrepareCutting(SourceFileName: STRING;
+  VAR DestFileName: STRING; Cutlist: TObjectList): boolean;
+VAR
+  TempCutlist                      : TCutlist;
+  MustFreeTempCutlist              : boolean;
+  CommandLine, message_string      : STRING;
+BEGIN
+  result := INHERITED PrepareCutting(SourceFileName, DestFileName, Cutlist);
+  IF NOT Result THEN
     Exit;
 
   self.FCommandLines.Clear;
   MustFreeTempCutlist := false;
-  TempCutlist := (Cutlist as TCutlist);
-  
-  if TempCutlist.Mode <> clmTrim then begin
+  TempCutlist := (Cutlist AS TCutlist);
+
+  IF TempCutlist.Mode <> clmTrim THEN BEGIN
     TempCutlist := TempCutlist.convert;
     MustFreeTempCutlist := True;
-  end;
+  END;
 
-  try
+  TRY
     FScriptFileName := '';
-    if self.TempDir = '' then
-    begin
+    IF self.TempDir = '' THEN BEGIN
       FScriptFileName := SourceFileName + '.avidemux';
-    end else begin
-      if not DirectoryExists(TempDir) then begin
-        message_string := Format(CAResources.RsMsgCutAppTempDirMissing, [ TempDir ]);
-        if application.messagebox(PChar(message_string), nil, MB_YESNO + MB_ICONWARNING) = IDYES then
+    END ELSE BEGIN
+      IF NOT DirectoryExists(TempDir) THEN BEGIN
+        message_string := Format(CAResources.RsMsgCutAppTempDirMissing, [TempDir]);
+        IF application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONWARNING) = IDYES THEN
           ForceDirectories(TempDir);
-      end;
-      if not DirectoryExists(TempDir) then
+      END;
+      IF NOT DirectoryExists(TempDir) THEN
         Exit;
 
       FScriptFileName := IncludeTrailingPathDelimiter(TempDir) + ExtractFileName(SourceFileName) + '.avidemux';
-    end;
+    END;
 
     CreateADScript(TempCutlist, SourceFileName, DestFileName, FScriptFileName);
 
     CommandLine := '';
-    if NoGUI then
+    IF NoGUI THEN
       CommandLine := '--nogui ';
-    CommandLine := CommandLine + '--run "'+FScriptFileName+'"';
-    if SmartCopy then
+    CommandLine := CommandLine + '--run "' + FScriptFileName + '"';
+    IF SmartCopy THEN
       CommandLine := CommandLine + ' --force-smart ';
-    if AutoSave then
+    IF AutoSave THEN
       CommandLine := CommandLine + ' --save "' + DestFileName + '"';
-    if (not NotClose) and AutoSave then
+    IF (NOT NotClose) AND AutoSave THEN
       CommandLine := CommandLine + ' --quit';
-    CommandLine := CommandLine +  ' ' + self.CommandLineOptions;
+    CommandLine := CommandLine + ' ' + self.CommandLineOptions;
 
     self.FCommandLines.Add(CommandLine);
     result := true;
-  finally
-    if MustFreeTempCutlist then
+  FINALLY
+    IF MustFreeTempCutlist THEN
       FreeAndNIL(TempCutlist);
-  end;
-end;
+  END;
+END;
 
 
-function TCutApplicationAviDemux.InfoString: string;
-begin
-  Result := Format( CAResources.RsCutAppInfoAviDemux, [
-                    inherited InfoString,
-                    self.CommandLineOptions,
-                    BoolToStr(self.RebuildIndex, true),
-                    BoolToStr(self.ScanVBR, true),
-                    BoolToStr(self.SmartCopy, true)
-                    ]);
-end;
+FUNCTION TCutApplicationAviDemux.InfoString: STRING;
+BEGIN
+  Result := Format(CAResources.RsCutAppInfoAviDemux, [
+    INHERITED InfoString,
+      self.CommandLineOptions,
+      BoolToStr(self.RebuildIndex, true),
+      BoolToStr(self.ScanVBR, true),
+      BoolToStr(self.SmartCopy, true)
+      ]);
+END;
 
-function TCutApplicationAviDemux.WriteCutlistInfo(CutlistFile: TCustomIniFile;
-  section: string): boolean;
-begin
-  result := inherited WriteCutlistInfo(CutlistFile, section);
-  if result then begin
+FUNCTION TCutApplicationAviDemux.WriteCutlistInfo(CutlistFile: TCustomIniFile;
+  section: STRING): boolean;
+BEGIN
+  result := INHERITED WriteCutlistInfo(CutlistFile, section);
+  IF result THEN BEGIN
     cutlistfile.WriteString(section, 'IntendedCutApplicationOptions', self.CommandLineOptions);
     cutlistfile.WriteBool(section, 'AviDemuxRebuildIndex', self.RebuildIndex);
     cutlistfile.WriteBool(section, 'AviDemuxScanVBR', self.ScanVBR);
     cutlistfile.WriteBool(section, 'AviDemuxSmartCopy', self.SmartCopy);
     result := true;
-  end;
-end;
+  END;
+END;
 
-function TCutApplicationAviDemux.CreateADScript(cutlist: TObjectList;
-  Inputfile, Outputfile: String; var scriptfile: string): boolean;
+FUNCTION TCutApplicationAviDemux.CreateADScript(cutlist: TObjectList;
+  Inputfile, Outputfile: STRING; VAR scriptfile: STRING): boolean;
 
-  function EscapeString(s: string): string;
-  begin
+  FUNCTION EscapeString(s: STRING): STRING;
+  BEGIN
     result := AnsiReplaceStr(s, '\', '\\');
     result := AnsiReplaceStr(Result, '''', '\''');
-  end;
+  END;
 
-var
-  f: Textfile;
-  i: integer;
-  vdubStart, vdubLength: string;
-  cutlist_tmp: TCutlist;
-begin
-  cutlist_tmp := cutlist as TCutlist;
-  if scriptfile = '' then
+VAR
+  f                                : Textfile;
+  i                                : integer;
+  vdubStart, vdubLength            : STRING;
+  cutlist_tmp                      : TCutlist;
+BEGIN
+  cutlist_tmp := cutlist AS TCutlist;
+  IF scriptfile = '' THEN
     scriptfile := Inputfile + '.avidemux';
   assignfile(f, scriptfile);
   rewrite(f);
@@ -245,18 +244,18 @@ begin
   writeln(f, 'app.clearSegments();');
 
   cutlist_tmp.sort;
-  for i := 0 to cutlist_tmp.Count -1 do begin
-    if cutlist_tmp.FramesPresent and not cutlist_tmp.HasChanged then begin
+  FOR i := 0 TO cutlist_tmp.Count - 1 DO BEGIN
+    IF cutlist_tmp.FramesPresent AND NOT cutlist_tmp.HasChanged THEN BEGIN
       vdubstart := inttostr(cutlist_tmp.Cut[i].frame_from);
       vdubLength := inttostr(cutlist_tmp.Cut[i].DurationFrames);
-    end else begin
+    END ELSE BEGIN
       vdubstart := inttostr(round(cutlist_tmp.Cut[i].pos_from / MovieInfo.frame_duration));
       vdubLength := inttostr(round((cutlist_tmp.Cut[i].pos_to - cutlist_tmp.Cut[i].pos_from) / MovieInfo.frame_duration + 1));
-    end;
+    END;
     writeln(f, 'app.addSegment(0,' + vdubstart + ', ' + vdubLength + ');');
-  end;
+  END;
 
-  if RebuildIndex then
+  IF RebuildIndex THEN
     writeln(f, 'app.rebuildIndex();');
   writeln(f, '');
   writeln(f, '//** Postproc **');
@@ -268,72 +267,72 @@ begin
   writeln(f, 'app.audio.codec("copy",128);');
   writeln(f, 'app.audio.normalize=false;');
   writeln(f, 'app.audio.delay=0;');
-  if ScanVBR then
+  IF ScanVBR THEN
     writeln(f, 'app.audio.scanVBR();');
   writeln(f, '');
   writeln(f, 'app.setContainer("AVI");');
-  if SmartCopy then
+  IF SmartCopy THEN
     writeln(f, 'app.smartCopyMode();');
-  if AutoSave then begin
+  IF AutoSave THEN BEGIN
     writeln(f, 'setSuccess(app.save("' + EscapeString(Outputfile) + '"));');
-  end else begin
+  END ELSE BEGIN
     writeln(f, 'setSuccess(1);');
-  end;
+  END;
 
   closefile(f);
   result := true;
-end;
+END;
 
-function TCutApplicationAviDemux.CleanUpAfterCutting: boolean;
-var
-  success: boolean;
-begin
+FUNCTION TCutApplicationAviDemux.CleanUpAfterCutting: boolean;
+VAR
+  success                          : boolean;
+BEGIN
   result := false;
-  if self.CleanUp then begin
-    result := inherited CleanUpAfterCutting;
-    if FileExists(FScriptFileName) then begin
+  IF self.CleanUp THEN BEGIN
+    result := INHERITED CleanUpAfterCutting;
+    IF FileExists(FScriptFileName) THEN BEGIN
       success := DeleteFile(FScriptFileName);
-      result := result and success;
-    end;
-  end;    
-end;
+      result := result AND success;
+    END;
+  END;
+END;
 
 { TfrmCutApplicationAviDemux }
 
-procedure TfrmCutApplicationAviDemux.Init;
-begin
-  inherited;
+PROCEDURE TfrmCutApplicationAviDemux.Init;
+BEGIN
+  INHERITED;
   self.edtADCommandLineOptions.Text := CutApplication.CommandLineOptions;
-  CBADAutoSave.Checked      := CutApplication.AutoSave;
-  CBADNotClose.Checked      := CutApplication.NotClose;
-  CBADRebuildIndex.Checked  := CutApplication.RebuildIndex;
-  CBADScanVBR.Checked       := CutApplication.ScanVBR;
-  CBADSmartCopy.Checked     := CutApplication.SmartCopy;
-  CBADNoGUI.Checked         := CutApplication.NoGUI;
-end;
+  CBADAutoSave.Checked := CutApplication.AutoSave;
+  CBADNotClose.Checked := CutApplication.NotClose;
+  CBADRebuildIndex.Checked := CutApplication.RebuildIndex;
+  CBADScanVBR.Checked := CutApplication.ScanVBR;
+  CBADSmartCopy.Checked := CutApplication.SmartCopy;
+  CBADNoGUI.Checked := CutApplication.NoGUI;
+END;
 
-procedure TfrmCutApplicationAviDemux.Apply;
-begin
-  inherited;
+PROCEDURE TfrmCutApplicationAviDemux.Apply;
+BEGIN
+  INHERITED;
   CutApplication.CommandLineOptions := edtADCommandLineOptions.Text;
 
-  CutApplication.AutoSave     := CBADAutoSave.Checked   ;
-  CutApplication.NotClose     := CBADNotClose.Checked      ;
-  CutApplication.RebuildIndex := CBADRebuildIndex.Checked ;
-  CutApplication.ScanVBR      := CBADScanVBR.Checked;
-  CutApplication.SmartCopy    := CBADSmartCopy.Checked;
-  CutApplication.NoGUI        := CBADNoGUI.Checked;
-end;
+  CutApplication.AutoSave := CBADAutoSave.Checked;
+  CutApplication.NotClose := CBADNotClose.Checked;
+  CutApplication.RebuildIndex := CBADRebuildIndex.Checked;
+  CutApplication.ScanVBR := CBADScanVBR.Checked;
+  CutApplication.SmartCopy := CBADSmartCopy.Checked;
+  CutApplication.NoGUI := CBADNoGUI.Checked;
+END;
 
-procedure TfrmCutApplicationAviDemux.SetCutApplication(
-  const Value: TCutApplicationAviDemux);
-begin
+PROCEDURE TfrmCutApplicationAviDemux.SetCutApplication(
+  CONST Value: TCutApplicationAviDemux);
+BEGIN
   FCutApplication := Value;
-end;
+END;
 
-function TfrmCutApplicationAviDemux.GetCutApplication: TCutApplicationAviDemux;
-begin
-  result := (self.FCutApplication as TCutApplicationAviDemux);
-end;
+FUNCTION TfrmCutApplicationAviDemux.GetCutApplication: TCutApplicationAviDemux;
+BEGIN
+  result := (self.FCutApplication AS TCutApplicationAviDemux);
+END;
 
-end.
+END.

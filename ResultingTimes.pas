@@ -1,15 +1,15 @@
-unit ResultingTimes;
+UNIT ResultingTimes;
 
-interface
+INTERFACE
 
-uses
+USES
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, ExtCtrls, StdCtrls, ComCtrls, ActiveX,
   main, CutlistINfo_dialog, UCutlist,
   DSPack, DirectShow9, DSUtil, Movie;
 
-type
-  TFResultingTimes = class(TForm)
+TYPE
+  TFResultingTimes = CLASS(TForm)
     lvTimeList: TListView;
     cmdClose: TButton;
     pnlMovieControl: TPanel;
@@ -26,275 +26,276 @@ type
     edtDuration: TEdit;
     lblSeconds: TLabel;
     udDuration: TUpDown;
-    procedure cmdCloseClick(Sender: TObject);
-    procedure lvTimeListDblClick(Sender: TObject);
-    procedure pnlVideoWindowResize(Sender: TObject);
-    procedure tbVolumeChange(Sender: TObject);
-    procedure cmdPlayClick(Sender: TObject);
-    procedure cmdPauseClick(Sender: TObject);
-    procedure JumpTo(NewPosition: double);
-    procedure FormClose(Sender: TObject; var Action: TCloseAction);
-    procedure FormCreate(Sender: TObject);
-    procedure udDurationChanging(Sender: TObject; var AllowChange: Boolean);
-    procedure FormDestroy(Sender: TObject);
-    function FilterGraphSelectedFilter(Moniker: IMoniker;
+    PROCEDURE cmdCloseClick(Sender: TObject);
+    PROCEDURE lvTimeListDblClick(Sender: TObject);
+    PROCEDURE pnlVideoWindowResize(Sender: TObject);
+    PROCEDURE tbVolumeChange(Sender: TObject);
+    PROCEDURE cmdPlayClick(Sender: TObject);
+    PROCEDURE cmdPauseClick(Sender: TObject);
+    PROCEDURE JumpTo(NewPosition: double);
+    PROCEDURE FormClose(Sender: TObject; VAR Action: TCloseAction);
+    PROCEDURE FormCreate(Sender: TObject);
+    PROCEDURE udDurationChanging(Sender: TObject; VAR AllowChange: Boolean);
+    PROCEDURE FormDestroy(Sender: TObject);
+    FUNCTION FilterGraphSelectedFilter(Moniker: IMoniker;
       FilterName: WideString; ClassID: TGUID): Boolean;
-    procedure FormShow(Sender: TObject);
-  private
+    PROCEDURE FormShow(Sender: TObject);
+  PRIVATE
     { Private declarations }
-    To_Array: Array of double;
+    To_Array: ARRAY OF double;
     seeking: IMediaSeeking;
     FOffset: INteger;
-    current_filename: string;
+    current_filename: STRING;
     FMovieInfo: TMovieInfo;
-  public
+  PUBLIC
     { Public declarations }
-    procedure calculate(Cutlist: TCutlist);
-    function loadMovie(filename: string): boolean;
-  end;
+    PROCEDURE calculate(Cutlist: TCutlist);
+    FUNCTION loadMovie(filename: STRING): boolean;
+  END;
 
-var
-  FResultingTimes: TFResultingTimes;
+VAR
+  FResultingTimes                  : TFResultingTimes;
 
-implementation
+IMPLEMENTATION
 
-  uses Utils, Math, Settings_dialog;
-  
+USES Utils, Math, Settings_dialog;
+
 {$R *.dfm}
 
 { TFResultingTimes }
-procedure TFResultingTimes.calculate(Cutlist: TCutlist);
-var
-  icut: integer;
-  cut: tcut;
-  cut_view : tlistitem;
-  i_column: integer;
-  converted_cutlist: TCutlist;
-  time: double;
-begin
-  if cutlist.Count = 0 then begin
+
+PROCEDURE TFResultingTimes.calculate(Cutlist: TCutlist);
+VAR
+  icut                             : integer;
+  cut                              : tcut;
+  cut_view                         : tlistitem;
+  i_column                         : integer;
+  converted_cutlist                : TCutlist;
+  time                             : double;
+BEGIN
+  IF cutlist.Count = 0 THEN BEGIN
     self.lvTimeList.Clear;
     exit;
-  end;
-  if cutlist.Mode = clmTrim then begin
+  END;
+  IF cutlist.Mode = clmTrim THEN BEGIN
     self.lvTimeList.Clear;
     time := 0;
     setlength(To_Array, cutlist.Count);
-    for icut := 0 to cutlist.Count-1 do begin
+    FOR icut := 0 TO cutlist.Count - 1 DO BEGIN
       cut := cutlist[icut];
       cut_view := self.lvTimeList.Items.Add;
       cut_view.Caption := inttostr(icut); //inttostr(cut.index);
       cut_view.SubItems.Add(MovieInfo.FormatPosition(time));
-      time := time + cut.pos_to-cut.pos_from;
+      time := time + cut.pos_to - cut.pos_from;
       cut_view.SubItems.Add(MovieInfo.FormatPosition(time));
       To_Array[iCut] := time;
-      cut_view.SubItems.Add(MovieInfo.FormatPosition(cut.pos_to-cut.pos_from));
+      cut_view.SubItems.Add(MovieInfo.FormatPosition(cut.pos_to - cut.pos_from));
       time := time + MovieInfo.frame_Duration;
-    end;
+    END;
 
     //Auto-Resize columns
-    for i_column := 0 to self.lvTimeList.Columns.Count -1 do begin
+    FOR i_column := 0 TO self.lvTimeList.Columns.Count - 1 DO BEGIN
       lvTimeList.Columns[i_column].Width := -2;
-    end;
-  end else begin
+    END;
+  END ELSE BEGIN
     Converted_Cutlist := cutlist.convert;
     self.calculate(COnverted_cutlist);
     FreeAndNIL(Converted_Cutlist);
-  end;
-end;
+  END;
+END;
 
-procedure TFResultingTimes.cmdCloseClick(Sender: TObject);
-begin
+PROCEDURE TFResultingTimes.cmdCloseClick(Sender: TObject);
+BEGIN
   self.Close;
-end;
+END;
 
-procedure TFResultingTimes.lvTimeListDblClick(Sender: TObject);
-var
-  target_Time: double;
-begin
-  if filtergraph.Active then begin
-    if self.lvTimeList.ItemIndex < 0 then exit;
+PROCEDURE TFResultingTimes.lvTimeListDblClick(Sender: TObject);
+VAR
+  target_Time                      : double;
+BEGIN
+  IF filtergraph.Active THEN BEGIN
+    IF self.lvTimeList.ItemIndex < 0 THEN exit;
     target_Time := self.To_array[self.lvTimeList.ItemIndex] - FOffset;
-    if target_time > MovieInfo.current_file_duration then exit;
-    if target_time < 0 then target_time := 0;
+    IF target_time > MovieInfo.current_file_duration THEN exit;
+    IF target_time < 0 THEN target_time := 0;
     JumpTo(Target_time);
     FilterGraph.Play;
-  end;
-end;
+  END;
+END;
 
-procedure TFResultingTimes.JumpTo(NewPosition: double);
-var
-  _pos: int64;
-  event: Integer;
-begin
-  if assigned(seeking) then  begin
-    if NewPosition < 0 then
+PROCEDURE TFResultingTimes.JumpTo(NewPosition: double);
+VAR
+  _pos                             : int64;
+  event                            : Integer;
+BEGIN
+  IF assigned(seeking) THEN BEGIN
+    IF NewPosition < 0 THEN
       NewPosition := 0;
-    if NewPosition > MovieInfo.current_file_duration then
+    IF NewPosition > MovieInfo.current_file_duration THEN
       NewPosition := MovieInfo.current_file_duration;
 
-    if isEqualGUID(MovieInfo.TimeFormat, TIME_FORMAT_MEDIA_TIME) then
+    IF isEqualGUID(MovieInfo.TimeFormat, TIME_FORMAT_MEDIA_TIME) THEN
       _pos := round(NewPosition * 10000000)
-    else
+    ELSE
       _pos := round(NewPosition);
     seeking.SetPositions(_pos, AM_SEEKING_AbsolutePositioning,
-                         _pos, AM_SEEKING_NoPositioning);
+      _pos, AM_SEEKING_NoPositioning);
     //filtergraph.State
     MediaEvent.WaitForCompletion(500, event);
-  end;
-end;
+  END;
+END;
 
 
-procedure TFResultingTimes.pnlVideoWindowResize(Sender: TObject);
-var
-  movie_ar: double;
-  my_ar: double;
-begin
+PROCEDURE TFResultingTimes.pnlVideoWindowResize(Sender: TObject);
+VAR
+  movie_ar                         : double;
+  my_ar                            : double;
+BEGIN
   movie_ar := MovieInfo.ratio;
   my_ar := self.pnlVideoWindow.Width / self.pnlVideoWindow.Height;
-  if my_ar > movie_ar then begin
+  IF my_ar > movie_ar THEN BEGIN
     self.VideoWindow.Height := self.pnlVideoWindow.Height;
-    self.VideoWindow.Width := round (self.videowindow.Height * movie_ar);
-  end else begin
+    self.VideoWindow.Width := round(self.videowindow.Height * movie_ar);
+  END ELSE BEGIN
     self.VideoWindow.Width := self.pnlVideoWindow.Width;
     self.VideoWindow.Height := round(self.VideoWindow.Width / movie_ar);
-  end; 
-end;
+  END;
+END;
 
-function TFResultingTimes.loadMovie(filename: string): boolean;
-var
-  AvailableFilters : TSysDevEnum;
+FUNCTION TFResultingTimes.loadMovie(filename: STRING): boolean;
+VAR
+  AvailableFilters                 : TSysDevEnum;
   SourceFilter, AviDecompressorFilter: IBAseFilter;
-  SourceAdded: boolean;
-  PinList: TPinList;
-  IPin: Integer;
-begin
+  SourceAdded                      : boolean;
+  PinList                          : TPinList;
+  IPin                             : Integer;
+BEGIN
   result := false;
 
   FMovieInfo.target_filename := '';
-  if not FMovieInfo.InitMovie(filename) then
+  IF NOT FMovieInfo.InitMovie(filename) THEN
     Exit;
 
   filtergraph.Active := true;
 
   AvailableFilters := TSysDevEnum.Create(CLSID_LegacyAmFilterCategory); //DirectShow Filters
-  try
-      //If MP4 then Try to Add AviDecompressor
-    if (MovieInfo.MovieType in [mtMP4]) then begin
+  TRY
+    //If MP4 then Try to Add AviDecompressor
+    IF (MovieInfo.MovieType IN [mtMP4]) THEN BEGIN
       AviDecompressorFilter := AvailableFilters.GetBaseFilter(CLSID_AVIDec); //Avi Decompressor
-      if assigned(AviDecompressorFilter) then begin
-        CheckDSError((FilterGraph as IGraphBuilder).AddFilter(AviDecompressorFilter, 'Avi Decompressor'));
-      end;
-    end;
+      IF assigned(AviDecompressorFilter) THEN BEGIN
+        CheckDSError((FilterGraph AS IGraphBuilder).AddFilter(AviDecompressorFilter, 'Avi Decompressor'));
+      END;
+    END;
 
-    SourceAdded:= false;
-    If Not (IsEqualGUID(Settings.GetPreferredSourceFilterByMovieType(MovieInfo.MovieType), GUID_NULL)) then begin
+    SourceAdded := false;
+    IF NOT (IsEqualGUID(Settings.GetPreferredSourceFilterByMovieType(MovieInfo.MovieType), GUID_NULL)) THEN BEGIN
       SourceFilter := AvailableFilters.GetBaseFilter(Settings.GetPreferredSourceFilterByMovieType(MovieInfo.MovieType));
-      if assigned(SourceFilter) then begin
-        CheckDSError((SourceFilter as IFileSourceFilter).Load(StringToOleStr(FileName), nil));
-        CheckDSError((FilterGraph as IGraphBuilder).AddFilter(SourceFilter, StringToOleStr('Source Filter [' + extractFileName(FileName) + ']')));
+      IF assigned(SourceFilter) THEN BEGIN
+        CheckDSError((SourceFilter AS IFileSourceFilter).Load(StringToOleStr(FileName), NIL));
+        CheckDSError((FilterGraph AS IGraphBuilder).AddFilter(SourceFilter, StringToOleStr('Source Filter [' + extractFileName(FileName) + ']')));
         SourceAdded := true;
-      end;
-    end;
-  finally
+      END;
+    END;
+  FINALLY
     FreeAndNIL(AvailableFilters);
-  end;
+  END;
 
-  if not sourceAdded then begin
+  IF NOT sourceAdded THEN BEGIN
     CheckDSError(FilterGraph.RenderFile(FileName));
-  end else begin
+  END ELSE BEGIN
     PinLIst := TPinLIst.Create(SourceFilter);
-    try
-      for iPin := 0 to PinList.Count-1 do begin
-        CheckDSError((FilterGraph as IGraphBuilder).Render(PinList.Items[iPin]));
-      end;
-    finally
+    TRY
+      FOR iPin := 0 TO PinList.Count - 1 DO BEGIN
+        CheckDSError((FilterGraph AS IGraphBuilder).Render(PinList.Items[iPin]));
+      END;
+    FINALLY
       FreeAndNIL(PinList);
-    end;
-  end;
+    END;
+  END;
 
-  if FilterGraph.Active then begin
-    if not succeeded(FilterGraph.QueryInterface(IMediaSeeking, Seeking)) then begin
-      seeking := nil;
+  IF FilterGraph.Active THEN BEGIN
+    IF NOT succeeded(FilterGraph.QueryInterface(IMediaSeeking, Seeking)) THEN BEGIN
+      seeking := NIL;
       filtergraph.Active := false;
       result := false;
       exit;
-    end;
+    END;
     filtergraph.Pause;
     filtergraph.Volume := self.tbVolume.Position;
     current_filename := filename;
     self.tbPosition.Position := 0;
     result := true;
-  end;
-end;
+  END;
+END;
 
-procedure TFResultingTimes.tbVolumeChange(Sender: TObject);
-begin
+PROCEDURE TFResultingTimes.tbVolumeChange(Sender: TObject);
+BEGIN
   FilterGraph.Volume := self.tbVolume.Position;
-end;
+END;
 
-procedure TFResultingTimes.cmdPlayClick(Sender: TObject);
-begin
-  if FilterGraph.Active then
+PROCEDURE TFResultingTimes.cmdPlayClick(Sender: TObject);
+BEGIN
+  IF FilterGraph.Active THEN
     FilterGraph.Play;
-end;
+END;
 
-procedure TFResultingTimes.cmdPauseClick(Sender: TObject);
-begin
-  if FilterGraph.Active then
+PROCEDURE TFResultingTimes.cmdPauseClick(Sender: TObject);
+BEGIN
+  IF FilterGraph.Active THEN
     FilterGraph.Pause
-end;
+END;
 
-procedure TFResultingTimes.FormClose(Sender: TObject;
-  var Action: TCloseAction);
-begin
+PROCEDURE TFResultingTimes.FormClose(Sender: TObject;
+  VAR Action: TCloseAction);
+BEGIN
   FilterGraph.Stop;
   FilterGraph.ClearGraph;
   FilterGraph.Active := false;
   settings.OffsetSecondsCutChecking := FOffset;
-end;
+END;
 
-procedure TFResultingTimes.FormCreate(Sender: TObject);
-begin
+PROCEDURE TFResultingTimes.FormCreate(Sender: TObject);
+BEGIN
   AdjustFormConstraints(Self);
-  if ValidRect(Settings.PreviewFormBounds) then
+  IF ValidRect(Settings.PreviewFormBounds) THEN
     self.BoundsRect := Settings.PreviewFormBounds
-  else
-  begin
-    self.Left := Max(0, FMain.Left + (FMain.Width - self.Width) div 2);
-    self.Top := Max(0, FMain.Top + (FMain.Height - self.Height) div 2);
-  end;
+  ELSE BEGIN
+    self.Left := Max(0, FMain.Left + (FMain.Width - self.Width) DIV 2);
+    self.Top := Max(0, FMain.Top + (FMain.Height - self.Height) DIV 2);
+  END;
   self.WindowState := Settings.PreviewFormWindowState;
 
   self.udDuration.Position := settings.OffsetSecondsCutChecking;
   FOffset := settings.OffsetSecondsCutChecking;
   FMovieInfo := TMovieInfo.Create;
-end;
+END;
 
 
-procedure TFResultingTimes.udDurationChanging(Sender: TObject;
-  var AllowChange: Boolean);
-begin
+PROCEDURE TFResultingTimes.udDurationChanging(Sender: TObject;
+  VAR AllowChange: Boolean);
+BEGIN
   FOffset := self.udDuration.Position;
-end;
+END;
 
-procedure TFResultingTimes.FormDestroy(Sender: TObject);
-begin
+PROCEDURE TFResultingTimes.FormDestroy(Sender: TObject);
+BEGIN
   Settings.PreviewFormBounds := self.BoundsRect;
   Settings.PreviewFormWindowState := self.WindowState;
   FreeAndNIL(FMovieInfo);
-end;
+END;
 
-function TFResultingTimes.FilterGraphSelectedFilter(Moniker: IMoniker;
+FUNCTION TFResultingTimes.FilterGraphSelectedFilter(Moniker: IMoniker;
   FilterName: WideString; ClassID: TGUID): Boolean;
-begin
-  result := not settings.FilterIsInBlackList(ClassID);
-end;
+BEGIN
+  result := NOT settings.FilterIsInBlackList(ClassID);
+END;
 
-procedure TFResultingTimes.FormShow(Sender: TObject);
-begin
+PROCEDURE TFResultingTimes.FormShow(Sender: TObject);
+BEGIN
   // Show taskbar button for this form ...
   SetWindowLong(Handle, GWL_ExStyle, WS_Ex_AppWindow);
-end;
+END;
 
-end.
+END.
+

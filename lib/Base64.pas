@@ -1,4 +1,4 @@
-unit Base64;
+UNIT Base64;
 
 (*
  ================================================================
@@ -11,122 +11,124 @@ unit Base64;
  ================================================================
 *)
 
-interface
-uses SysUtils, windows;
+INTERFACE
+USES SysUtils, windows;
 
-function BufferToString(const pBuffer: Pointer; Size: DWORD): String;
-procedure StringToBuffer(const s: String; var pBuffer: Pointer; var Size: DWORD);
+FUNCTION BufferToString(CONST pBuffer: Pointer; Size: DWORD): STRING;
+PROCEDURE StringToBuffer(CONST s: STRING; VAR pBuffer: Pointer; VAR Size: DWORD);
 
-function BufferToBase64(const pBuffer: Pointer; Size: DWORD): String;
-procedure Base64ToBuffer(const B64: String; var pBuffer: Pointer; var Size: DWORD);
-function StrTobase64( Buf: string ): string;
-function Base64ToStr( B64: string ): string;
+FUNCTION BufferToBase64(CONST pBuffer: Pointer; Size: DWORD): STRING;
+PROCEDURE Base64ToBuffer(CONST B64: STRING; VAR pBuffer: Pointer; VAR Size: DWORD);
+FUNCTION StrTobase64(Buf: STRING): STRING;
+FUNCTION Base64ToStr(B64: STRING): STRING;
 
-implementation
+IMPLEMENTATION
 
-const
-  Base64Code    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-                + 'abcdefghijklmnopqrstuvwxyz'
-                + '0123456789+/';
-  Pad           = '=';
+CONST
+  Base64Code                       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    + 'abcdefghijklmnopqrstuvwxyz'
+    + '0123456789+/';
+  Pad                              = '=';
 
-type
+TYPE
   EBase64Error = Exception;
 
-//*****************************************************************************
-function BufferToString(const pBuffer: Pointer; Size: DWORD): String;
+  //*****************************************************************************
+
+FUNCTION BufferToString(CONST pBuffer: Pointer; Size: DWORD): STRING;
 {var
   b: byte;
   i: DWORD;
   s: string;
   p: PChar;   }
-begin
+BEGIN
   setString(result, PChar(PBuffer), Size);
 
-{ //OLD VERSION:
+  { //OLD VERSION:
 
-  p := PChar(pBuffer);
-  s := '';
-  for i := 0 to Size-1 do begin
-    s := s + p^;
-    inc(p);
-  end;
-  result := s;}
-end;
+    p := PChar(pBuffer);
+    s := '';
+    for i := 0 to Size-1 do begin
+      s := s + p^;
+      inc(p);
+    end;
+    result := s;}
+END;
 
 //*****************************************************************************
-procedure StringToBuffer(const s: String; var pBuffer: Pointer; var Size: DWORD);
-var
-  i: DWORD;
-  p: PChar;
-begin
+
+PROCEDURE StringToBuffer(CONST s: STRING; VAR pBuffer: Pointer; VAR Size: DWORD);
+VAR
+  i                                : DWORD;
+  p                                : PChar;
+BEGIN
   size := length(s);
   getMem(pBuffer, size);
   p := PChar(pBuffer);
-  for i := 1 to size do begin
+  FOR i := 1 TO size DO BEGIN
     p^ := s[i];
     inc(p);
-  end;
-end;
+  END;
+END;
 
 //*****************************************************************************
-procedure Base64ToBuffer(const B64: String; var pBuffer: Pointer; var Size: DWORD);
-begin
+
+PROCEDURE Base64ToBuffer(CONST B64: STRING; VAR pBuffer: Pointer; VAR Size: DWORD);
+BEGIN
   StringToBuffer(Base64ToStr(B64), pBuffer, Size);
-end;
+END;
 
 //*****************************************************************************
-function BufferToBase64(const pBuffer: Pointer; Size: DWORD): String;
-begin
+
+FUNCTION BufferToBase64(CONST pBuffer: Pointer; Size: DWORD): STRING;
+BEGIN
   result := StrToBase64(BufferToString(pBuffer, Size));
-end;
+END;
 
 //*****************************************************************************
-function StrTobase64( Buf: string ): string;
-var
-//  B3            : string[3];
-  i             : integer;
-  x1, x2, x3, x4: byte;
-  PadCount      : integer;
-begin
+
+FUNCTION StrTobase64(Buf: STRING): STRING;
+VAR
+  //  B3            : string[3];
+  i                                : integer;
+  x1, x2, x3, x4                   : byte;
+  PadCount                         : integer;
+BEGIN
   PadCount := 0;
 
- // we need at least 3 input bytes...
-  while length( Buf ) < 3 do
-  begin
+  // we need at least 3 input bytes...
+  WHILE length(Buf) < 3 DO BEGIN
     Buf := Buf + #0;
-    inc( PadCount );
-  end;
+    inc(PadCount);
+  END;
 
- // ...and all input must be an even multiple of 3
-  while ( length( Buf ) mod 3 ) <> 0 do
-  begin
+  // ...and all input must be an even multiple of 3
+  WHILE (length(Buf) MOD 3) <> 0 DO BEGIN
     Buf := Buf + #0; // if not, zero padding is added
-    inc( PadCount );
-  end;
+    inc(PadCount);
+  END;
 
   Result := '';
   i := 1;
 
- // process 3-byte blocks or 24 bits
-  while i <= length( Buf ) - 2 do
-  begin
+  // process 3-byte blocks or 24 bits
+  WHILE i <= length(Buf) - 2 DO BEGIN
     // each 3 input bytes are transformed into 4 index values
     // in the range of  0..63, by taking 6 bits each step
 
     // 6 high bytes of first char
-    x1 := ( Ord( Buf[i] ) shr 2 ) and $3F;
+    x1 := (Ord(Buf[i]) SHR 2) AND $3F;
 
     // 2 low bytes of first char + 4 high bytes of second char
-    x2 := ( ( Ord( Buf[i] ) shl 4 ) and $3F )
-      or Ord( Buf[i + 1] ) shr 4;
+    x2 := ((Ord(Buf[i]) SHL 4) AND $3F)
+      OR Ord(Buf[i + 1]) SHR 4;
 
     // 4 low bytes of second char + 2 high bytes of third char
-    x3 := ( ( Ord( Buf[i + 1] ) shl 2 ) and $3F )
-      or Ord( Buf[i + 2] ) shr 6;
+    x3 := ((Ord(Buf[i + 1]) SHL 2) AND $3F)
+      OR Ord(Buf[i + 2]) SHR 6;
 
     // 6 low bytes of third char
-    x4 := Ord( Buf[i + 2] ) and $3F;
+    x4 := Ord(Buf[i + 2]) AND $3F;
 
     // the index values point into the code array
     Result := Result
@@ -134,83 +136,79 @@ begin
       + Base64Code[x2 + 1]
       + Base64Code[x3 + 1]
       + Base64Code[x4 + 1];
-    inc( i, 3 );
-  end;
+    inc(i, 3);
+  END;
 
- // if needed, finish by forcing padding chars ('=')
- // at end of string
-  if PadCount > 0 then
-    for i := Length( Result ) downto 1 do
-    begin
+  // if needed, finish by forcing padding chars ('=')
+  // at end of string
+  IF PadCount > 0 THEN
+    FOR i := Length(Result) DOWNTO 1 DO BEGIN
       Result[i] := Pad;
-      dec( PadCount );
-      if PadCount = 0 then BREAK;
-    end;
+      dec(PadCount);
+      IF PadCount = 0 THEN BREAK;
+    END;
 
-end;
+END;
 
 //*****************************************************************************
 // helper : given a char, returns the index in code table
-function Char2IDx( c: char ): byte;
-var
-  i             : integer;
-begin
-  for i := 1 to Length( Base64Code ) do
-    if Base64Code[i] = c then
-    begin
-      Result := pred( i );
+
+FUNCTION Char2IDx(c: char): byte;
+VAR
+  i                                : integer;
+BEGIN
+  FOR i := 1 TO Length(Base64Code) DO
+    IF Base64Code[i] = c THEN BEGIN
+      Result := pred(i);
       EXIT;
-    end;
-  Result := Ord( Pad );
-end;
+    END;
+  Result := Ord(Pad);
+END;
 
 //*****************************************************************************
-function Base64ToStr( B64: string ): string;
-var
+
+FUNCTION Base64ToStr(B64: STRING): STRING;
+VAR
   i,
-    PadCount    : integer;
-  Block         : string[3];
-  x1, x2, x3    : byte;
-begin
+    PadCount                       : integer;
+  Block                            : STRING[3];
+  x1, x2, x3                       : byte;
+BEGIN
   // input _must_ be at least 4 chars long,
   // or multiple of 4 chars
-  if ( Length( B64 ) < 4 )
-    or ( Length( B64 ) mod 4 <> 0 ) then
-    raise EBase64Error.Create( 'Base64ToStr: illegal input length!' );
+  IF (Length(B64) < 4)
+    OR (Length(B64) MOD 4 <> 0) THEN
+    RAISE EBase64Error.Create('Base64ToStr: illegal input length!');
   //
-    PadCount := 0;
-  i := Length( B64 );
+  PadCount := 0;
+  i := Length(B64);
   // count padding chars, if any
-  while (B64[i] = Pad)
-  and (i > 0 ) do
-  begin
-    inc( PadCount );
-    dec( i );
-  end;
+  WHILE (B64[i] = Pad)
+    AND (i > 0) DO BEGIN
+    inc(PadCount);
+    dec(i);
+  END;
   //
   Result := '';
   i := 1;
-  SetLength( Block, 3 );
-  while i <= Length( B64 ) - 3 do
-  begin
+  SetLength(Block, 3);
+  WHILE i <= Length(B64) - 3 DO BEGIN
     // reverse process of above
-    x1 := ( Char2Idx( B64[i] ) shl 2 ) or ( Char2IDx( B64[i + 1] ) shr 4 );
-    Result := Result + Chr( x1 );
-    x2 := ( Char2Idx( B64[i + 1] ) shl 4 ) or ( Char2IDx( B64[i + 2] ) shr 2 );
-    Result := Result + Chr( x2 );
-    x3 := ( Char2Idx( B64[i + 2] ) shl 6 ) or ( Char2IDx( B64[i + 3] ) );
-    Result := Result + Chr( x3 );
-    inc( i, 4 );
-  end;
+    x1 := (Char2Idx(B64[i]) SHL 2) OR (Char2IDx(B64[i + 1]) SHR 4);
+    Result := Result + Chr(x1);
+    x2 := (Char2Idx(B64[i + 1]) SHL 4) OR (Char2IDx(B64[i + 2]) SHR 2);
+    Result := Result + Chr(x2);
+    x3 := (Char2Idx(B64[i + 2]) SHL 6) OR (Char2IDx(B64[i + 3]));
+    Result := Result + Chr(x3);
+    inc(i, 4);
+  END;
 
   // delete padding, if any
-  while PadCount > 0 do
-  begin
-    Delete( Result, Length( Result ), 1 );
-    dec( PadCount );
-  end;
+  WHILE PadCount > 0 DO BEGIN
+    Delete(Result, Length(Result), 1);
+    dec(PadCount);
+  END;
 
-end;
+END;
 
-end.
- 
+END.

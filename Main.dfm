@@ -100,10 +100,10 @@ object FMain: TFMain
   object lblMinFinepos_nl: TLabel
     Left = 13
     Top = 461
-    Width = 15
+    Width = 6
     Height = 13
     Anchors = [akLeft, akBottom]
-    Caption = '-50'
+    Caption = '1'
   end
   object lblMaxFinepos_nl: TLabel
     Left = 430
@@ -111,7 +111,7 @@ object FMain: TFMain
     Width = 18
     Height = 13
     Anchors = [akRight, akBottom]
-    Caption = '+50'
+    Caption = '100'
   end
   object lblDuration_nl: TLabel
     Left = 707
@@ -129,7 +129,7 @@ object FMain: TFMain
     Height = 13
     Alignment = taRightJustify
     Anchors = [akRight, akBottom]
-    Caption = '0 Frames'
+    Caption = '5 Frames'
   end
   object lblStartPosition_nl: TLabel
     Left = 13
@@ -597,10 +597,12 @@ object FMain: TFMain
     Hint = 'Fine Positioning (in Frames)'
     Anchors = [akLeft, akRight, akBottom]
     Enabled = False
-    Max = 50
-    Min = -50
+    Max = 200
+    Min = 1
     ParentShowHint = False
     PageSize = 5
+    Frequency = 5
+    Position = 5
     ShowHint = True
     TabOrder = 31
     OnChange = tbFinePosChange

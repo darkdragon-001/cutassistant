@@ -780,13 +780,16 @@ END;
 PROCEDURE TFMain.tbFinePosMOuseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 VAR
-  new_pos                          : double;
+  timeToSkip                       : double;
 BEGIN
-  new_pos := currentPosition + tbFinePos.Position * MovieInfo.frame_duration;
-  IF new_pos < 0 THEN new_pos := 0;
-  IF new_pos > MovieInfo.current_file_duration THEN new_pos := MovieInfo.current_file_duration;
-  JumpTo(new_pos);
-  tbFinePos.Position := 0;
+  //if Button = mbMiddle then Exit;
+  timeToSkip := tbFinePos.Position * MovieInfo.frame_duration;
+  IF Button = mbRight THEN // Invert direction on right mouse button ...
+    timeToSkip := timeToSkip * -1;
+
+  IF tbFinePos.Tag = tbFinePos.Position THEN
+    JumpTo(currentPosition + timeToSkip);
+  tbFinePos.Tag := tbFinePos.Position;
 END;
 
 PROCEDURE TFMain.refresh_lvCutlist(cutlist: TCutlist);
@@ -1245,6 +1248,7 @@ END;
 PROCEDURE TFMain.tbFinePosChange(Sender: TObject);
 BEGIN
   self.lblFinePos_nl.Caption := inttostr(self.tbFinePos.Position);
+  self.tbFilePos.PageSize := self.tbFinePos.Position;
 END;
 
 PROCEDURE TFMain.FormClose(Sender: TObject; VAR Action: TCloseAction);
@@ -3465,6 +3469,10 @@ BEGIN
   self.actSearchCutlistLocal.Enabled := false;
   self.EnableMovieControls(false);
   self.actStepForward.Enabled := false;
+
+  self.tbFinePos.Position := 5; // ToDO: save standard in settings
+  tbFinePos.Tag := tbFinePos.Position;
+  self.tbFilePos.PageSize := self.tbFinePos.Position;
 
   self.lblDuration_nl.Caption := FormatMoviePosition(0);
   self.UpdateMovieInfoControls;

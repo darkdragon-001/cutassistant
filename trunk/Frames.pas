@@ -50,6 +50,8 @@ TYPE
     PROCEDURE FormCloseQuery(Sender: TObject; VAR CanClose: Boolean);
     PROCEDURE FormKeyUp(Sender: TObject; VAR Key: Word;
       Shift: TShiftState);
+    PROCEDURE FormMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; VAR Handled: Boolean);
   PRIVATE
     { Private declarations }
     FrameList: TObjectList;
@@ -455,11 +457,11 @@ BEGIN
   CASE Key OF
     VK_PRIOR: BEGIN
         self.MainForm.JumpTo(self.Frame[0].position);
-        self.MainForm.actPrevFrames.Execute;
+        self.MainForm.actCurrentFrames.Execute;
       END;
     VK_NEXT: BEGIN
         self.MainForm.JumpTo(self.Frame[self.Count - 1].position);
-        self.MainForm.actNextFrames.Execute;
+        self.MainForm.actCurrentFrames.Execute;
       END;
     VK_ESCAPE: BEGIN
         Hide;
@@ -470,4 +472,22 @@ BEGIN
   END;
 END;
 
+PROCEDURE TFFrames.FormMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; VAR Handled: Boolean);
+BEGIN
+  CASE Sign(WheelDelta) OF
+    1: BEGIN
+        self.MainForm.JumpTo(self.Frame[0].position);
+        self.MainForm.actCurrentFrames.Execute;
+        Handled := true;
+      END;
+    -1: BEGIN
+        self.MainForm.JumpTo(self.Frame[self.Count - 1].position);
+        self.MainForm.actCurrentFrames.Execute;
+        Handled := true;
+      END;
+  END;
+END;
+
 END.
+

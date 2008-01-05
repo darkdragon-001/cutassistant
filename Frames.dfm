@@ -16,6 +16,7 @@ object FFrames: TFFrames
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnKeyUp = FormKeyUp
+  OnMouseWheel = FormMouseWheel
   OnResize = FormResize
   OnShow = FormShow
   PixelsPerInch = 96

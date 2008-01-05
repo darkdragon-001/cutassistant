@@ -74,7 +74,8 @@ BEGIN
   IF SelectedRating < 0 THEN CanClose := false
   ELSE IF NOT FRatingSelectedByUser THEN BEGIN
     title := CAResources.RsTitleConfirmRating;
-    msg := Format(CAResources.RsMsgConfirmRating, [SelectedRatingText]);
+    msg := StringReplace(Format(CAResources.RsMsgConfirmRating, [SelectedRatingText]), '&', '', [ rfReplaceAll ]);
+
     FRatingSelectedByUser := IDOK = Application.MessageBox(PChar(msg), PChar(title), MB_ICONQUESTION OR MB_OKCANCEL OR MB_DEFBUTTON2);
     CanClose := FRatingSelectedByUser;
   END;

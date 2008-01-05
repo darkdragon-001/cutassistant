@@ -229,6 +229,9 @@ TYPE
     //Warnings
     WarnOnWrongCutApp: boolean;
 
+    //Server messages
+    MsgServerRatingDone: STRING;
+    
     //Mplayer
     MPlayerPath: STRING;
 
@@ -893,6 +896,9 @@ BEGIN
     section := 'Warnings';
     self.WarnOnWrongCutApp := ini.ReadBool(section, 'WarnOnWrongCutApp', true);
 
+    section := 'ServerMessages';
+    self.MsgServerRatingDone := ini.ReadString(section, 'RatingDone', 'Cutlist wurde bewertet');
+
     section := 'WindowStates';
     self.MainFormWindowState := TWindowState(ini.ReadInteger(section, 'Main_WindowState', integer(wsNormal)));
     self.MainFormBounds := iniReadRect(ini, section, 'Main', EmptyRect);
@@ -1532,3 +1538,4 @@ INITIALIZATION
   END;
 
 END.
+

@@ -370,6 +370,8 @@ TYPE
     PROCEDURE FilterGraphGraphComplete(sender: TObject; Result: HRESULT;
       Renderer: IBaseFilter);
     PROCEDURE actSearchCutlistLocalExecute(Sender: TObject);
+    PROCEDURE FormMouseWheel(Sender: TObject; Shift: TShiftState;
+      WheelDelta: Integer; MousePos: TPoint; VAR Handled: Boolean);
   PRIVATE
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -1777,7 +1779,7 @@ BEGIN
       settings.CurrentMovieDir := ExtractFilePath(openDialog.FileName);
       IF OpenFile(opendialog.FileName) THEN BEGIN
         IF MovieInfo.MovieLoaded AND Settings.AutoSearchCutlists THEN BEGIN
-          SearchCutlistByFileSize(true, ShiftDown OR Settings.SearchLocalCutlists, CtrlDown OR Settings.SearchServerCutlists);
+          SearchCutlistByFileSize(true, ShiftDown XOR Settings.SearchLocalCutlists, CtrlDown XOR Settings.SearchServerCutlists);
         END;
       END;
     END;
@@ -2108,7 +2110,8 @@ VAR
   message_String                   : STRING;
 BEGIN
   IF cutlist.HasChanged THEN BEGIN
-    IF NOT cutlist.Save(false) THEN exit; //try to save it
+    IF NOT cutlist.Save(false) THEN //try to save it
+      exit;
   END;
 
   IF NOT fileexists(cutlist.SavedToFilename) THEN exit;
@@ -2157,6 +2160,28 @@ BEGIN
     timeToSkip := MovieInfo.frame_duration;
 
   JumpTo(currentPosition - timeToSkip);
+END;
+
+PROCEDURE TFMain.FormMouseWheel(Sender: TObject; Shift: TShiftState;
+  WheelDelta: Integer; MousePos: TPoint; VAR Handled: Boolean);
+VAR
+  timeToSkip                       : double;
+BEGIN
+  IF NOT MovieInfo.MovieLoaded THEN
+    exit;
+  Handled := true;
+  IF FilterGraph.State <> gsPaused THEN
+    GraphPause;
+  IF shift = [ssShift] THEN
+    timeToSkip := Settings.SmallSkipTime
+  ELSE IF shift = [ssShift, ssCtrl] THEN
+    timeToSkip := Settings.LargeSkipTime
+  ELSE IF shift = [ssAlt] THEN
+    timeToSkip := Settings.LargeSkipTime
+  ELSE
+    timeToSkip := tbFilePos.PageSize * MovieInfo.frame_duration;
+
+  JumpTo(currentPosition - timeToSkip * Sign(WheelDelta));
 END;
 
 PROCEDURE TFMain.actBrowseWWWHelpExecute(Sender: TObject);
@@ -2602,7 +2627,6 @@ END;
 FUNCTION TFMain.SendRating(Cutlist: TCutlist): boolean;
 CONST
   php_name                         = 'rate.php';
-  command                          = '?rate=';
 VAR
   Response, Error_message, url     : STRING;
 BEGIN
@@ -2624,14 +2648,15 @@ BEGIN
     IF FCutlistRate.ShowModal = mrOK THEN BEGIN
       Error_message := CAResources.RsErrorUnknown;
       url := settings.url_cutlists_home
-        + php_name + command + cutlist.IDOnServer
+        + php_name
+        + '&rate=' + cutlist.IDOnServer
         + '&rating=' + inttostr(FCutlistRate.SelectedRating)
         + '&userid=' + settings.UserID
         + '&version=' + Application_Version;
       Result := DoHttpGet(url, true, Error_message, Response);
 
       IF result THEN BEGIN
-        IF AnsiContainsText(Response, '<html>') THEN BEGIN
+        IF AnsiContainsText(Response, Settings.MsgServerRatingDone) THEN BEGIN
           cutlist.RatingSent := FCutlistRate.SelectedRating;
           IF NOT batchmode THEN
             showmessage(CAResources.RsMsgSendRatingDone);
@@ -2768,7 +2793,7 @@ CONST
   php_name                         = 'delete_cutlist.php';
 VAR
   url, Response, Error_message, val: STRING;
-  fileRemoved, entryRemoved        : boolean;
+  entryRemoved                     : boolean;
   lines                            : TStringList;
 BEGIN
   result := false;
@@ -2788,7 +2813,7 @@ BEGIN
       lines.Delimiter := #10;
       lines.NameValueSeparator := '=';
       lines.DelimitedText := Response;
-      val := lines.Values['RemovedFile'];
+      val := lines.Values['RemovedEntry'];
 
       IF val = '' THEN BEGIN
         Result := false;
@@ -2796,16 +2821,11 @@ BEGIN
           ShowMessage(CAResources.RsMsgCutlistDeleteUnexpected);
       END
       ELSE BEGIN
-        fileRemoved := val = '1';
-        entryRemoved := lines.Values['removedentry'] = '1';
-
-        Result := fileRemoved AND entryRemoved;
+        entryRemoved := val = '1';
+        Result := entryRemoved;
 
         IF NOT batchmode THEN
-          ShowMessageFmt('%s'#13#10'%s', [
-            IfThen(fileRemoved, CAResources.RsMsgCutlistDeleteEntryRemoved, CAResources.RsMsgCutlistDeleteEntryNotRemoved),
-              IfThen(entryRemoved, CAResources.RsMsgCutlistDeleteFileRemoved, CAResources.RsMsgCutlistDeleteFileNotRemoved)
-              ]);
+          ShowMessage(IfThen(entryRemoved, CAResources.RsMsgCutlistDeleteFileRemoved, CAResources.RsMsgCutlistDeleteFileNotRemoved));
       END;
     FINALLY
       FreeAndNil(lines);

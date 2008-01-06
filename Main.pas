@@ -2508,6 +2508,7 @@ BEGIN
           SubItems.Add(ACutlist.UserComment);
           SubItems.Add(ACutlist.ActualContent);
           SubItems.Add(CAResources.RsLocalCutlist);
+          SubItems.Add(IfThen(ACutlist.DownloadTime <= 0, '', FormatDateTime('', UnixToDateTime(ACutlist.DownloadTime))));
           SubItems.Add(ExtractFileDir(ACutlist.SavedToFilename));
         END;
         Inc(Result);
@@ -2556,6 +2557,7 @@ BEGIN
             SubItems.Add(CutNode.ItemNamed['usercomment'].Value);
             SubItems.Add(CutNode.ItemNamed['actualcontent'].Value);
             SubItems.Add(CAResources.RsServerCutlist);
+            SubItems.Add(''); // download timestamp
             SubItems.Add(''); // path information
           END;
           Inc(Result);
@@ -2624,8 +2626,10 @@ BEGIN
       WebResult := self.DownloadCutlistByID(selectedItem.Caption, cutFilename);
       IF WebResult THEN BEGIN
         cutlist.IDOnServer := selectedItem.Caption;
-        cutlist.RatingOnServer := StrToFloatDef(selectedItem.SubItems[1], -1);
+        cutlist.RatingOnServer := StrToFloatDefInv(selectedItem.SubItems[1], -1);
         cutlist.RatingCountOnServer := StrToIntDef(selectedItem.SubItems[2], -1);
+        cutlist.DownloadTime := DateTimeToUnix(Now);
+        cutlist.Save(false);
         self.actSendRating.Enabled := true;
       END;
     END;

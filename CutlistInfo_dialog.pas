@@ -36,6 +36,15 @@ TYPE
     cbMissingAudio: TJvCheckBox;
     cbOtherError: TJvCheckBox;
     cbFramesPresent: TJvCheckBox;
+    grpServerRating: TGroupBox;
+    lblRatingOnServer: TLabel;
+    lblRatingCountOnServer: TLabel;
+    lblDownloadTime: TLabel;
+    edtRatingOnServer: TEdit;
+    edtRatingCountOnServer: TEdit;
+    edtDownloadTime: TEdit;
+    lblRatingSent: TLabel;
+    edtRatingSent: TEdit;
     PROCEDURE FormShow(Sender: TObject);
     PROCEDURE cbEPGErrorClick(Sender: TObject);
     PROCEDURE cbOtherErrorClick(Sender: TObject);

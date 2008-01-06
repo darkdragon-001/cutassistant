@@ -237,6 +237,8 @@ FUNCTION FilterStringFromExtArray(ExtArray: ARRAY OF STRING): STRING;
 FUNCTION MakeFilterString(CONST description: STRING; CONST extensions: STRING): STRING;
 FUNCTION AppendFilterString(CONST filter: STRING; CONST description: STRING; CONST extensions: STRING): STRING;
 
+FUNCTION StrToFloatDefInv(CONST s: STRING; CONST d: extended; CONST sep: char = '.'): extended;
+
 IMPLEMENTATION
 
 {$I jedi.inc}
@@ -251,6 +253,19 @@ CONST ScreenWidthDev               = 1280;
 
 VAR
   invariantFormat                  : TFormatSettings;
+
+FUNCTION StrToFloatDefInv(CONST s: STRING; CONST d: extended; CONST sep: char): extended;
+VAR
+  Temp_DecimalSeparator            : char;
+BEGIN
+  Temp_DecimalSeparator := DecimalSeparator;
+  DecimalSeparator := sep;
+  TRY
+    Result := StrToFloatDef(s, d);
+  FINALLY
+    DecimalSeparator := Temp_DecimalSeparator;
+  END;
+END;
 
 FUNCTION AppendFilterString(CONST filter: STRING; CONST description: STRING; CONST extensions: STRING): STRING;
 BEGIN

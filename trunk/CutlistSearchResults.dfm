@@ -108,6 +108,10 @@ object FCutlistSearchResults: TFCutlistSearchResults
         Caption = 'Type'
       end
       item
+        Caption = 'Downloaded'
+        Width = 100
+      end
+      item
         Caption = 'Path'
       end>
     GridLines = True

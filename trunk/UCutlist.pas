@@ -67,6 +67,7 @@ TYPE
     RatingSent: integer;
     OriginalFileSize: longint;
     RatingCountOnServer: integer;
+    DownloadTime: Int64;
 
     CONSTRUCTOR create(Settings: TSettings; MovieInfo: TMovieInfo);
     PROPERTY FrameDuration: double READ FFrameDuration WRITE SetFrameDuration;
@@ -110,7 +111,7 @@ IMPLEMENTATION
 
 USES
   Classes, Forms, windows, dialogs, sysutils, cutlistINfo_dialog, controls, iniFiles, strutils,
-  utils, UCutApplicationAsfbin, UCutApplicationMP4Box, CAResources;
+  utils, UCutApplicationAsfbin, UCutApplicationMP4Box, DateUtils, CAResources;
 
 { Tcut }
 
@@ -339,6 +340,7 @@ BEGIN
   newCutlist.FRatingOnServer := self.RatingOnServer;
   newCutlist.RatingCountOnServer := self.RatingCountOnServer;
   newCutlist.RatingSent := self.RatingSent;
+  newCutlist.DownloadTime := self.DownloadTime;
   IF self.Mode = clmCutOut THEN
     newcutlist.FMode := clmTrim
   ELSE
@@ -476,6 +478,20 @@ BEGIN
   FCutlistInfo.edtUserComment.Text := self.UserComment;
   FCutlistInfo.edtMovieName.Text := self.SuggestedMovieName;
 
+  // Server information
+  FCutlistInfo.grpServerRating.Enabled := self.IDOnServer <> '';
+  IF self.IDOnServer <> '' THEN BEGIN
+    FCutlistInfo.edtRatingOnServer.Text := IfThen(self.RatingOnServer < 0, '?', Format('%f', [self.RatingOnServer]));
+    FCutlistInfo.edtRatingCountOnServer.Text := IfThen(self.RatingCountOnServer < 0, '?', IntToStr(self.RatingCountOnServer));
+    FCutlistInfo.edtDownloadTime.Text := IfThen(self.DownloadTime <= 0, '?', FormatDateTime('', UnixToDateTime(self.DownloadTime)));
+    FCutlistInfo.edtRatingSent.Text := IfThen(self.RatingSent < 0, '', IntToStr(self.RatingSent));
+  END ELSE BEGIN
+    FCutlistInfo.edtRatingOnServer.Text := '';
+    FCutlistInfo.edtRatingCountOnServer.Text := '';
+    FCutlistInfo.edtDownloadTime.Text := '';
+    FCutlistInfo.edtRatingSent.Text := '';
+  END;
+
   IF FCutlistInfo.ShowModal = mrOK THEN BEGIN
     self.FHasChanged := true;
     IF FCutlistInfo.RGRatingByAuthor.ItemIndex = -1 THEN BEGIN
@@ -559,6 +575,7 @@ BEGIN
   self.RatingSent := -1;
   self.OriginalFileSize := -1;
   self.FHasChanged := false;
+  self.DownloadTime := 0;
 
   self.RefreshGUI;
 END;
@@ -571,8 +588,14 @@ END;
 FUNCTION TCutlist.LoadFromFile(Filename: STRING; noWarnings: boolean): boolean;
 VAR
   section                          : STRING;
-  apply_to_file, my_file, intended_options, intendedCutApp, intendedCutAppVersionStr, myCutApp, myOptions: STRING;
-  myCutAppVersionWords, intendedCutAppVersionWords: ARFileVersion;
+  apply_to_file, my_file,
+    intended_options,
+    intendedCutApp,
+    intendedCutAppVersionStr,
+    myCutApp,
+    myOptions                      : STRING;
+  myCutAppVersionWords,
+    intendedCutAppVersionWords     : ARFileVersion;
   message_string                   : STRING;
   Temp_DecimalSeparator            : char;
   cutlistfile                      : TCustomIniFile;
@@ -673,6 +696,7 @@ BEGIN
     self.FRatingOnServer := cutlistfile.ReadFloat(section, 'Rating', -1);
     self.RatingSent := cutlistfile.ReadInteger(section, 'RatingSent', -1);
     self.RatingCountOnServer := cutlistfile.ReadInteger(section, 'RatingCount', -1);
+    self.DownloadTime := cutlistfile.ReadInteger(section, 'DownloadTime', 0);
 
     //info
     section := 'Info';
@@ -940,6 +964,7 @@ BEGIN
         cutlistfile.WriteString(section, 'ID', self.IDOnServer);
         cutlistfile.WriteFloat(section, 'Rating', self.RatingOnServer);
         cutlistfile.WriteInteger(section, 'RatingCount', self.RatingCountOnServer);
+        cutlistfile.WriteInteger(section, 'DownloadTime', self.DownloadTime);
       END;
       IF self.RatingSent <> -1 THEN
         cutlistfile.WriteInteger(section, 'RatingSent', self.RatingSent);
@@ -1052,3 +1077,4 @@ BEGIN
 END;
 
 END.
+

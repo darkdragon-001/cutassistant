@@ -1,12 +1,12 @@
 object FCutlistInfo: TFCutlistInfo
   Left = 360
-  Top = 341
+  Top = 238
   Width = 580
-  Height = 550
+  Height = 625
   Caption = 'Cutlist Info'
   Color = clBtnFace
-  Constraints.MaxHeight = 550
-  Constraints.MinHeight = 550
+  Constraints.MaxHeight = 625
+  Constraints.MinHeight = 625
   Constraints.MinWidth = 580
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
@@ -19,7 +19,7 @@ object FCutlistInfo: TFCutlistInfo
   OnShow = FormShow
   DesignSize = (
     572
-    516)
+    591)
   PixelsPerInch = 96
   TextHeight = 13
   object lblInfoCaption: TLabel
@@ -38,7 +38,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object lblComment: TLabel
     Left = 7
-    Top = 438
+    Top = 513
     Width = 72
     Height = 13
     Anchors = [akLeft, akBottom]
@@ -46,7 +46,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object lblSuggestedFilename: TLabel
     Left = 7
-    Top = 393
+    Top = 468
     Width = 221
     Height = 13
     Anchors = [akLeft, akBottom]
@@ -65,7 +65,7 @@ object FCutlistInfo: TFCutlistInfo
     Left = 7
     Top = 33
     Width = 559
-    Height = 152
+    Height = 151
     Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = 'How do you rate your cutlist?'
     Items.Strings = (
@@ -86,7 +86,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object grpDetails: TGroupBox
     Left = 7
-    Top = 198
+    Top = 273
     Width = 559
     Height = 185
     Anchors = [akLeft, akRight, akBottom]
@@ -214,7 +214,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object cmdCancel: TButton
     Left = 480
-    Top = 486
+    Top = 561
     Width = 85
     Height = 23
     Anchors = [akRight, akBottom]
@@ -225,7 +225,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object cmdOk: TButton
     Left = 390
-    Top = 486
+    Top = 561
     Width = 85
     Height = 23
     Anchors = [akRight, akBottom]
@@ -235,7 +235,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object edtUserComment: TEdit
     Left = 7
-    Top = 458
+    Top = 533
     Width = 559
     Height = 21
     Anchors = [akLeft, akRight, akBottom]
@@ -244,7 +244,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object pnlAuthor: TPanel
     Left = 7
-    Top = 485
+    Top = 560
     Width = 376
     Height = 25
     Anchors = [akLeft, akRight, akBottom]
@@ -273,7 +273,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object edtMovieName: TEdit
     Left = 7
-    Top = 412
+    Top = 487
     Width = 422
     Height = 21
     Anchors = [akLeft, akRight, akBottom]
@@ -282,7 +282,7 @@ object FCutlistInfo: TFCutlistInfo
   end
   object cmdMovieNameCopy: TButton
     Left = 435
-    Top = 411
+    Top = 486
     Width = 131
     Height = 23
     Anchors = [akRight, akBottom]
@@ -307,5 +307,86 @@ object FCutlistInfo: TFCutlistInfo
     HotTrackFont.Name = 'Microsoft Sans Serif'
     HotTrackFont.Pitch = fpVariable
     HotTrackFont.Style = []
+  end
+  object grpServerRating: TGroupBox
+    Left = 8
+    Top = 191
+    Width = 557
+    Height = 77
+    Anchors = [akLeft, akRight, akBottom]
+    Caption = 'Cutlist Server'
+    TabOrder = 9
+    DesignSize = (
+      557
+      77)
+    object lblRatingOnServer: TLabel
+      Left = 52
+      Top = 20
+      Width = 77
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Average Rating:'
+    end
+    object lblRatingCountOnServer: TLabel
+      Left = 223
+      Top = 20
+      Width = 82
+      Height = 13
+      Alignment = taRightJustify
+      Anchors = [akTop, akRight]
+      Caption = 'Count of Ratings:'
+    end
+    object lblDownloadTime: TLabel
+      Left = 54
+      Top = 48
+      Width = 75
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Downloaded at:'
+    end
+    object lblRatingSent: TLabel
+      Left = 422
+      Top = 20
+      Width = 59
+      Height = 13
+      Alignment = taRightJustify
+      Anchors = [akTop, akRight]
+      Caption = 'User Rating:'
+    end
+    object edtRatingOnServer: TEdit
+      Left = 132
+      Top = 16
+      Width = 60
+      Height = 21
+      ReadOnly = True
+      TabOrder = 0
+    end
+    object edtRatingCountOnServer: TEdit
+      Left = 308
+      Top = 16
+      Width = 60
+      Height = 21
+      Anchors = [akTop, akRight]
+      ReadOnly = True
+      TabOrder = 1
+    end
+    object edtDownloadTime: TEdit
+      Left = 132
+      Top = 44
+      Width = 237
+      Height = 21
+      Anchors = [akLeft, akTop, akRight]
+      ReadOnly = True
+      TabOrder = 2
+    end
+    object edtRatingSent: TEdit
+      Left = 484
+      Top = 16
+      Width = 60
+      Height = 21
+      Anchors = [akTop, akRight]
+      ReadOnly = True
+      TabOrder = 3
+    end
   end
 end

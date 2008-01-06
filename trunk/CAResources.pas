@@ -295,6 +295,10 @@ RESOURCESTRING
   { UCutApplicationAsfBin }
   RsCutAppInfoAsfBin                  = '%sOptions: %s'#13#10;
   RsFilterDescriptionExecutables      = 'Executable files';
+
+  { mainForm }
+  RsLocalCutlist                      = 'Local';
+  RsServerCutlist                     = 'Server';
 {*)}
 IMPLEMENTATION
 

@@ -102,11 +102,13 @@ object FCutlistSearchResults: TFCutlistSearchResults
       end
       item
         Caption = 'Actual Content'
-        Width = 163
+        Width = 113
+      end
+      item
+        Caption = 'Type'
       end
       item
         Caption = 'Path'
-        Width = 0
       end>
     GridLines = True
     HideSelection = False

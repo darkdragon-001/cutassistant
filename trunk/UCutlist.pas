@@ -66,6 +66,7 @@ TYPE
     SavedToFilename: STRING;
     RatingSent: integer;
     OriginalFileSize: longint;
+    RatingCountOnServer: integer;
 
     CONSTRUCTOR create(Settings: TSettings; MovieInfo: TMovieInfo);
     PROPERTY FrameDuration: double READ FFrameDuration WRITE SetFrameDuration;
@@ -336,6 +337,7 @@ BEGIN
   newCutlist.SuggestedMovieName := self.SuggestedMovieName;
   newCutlist.UserComment := self.UserComment;
   newCutlist.FRatingOnServer := self.RatingOnServer;
+  newCutlist.RatingCountOnServer := self.RatingCountOnServer;
   newCutlist.RatingSent := self.RatingSent;
   IF self.Mode = clmCutOut THEN
     newcutlist.FMode := clmTrim
@@ -553,6 +555,7 @@ BEGIN
   self.UserComment := '';
   self.IDOnServer := '';
   self.FRatingOnServer := -1;
+  self.RatingCountOnServer := -1;
   self.RatingSent := -1;
   self.OriginalFileSize := -1;
   self.FHasChanged := false;
@@ -669,6 +672,7 @@ BEGIN
     self.FIDOnServer := cutlistfile.ReadString(section, 'ID', '');
     self.FRatingOnServer := cutlistfile.ReadFloat(section, 'Rating', -1);
     self.RatingSent := cutlistfile.ReadInteger(section, 'RatingSent', -1);
+    self.RatingCountOnServer := cutlistfile.ReadInteger(section, 'RatingCount', -1);
 
     //info
     section := 'Info';
@@ -935,6 +939,7 @@ BEGIN
       IF self.IDOnServer <> '' THEN BEGIN
         cutlistfile.WriteString(section, 'ID', self.IDOnServer);
         cutlistfile.WriteFloat(section, 'Rating', self.RatingOnServer);
+        cutlistfile.WriteInteger(section, 'RatingCount', self.RatingCountOnServer);
       END;
       IF self.RatingSent <> -1 THEN
         cutlistfile.WriteInteger(section, 'RatingSent', self.RatingSent);
@@ -1047,4 +1052,3 @@ BEGIN
 END;
 
 END.
-

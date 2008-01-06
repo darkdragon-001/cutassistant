@@ -1782,7 +1782,7 @@ BEGIN
     IF OpenDialog.Execute THEN BEGIN
       settings.CurrentMovieDir := ExtractFilePath(openDialog.FileName);
       IF OpenFile(opendialog.FileName) THEN BEGIN
-        IF MovieInfo.MovieLoaded AND Settings.AutoSearchCutlists THEN BEGIN
+        IF MovieInfo.MovieLoaded AND (Settings.AutoSearchCutlists XOR AltDown) THEN BEGIN
           SearchCutlistByFileSize(true, ShiftDown XOR Settings.SearchLocalCutlists, CtrlDown XOR Settings.SearchServerCutlists);
         END;
       END;
@@ -2501,12 +2501,13 @@ BEGIN
         WITH FCutlistSearchResults.lvLinklist.Items.Add DO BEGIN
           Caption := ACutlist.IDOnServer;
           SubItems.Add(ExtractFileName(ACutlist.SavedToFilename));
-          SubItems.Add('');
-          SubItems.Add('0');
+          SubItems.Add(IfThen(ACutlist.IDOnServer = '', '', Format('%f', [ACutlist.RatingOnServer])));
+          SubItems.Add(IfThen(ACutlist.IDOnServer = '', '', IntToStr(ACutlist.RatingCountOnServer)));
           SubItems.Add(IfThen(ACutlist.RatingByAuthorPresent, IntToStr(ACutlist.RatingByAuthor), ''));
           SubItems.Add(ACutlist.Author);
           SubItems.Add(ACutlist.UserComment);
           SubItems.Add(ACutlist.ActualContent);
+          SubItems.Add(CAResources.RsLocalCutlist);
           SubItems.Add(ExtractFileDir(ACutlist.SavedToFilename));
         END;
         Inc(Result);
@@ -2554,6 +2555,7 @@ BEGIN
             SubItems.Add(CutNode.ItemNamed['author'].Value);
             SubItems.Add(CutNode.ItemNamed['usercomment'].Value);
             SubItems.Add(CutNode.ItemNamed['actualcontent'].Value);
+            SubItems.Add(CAResources.RsServerCutlist);
             SubItems.Add(''); // path information
           END;
           Inc(Result);
@@ -2583,7 +2585,7 @@ VAR
   numFound                         : integer;
   WebResult                        : boolean;
   selectedItem                     : TListItem;
-  cutFilename                      : STRING;
+  cutFilename, cutFiledir          : STRING;
 BEGIN
   FCutlistSearchResults.lvLinklist.Clear;
   numFound := 0;
@@ -2611,10 +2613,11 @@ BEGIN
 
   IF Assigned(selectedItem) THEN BEGIN
     cutFilename := selectedItem.SubItems[0];
-    IF selectedItem.Caption = '' THEN BEGIN
+    cutFiledir := selectedItem.SubItems[selectedItem.SubItems.Count - 1];
+    IF cutFiledir <> '' THEN BEGIN
       IF NOT self.CloseCutlist THEN
         Exit;
-      cutFilename := PathCombine(selectedItem.SubItems[selectedItem.SubItems.Count - 1], cutFilename);
+      cutFilename := PathCombine(cutFiledir, cutFilename);
       CutList.LoadFromFile(cutFilename);
       self.actSendRating.Enabled := false;
     END ELSE BEGIN
@@ -2622,6 +2625,7 @@ BEGIN
       IF WebResult THEN BEGIN
         cutlist.IDOnServer := selectedItem.Caption;
         cutlist.RatingOnServer := StrToFloatDef(selectedItem.SubItems[1], -1);
+        cutlist.RatingCountOnServer := StrToIntDef(selectedItem.SubItems[2], -1);
         self.actSendRating.Enabled := true;
       END;
     END;

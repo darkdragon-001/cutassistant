@@ -231,7 +231,7 @@ TYPE
 
     //Server messages
     MsgServerRatingDone: STRING;
-    
+
     //Mplayer
     MPlayerPath: STRING;
 
@@ -1538,4 +1538,3 @@ INITIALIZATION
   END;
 
 END.
-

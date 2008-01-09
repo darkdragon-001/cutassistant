@@ -3,8 +3,16 @@ UNIT Utils;
 INTERFACE
 
 USES
-  Classes, Forms, StdCtrls, Windows, Graphics,
-  SysUtils, IniFiles, MMSystem, DSUtil, madExcept,
+  Classes,
+  Forms,
+  StdCtrls,
+  Windows,
+  Graphics,
+  SysUtils,
+  IniFiles,
+  MMSystem,
+  DSUtil,
+  madExcept,
   IdMultipartFormData;
 
 CONST
@@ -244,8 +252,17 @@ IMPLEMENTATION
 {$I jedi.inc}
 
 USES
-  Messages, Dialogs, ShellAPI, Variants, Clipbrd, StrUtils, jpeg,
-  Types, DirectShow9, Math, CAResources;
+  Messages,
+  Dialogs,
+  ShellAPI,
+  Variants,
+  Clipbrd,
+  StrUtils,
+  jpeg,
+  Types,
+  DirectShow9,
+  Math,
+  CAResources;
 
 
 CONST ScreenWidthDev               = 1280;
@@ -1333,3 +1350,4 @@ INITIALIZATION
   //if DebugHook<>0 then PatchINT3;
 
 END.
+

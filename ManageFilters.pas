@@ -3,8 +3,21 @@ UNIT ManageFilters;
 INTERFACE
 
 USES
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls, ComCtrls, DSPack, DSUtil, DirectShow9, Utils;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  ComCtrls,
+  DSPack,
+  DSUtil,
+  DirectShow9,
+  Utils;
 
 TYPE
   TFManageFilters = CLASS(TForm)
@@ -38,7 +51,8 @@ IMPLEMENTATION
 
 {$R *.dfm}
 
-USES Main, ComObj;
+USES Main,
+  ComObj;
 
 PROCEDURE TFManageFilters.cmdCloseClick(Sender: TObject);
 BEGIN

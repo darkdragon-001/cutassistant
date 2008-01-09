@@ -3,7 +3,12 @@ UNIT CodecSettings;
 INTERFACE
 
 USES
-  Classes, ExtCtrls, DSUtil, MMSystem, vfw, Utils;
+  Classes,
+  ExtCtrls,
+  DSUtil,
+  MMSystem,
+  vfw,
+  Utils;
 
 TYPE
   TICInfoArray = ARRAY OF TICInfo;
@@ -70,9 +75,16 @@ TYPE
 IMPLEMENTATION
 
 USES
-  Forms, Controls, StdCtrls, Dialogs,
-  Windows, Types, SysUtils, Base64,
-  DirectShow9, CAResources;
+  Forms,
+  Controls,
+  StdCtrls,
+  Dialogs,
+  Windows,
+  Types,
+  SysUtils,
+  Base64,
+  DirectShow9,
+  CAResources;
 
 { TSourceFilterList }
 

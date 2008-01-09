@@ -129,7 +129,12 @@ UNIT UFilterBank;
 
 INTERFACE
 
-USES SysUtils, DirectShow9, DSUtil, DSPack, ActiveX, INIFiles;
+USES SysUtils,
+  DirectShow9,
+  DSUtil,
+  DSPack,
+  ActiveX,
+  INIFiles;
 
 CONST
   NilGUID                          : TGUID = '{00000000-0000-0000-0000-000000000000}';

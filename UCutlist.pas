@@ -3,13 +3,23 @@ UNIT UCutlist;
 INTERFACE
 
 USES
-  Contnrs, Settings_dialog, Movie, UCutApplicationBase;
+  Classes,
+  Contnrs,
+  Settings_dialog,
+  Movie,
+  Utils,
+  UCutApplicationBase;
 
 CONST
   CUTLIST_EXTENSION                = '.cutlist';
 
 TYPE
   TCutlist = CLASS;
+
+  RCut = RECORD
+    pos_from, pos_to: double;
+    frame_from, frame_to: integer;
+  END;
 
   Tcut = CLASS
   PRIVATE
@@ -24,6 +34,7 @@ TYPE
     PROPERTY frame_to: integer READ Fframe_to WRITE Fframe_to;
     FUNCTION DurationFrames: integer;
     CLASS FUNCTION Compare(CONST Item1, Item2: TCut): Integer;
+    FUNCTION GetData: RCut;
   END;
 
   TCutlistMode = (clmCutOut, clmTrim);
@@ -100,8 +111,12 @@ TYPE
     FUNCTION LoadFromFile(Filename: STRING; noWarnings: boolean): boolean; OVERLOAD;
     FUNCTION LoadFromFile(Filename: STRING): boolean; OVERLOAD;
     FUNCTION EditInfo: boolean;
-    FUNCTION Save(AskForPath: boolean): boolean;
+    FUNCTION Save(AskForPath: boolean): boolean; OVERLOAD;
     FUNCTION SaveAs(Filename: STRING): boolean;
+
+    FUNCTION GetChecksum: Cardinal;
+    FUNCTION LoadFrom(cutlistfile: TMemIniFileEx; noWarnings: boolean): boolean;
+    FUNCTION Save(cutlistfile: TMemIniFileEx): boolean; OVERLOAD;
 
     PROPERTY RatingOnServer: double READ FRatingOnServer WRITE FRatingOnServer;
   END;
@@ -110,8 +125,19 @@ TYPE
 IMPLEMENTATION
 
 USES
-  Classes, Forms, windows, dialogs, sysutils, cutlistINfo_dialog, controls, iniFiles, strutils,
-  utils, UCutApplicationAsfbin, UCutApplicationMP4Box, DateUtils, CAResources;
+  Forms,
+  windows,
+  dialogs,
+  sysutils,
+  cutlistINfo_dialog,
+  controls,
+  iniFiles,
+  strutils,
+  UCutApplicationAsfbin,
+  UCutApplicationMP4Box,
+  DateUtils,
+  JclMath,
+  CAResources;
 
 { Tcut }
 
@@ -151,6 +177,14 @@ BEGIN
     ELSE IF Item1.pos_to > Item2.pos_to THEN Result := 1
     ELSE Result := 0;
   END;
+END;
+
+FUNCTION TCut.GetData: RCut;
+BEGIN
+  Result.pos_from := Fpos_from;
+  Result.pos_to := Fpos_to;
+  Result.frame_from := Fframe_from;
+  Result.frame_to := Fframe_to;
 END;
 
 { TCutlist }
@@ -544,9 +578,82 @@ BEGIN
   END;
 END;
 
+FUNCTION TCutlist.NextCutPos(CurrentPos: double): double;
+VAR
+  CutPosArray                      : ARRAY OF double;
+  iPos                             : integer;
+BEGIN
+  result := -1;
+  setlength(CutPosArray, self.Count * 2);
+  self.FillCutPosArray(CutPosArray);
+  FOR iPos := 0 TO 2 * self.Count - 1 DO BEGIN
+    IF CutPosArray[iPos] > CurrentPos THEN BEGIN
+      result := CutPosArray[iPos];
+      break;
+    END;
+  END;
+END;
+
+FUNCTION TCutlist.PreviousCutPos(CurrentPos: double): double;
+VAR
+  CutPosArray                      : ARRAY OF double;
+  iPos                             : integer;
+BEGIN
+  result := -1;
+  setlength(CutPosArray, self.Count * 2);
+  self.FillCutPosArray(CutPosArray);
+  FOR iPos := 2 * self.Count - 1 DOWNTO 0 DO BEGIN
+    IF CutPosArray[iPos] < CurrentPos THEN BEGIN
+      result := CutPosArray[iPos];
+      break;
+    END;
+  END;
+END;
+
+PROCEDURE TCutlist.RefreshGUI;
+BEGIN
+  IF assigned(self.FRefreshCallBack) THEN RefreshCallBack(self);
+END;
+
 FUNCTION TCutlist.GetCut(iCut: Integer): TCut;
 BEGIN
   result := (self.items[iCut] AS TCut);
+END;
+
+FUNCTION TCutlist.GetChecksum: Cardinal;
+VAR
+  s                                : TMemoryStream;
+  iCut                             : integer;
+  PROCEDURE Write(CONST v: integer); OVERLOAD;
+  BEGIN
+    s.Write(v, SizeOf(v));
+  END;
+  PROCEDURE Write(CONST v: RCut); OVERLOAD;
+  BEGIN
+    s.Write(v, SizeOf(v));
+  END;
+  PROCEDURE Write(CONST v: PChar; CONST l: integer); OVERLOAD;
+  BEGIN
+    s.Write(v, l);
+  END;
+  PROCEDURE Write(CONST v: STRING); OVERLOAD;
+  BEGIN
+    Write(Length(v));
+    Write(PChar(v));
+  END;
+BEGIN
+  s := TMemoryStream.Create();
+  TRY
+    Write(self.IDOnServer);
+    Write(OriginalFileSize);
+    Write(self.Author);
+    Write(self.Count);
+    FOR iCut := 0 TO self.Count - 1 DO
+      Write(self.Cut[iCut].GetData);
+    Result := Crc32_P(s.Memory, s.Size);
+  FINALLY
+    FreeAndNil(s);
+  END;
 END;
 
 PROCEDURE TCutlist.init;
@@ -585,7 +692,7 @@ BEGIN
   Result := LoadFromFile(Filename, batchmode);
 END;
 
-FUNCTION TCutlist.LoadFromFile(Filename: STRING; noWarnings: boolean): boolean;
+FUNCTION TCutlist.LoadFrom(cutlistfile: TMemIniFileEx; noWarnings: boolean): boolean;
 VAR
   section                          : STRING;
   apply_to_file, my_file,
@@ -597,29 +704,26 @@ VAR
   myCutAppVersionWords,
     intendedCutAppVersionWords     : ARFileVersion;
   message_string                   : STRING;
-  Temp_DecimalSeparator            : char;
-  cutlistfile                      : TCustomIniFile;
+  //Temp_DecimalSeparator            : char;
+  //cutlistfile                      : TMemIniFileEx;
   iCUt, cCuts, ACut                : integer;
   iFramesDifference                : integer;
   cut                              : TCut;
   _pos_from, _pos_to               : double;
   _frame_from, _frame_to           : integer;
   CutAppAsfBin                     : TCutApplicationAsfbin;
+  cutChecksum                      : Cardinal;
 BEGIN
   result := false;
-  IF NOT fileexists(filename) THEN BEGIN
-    IF NOT noWarnings THEN
-      ShowMessageFmt(CAResources.RsErrorFileNotFound, [filename]);
+  IF NOT assigned(cutlistfile) THEN
     exit;
-  END;
 
   IF NOT noWarnings AND NOT self.clear_after_confirm THEN
     exit;
   self.Init;
 
-  cutlistfile := TInifile.Create(filename);
-  Temp_DecimalSeparator := DecimalSeparator;
-  DecimalSeparator := '.';
+  //Temp_DecimalSeparator := DecimalSeparator;
+  //DecimalSeparator := '.';
   TRY
     section := 'General';
     apply_to_file := cutlistfile.ReadString(section, 'ApplyToFile', Format('(%s)', [CAResources.RsCutlistTargetUnknown]));
@@ -692,11 +796,12 @@ BEGIN
     END;
 
     section := 'Server';
-    self.FIDOnServer := cutlistfile.ReadString(section, 'ID', '');
     self.FRatingOnServer := cutlistfile.ReadFloat(section, 'Rating', -1);
-    self.RatingSent := cutlistfile.ReadInteger(section, 'RatingSent', -1);
     self.RatingCountOnServer := cutlistfile.ReadInteger(section, 'RatingCount', -1);
     self.DownloadTime := cutlistfile.ReadInteger(section, 'DownloadTime', 0);
+    self.RatingSent := cutlistfile.ReadInteger(section, 'RatingSent', -1);
+    self.IDOnServer := cutlistfile.ReadString(section, 'ID', '');
+    cutChecksum := StrToInt64Def(cutlistfile.ReadString(section, 'Checksum', ''), 0);
 
     //info
     section := 'Info';
@@ -744,56 +849,23 @@ BEGIN
       END;
     END;
 
+    IF (cutCheckSum = 0) OR (cutChecksum <> self.GetChecksum) THEN BEGIN
+      // Remove server and rating information, if changed
+      self.IDOnServer := '';
+    END;
   FINALLY
-    DecimalSeparator := Temp_DecimalSeparator;
+    //DecimalSeparator := Temp_DecimalSeparator;
     FreeAndNil(cutlistfile);
   END;
 
   self.FMode := clmTrim;
   self.FHasChanged := false;
-  self.SavedToFilename := filename;
+  //self.SavedToFilename := filename;
   result := true;
   IF NOT noWarnings THEN BEGIN
     ShowMessageFmt(CAResources.RsMsgCutlistLoaded, [self.Count, cCuts]);
   END;
   self.RefreshGUI;
-END;
-
-FUNCTION TCutlist.NextCutPos(CurrentPos: double): double;
-VAR
-  CutPosArray                      : ARRAY OF double;
-  iPos                             : integer;
-BEGIN
-  result := -1;
-  setlength(CutPosArray, self.Count * 2);
-  self.FillCutPosArray(CutPosArray);
-  FOR iPos := 0 TO 2 * self.Count - 1 DO BEGIN
-    IF CutPosArray[iPos] > CurrentPos THEN BEGIN
-      result := CutPosArray[iPos];
-      break;
-    END;
-  END;
-END;
-
-FUNCTION TCutlist.PreviousCutPos(CurrentPos: double): double;
-VAR
-  CutPosArray                      : ARRAY OF double;
-  iPos                             : integer;
-BEGIN
-  result := -1;
-  setlength(CutPosArray, self.Count * 2);
-  self.FillCutPosArray(CutPosArray);
-  FOR iPos := 2 * self.Count - 1 DOWNTO 0 DO BEGIN
-    IF CutPosArray[iPos] < CurrentPos THEN BEGIN
-      result := CutPosArray[iPos];
-      break;
-    END;
-  END;
-END;
-
-PROCEDURE TCutlist.RefreshGUI;
-BEGIN
-  IF assigned(self.FRefreshCallBack) THEN RefreshCallBack(self);
 END;
 
 FUNCTION TCutlist.Save(AskForPath: boolean): boolean;
@@ -869,18 +941,55 @@ BEGIN
   result := self.SaveAs(target_file);
 END;
 
+FUNCTION TCutlist.LoadFromFile(Filename: STRING; noWarnings: boolean): boolean;
+VAR
+  cutlistfile                      : TMemIniFileEx;
+BEGIN
+  Result := false;
+  IF NOT FileExists(Filename) THEN BEGIN
+    IF NOT noWarnings THEN
+      ShowMessageFmt(CAResources.RsErrorFileNotFound, [Filename]);
+    exit;
+  END;
+
+  cutlistfile := TMemIniFileEx.Create(Filename);
+  TRY
+    Result := self.LoadFrom(cutlistfile, noWarnings);
+    IF Result THEN
+      self.SavedToFilename := Filename;
+  FINALLY
+    FreeAndNil(cutlistfile);
+  END;
+END;
+
 FUNCTION TCutlist.SaveAs(Filename: STRING): boolean;
+VAR
+  cutlistfile                      : TMemIniFileEx;
+BEGIN
+  cutlistfile := TMemIniFileEx.Create(Filename);
+  TRY
+    Result := self.Save(cutlistfile);
+    IF Result THEN
+      self.SavedToFilename := Filename;
+  FINALLY
+    FreeAndNil(cutlistfile);
+  END;
+END;
+
+FUNCTION TCutlist.Save(cutlistfile: TMemIniFileEx): boolean;
 //true if saved successfully
 VAR
-  cutlistfile                      : TCustomIniFile;
+  //cutlistfile                      : TCustomIniFile;
   section, cutApp, cutAppVer, cutAppOptions, cutCommand, message_string, OutputFileName: STRING;
   iCut, writtenCuts                : integer;
-  temp_DecimalSeparator            : char;
+  //temp_DecimalSeparator            : char;
   convertedCutlist                 : TCutlist;
   CutApplication                   : TCutApplicationBase;
   //iCommandLine: Integer;
 BEGIN
   result := false;
+  IF NOT Assigned(cutlistfile) THEN
+    exit;
 
   IF (NOT self.RatingByAuthorPresent) THEN BEGIN
     IF NOT self.EditInfo THEN exit;
@@ -906,10 +1015,10 @@ BEGIN
       END;
     END;
 
-    Temp_DecimalSeparator := DecimalSeparator;
-    DecimalSeparator := '.';
+    //Temp_DecimalSeparator := DecimalSeparator;
+    //DecimalSeparator := '.';
 
-    cutlistfile := TIniFile.Create(Filename);
+    //cutlistfile := TIniFile.Create(Filename);
     TRY
       section := 'General';
       cutlistfile.WriteString(section, 'Application', Application_name);
@@ -965,9 +1074,10 @@ BEGIN
         cutlistfile.WriteFloat(section, 'Rating', self.RatingOnServer);
         cutlistfile.WriteInteger(section, 'RatingCount', self.RatingCountOnServer);
         cutlistfile.WriteInteger(section, 'DownloadTime', self.DownloadTime);
+        cutlistfile.WriteString(section, 'Checksum', IntToStr(self.GetChecksum));
       END;
-      IF self.RatingSent <> -1 THEN
-        cutlistfile.WriteInteger(section, 'RatingSent', self.RatingSent);
+      //IF self.RatingSent <> -1 THEN
+      //  cutlistfile.WriteInteger(section, 'RatingSent', self.RatingSent);
 
       section := 'Info';
       cutlistfile.WriteString(section, 'Author', self.Author);
@@ -1006,16 +1116,16 @@ BEGIN
       IF self.FHasChanged THEN BEGIN
         self.FHasChanged := false;
       END;
-      self.SavedToFilename := filename;
+      //self.SavedToFilename := filename;
 
     FINALLY
-      DecimalSeparator := Temp_DecimalSeparator;
-      FreeAndNil(cutlistfile);
+      //DecimalSeparator := Temp_DecimalSeparator;
+      //FreeAndNil(cutlistfile);
     END;
   END ELSE BEGIN
     ConvertedCutlist := self.convert;
     TRY
-      result := ConvertedCutlist.SaveAs(filename);
+      result := ConvertedCutlist.Save(cutlistfile);
       self.FHasChanged := ConvertedCutlist.HasChanged;
       self.SavedToFilename := ConvertedCutlist.SavedToFilename;
       self.IDOnServer := convertedCutlist.IDOnServer;
@@ -1028,6 +1138,13 @@ END;
 PROCEDURE TCutlist.SetIDOnServer(CONST Value: STRING);
 BEGIN
   FIDOnServer := Value;
+  IF Value = '' THEN BEGIN
+    self.RatingSent := -1;
+    self.FRatingOnServer := -1;
+    self.RatingCountOnServer := -1;
+    self.DownloadTime := 0;
+    // ToDO: Clear other dependent values
+  END;
 END;
 
 PROCEDURE TCutlist.SetMode(CONST Value: TCutlistMode);

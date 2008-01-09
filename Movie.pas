@@ -53,8 +53,13 @@ TYPE
 IMPLEMENTATION
 
 USES
-  Windows, SysUtils, StrUtils, VfW,
-  DirectShow9, Utils, CAResources;
+  Windows,
+  SysUtils,
+  StrUtils,
+  VfW,
+  DirectShow9,
+  Utils,
+  CAResources;
 
 { TMovieInfo }
 

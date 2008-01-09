@@ -3,10 +3,26 @@ UNIT ResultingTimes;
 INTERFACE
 
 USES
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, ExtCtrls, StdCtrls, ComCtrls, ActiveX,
-  main, CutlistINfo_dialog, UCutlist,
-  DSPack, DirectShow9, DSUtil, Movie;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  ExtCtrls,
+  StdCtrls,
+  ComCtrls,
+  ActiveX,
+  main,
+  CutlistINfo_dialog,
+  UCutlist,
+  DSPack,
+  DirectShow9,
+  DSUtil,
+  Movie;
 
 TYPE
   TFResultingTimes = CLASS(TForm)
@@ -58,7 +74,9 @@ VAR
 
 IMPLEMENTATION
 
-USES Utils, Math, Settings_dialog;
+USES Utils,
+  Math,
+  Settings_dialog;
 
 {$R *.dfm}
 

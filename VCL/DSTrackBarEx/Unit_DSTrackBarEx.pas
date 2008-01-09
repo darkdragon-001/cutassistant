@@ -3,7 +3,15 @@ UNIT Unit_DSTrackBarEx;
 INTERFACE
 
 USES
-  SysUtils, Classes, Controls, ComCtrls, DSPack, Forms, Graphics, Messages, Windows;
+  SysUtils,
+  Classes,
+  Controls,
+  ComCtrls,
+  DSPack,
+  Forms,
+  Graphics,
+  Messages,
+  Windows;
 
 TYPE
   TDSTrackBarEx = CLASS;

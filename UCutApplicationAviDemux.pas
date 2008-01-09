@@ -3,8 +3,20 @@ UNIT UCutApplicationAviDemux;
 INTERFACE
 
 USES
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UCutApplicationBase, StdCtrls, IniFiles, Contnrs, JvExStdCtrls,
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  UCutApplicationBase,
+  StdCtrls,
+  IniFiles,
+  Contnrs,
+  JvExStdCtrls,
   JvCheckBox;
 
 CONST
@@ -70,8 +82,12 @@ IMPLEMENTATION
 
 USES
   CAResources,
-  FileCtrl, StrUtils,
-  Utils, UCutlist, UfrmCutting, Main;
+  FileCtrl,
+  StrUtils,
+  Utils,
+  UCutlist,
+  UfrmCutting,
+  Main;
 
 
 { TCutApplicationAviDemux }

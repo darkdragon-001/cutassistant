@@ -3,8 +3,20 @@ UNIT UCutApplicationAsfBin;
 INTERFACE
 
 USES
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UCutApplicationBase, StdCtrls, IniFiles, Contnrs, JvExStdCtrls,
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  UCutApplicationBase,
+  StdCtrls,
+  IniFiles,
+  Contnrs,
+  JvExStdCtrls,
   JvCheckBox;
 
 CONST
@@ -59,8 +71,11 @@ IMPLEMENTATION
 
 USES
   CAResources,
-  FileCtrl, StrUtils,
-  UCutlist, UfrmCutting, Utils;
+  FileCtrl,
+  StrUtils,
+  UCutlist,
+  UfrmCutting,
+  Utils;
 
 
 { TCutApplicationAsfbin }

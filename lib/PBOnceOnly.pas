@@ -100,7 +100,9 @@ PROCEDURE HandleCommandline(onParameter: TParameterEvent);
 
 IMPLEMENTATION
 
-USES Messages, Classes, Sysutils;
+USES Messages,
+  Classes,
+  Sysutils;
 
 { The THandledObject and TShareMem classes come from the D6 IPCDemos
   demo project. }

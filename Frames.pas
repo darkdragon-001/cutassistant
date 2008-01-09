@@ -3,8 +3,19 @@ UNIT Frames;
 INTERFACE
 
 USES
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Forms,
-  Dialogs, ExtCtrls, StdCtrls, Controls, contnrs, main;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Forms,
+  Dialogs,
+  ExtCtrls,
+  StdCtrls,
+  Controls,
+  contnrs,
+  main;
 
 TYPE
 
@@ -78,7 +89,9 @@ VAR
 
 IMPLEMENTATION
 
-USES Utils, Math, DirectShow9;
+USES Utils,
+  Math,
+  DirectShow9;
 
 {$R *.dfm}
 

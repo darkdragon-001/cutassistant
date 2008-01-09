@@ -79,7 +79,9 @@ FUNCTION DateUTC: TDateTime;
 
 IMPLEMENTATION
 
-USES SysUtils, DateUtils, Windows;
+USES SysUtils,
+  DateUtils,
+  Windows;
 
 FUNCTION DateTimeStrEval(CONST DateTimeFormat: STRING;
   CONST DateTimeStr: STRING): TDateTime;

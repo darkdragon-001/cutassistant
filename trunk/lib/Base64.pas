@@ -12,7 +12,8 @@ UNIT Base64;
 *)
 
 INTERFACE
-USES SysUtils, windows;
+USES SysUtils,
+  windows;
 
 FUNCTION BufferToString(CONST pBuffer: Pointer; Size: DWORD): STRING;
 PROCEDURE StringToBuffer(CONST s: STRING; VAR pBuffer: Pointer; VAR Size: DWORD);

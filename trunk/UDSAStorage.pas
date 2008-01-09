@@ -2,7 +2,10 @@ UNIT UDSAStorage;
 
 INTERFACE
 
-USES Classes, Controls, Dialogs, Graphics;
+USES Classes,
+  Controls,
+  Dialogs,
+  Graphics;
 
 //--------------------------------------------------------------------------------------------------
 // Custom "Don't Show Again" (DSA) dialog registration
@@ -75,7 +78,9 @@ PROCEDURE SaveDSAStates(CONST DSAData: TStrings);
 
 IMPLEMENTATION
 
-USES JvDSADialogs, SysUtils, StrUtils;
+USES JvDSADialogs,
+  SysUtils,
+  StrUtils;
 
 VAR
   DSAStorage                       : TDSAStorage;

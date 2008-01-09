@@ -3,9 +3,24 @@ UNIT UCutApplicationVirtualDub;
 INTERFACE
 
 USES
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, UCutApplicationBase, CodecSettings, StdCtrls, IniFiles, Contnrs, MMSystem,
-  ExtCtrls, JvExStdCtrls, JvCheckBox;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  UCutApplicationBase,
+  CodecSettings,
+  StdCtrls,
+  IniFiles,
+  Contnrs,
+  MMSystem,
+  ExtCtrls,
+  JvExStdCtrls,
+  JvCheckBox;
 
 CONST
   VIRTUALDUB_DEFAULT_EXENAME       = 'virtualdub.exe';
@@ -66,10 +81,15 @@ IMPLEMENTATION
 {$WARN UNIT_PLATFORM OFF}
 
 USES
-  FileCtrl, StrUtils, JvCreateProcess,
+  FileCtrl,
+  StrUtils,
+  JvCreateProcess,
   DirectShow9,
   CAResources,
-  Utils, UCutlist, UfrmCutting, Main;
+  Utils,
+  UCutlist,
+  UfrmCutting,
+  Main;
 
 TYPE
   PFindWindowStruct = ^TFindWindowStruct;

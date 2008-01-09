@@ -3,10 +3,23 @@ UNIT CutlistInfo_dialog;
 INTERFACE
 
 USES
-  Windows, Messages, SysUtils, StrUtils, Variants, Classes, Graphics,
-  Controls, Forms, Dialogs, StdCtrls, ExtCtrls,
+  Windows,
+  Messages,
+  SysUtils,
+  StrUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  ExtCtrls,
 
-  UCutlist, Utils, JvExStdCtrls, JvCheckBox;
+  UCutlist,
+  Utils,
+  JvExStdCtrls,
+  JvCheckBox;
 
 CONST
   movie_file_extensions            : ARRAY[0..7] OF STRING

@@ -3,23 +3,76 @@ UNIT Main;
 INTERFACE
 
 USES
-  Windows, Messages, SysUtils, DateUtils, Variants, Classes, Graphics, Controls,
-  Forms, Dialogs, ComCtrls, OleCtrls, StdCtrls, contnrs, shellapi, Buttons,
-  ExtCtrls, strutils, iniFiles, Registry, ComObj, Menus, math, ToolWin, Clipbrd,
+  Windows,
+  Messages,
+  SysUtils,
+  DateUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  ComCtrls,
+  OleCtrls,
+  StdCtrls,
+  contnrs,
+  shellapi,
+  Buttons,
+  ExtCtrls,
+  strutils,
+  iniFiles,
+  Registry,
+  ComObj,
+  Menus,
+  math,
+  ToolWin,
+  Clipbrd,
 
-  ImgList, ActnList,
+  ImgList,
+  ActnList,
 
-  IdException, IdBaseComponent, IdComponent, IdThreadComponent, IdTCPConnection,
-  IdTCPClient, IdHTTP, IdMultipartFormData, IdAntiFreezeBase, IdAntiFreeze,
+  IdException,
+  IdBaseComponent,
+  IdComponent,
+  IdThreadComponent,
+  IdTCPConnection,
+  IdTCPClient,
+  IdHTTP,
+  IdMultipartFormData,
+  IdAntiFreezeBase,
+  IdAntiFreeze,
 
-  DSPack, DSUtil, DirectShow9, wmf9, ActiveX,
+  DSPack,
+  DSUtil,
+  DirectShow9,
+  wmf9,
+  ActiveX,
 
-  Settings_dialog, ManageFilters, UploadList, CutlistInfo_dialog, UCutlist,
-  Movie, Unit_DSTrackBarEx, trackBarEx, Utils, CodecSettings,
+  Settings_dialog,
+  ManageFilters,
+  UploadList,
+  CutlistInfo_dialog,
+  UCutlist,
+  Movie,
+  Unit_DSTrackBarEx,
+  trackBarEx,
+  Utils,
+  CodecSettings,
 
-  JvComponentBase, JvSimpleXml, JclSimpleXML, JvGIF, JvSpeedbar, JvExExtCtrls,
-  JvExtComponent, JvExControls, JvBaseDlg, JvProgressDialog, JvAppCommand,
-  JvExStdCtrls, JvCheckBox;
+  JvComponentBase,
+  JvSimpleXml,
+  JclSimpleXML,
+  JvGIF,
+  JvSpeedbar,
+  JvExExtCtrls,
+  JvExtComponent,
+  JvExControls,
+  JvBaseDlg,
+  JvProgressDialog,
+  JvAppCommand,
+  JvExStdCtrls,
+  JvCheckBox;
 
 CONST
   //Registry Keys
@@ -473,9 +526,25 @@ VAR
   VMRWindowlessControl9            : IVMRWindowlessControl9;
 
 IMPLEMENTATION
-USES madExcept, madNVBitmap, madNVAssistant, Frames, CutlistRate_Dialog, ResultingTimes, CutlistSearchResults,
-  PBOnceOnly, UfrmCutting, UCutApplicationBase, UCutApplicationAsfbin, UCutApplicationMP4Box, UMemoDialog,
-  DateTools, UAbout, ULogging, UDSAStorage, IdResourceStrings, CAResources,
+USES madExcept,
+  madNVBitmap,
+  madNVAssistant,
+  Frames,
+  CutlistRate_Dialog,
+  ResultingTimes,
+  CutlistSearchResults,
+  PBOnceOnly,
+  UfrmCutting,
+  UCutApplicationBase,
+  UCutApplicationAsfbin,
+  UCutApplicationMP4Box,
+  UMemoDialog,
+  DateTools,
+  UAbout,
+  ULogging,
+  UDSAStorage,
+  IdResourceStrings,
+  CAResources,
   uFreeLocalizer;
 
 {$R *.dfm}
@@ -3989,4 +4058,5 @@ FINALIZATION
   END;
 
 END.
+
 

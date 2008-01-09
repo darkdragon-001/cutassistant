@@ -2,8 +2,19 @@ UNIT UAbout;
 
 INTERFACE
 
-USES Windows, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls,
-  Buttons, ExtCtrls, JvGIF, JvPoweredBy, JvExControls, JvLinkLabel;
+USES Windows,
+  SysUtils,
+  Classes,
+  Graphics,
+  Forms,
+  Controls,
+  StdCtrls,
+  Buttons,
+  ExtCtrls,
+  JvGIF,
+  JvPoweredBy,
+  JvExControls,
+  JvLinkLabel;
 
 TYPE
   TAboutBox = CLASS(TForm)

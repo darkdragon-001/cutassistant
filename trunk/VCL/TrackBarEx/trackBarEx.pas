@@ -3,7 +3,10 @@ UNIT trackBarEx;
 INTERFACE
 
 USES
-  SysUtils, Classes, Controls, ComCtrls;
+  SysUtils,
+  Classes,
+  Controls,
+  ComCtrls;
 
 TYPE
   TtrackBarEx = CLASS(TTrackBar)

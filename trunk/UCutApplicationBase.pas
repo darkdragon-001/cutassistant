@@ -3,10 +3,23 @@ UNIT UCutApplicationBase;
 INTERFACE
 
 USES
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, StdCtrls,
-  IniFiles, Contnrs,
-  JvComponentBase, JvCreateProcess, Utils, JvExStdCtrls, JvCheckBox;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  StdCtrls,
+  IniFiles,
+  Contnrs,
+  JvComponentBase,
+  JvCreateProcess,
+  Utils,
+  JvExStdCtrls,
+  JvCheckBox;
 
 TYPE
   TCutApplicationFrameClass = CLASS OF TfrmCutApplicationBase;

@@ -3,9 +3,20 @@ UNIT UfrmCutting;
 INTERFACE
 
 USES
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, JvComponentBase, JvCreateProcess, StdCtrls,
-  UCutApplicationBase, ExtCtrls;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  JvComponentBase,
+  JvCreateProcess,
+  StdCtrls,
+  UCutApplicationBase,
+  ExtCtrls;
 
 TYPE
   TfrmCutting = CLASS(TForm)
@@ -41,7 +52,12 @@ VAR
 
 IMPLEMENTATION
 
-USES Clipbrd, DateTools, DateUtils, Utils, Main, CAResources;
+USES Clipbrd,
+  DateTools,
+  DateUtils,
+  Utils,
+  Main,
+  CAResources;
 
 {$R *.dfm}
 

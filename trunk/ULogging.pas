@@ -3,9 +3,21 @@ UNIT ULogging;
 INTERFACE
 
 USES
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, JvFormMagnet, JvComponentBase, JvFormAutoSize, ExtCtrls,
-  StdCtrls, ComCtrls;
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  Dialogs,
+  JvFormMagnet,
+  JvComponentBase,
+  JvFormAutoSize,
+  ExtCtrls,
+  StdCtrls,
+  ComCtrls;
 
 TYPE
   TFLogging = CLASS(TForm)
@@ -33,7 +45,9 @@ VAR
 
 IMPLEMENTATION
 
-USES Main, Utils, Math;
+USES Main,
+  Utils,
+  Math;
 
 {$R *.dfm}
 

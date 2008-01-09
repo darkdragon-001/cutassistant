@@ -5,12 +5,36 @@ INTERFACE
 {$WARN UNIT_PLATFORM OFF}
 
 USES
-  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, COntnrs,
-  Dialogs, FileCtrl, StdCtrls, ComCtrls, ExtCtrls, IniFiles, Utils, CodecSettings, MMSystem,
-  Movie, UCutApplicationBase,
+  Windows,
+  Messages,
+  SysUtils,
+  Variants,
+  Classes,
+  Graphics,
+  Controls,
+  Forms,
+  COntnrs,
+  Dialogs,
+  FileCtrl,
+  StdCtrls,
+  ComCtrls,
+  ExtCtrls,
+  IniFiles,
+  Utils,
+  CodecSettings,
+  MMSystem,
+  Movie,
+  UCutApplicationBase,
 
-  DirectShow9, DSPack, DSUtil, CheckLst, Mask, JvExMask, JvSpin,
-  JvExStdCtrls, JvCheckBox;
+  DirectShow9,
+  DSPack,
+  DSUtil,
+  CheckLst,
+  Mask,
+  JvExMask,
+  JvSpin,
+  JvExStdCtrls,
+  JvCheckBox;
 
 CONST
   //Settings Save...Mode
@@ -305,14 +329,18 @@ VAR
 IMPLEMENTATION
 
 USES
-  Math, Types,
+  Math,
+  Types,
   Main,
   UCutApplicationAsfbin,
   UCutApplicationVirtualDub,
   UCutApplicationAviDemux,
   UCutApplicationMP4Box,
-  UCutlist, VFW, CAResources,
-  uFreeLocalizer, StrUtils;
+  UCutlist,
+  VFW,
+  CAResources,
+  uFreeLocalizer,
+  StrUtils;
 
 VAR
   EmptyRect                        : TRect;

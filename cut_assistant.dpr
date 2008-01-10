@@ -8,43 +8,42 @@ PROGRAM cut_assistant;
 {%File 'cut_assistant.lng'}
 {%File 'cut_assistant.de.lng'}
 
-USES
+uses
   madExcept,
   uFreeLocalizer,
   SysUtils,
-  PBOnceOnly IN 'lib\PBOnceOnly.pas',
+  PBOnceOnly in 'lib\PBOnceOnly.pas',
   Forms,
   Classes,
-  Main IN 'Main.pas' {FMain},
-  Settings_dialog IN 'Settings_dialog.pas' {FSettings},
-  UMemoDialog IN 'UMemoDialog.pas' {frmMemoDialog},
-  ManageFilters IN 'ManageFilters.pas' {FManageFilters},
-  Frames IN 'Frames.pas' {FFrames},
-  CutlistRate_dialog IN 'CutlistRate_dialog.pas' {FCutlistRate},
-  ResultingTimes IN 'ResultingTimes.pas' {FResultingTimes},
-  CutlistSearchResults IN 'CutlistSearchResults.pas' {FCutlistSearchResults},
-  CutlistInfo_dialog IN 'CutlistInfo_dialog.pas' {FCutlistInfo},
-  UploadList IN 'UploadList.pas' {Form1},
-  Utils IN 'Utils.pas',
-  Movie IN 'Movie.pas',
-  CodecSettings IN 'CodecSettings.pas',
-  Base64 IN 'lib\Base64.pas',
-  VfW IN 'lib\VfW.pas',
-  UCutlist IN 'UCutlist.pas',
-  UCutApplicationBase IN 'UCutApplicationBase.pas' {frmCutApplicationBase: TFrame},
-  UCutApplicationMP4Box IN 'UCutApplicationMP4Box.pas' {frmCutApplicationMP4Box: TFrame},
-  UfrmCutting IN 'UfrmCutting.pas' {frmCutting},
-  UCutApplicationAsfbin IN 'UCutApplicationAsfbin.pas' {frmCutApplicationAsfbin: TFrame},
-  UCutApplicationAviDemux IN 'UCutApplicationAviDemux.pas' {frmCutApplicationAviDemux: TFrame},
-  UFilterBank IN 'UFilterBank.pas',
-  UCutApplicationVirtualDub IN 'UCutApplicationVirtualDub.pas' {frmCutApplicationVirtualDub: TFrame},
-  trackBarEx IN 'VCL\TrackBarEx\trackBarEx.pas',
-  Unit_DSTrackBarEx IN 'VCL\DSTrackBarEx\Unit_DSTrackBarEx.pas',
-  DateTools IN 'DateTools.pas',
-  ULogging IN 'ULogging.pas' {FLogging},
-  UDSAStorage IN 'UDSAStorage.pas',
-  UAbout IN 'UAbout.pas' {AboutBox},
-  CAResources IN 'CAResources.pas';
+  Main in 'Main.pas' {FMain},
+  Settings_dialog in 'Settings_dialog.pas' {FSettings},
+  UMemoDialog in 'UMemoDialog.pas' {frmMemoDialog},
+  ManageFilters in 'ManageFilters.pas' {FManageFilters},
+  Frames in 'Frames.pas' {FFrames},
+  CutlistRate_dialog in 'CutlistRate_dialog.pas' {FCutlistRate},
+  ResultingTimes in 'ResultingTimes.pas' {FResultingTimes},
+  CutlistSearchResults in 'CutlistSearchResults.pas' {FCutlistSearchResults},
+  CutlistInfo_dialog in 'CutlistInfo_dialog.pas' {FCutlistInfo},
+  UploadList in 'UploadList.pas' {Form1},
+  Utils in 'Utils.pas',
+  Movie in 'Movie.pas',
+  CodecSettings in 'CodecSettings.pas',
+  VfW in 'lib\VfW.pas',
+  UCutlist in 'UCutlist.pas',
+  UCutApplicationBase in 'UCutApplicationBase.pas' {frmCutApplicationBase: TFrame},
+  UCutApplicationMP4Box in 'UCutApplicationMP4Box.pas' {frmCutApplicationMP4Box: TFrame},
+  UfrmCutting in 'UfrmCutting.pas' {frmCutting},
+  UCutApplicationAsfbin in 'UCutApplicationAsfbin.pas' {frmCutApplicationAsfbin: TFrame},
+  UCutApplicationAviDemux in 'UCutApplicationAviDemux.pas' {frmCutApplicationAviDemux: TFrame},
+  UFilterBank in 'UFilterBank.pas',
+  UCutApplicationVirtualDub in 'UCutApplicationVirtualDub.pas' {frmCutApplicationVirtualDub: TFrame},
+  trackBarEx in 'VCL\TrackBarEx\trackBarEx.pas',
+  Unit_DSTrackBarEx in 'VCL\DSTrackBarEx\Unit_DSTrackBarEx.pas',
+  DateTools in 'DateTools.pas',
+  ULogging in 'ULogging.pas' {FLogging},
+  UDSAStorage in 'UDSAStorage.pas',
+  UAbout in 'UAbout.pas' {AboutBox},
+  CAResources in 'CAResources.pas';
 
 {$R *.res}
 CONST
@@ -72,19 +71,19 @@ BEGIN
     END;
 
     Application.CreateForm(TFMain, FMain);
-    Application.CreateForm(TFSettings, FSettings);
-    Application.CreateForm(TfrmMemoDialog, frmMemoDialog);
-    Application.CreateForm(TFManageFilters, FManageFilters);
-    Application.CreateForm(TFFrames, FFrames);
-    Application.CreateForm(TFCutlistRate, FCutlistRate);
-    Application.CreateForm(TFResultingTimes, FResultingTimes);
-    Application.CreateForm(TFCutlistSearchResults, FCutlistSearchResults);
-    Application.CreateForm(TFCutlistInfo, FCutlistInfo);
-    Application.CreateForm(TFUploadList, FUploadList);
-    Application.CreateForm(TfrmCutting, frmCutting);
-    Application.CreateForm(TFLogging, FLogging);
-    Application.CreateForm(TAboutBox, AboutBox);
-    FFrames.MainForm := FMain;
+  Application.CreateForm(TFSettings, FSettings);
+  Application.CreateForm(TfrmMemoDialog, frmMemoDialog);
+  Application.CreateForm(TFManageFilters, FManageFilters);
+  Application.CreateForm(TFFrames, FFrames);
+  Application.CreateForm(TFCutlistRate, FCutlistRate);
+  Application.CreateForm(TFResultingTimes, FResultingTimes);
+  Application.CreateForm(TFCutlistSearchResults, FCutlistSearchResults);
+  Application.CreateForm(TFCutlistInfo, FCutlistInfo);
+  Application.CreateForm(TFUploadList, FUploadList);
+  Application.CreateForm(TfrmCutting, frmCutting);
+  Application.CreateForm(TFLogging, FLogging);
+  Application.CreateForm(TAboutBox, AboutBox);
+  FFrames.MainForm := FMain;
 
     IF FreeLocalizer.Errors <> '' THEN BEGIN
       Application.MessageBox(pChar(FreeLocalizer.Errors), 'Localizer Errors');

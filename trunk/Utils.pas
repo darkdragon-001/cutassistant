@@ -311,6 +311,8 @@ END;
 CONSTRUCTOR TMemIniFileEx.Create(CONST FileName: STRING);
 BEGIN
   INHERITED Create(FileName);
+  // init with zero, since GetLocaleFormatSettings does not fill all fields (QC 5880).
+  FillChar(self.FFormatSettings, SizeOf(self.FFormatSettings), 0);
   FVolatile := false;
   // Initialize with english, since invariant culture does not work?
   //GetLocaleFormatSettings($007F, self.FFormatSettings);
@@ -320,6 +322,8 @@ END;
 CONSTRUCTOR TMemIniFileEx.Create(CONST FileName: STRING; CONST formatSettings: TFormatSettings);
 BEGIN
   INHERITED Create(FileName);
+  // init with zero, since GetLocaleFormatSettings does not fill all fields (QC 5880).
+  FillChar(self.FFormatSettings, SizeOf(self.FFormatSettings), 0);
   FVolatile := false;
   FFormatSettings := formatSettings;
 END;

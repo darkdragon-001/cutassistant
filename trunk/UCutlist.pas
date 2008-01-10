@@ -855,7 +855,6 @@ BEGIN
     END;
   FINALLY
     //DecimalSeparator := Temp_DecimalSeparator;
-    FreeAndNil(cutlistfile);
   END;
 
   self.FMode := clmTrim;
@@ -1120,7 +1119,6 @@ BEGIN
 
     FINALLY
       //DecimalSeparator := Temp_DecimalSeparator;
-      //FreeAndNil(cutlistfile);
     END;
   END ELSE BEGIN
     ConvertedCutlist := self.convert;

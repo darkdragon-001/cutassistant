@@ -312,7 +312,9 @@ CONSTRUCTOR TMemIniFileEx.Create(CONST FileName: STRING);
 BEGIN
   INHERITED Create(FileName);
   FVolatile := false;
-  GetLocaleFormatSettings($007F, FFormatSettings);
+  // Initialize with english, since invariant culture does not work?
+  //GetLocaleFormatSettings($007F, self.FFormatSettings);
+  GetLocaleFormatSettings(1033, self.FFormatSettings);
 END;
 
 CONSTRUCTOR TMemIniFileEx.Create(CONST FileName: STRING; CONST formatSettings: TFormatSettings);

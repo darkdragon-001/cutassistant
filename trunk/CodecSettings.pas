@@ -82,7 +82,8 @@ USES
   Windows,
   Types,
   SysUtils,
-  Base64,
+  IdException,
+  IdCoderMime,
   DirectShow9,
   CAResources;
 
@@ -427,46 +428,38 @@ VAR
   Codec                            : HIC;
   BufferSize                       : DWORD;
   StateData                        : STRING;
-  StateBuffer                      : Pointer;
 BEGIN
   result := false;
-  StateBuffer := NIL;
   Codec := ICOpen(ICInfo.fccType, ICInfo.fccHandler, ICMODE_COMPRESS);
-  IF Codec = 0 THEN exit;
+  IF Codec = 0 THEN
+    exit;
 
-  IF (Length(State) > 0) AND (Length(State) MOD 4 = 0) THEN BEGIN
-    StateData := Base64ToStr(State);
-    BufferSize := Length(StateData);
-    // set old state
-    TRY
-      StringToBuffer(StateData, StateBuffer, BufferSize);
-      ICSetState(Codec, StateBuffer, BufferSize);
-    FINALLY
-      IF Assigned(StateBuffer) THEN
-        FreeMem(StateBuffer, BufferSize);
-      StateBuffer := NIL;
+  TRY
+    IF (Length(State) > 0) THEN BEGIN
+      StateData := TIdDecoderMime.DecodeString(State);
+      // set old state
+      ICSetState(Codec, @StateData[1], Length(StateData));
+    END;
+  EXCEPT
+    ON E: EIdException DO BEGIN
+      // Swallow exception in this case
     END;
   END;
 
   IF (ICConfigure(Codec, ParentWindow) = ICERR_OK) THEN BEGIN
     BufferSize := ICGetStateSize(Codec);
-    GetMem(StateBuffer, BufferSize);
-    TRY
-      IF (ICGetState(Codec, StateBuffer, BufferSize) = ICERR_OK) THEN BEGIN
-        StateData := BufferToString(StateBuffer, BufferSize);
-        State := StrTobase64(StateData);
-        SizeDecoded := Length(StateData);
-      END ELSE BEGIN
-        State := '';
-        SizeDecoded := 0;
-      END;
-    FINALLY
-      IF Assigned(StateBuffer) THEN
-        FreeMem(StateBuffer, BufferSize);
-      StateBuffer := NIL;
+    SetLength(StateData, BufferSize);
+
+    IF (ICGetState(Codec, @StateData[1], BufferSize) = ICERR_OK) THEN BEGIN
+      State := TIdEncoderMime.EncodeString(StateData);
+      SizeDecoded := Length(StateData);
+    END ELSE BEGIN
+      State := '';
+      SizeDecoded := 0;
     END;
   END;
-  assert(ICClose(Codec) = ICERR_OK, CAResources.RsErrorCloseCodec);
+  IF ICClose(Codec) <> ICERR_OK THEN
+    Assert(false, CAResources.RsErrorCloseCodec);
   result := true;
 END;
 
@@ -486,3 +479,4 @@ BEGIN
 END;
 
 END.
+

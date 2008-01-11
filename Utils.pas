@@ -167,6 +167,7 @@ TYPE
     FUNCTION GetDataString: STRING;
 
     PROCEDURE LoadFromStream(CONST Stream: TStream);
+    PROCEDURE LoadFromString(CONST data: STRING);
     PROCEDURE SaveToStream(CONST Stream: TStream);
   END;
 
@@ -529,6 +530,19 @@ BEGIN
   TRY
     GetStrings(List);
     Result := List.Text;
+  FINALLY
+    FreeAndNil(List);
+  END;
+END;
+
+PROCEDURE TMemIniFileEx.LoadFromString(CONST data: STRING);
+VAR
+  List                             : TStringList;
+BEGIN
+  List := TStringList.Create;
+  TRY
+    List.Text := data;
+    SetStrings(List);
   FINALLY
     FreeAndNil(List);
   END;

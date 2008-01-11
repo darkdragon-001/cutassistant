@@ -616,6 +616,7 @@ object FMain: TFMain
     Hint = 'Position (Timeline)'
     Anchors = [akLeft, akRight, akBottom]
     Enabled = False
+    Max = 1000
     ParentShowHint = False
     PageSize = 1
     Frequency = 300

@@ -27,7 +27,7 @@ object FSettings: TFSettings
     Top = 0
     Width = 582
     Height = 281
-    ActivePage = tabUserData
+    ActivePage = tabSaveCutlist
     Align = alClient
     MultiLine = True
     Style = tsFlatButtons
@@ -457,7 +457,7 @@ object FSettings: TFSettings
       end
       object cbCutlistNameAlwaysConfirm: TJvCheckBox
         Left = 3
-        Top = 66
+        Top = 86
         Width = 200
         Height = 17
         Caption = 'Always confirm filename before saving'
@@ -472,7 +472,7 @@ object FSettings: TFSettings
       end
       object cbCutlistAutoSaveBeforeCutting: TJvCheckBox
         Left = 3
-        Top = 86
+        Top = 106
         Width = 137
         Height = 17
         Caption = 'Auto save before cutting'
@@ -487,13 +487,30 @@ object FSettings: TFSettings
       end
       object cbSearchLocalCutlists: TJvCheckBox
         Left = 3
-        Top = 108
+        Top = 126
         Width = 325
         Height = 17
         Caption = 
           'Include cutlist standard directory when auto-searching for cutli' +
           'sts'
         TabOrder = 5
+        LinkedControls = <>
+        HotTrackFont.Charset = DEFAULT_CHARSET
+        HotTrackFont.Color = clWindowText
+        HotTrackFont.Height = -11
+        HotTrackFont.Name = 'Microsoft Sans Serif'
+        HotTrackFont.Pitch = fpVariable
+        HotTrackFont.Style = []
+      end
+      object cbAutoSaveDownloadedCutlists: TJvCheckBox
+        Left = 3
+        Top = 66
+        Width = 208
+        Height = 17
+        Caption = 'Automatically save downloaded cutlists.'
+        Checked = True
+        State = cbChecked
+        TabOrder = 6
         LinkedControls = <>
         HotTrackFont.Charset = DEFAULT_CHARSET
         HotTrackFont.Color = clWindowText

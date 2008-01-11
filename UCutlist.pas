@@ -639,7 +639,7 @@ VAR
   PROCEDURE Write(CONST v: STRING); OVERLOAD;
   BEGIN
     Write(Length(v));
-    Write(PChar(v));
+    Write(PChar(v), Length(v));
   END;
 BEGIN
   s := TMemoryStream.Create();
@@ -650,6 +650,7 @@ BEGIN
     Write(self.Count);
     FOR iCut := 0 TO self.Count - 1 DO
       Write(self.Cut[iCut].GetData);
+    s.Position := 0;
     Result := Crc32_P(s.Memory, s.Size);
   FINALLY
     FreeAndNil(s);

@@ -270,7 +270,6 @@ BEGIN
   FilterGraph.Stop;
   FilterGraph.ClearGraph;
   FilterGraph.Active := false;
-  settings.OffsetSecondsCutChecking := FOffset;
 END;
 
 PROCEDURE TFResultingTimes.FormCreate(Sender: TObject);
@@ -298,6 +297,7 @@ END;
 
 PROCEDURE TFResultingTimes.FormDestroy(Sender: TObject);
 BEGIN
+  Settings.OffsetSecondsCutChecking := FOffset;
   Settings.PreviewFormBounds := self.BoundsRect;
   Settings.PreviewFormWindowState := self.WindowState;
   FreeAndNIL(FMovieInfo);
@@ -316,3 +316,4 @@ BEGIN
 END;
 
 END.
+

@@ -485,7 +485,8 @@ TYPE
     FUNCTION SearchCutlistsByFileSize_Local: integer;
     FUNCTION SearchCutlistsByFileSize_XML: integer;
     //    function DownloadCutlist(cutlist_name: string): boolean;
-    FUNCTION DownloadCutlistByID(cutlist_id, TargetFileName: STRING): boolean;
+    FUNCTION DownloadCutlistByID(CONST cutlist_id: STRING): boolean; OVERLOAD;
+    FUNCTION DownloadCutlistByID(CONST cutlist_id, TargetFileName: STRING): boolean; OVERLOAD;
     FUNCTION UploadCutlist(filename: STRING): boolean;
     FUNCTION DeleteCutlistFromServer(CONST cutlist_id: STRING): boolean;
     FUNCTION AskForUserRating(Cutlist: TCutlist): boolean;
@@ -2690,7 +2691,6 @@ BEGIN
         Exit;
       cutFilename := PathCombine(cutFiledir, cutFilename);
       CutList.LoadFromFile(cutFilename);
-      self.actSendRating.Enabled := false;
     END ELSE BEGIN
       WebResult := self.DownloadCutlistByID(selectedItem.Caption, cutFilename);
       IF WebResult THEN BEGIN
@@ -2698,10 +2698,11 @@ BEGIN
         cutlist.RatingOnServer := StrToFloatDefInv(selectedItem.SubItems[1], -1);
         cutlist.RatingCountOnServer := StrToIntDef(selectedItem.SubItems[2], -1);
         cutlist.DownloadTime := DateTimeToUnix(Now);
-        cutlist.Save(false);
-        self.actSendRating.Enabled := true;
+        IF Settings.AutoSaveDownloadedCutlists THEN
+          cutlist.Save(false);
       END;
     END;
+    self.actSendRating.Enabled := Cutlist.IDOnServer <> '';
   END;
 END;
 
@@ -3126,14 +3127,48 @@ BEGIN
   result := true;
 END;
 
-FUNCTION TFMain.DownloadCutlistByID(cutlist_id, TargetFileName: STRING): boolean;
+FUNCTION TFMain.DownloadCutlistByID(CONST cutlist_id: STRING): boolean;
 CONST
   php_name                         = 'getfile.php';
   Command                          = '?id=';
 VAR
-  Cutlist_File                     : TextFile;
-  message_string, error_message, Response: STRING;
-  url, target_file, cutlist_path   : STRING;
+  url, message_string              : STRING;
+  error_message, Response          : STRING;
+  cutlistfile                      : TMemIniFileEx;
+BEGIN
+  result := false;
+  Error_message := CAResources.RsErrorUnknown;
+  url := settings.url_cutlists_home + php_name + command + cleanurl(cutlist_id);
+
+  IF NOT DoHttpGet(url, false, error_message, Response) THEN BEGIN
+    IF NOT batchmode THEN BEGIN
+      message_string := Error_message + #13#10 + CAResources.RsMsgOpenHomepage;
+      IF (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONQUESTION) = IDYES) THEN BEGIN
+        ShellExecute(0, NIL, PChar(settings.url_cutlists_home), '', '', SW_SHOWNORMAL);
+      END;
+    END;
+  END ELSE BEGIN
+    IF (Length(Response) < 5) THEN BEGIN
+      IF NOT batchmode THEN
+        ShowMessageFmt(CAResources.RsDownloadCutlistInvalidData, [Length(Response)]);
+      Exit;
+    END;
+
+    cutlistfile := TMemIniFileEx.Create('');
+    TRY
+      cutlistfile.LoadFromString(Response);
+      cutlist.LoadFrom(cutlistfile, batchmode);
+      Result := true;
+    FINALLY
+      FreeAndNil(cutlistfile);
+    END;
+  END;
+END;
+
+FUNCTION TFMain.DownloadCutlistByID(CONST cutlist_id, TargetFileName: STRING): boolean;
+VAR
+  message_string                   : STRING;
+  target_file, cutlist_path        : STRING;
 BEGIN
   result := false;
   CASE Settings.SaveCutlistMode OF
@@ -3156,50 +3191,31 @@ BEGIN
     END;
   END;
 
-  Error_message := CAResources.RsErrorUnknown;
-  url := settings.url_cutlists_home + php_name + command + cleanurl(cutlist_id);
-
-  IF NOT DoHttpGet(url, false, error_message, Response) THEN BEGIN
-    IF NOT batchmode THEN BEGIN
-      message_string := Error_message + #13#10 + CAResources.RsMsgOpenHomepage;
-      IF (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONQUESTION) = IDYES) THEN BEGIN
-        ShellExecute(0, NIL, PChar(settings.url_cutlists_home), '', '', SW_SHOWNORMAL);
-      END;
-    END;
-  END ELSE BEGIN
-    IF (Length(Response) < 5) THEN BEGIN
-      IF NOT batchmode THEN
-        ShowMessageFmt(CAResources.RsDownloadCutlistInvalidData, [Length(Response)]);
-      Exit;
-    END;
-    IF NOT ForceDirectories(cutlist_path) THEN BEGIN
-      IF NOT batchmode THEN
-        ShowMessageFmt(CAResources.RsErrorCreatePathFailedAbort, [cutlist_path]);
-      exit;
-    END;
-    IF fileexists(target_file) THEN BEGIN
-      IF NOT batchmode THEN BEGIN
-        message_string := Format(CAResources.RsWarnTargetExistsOverwrite, [target_file]);
-        IF NOT (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONQUESTION) = IDYES) THEN BEGIN
-          exit;
-        END;
-      END;
-      IF NOT DeleteFile(target_file) THEN BEGIN
-        IF NOT batchmode THEN
-          ShowMessageFmt(CAResources.RsErrorDeleteFileFailedAbort, [target_file]);
-        exit;
-      END;
-    END;
-
-    AssignFile(Cutlist_File, target_file);
-    Rewrite(Cutlist_File);
-    TRY
-      Write(Cutlist_File, Response);
-    FINALLY
-      CloseFile(Cutlist_File);
-    END;
-    cutlist.LoadFromFile(target_file);
+  IF self.DownloadCutlistByID(cutlist_id) THEN BEGIN
     Result := true;
+    //cutlist.SavedToFilename := target_file;
+    IF Settings.AutoSaveDownloadedCutlists THEN BEGIN
+      IF NOT ForceDirectories(cutlist_path) THEN BEGIN
+        IF NOT batchmode THEN
+          ShowMessageFmt(CAResources.RsErrorCreatePathFailedAbort, [cutlist_path]);
+      END ELSE BEGIN
+        IF fileexists(target_file) THEN BEGIN
+          IF NOT batchmode THEN BEGIN
+            message_string := Format(CAResources.RsWarnTargetExistsOverwrite, [target_file]);
+            IF NOT (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONQUESTION) = IDYES) THEN BEGIN
+              exit;
+            END;
+          END;
+          IF NOT DeleteFile(target_file) THEN BEGIN
+            IF NOT batchmode THEN
+              ShowMessageFmt(CAResources.RsErrorDeleteFileFailedAbort, [target_file]);
+            exit;
+          END;
+        END;
+
+        cutlist.SaveAs(target_file);
+      END;
+    END;
   END;
 END;
 
@@ -4058,5 +4074,4 @@ FINALIZATION
   END;
 
 END.
-
 

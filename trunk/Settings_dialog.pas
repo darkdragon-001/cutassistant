@@ -170,6 +170,7 @@ TYPE
     cbAutoSearchCutlists: TJvCheckBox;
     cbSearchLocalCutlists: TJvCheckBox;
     cbSearchServerCutlists: TJvCheckBox;
+    cbAutoSaveDownloadedCutlists: TJvCheckBox;
     PROCEDURE cmdCutMovieSaveDirClick(Sender: TObject);
     PROCEDURE cmdCutlistSaveDirClick(Sender: TObject);
     PROCEDURE edtProxyPort_nlKeyPress(Sender: TObject; VAR Key: Char);
@@ -249,6 +250,7 @@ TYPE
     AutoSearchCutlists: boolean;
     SearchLocalCutlists: boolean;
     SearchServerCutlists: boolean;
+    AutoSaveDownloadedCutlists: boolean;
 
     //Warnings
     WarnOnWrongCutApp: boolean;
@@ -606,6 +608,7 @@ BEGIN
   FSettings.edtNetTimeout_nl.Text := IntToStr(self.NetTimeout);
   FSettings.cbAutoMuteOnSeek.Checked := self.AutoMuteOnSeek;
   FSettings.cbExceptionLogging.Checked := self.ExceptionLogging;
+  FSettings.cbAutoSaveDownloadedCutlists.Checked := self.AutoSaveDownloadedCutlists;
 
   FSettings.cbAutoSearchCutlists.Checked := self.AutoSearchCutlists;
   FSettings.cbSearchLocalCutlists.Checked := self.SearchLocalCutlists;
@@ -697,6 +700,7 @@ BEGIN
       IF FSettings.cbCutlistNameAlwaysConfirm.Checked THEN _SaveCutlistMode := _SaveCutlistMode OR smAlwaysAsk;
       IF Fsettings.cbCutlistAutoSaveBeforeCutting.Checked THEN _SaveCutlistMOde := _SaveCutlistMOde OR smAutoSaveBeforeCutting;
 
+      AutoSaveDownloadedCutlists := FSettings.cbAutoSaveDownloadedCutlists.Checked;
       DefaultCutMode := Fsettings.rgCutMode.ItemIndex;
 
       self.url_cutlists_home := Fsettings.edtURL_Cutlist_Home_nl.Text;
@@ -892,6 +896,8 @@ BEGIN
     CutMovieSaveDir := ini.ReadString(section, 'CutMovieSaveDir', '');
     CutMovieExtension := ini.ReadString(section, 'CutMovieExtension', '.cut');
 
+    AutoSaveDownloadedCutlists := ini.ReadBool(section, 'AutoSaveDownloadedCutlists', true);
+
     section := 'URLs';
     self.url_cutlists_home := ini.ReadString(section, 'CutlistServerHome', 'http://www.cutlist.de/');
     self.url_cutlists_upload := ini.ReadString(section, 'CutlistServerUpload', 'http://www.cutlist.de/index.php?upload=2');
@@ -1013,6 +1019,7 @@ BEGIN
     ini.WriteBool(section, 'UseMovieNameSuggestion', UseMovieNameSuggestion);
     ini.WriteString(section, 'CutMovieSaveDir', CutMovieSaveDir);
     ini.WriteString(section, 'CutMovieExtension', CutMovieExtension);
+    ini.WriteBool(section, 'AutoSaveDownloadedCutlists', AutoSaveDownloadedCutlists);
 
     section := 'URLs';
     ini.WriteString(section, 'CutlistServerHome', url_cutlists_home);

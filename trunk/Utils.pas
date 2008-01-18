@@ -248,6 +248,8 @@ FUNCTION AppendFilterString(CONST filter: STRING; CONST description: STRING; CON
 
 FUNCTION StrToFloatDefInv(CONST s: STRING; CONST d: extended; CONST sep: char = '.'): extended;
 
+PROCEDURE GetInvariantFormatSettings(VAR FormatSettings: TFormatSettings);
+
 IMPLEMENTATION
 
 {$I jedi.inc}
@@ -271,6 +273,15 @@ CONST ScreenWidthDev               = 1280;
 
 VAR
   invariantFormat                  : TFormatSettings;
+
+PROCEDURE GetInvariantFormatSettings(VAR FormatSettings: TFormatSettings);
+BEGIN
+  // init with zero, since GetLocaleFormatSettings does not fill all fields (QC 5880).
+  FillChar(FormatSettings, SizeOf(FormatSettings), 0);
+  // Initialize with english, since invariant culture does not work?
+  //GetLocaleFormatSettings($007F, FormatSettings);
+  GetLocaleFormatSettings(1033, FormatSettings);
+END;
 
 FUNCTION StrToFloatDefInv(CONST s: STRING; CONST d: extended; CONST sep: char): extended;
 VAR
@@ -312,19 +323,13 @@ END;
 CONSTRUCTOR TMemIniFileEx.Create(CONST FileName: STRING);
 BEGIN
   INHERITED Create(FileName);
-  // init with zero, since GetLocaleFormatSettings does not fill all fields (QC 5880).
-  FillChar(self.FFormatSettings, SizeOf(self.FFormatSettings), 0);
   FVolatile := false;
-  // Initialize with english, since invariant culture does not work?
-  //GetLocaleFormatSettings($007F, self.FFormatSettings);
-  GetLocaleFormatSettings(1033, self.FFormatSettings);
+  GetInvariantFormatSettings(self.FFormatSettings);
 END;
 
 CONSTRUCTOR TMemIniFileEx.Create(CONST FileName: STRING; CONST formatSettings: TFormatSettings);
 BEGIN
   INHERITED Create(FileName);
-  // init with zero, since GetLocaleFormatSettings does not fill all fields (QC 5880).
-  FillChar(self.FFormatSettings, SizeOf(self.FFormatSettings), 0);
   FVolatile := false;
   FFormatSettings := formatSettings;
 END;
@@ -1364,7 +1369,7 @@ BEGIN
 END;
 
 INITIALIZATION
-  GetLocaleFormatSettings($007F, invariantFormat);
+  GetInvariantFormatSettings(invariantFormat);
 
   // nur wenn ein Debugger vorhanden, den Patch ausführen
   //if DebugHook<>0 then PatchINT3;

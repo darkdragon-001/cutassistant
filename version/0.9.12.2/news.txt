@@ -1,3 +1,6 @@
+New in 0.9.12.2
+- Fixed bug regarding Asfbin and MP4Box script generation introduced in 0.9.11.25.
+
 New in 0.9.12.1
 - Fixed codec detection for some Windows versions (e.g. Win98).
 - Sort codec list by description.

@@ -184,6 +184,8 @@ FUNCTION Parse_File_Version(CONST VersionStr: STRING): ARFileVersion;
 
 FUNCTION FloatToStrInvariant(Value: Extended): STRING;
 
+PROCEDURE GetInvariantFormatSettings(VAR FormatSettings: TFormatSettings);
+
 IMPLEMENTATION
 
 {$I jedi.inc}
@@ -199,11 +201,19 @@ CONST ScreenWidthDev               = 1280;
 VAR
   invariantFormat                  : TFormatSettings;
 
+PROCEDURE GetInvariantFormatSettings(VAR FormatSettings: TFormatSettings);
+BEGIN
+  // init with zero, since GetLocaleFormatSettings does not fill all fields (QC 5880).
+  FillChar(FormatSettings, SizeOf(FormatSettings), 0);
+  // Initialize with english, since invariant culture does not work?
+  //GetLocaleFormatSettings($007F, FormatSettings);
+  GetLocaleFormatSettings(1033, FormatSettings);
+END;
 CONSTRUCTOR TMemIniFileEx.Create(CONST FileName: STRING);
 BEGIN
   INHERITED Create(FileName);
   FVolatile := false;
-  GetLocaleFormatSettings($007F, FFormatSettings);
+  GetInvariantFormatSettings(self.FFormatSettings);
 END;
 
 CONSTRUCTOR TMemIniFileEx.Create(CONST FileName: STRING; CONST formatSettings: TFormatSettings);
@@ -729,7 +739,7 @@ VAR
   dwFileVersionMS, dwFileVersionLS : DWORD;
 BEGIN
   { If filename is not valid, return a string saying so and exit}
-  IF NOT fileExists(filename) THEN BEGIN
+  IF NOT FileExists(FileName) THEN BEGIN
     result := '[File not found]';
     exit;
   END;
@@ -975,31 +985,35 @@ END;
 FUNCTION CallApplication(AppPath, Command: STRING; VAR ErrorString: STRING): boolean;
 VAR
   return_value                     : cardinal;
-  m                                : STRING;
+  //m: string;
 BEGIN
   return_value := shellexecute(Application.MainForm.Handle, 'open', pointer(AppPath), pointer(command), '', sw_shownormal);
 
   IF return_value <= 32 THEN BEGIN
     result := false;
-    CASE return_value OF
-      0: m := 'The operating system is out of memory or resources.';
-      //ERROR_FILE_NOT_FOUND: m := 'The specified file was not found.';    //not necessary, is the same as SE_ERR_FNF
-      //ERROR_PATH_NOT_FOUND: m := 'The specified path was not found.';
-      ERROR_BAD_FORMAT: m := 'The .EXE file is invalid (non-Win32 .EXE or error in .EXE image).';
-      SE_ERR_ACCESSDENIED: m := 'The operating system denied access to the specified file.';
-      SE_ERR_ASSOCINCOMPLETE: m := 'The filename association is incomplete or invalid.';
-      SE_ERR_DDEBUSY: m := 'The DDE transaction could not be completed because other DDE transactions were being processed.';
-      SE_ERR_DDEFAIL: m := 'The DDE transaction failed.';
-      SE_ERR_DDETIMEOUT: m := 'The DDE transaction could not be completed because the request timed out.';
-      SE_ERR_DLLNOTFOUND: m := 'The specified dynamic-link library was not found.';
-      SE_ERR_FNF: m := 'The specified file was not found.';
-      SE_ERR_NOASSOC: m := 'There is no application associated with the given filename extension.';
-      SE_ERR_OOM: m := 'There was not enough memory to complete the operation.';
-      SE_ERR_PNF: m := 'The specified path was not found.';
-      SE_ERR_SHARE: m := 'A sharing violation occurred.';
-    ELSE m := 'Unknown Error.';
-    END;
-    ErrorString := m;
+    return_value := GetLastError;
+    ErrorString := SysErrorMessage(return_value);
+    {
+        case return_value of
+          0: m := 'The operating system is out of memory or resources.';
+          //ERROR_FILE_NOT_FOUND: m := 'The specified file was not found.';    //not necessary, is the same as SE_ERR_FNF
+          //ERROR_PATH_NOT_FOUND: m := 'The specified path was not found.';
+          ERROR_BAD_FORMAT: m := 'The .EXE file is invalid (non-Win32 .EXE or error in .EXE image).';
+          SE_ERR_ACCESSDENIED: m := 'The operating system denied access to the specified file.';
+          SE_ERR_ASSOCINCOMPLETE: m := 'The filename association is incomplete or invalid.';
+          SE_ERR_DDEBUSY: m := 'The DDE transaction could not be completed because other DDE transactions were being processed.';
+          SE_ERR_DDEFAIL: m := 'The DDE transaction failed.';
+          SE_ERR_DDETIMEOUT: m := 'The DDE transaction could not be completed because the request timed out.';
+          SE_ERR_DLLNOTFOUND: m := 'The specified dynamic-link library was not found.';
+          SE_ERR_FNF: m := 'The specified file was not found.';
+          SE_ERR_NOASSOC: m := 'There is no application associated with the given filename extension.';
+          SE_ERR_OOM: m := 'There was not enough memory to complete the operation.';
+          SE_ERR_PNF: m := 'The specified path was not found.';
+          SE_ERR_SHARE: m := 'A sharing violation occurred.';
+          else m:= 'Unknown Error.';
+        end;
+        ErrorString := m;
+    }
   END ELSE BEGIN
     ErrorString := '';
     result := true;
@@ -1011,7 +1025,8 @@ VAR
   h, m, s, ms                      : integer;
   sh, sm, ss, sms                  : STRING;
 BEGIN
-  ms := round(1000 * frac(t));
+  t := RoundTo(t, -3);
+  ms := Trunc(1000 * frac(t));
   s := trunc(t);
   m := trunc(s / 60);
   s := s MOD 60;
@@ -1165,9 +1180,11 @@ BEGIN
 END;
 
 INITIALIZATION
-  GetLocaleFormatSettings($007F, invariantFormat);
+  GetInvariantFormatSettings(invariantFormat);
 
   // nur wenn ein Debugger vorhanden, den Patch ausführen
   //if DebugHook<>0 then PatchINT3;
 
 END.
+
+

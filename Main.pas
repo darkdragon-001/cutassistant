@@ -2731,7 +2731,7 @@ BEGIN
       Error_message := CAResources.RsErrorUnknown;
       url := settings.url_cutlists_home
         + php_name
-        + '&rate=' + cutlist.IDOnServer
+        + '?rate=' + cutlist.IDOnServer
         + '&rating=' + inttostr(FCutlistRate.SelectedRating)
         + '&userid=' + settings.UserID
         + '&version=' + Application_Version;
@@ -3817,7 +3817,7 @@ BEGIN
             idx := Pos('?', url);
             IF idx < 1 THEN idx := Length(url)
             ELSE Dec(idx);
-            msg := Format(CAResources.RsErrorHttpFileNotFound, [Copy(url, 1, idx)]);
+            msg := Format(CAResources.RsErrorHttpFileNotFound, [StringReplace(Copy(url, 1, idx), '&', '&&', [rfReplaceAll])]);
           END;
       END;
     END;

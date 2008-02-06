@@ -481,9 +481,9 @@ TYPE
     FUNCTION DownloadInfo(settings: TSettings; CONST UseDate, ShowAll: boolean): boolean;
     PROCEDURE LoadCutList;
     //    function search_cutlist: boolean;
-    PROCEDURE SearchCutlistByFileSize(AutoOpen: boolean; SearchLocal, SearchWeb: boolean);
-    FUNCTION SearchCutlistsByFileSize_Local: integer;
-    FUNCTION SearchCutlistsByFileSize_XML: integer;
+    PROCEDURE SearchCutlists(AutoOpen: boolean; SearchLocal, SearchWeb: boolean; SearchTypes: TCutlistSearchTypes);
+    FUNCTION SearchCutlistsByFileSize_Local(SearchType: TCutlistSearchType): integer;
+    FUNCTION SearchCutlistsByFileSize_XML(SearchType: TCutlistSearchType): integer;
     //    function DownloadCutlist(cutlist_name: string): boolean;
     FUNCTION DownloadCutlistByID(CONST cutlist_id: STRING): boolean; OVERLOAD;
     FUNCTION DownloadCutlistByID(CONST cutlist_id, TargetFileName: STRING): boolean; OVERLOAD;
@@ -545,6 +545,7 @@ USES madExcept,
   ULogging,
   UDSAStorage,
   IdResourceStrings,
+  IdURI,
   CAResources,
   uFreeLocalizer;
 
@@ -1853,7 +1854,7 @@ BEGIN
       settings.CurrentMovieDir := ExtractFilePath(openDialog.FileName);
       IF OpenFile(opendialog.FileName) THEN BEGIN
         IF MovieInfo.MovieLoaded AND (Settings.AutoSearchCutlists XOR AltDown) THEN BEGIN
-          SearchCutlistByFileSize(true, ShiftDown XOR Settings.SearchLocalCutlists, CtrlDown XOR Settings.SearchServerCutlists);
+          SearchCutlists(true, ShiftDown XOR Settings.SearchLocalCutlists, CtrlDown XOR Settings.SearchServerCutlists, [cstBySize]);
         END;
       END;
     END;
@@ -2540,7 +2541,7 @@ BEGIN
   frmMemoDialog.ShowModal;
 END;
 
-FUNCTION TFMain.SearchCutlistsByFileSize_Local: integer;
+FUNCTION TFMain.SearchCutlistsByFileSize_Local(SearchType: TCutlistSearchType): integer;
 VAR
   Error_message                    : STRING;
   searchDir                        : STRING;
@@ -2548,9 +2549,19 @@ VAR
   ACutlist                         : TCutlist;
 BEGIN
   Result := 0;
-  IF (MovieInfo.current_filesize = 0) OR (MovieInfo.current_filename = '') THEN
-    exit;
   Error_message := CAResources.RsErrorUnknown;
+  CASE SearchType OF
+    cstBySize: BEGIN
+        IF (MovieInfo.current_filesize = 0) THEN
+          exit;
+      END;
+    cstByName: BEGIN
+        IF (MovieInfo.current_filename = '') THEN
+          exit;
+      END;
+  ELSE
+    exit;
+  END;
 
   IF Settings.SaveCutlistMode = smGivenDir THEN
     searchDir := MovieInfo.current_filename
@@ -2566,8 +2577,14 @@ BEGIN
       TRY
         IF NOT ACutlist.LoadFromFile(PathCombine(searchDir, sr.Name), true) THEN
           Continue;
-        IF ACutlist.OriginalFileSize <> MovieInfo.current_filesize THEN
-          Continue;
+        CASE SearchType OF
+          cstBySize:
+            IF (ACutlist.OriginalFileSize <> MovieInfo.current_filesize) THEN
+              Continue;
+          cstByName:
+            IF NOT AnsiStartsText(MovieInfo.current_filename, sr.Name) THEN
+              Continue;
+        END;
         WITH FCutlistSearchResults.lvLinklist.Items.Add DO BEGIN
           Caption := ACutlist.IDOnServer;
           SubItems.Add(ExtractFileName(ACutlist.SavedToFilename));
@@ -2590,10 +2607,9 @@ BEGIN
   END;
 END;
 
-FUNCTION TFMain.SearchCutlistsByFileSize_XML: integer;
+FUNCTION TFMain.SearchCutlistsByFileSize_XML(SearchType: TCutlistSearchType): integer;
 CONST
   php_name                         = 'getxml.php';
-  command                          = '?ofsb=';
 VAR
   WebResult                        : boolean;
   url, Error_message               : STRING;
@@ -2602,11 +2618,29 @@ VAR
   idx                              : integer;
 BEGIN
   result := 0;
-  IF (MovieInfo.current_filesize = 0) OR (MovieInfo.current_filename = '') THEN
-    exit;
   Error_message := CAResources.RsErrorUnknown;
+  CASE SearchType OF
+    cstBySize: BEGIN
+        IF (MovieInfo.current_filesize = 0) THEN
+          exit;
+        url := settings.url_cutlists_home
+          + php_name
+          + '?ofsb='
+          + inttostr(MovieInfo.current_filesize)
+      END;
+    cstByName: BEGIN
+        IF (MovieInfo.current_filename = '') THEN
+          exit;
+        url := settings.url_cutlists_home
+          + php_name
+          + '?name='
+          + TIdURI.URLEncode(MovieInfo.current_filename);
+      END;
+  ELSE
+    exit;
+  END;
 
-  url := settings.url_cutlists_home + php_name + command + inttostr(MovieInfo.current_filesize) + '&version=' + Application_Version;
+  url := url + '&version=' + Application_Version;
   WebResult := DoHttpGet(url, false, error_message, Response);
 
   IF WebResult AND (Length(response) > 5) THEN BEGIN
@@ -2644,29 +2678,33 @@ END;
 
 PROCEDURE TFMain.actSearchCutlistByFileSizeExecute(Sender: TObject);
 BEGIN
-  SearchCutlistByFileSize(false, ShiftDown, true);
+  SearchCutlists(false, ShiftDown, true, [cstBySize]);
 END;
 
 PROCEDURE TFMain.actSearchCutlistLocalExecute(Sender: TObject);
 BEGIN
-  SearchCutlistByFileSize(false, true, ShiftDown);
+  SearchCutlists(false, true, ShiftDown, [cstBySize]);
 END;
 
-PROCEDURE TFMain.SearchCutlistByFileSize(AutoOpen: boolean; SearchLocal, SearchWeb: boolean);
+PROCEDURE TFMain.SearchCutlists(AutoOpen: boolean; SearchLocal, SearchWeb: boolean; SearchTypes: TCutlistSearchTypes);
 VAR
   numFound                         : integer;
   WebResult                        : boolean;
   selectedItem                     : TListItem;
   cutFilename, cutFiledir          : STRING;
+  SearchType                       : TCutlistSearchType;
 BEGIN
   FCutlistSearchResults.lvLinklist.Clear;
   numFound := 0;
 
-  IF SearchWeb THEN
-    numFound := numFound + self.SearchCutlistsByFileSize_XML;
-  IF SearchLocal THEN
-    numFound := numFound + self.SearchCutlistsByFileSize_Local;
-
+  FOR SearchType := Low(SearchType) TO High(SearchType) DO BEGIN
+    IF NOT (SearchType IN SearchTypes) THEN
+      Continue;
+    IF SearchWeb THEN
+      numFound := numFound + self.SearchCutlistsByFileSize_XML(SearchType);
+    IF SearchLocal THEN
+      numFound := numFound + self.SearchCutlistsByFileSize_Local(SearchType);
+  END;
   IF numFound < 0 THEN
     Exit;
 

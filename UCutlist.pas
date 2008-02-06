@@ -39,6 +39,8 @@ TYPE
 
   TCutlistMode = (clmCutOut, clmTrim);
   TCutlistSaveMode = (csmNeverAsk, csmAskBeforeOverwrite, csmAskWhenSavingFirstTime, csmAlwaysAsk);
+  TCutlistSearchType = (cstBySize, cstByName);
+  TCutlistSearchTypes = SET OF TCutlistSearchType;
 
   TCutlistCallBackMethod = PROCEDURE(cutlist: TCutlist) OF OBJECT;
 

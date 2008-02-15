@@ -34,8 +34,10 @@ TYPE
     PROCEDURE cmdEmergencyExitClick(Sender: TObject);
     PROCEDURE timAutoCloseTimer(Sender: TObject);
     PROCEDURE memOutputClick(Sender: TObject);
+    PROCEDURE FormClose(Sender: TObject; VAR Action: TCloseAction);
   PRIVATE
     { Private declarations }
+    FAborted: boolean;
     FTerminateTime: TDateTime;
     //FCommandLineCounter: Integer;
     FCutApplication: TCutApplicationBase;
@@ -43,6 +45,8 @@ TYPE
   PUBLIC
     { Public declarations }
     CommandLines: TStringList;
+    ExitCode: Cardinal;
+    FUNCTION GetCutAppOutput: STRING;
     FUNCTION ExecuteCutApp: Integer;
     PROPERTY CutApplication: TCutApplicationBase READ FCutApplication WRITE SetCutApplication;
   END;
@@ -61,12 +65,18 @@ USES Clipbrd,
 
 {$R *.dfm}
 
+FUNCTION TfrmCutting.GetCutAppOutput: STRING;
+BEGIN
+  Result := memOutput.Text;
+END;
+
 FUNCTION TfrmCutting.ExecuteCutApp: Integer;
 BEGIN
   result := mrNone;
+  FAborted := false;
+  ExitCode := 0;
   IF NOT assigned(CutApplication) THEN exit;
 
-  //self.memOutput.Clear;
   cmdAbort.Enabled := true;
   cmdEmergencyExit.Enabled := true;
   cmdClose_nl.Enabled := false;
@@ -74,7 +84,7 @@ BEGIN
   cmdClose_nl.Caption := CAResources.RsCaptionCuttingClose;
 
   CutApplication.StartCutting;
-  self.ShowModal;
+  Result := self.ShowModal;
   IF CutApplication.CleanUp THEN BEGIN
     IF NOT CutApplication.CleanUpAfterCutting THEN
       IF NOT batchmode THEN
@@ -85,6 +95,7 @@ END;
 PROCEDURE TfrmCutting.CutAppTerminate(Sender: TObject;
   ExitCode: Cardinal);
 BEGIN
+  self.ExitCode := ExitCode;
   IF ExitCode = 0 THEN BEGIN
     cmdClose_nl.ModalResult := mrOK;
   END ELSE BEGIN
@@ -101,7 +112,9 @@ END;
 
 PROCEDURE TfrmCutting.cmdAbortClick(Sender: TObject);
 BEGIN
-  IF assigned(self.FCutApplication) THEN FCutApplication.AbortCutProcess;
+  self.FAborted := true;
+  IF assigned(self.FCutApplication) THEN
+    FCutApplication.AbortCutProcess;
 END;
 
 PROCEDURE TfrmCutting.cmdCopyClipbrdClick(Sender: TObject);
@@ -161,4 +174,13 @@ BEGIN
   END;
 END;
 
+PROCEDURE TfrmCutting.FormClose(Sender: TObject; VAR Action: TCloseAction);
+BEGIN
+  IF self.ModalResult = mrNone THEN
+    self.ModalResult := mrCancel
+  ELSE IF self.FAborted AND (self.ModalResult <> mrOk) THEN
+    self.ModalResult := mrAbort;
+END;
+
 END.
+

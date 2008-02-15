@@ -125,6 +125,7 @@ TYPE
     PROPERTY CommandLines: TStringList READ FCommandLines;
     FUNCTION StartCutting: boolean; VIRTUAL;
     FUNCTION CleanUpAfterCutting: boolean; VIRTUAL;
+    FUNCTION CheckOutputForErrors: boolean; VIRTUAL;
   END;
 
 IMPLEMENTATION
@@ -356,8 +357,10 @@ BEGIN
         FOutputMemo.Lines.Add(CAResources.RsCutAppOutFinished);
     END ELSE BEGIN
       IF assigned(FOutputMemo) THEN BEGIN
-        FOutputMemo.Lines.Add(CAResources.RsCutAppOutErrorCommand);
-        FOutputMemo.Lines.Add(FCommandLines[FCommandLineCounter - 1]);
+        IF NOT CheckOutputForErrors THEN BEGIN
+          FOutputMemo.Lines.Add(CAResources.RsCutAppOutErrorCommand);
+          FOutputMemo.Lines.Add(FCommandLines[FCommandLineCounter - 1]);
+        END;
       END;
     END;
     IF FProcessAborted THEN BEGIN
@@ -374,6 +377,11 @@ BEGIN
     inc(FCommandLineCounter);
     self.FjvcpAppProcess.Run;
   END;
+END;
+
+FUNCTION TCutApplicationBase.CheckOutputForErrors: boolean;
+BEGIN
+  Result := false;
 END;
 
 FUNCTION TCutApplicationBase.LoadSettings(IniFile: TCustomIniFile): boolean;
@@ -523,3 +531,4 @@ BEGIN
 END;
 
 END.
+

@@ -299,6 +299,15 @@ RESOURCESTRING
   { mainForm }
   RsLocalCutlist                      = 'Local';
   RsServerCutlist                     = 'Server';
+
+  { UCutApplicationVirtualDub }
+  RsCutAppVDPattSmartRender           = 'Cannot initialize smart rendering';
+  RsCutAppVDPattSmartRenderNoCodec    = 'No video codec is selected';
+  RsCutAppVDPattSmartRenderWrongCodec = 'cannot match the same compressed format';
+  RsCutAppVDErrorSmartRenderNoCodec   = 'No codec selected in Settings.'#13#10
+                                      + 'Please open settings dialog and select a video codec.';
+  RsCutAppVDErrorSmartRenderWrongCodec= 'Wrong codec selected in Settings.'#13#10
+                                      + 'Please open settings dialog and select an appropriate video codec.';
 {*)}
 IMPLEMENTATION
 

@@ -69,6 +69,7 @@ TYPE
     FUNCTION PrepareCutting(SourceFileName: STRING; VAR DestFileName: STRING; Cutlist: TObjectList): boolean; OVERRIDE;
     FUNCTION StartCutting: boolean; OVERRIDE;
     FUNCTION CleanUpAfterCutting: boolean; OVERRIDE;
+    FUNCTION CheckOutputForErrors: boolean; OVERRIDE;
   END;
 
 VAR
@@ -124,6 +125,35 @@ DESTRUCTOR TCutApplicationVirtualDub.Destroy;
 BEGIN
   //FreeAndNIL(FFindProgressWindowTimer);
   INHERITED;
+END;
+
+FUNCTION TCutApplicationVirtualDub.CheckOutputForErrors: boolean;
+VAR
+  outputText                       : TStrings;
+  outputLine                       : STRING;
+  idx                              : integer;
+BEGIN
+  Result := INHERITED CheckOutputForErrors;
+  IF NOT Assigned(OutputMemo) THEN
+    Exit;
+  outputText := OutputMemo.Lines;
+  FOR idx := 0 TO outputText.Count - 1 DO BEGIN
+    outputLine := Trim(outputText.Strings[idx]);
+    IF AnsiStartsText(CAResources.RsCutAppVDPattSmartRender, outputLine) THEN BEGIN
+      IF AnsiContainsText(outputLine, CAResources.RsCutAppVDPattSmartRenderNoCodec) THEN BEGIN
+        outputText.Append(CAResources.RsCutAppVDErrorSmartRenderNoCodec);
+        Result := true;
+        IF NOT batchmode THEN
+          ShowMessageFmt(CAResources.RsCutAppVDErrorSmartRenderNoCodec, []);
+      END;
+      IF AnsiContainsText(outputLine, CAResources.RsCutAppVDPattSmartRenderWrongCodec) THEN BEGIN
+        outputText.Append(CAResources.RsCutAppVDErrorSmartRenderWrongCodec);
+        Result := true;
+        IF NOT batchmode THEN
+          ShowMessageFmt(CAResources.RsCutAppVDErrorSmartRenderWrongCodec, []);
+      END;
+    END;
+  END;
 END;
 
 PROCEDURE TCutApplicationVirtualDub.SetShowProgressWindow(CONST Value: boolean);
@@ -488,3 +518,4 @@ BEGIN
 END;
 
 END.
+

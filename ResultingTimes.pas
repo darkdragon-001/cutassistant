@@ -243,6 +243,7 @@ BEGIN
     filtergraph.Volume := self.tbVolume.Position;
     current_filename := filename;
     self.tbPosition.Position := 0;
+    self.pnlVideoWindowResize(self);
     result := true;
   END;
 END;

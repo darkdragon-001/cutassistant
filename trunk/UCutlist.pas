@@ -971,8 +971,10 @@ BEGIN
   cutlistfile := TMemIniFileEx.Create(Filename);
   TRY
     Result := self.Save(cutlistfile);
-    IF Result THEN
+    IF Result THEN BEGIN
+      cutlistfile.UpdateFile;
       self.SavedToFilename := Filename;
+    END;
   FINALLY
     FreeAndNil(cutlistfile);
   END;
@@ -1020,7 +1022,8 @@ BEGIN
     //Temp_DecimalSeparator := DecimalSeparator;
     //DecimalSeparator := '.';
 
-    //cutlistfile := TIniFile.Create(Filename);
+    cutlistfile.Clear;
+
     TRY
       section := 'General';
       cutlistfile.WriteString(section, 'Application', Application_name);

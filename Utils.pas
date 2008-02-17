@@ -234,6 +234,7 @@ FUNCTION iniReadRect(CONST ini: TCustomIniFile; CONST section, name: STRING; CON
 PROCEDURE iniWriteRect(CONST ini: TCustomIniFile; CONST section, name: STRING; CONST value: TRect);
 
 PROCEDURE iniWriteStrings(CONST ini: TCustomIniFile; CONST section, name: STRING; CONST writeCount: boolean; CONST value: STRING); overload;
+PROCEDURE iniReadStrings(CONST ini: TCustomIniFile; CONST section, name: STRING; CONST readCount: boolean; value: TStrings); overload;
 PROCEDURE iniWriteStrings(CONST ini: TCustomIniFile; CONST section, name: STRING; CONST writeCount: boolean; CONST value: TStrings); overload;
 
 FUNCTION MakeFourCC(CONST a, b, c, d: char): DWord;
@@ -670,6 +671,26 @@ BEGIN
     ini.WriteInteger(section, name + 'Count', cnt);
   FOR idx := 0 TO cnt - 1 DO BEGIN
     ini.WriteString(section, name + IntToStr(idx + 1), value.Strings[idx]);
+  END;
+END;
+
+PROCEDURE iniReadStrings(CONST ini: TCustomIniFile; CONST section, name: STRING; CONST readCount: boolean; value: TStrings); OVERLOAD;
+VAR
+  idx, cnt                         : integer;
+BEGIN
+  IF NOT Assigned(value) THEN exit;
+  value.Clear;
+
+  IF readCount THEN BEGIN
+    cnt := ini.ReadInteger(section, name + 'Count', 0);
+    FOR idx := 1 TO cnt - 1 DO
+      value.Add(ini.ReadString(section, name + IntToStr(idx), ''));
+  END ELSE BEGIN
+    idx := 1;
+    WHILE ini.ValueExists(section, name + IntToStr(idx)) DO BEGIN
+      value.Add(ini.ReadString(section, name + IntToStr(idx), ''));
+      Inc(idx);
+    END;
   END;
 END;
 

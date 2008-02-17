@@ -65,6 +65,9 @@ TYPE
     PROCEDURE SetFrameDuration(d: double);
     PROCEDURE SetFrameRate(d: double);
   PUBLIC
+    AppName, AppVersion: STRING;
+    ApplyToFile: STRING;
+    Comments: TStrings;
     //Info
     RatingByAuthor: Integer;
     RatingByAuthorPresent: boolean;
@@ -83,6 +86,7 @@ TYPE
     DownloadTime: Int64;
 
     CONSTRUCTOR create(Settings: TSettings; MovieInfo: TMovieInfo);
+    DESTRUCTOR Destroy; OVERRIDE;
     PROPERTY FrameDuration: double READ FFrameDuration WRITE SetFrameDuration;
     PROPERTY FrameRate: double READ FFrameRate WRITE SetFrameRate;
     PROPERTY RefreshCallBack: TCutlistCallBackMethod READ FRefreshCallBack WRITE SetRefreshCallBack;
@@ -411,7 +415,13 @@ BEGIN
   INHERITED create;
   FSettings := Settings;
   FMovieInfo := MovieInfo;
+  Comments := TStringList.Create;
   self.init;
+END;
+
+DESTRUCTOR TCutlist.Destroy;
+BEGIN
+  FreeAndNil(Comments);
 END;
 
 FUNCTION TCutlist.CutApplication: TCutApplicationBase;
@@ -662,6 +672,10 @@ END;
 PROCEDURE TCutlist.init;
 BEGIN
   self.Clear;
+  self.AppName := Application_name;
+  self.AppVersion := Application_version;
+  self.ApplyToFile := '';
+  self.Comments.Text := CAResources.RsCutlistInternalComment;
   self.FFrameRate := 0;
   self.FFrameDuration := 0;
   self.FramesPresent := false;
@@ -698,7 +712,7 @@ END;
 FUNCTION TCutlist.LoadFrom(cutlistfile: TMemIniFileEx; noWarnings: boolean): boolean;
 VAR
   section                          : STRING;
-  apply_to_file, my_file,
+  my_file,
     intended_options,
     intendedCutApp,
     intendedCutAppVersionStr,
@@ -729,10 +743,14 @@ BEGIN
   //DecimalSeparator := '.';
   TRY
     section := 'General';
-    apply_to_file := cutlistfile.ReadString(section, 'ApplyToFile', Format('(%s)', [CAResources.RsCutlistTargetUnknown]));
+    AppName := cutlistfile.ReadString(section, 'Application', '');
+    AppVersion := cutlistfile.ReadString(section, 'Version', '');
+    iniReadStrings(cutlistfile, section, 'comment', false, Comments);
+
+    ApplyToFile := cutlistfile.ReadString(section, 'ApplyToFile', Format('(%s)', [CAResources.RsCutlistTargetUnknown]));
     my_file := extractfilename(FMovieInfo.current_filename);
-    IF (NOT ansiSameText(apply_to_file, my_file)) AND (NOT noWarnings) THEN BEGIN
-      message_string := Format(CAResources.RsMsgCutlistTargetMismatch, [apply_to_file, my_file]);
+    IF (NOT ansiSameText(ApplyToFile, my_file)) AND (NOT noWarnings) THEN BEGIN
+      message_string := Format(CAResources.RsMsgCutlistTargetMismatch, [ApplyToFile, my_file]);
       IF NOT (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONINFORMATION) = IDYES) THEN BEGIN
         exit;
       END;
@@ -1026,10 +1044,12 @@ BEGIN
 
     TRY
       section := 'General';
-      cutlistfile.WriteString(section, 'Application', Application_name);
-      cutlistfile.WriteString(section, 'Version', Application_version);
-      iniWriteStrings(cutlistfile, section, 'comment', false, CAResources.RsCutlistInternalComment);
-      cutlistfile.WriteString(section, 'ApplyToFile', extractfilename(FMovieInfo.current_filename));
+      cutlistfile.WriteString(section, 'Application', AppName);
+      cutlistfile.WriteString(section, 'Version', AppVersion);
+      iniWriteStrings(cutlistfile, section, 'comment', false, Comments);
+      if ApplyToFile = '' then
+         ApplyToFile := extractfilename(FMovieInfo.current_filename);
+      cutlistfile.WriteString(section, 'ApplyToFile', ApplyToFile);
       IF OriginalFileSize < 0 THEN
         cutlistfile.WriteInteger(section, 'OriginalFileSizeBytes', FMovieInfo.current_filesize)
       ELSE

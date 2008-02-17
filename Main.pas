@@ -988,6 +988,8 @@ BEGIN
 
         IF MovieInfo.MovieType IN [mtWMV] THEN BEGIN
           SampleGrabber.FilterGraph := NIL;
+        END ELSE IF AnsiEndsText('.avs', MovieInfo.current_filename) THEN BEGIN
+          SampleGrabber.FilterGraph := NIL;
         END ELSE BEGIN
           SampleGrabber.FilterGraph := FilterGraph;
         END;
@@ -2545,8 +2547,10 @@ FUNCTION TFMain.SearchCutlistsByFileSize_Local(SearchType: TCutlistSearchType): 
 VAR
   Error_message                    : STRING;
   searchDir                        : STRING;
+  fileBase                         : STRING;
   sr                               : TSearchRec;
   ACutlist                         : TCutlist;
+  lvLinks                          : TListView;
 BEGIN
   Result := 0;
   Error_message := CAResources.RsErrorUnknown;
@@ -2564,12 +2568,15 @@ BEGIN
   END;
 
   IF Settings.SaveCutlistMode = smGivenDir THEN
-    searchDir := MovieInfo.current_filename
+    searchDir := ExtractFileDir(MovieInfo.current_filename)
   ELSE BEGIN
     searchDir := Settings.CutlistSaveDir;
     IF NOT IsPathRooted(searchDir) THEN
       searchDir := PathCombine(ExtractFileDir(MovieInfo.current_filename), searchDir);
   END;
+
+  lvLinks := FCutlistSearchResults.lvLinklist;
+  fileBase := ChangeFileExt(ExtractFileName(MovieInfo.current_filename), '');
 
   IF FindFirst(PathCombine(searchDir, '*.cutlist'), faArchive, sr) = 0 THEN BEGIN
     REPEAT
@@ -2582,10 +2589,12 @@ BEGIN
             IF (ACutlist.OriginalFileSize <> MovieInfo.current_filesize) THEN
               Continue;
           cstByName:
-            IF NOT AnsiStartsText(MovieInfo.current_filename, sr.Name) THEN
+            IF NOT AnsiStartsText(fileBase, sr.Name) THEN
               Continue;
         END;
-        WITH FCutlistSearchResults.lvLinklist.Items.Add DO BEGIN
+        IF (ACutlist.IDOnServer <> '') AND Assigned(lvLinks.FindCaption(0, ACutlist.IDOnServer, false, true, false)) THEN
+          continue;
+        WITH lvLinks.Items.Add DO BEGIN
           Caption := ACutlist.IDOnServer;
           SubItems.Add(ExtractFileName(ACutlist.SavedToFilename));
           SubItems.Add(IfThen(ACutlist.IDOnServer = '', '', Format('%f', [ACutlist.RatingOnServer])));
@@ -2616,6 +2625,7 @@ VAR
   Response                         : STRING;
   Node, CutNode                    : TJCLSimpleXMLElems;
   idx                              : integer;
+  lvLinks                          : TListView;
 BEGIN
   result := 0;
   Error_message := CAResources.RsErrorUnknown;
@@ -2634,7 +2644,7 @@ BEGIN
         url := settings.url_cutlists_home
           + php_name
           + '?name='
-          + TIdURI.URLEncode(MovieInfo.current_filename);
+          + TIdURI.ParamsEncode(ChangeFileExt(ExtractFileName(MovieInfo.current_filename), ''));
       END;
   ELSE
     exit;
@@ -2644,6 +2654,7 @@ BEGIN
   WebResult := DoHttpGet(url, false, error_message, Response);
 
   IF WebResult AND (Length(response) > 5) THEN BEGIN
+    lvLinks := FCutlistSearchResults.lvLinklist;
     TRY
       XMLResponse.LoadFromString(Response);
 
@@ -2651,7 +2662,9 @@ BEGIN
         Node := XMLResponse.Root.Items;
         FOR idx := 0 TO node.Count - 1 DO BEGIN
           CutNode := node.Item[idx].Items;
-          WITH FCutlistSearchResults.lvLinklist.Items.Add DO BEGIN
+          IF Assigned(lvLinks.FindCaption(0, CutNode.ItemNamed['id'].Value, false, true, false)) THEN
+            continue;
+          WITH lvLinks.Items.Add DO BEGIN
             Caption := CutNode.ItemNamed['id'].Value;
             SubItems.Add(CutNode.ItemNamed['name'].Value);
             SubItems.Add(CutNode.ItemNamed['rating'].Value);
@@ -2677,13 +2690,23 @@ BEGIN
 END;
 
 PROCEDURE TFMain.actSearchCutlistByFileSizeExecute(Sender: TObject);
+VAR
+  SearchTypes                      : TCutlistSearchTypes;
 BEGIN
-  SearchCutlists(false, ShiftDown, true, [cstBySize]);
+  SearchTypes := [cstBySize];
+  IF Settings.SearchCutlistsByName THEN
+    SearchTypes := SearchTypes + [cstByName];
+  SearchCutlists(false, ShiftDown, true, SearchTypes);
 END;
 
 PROCEDURE TFMain.actSearchCutlistLocalExecute(Sender: TObject);
+VAR
+  SearchTypes                      : TCutlistSearchTypes;
 BEGIN
-  SearchCutlists(false, true, ShiftDown, [cstBySize]);
+  SearchTypes := [cstBySize];
+  IF Settings.SearchCutlistsByName THEN
+    SearchTypes := SearchTypes + [cstByName];
+  SearchCutlists(false, true, ShiftDown, SearchTypes);
 END;
 
 PROCEDURE TFMain.SearchCutlists(AutoOpen: boolean; SearchLocal, SearchWeb: boolean; SearchTypes: TCutlistSearchTypes);

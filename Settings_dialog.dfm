@@ -4,10 +4,10 @@ object FSettings: TFSettings
   AutoScroll = False
   BorderIcons = []
   Caption = 'Settings'
-  ClientHeight = 307
+  ClientHeight = 317
   ClientWidth = 582
   Color = clBtnFace
-  Constraints.MinHeight = 310
+  Constraints.MinHeight = 350
   Constraints.MinWidth = 590
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -26,8 +26,8 @@ object FSettings: TFSettings
     Left = 0
     Top = 0
     Width = 582
-    Height = 281
-    ActivePage = tabSaveCutlist
+    Height = 291
+    ActivePage = tabUserData
     Align = alClient
     MultiLine = True
     Style = tsFlatButtons
@@ -37,7 +37,7 @@ object FSettings: TFSettings
       ImageIndex = 4
       DesignSize = (
         574
-        250)
+        260)
       object lblUsername: TLabel
         Left = 20
         Top = 6
@@ -323,7 +323,7 @@ object FSettings: TFSettings
       ImageIndex = 1
       DesignSize = (
         574
-        250)
+        260)
       object lblCutMovieExtension: TLabel
         Left = 3
         Top = 68
@@ -423,7 +423,7 @@ object FSettings: TFSettings
       ImageIndex = 2
       DesignSize = (
         574
-        250)
+        260)
       object rgSaveCutlistMode: TRadioGroup
         Left = 3
         Top = 3
@@ -526,7 +526,7 @@ object FSettings: TFSettings
       Constraints.MinHeight = 210
       DesignSize = (
         574
-        250)
+        260)
       object lblServerUrl: TLabel
         Left = 66
         Top = 6
@@ -593,7 +593,7 @@ object FSettings: TFSettings
       end
       object grpProxy: TGroupBox
         Left = 3
-        Top = 139
+        Top = 164
         Width = 562
         Height = 92
         Anchors = [akLeft, akTop, akRight]
@@ -698,6 +698,23 @@ object FSettings: TFSettings
         HotTrackFont.Pitch = fpVariable
         HotTrackFont.Style = []
       end
+      object cbSearchCutlistsByName: TJvCheckBox
+        Left = 135
+        Top = 140
+        Width = 188
+        Height = 17
+        Caption = 'Additionally search Cutlists by name'
+        Checked = True
+        State = cbChecked
+        TabOrder = 6
+        LinkedControls = <>
+        HotTrackFont.Charset = DEFAULT_CHARSET
+        HotTrackFont.Color = clWindowText
+        HotTrackFont.Height = -11
+        HotTrackFont.Name = 'Microsoft Sans Serif'
+        HotTrackFont.Pitch = fpVariable
+        HotTrackFont.Style = []
+      end
     end
     object tabInfoCheck: TTabSheet
       Caption = 'Info Check'
@@ -791,7 +808,7 @@ object FSettings: TFSettings
       Caption = 'External cut application'
       DesignSize = (
         574
-        250)
+        260)
       object lblCutWithWMV: TLabel
         Left = 3
         Top = 24
@@ -1111,7 +1128,7 @@ object FSettings: TFSettings
       OnShow = tabSourceFilterShow
       DesignSize = (
         574
-        250)
+        260)
       object lblSourceFilter: TLabel
         Left = 3
         Top = 9
@@ -1271,7 +1288,7 @@ object FSettings: TFSettings
         Left = 122
         Top = 173
         Width = 443
-        Height = 67
+        Height = 77
         OnClickCheck = lbchkBlackList_nlClickCheck
         Anchors = [akLeft, akTop, akRight, akBottom]
         Font.Charset = DEFAULT_CHARSET
@@ -1306,7 +1323,7 @@ object FSettings: TFSettings
   end
   object pnlButtons: TPanel
     Left = 0
-    Top = 281
+    Top = 291
     Width = 582
     Height = 26
     Align = alBottom

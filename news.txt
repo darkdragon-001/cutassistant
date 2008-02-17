@@ -3,6 +3,15 @@ New in 0.9.13.x (development)
 - Added option: Automatically search for cutlists after opening movie file.
 - Added feature: Search for cutlists in standard cutlist directory.
 - Added options to select cutlist search methods for auto-search feature.
+- Fixed possible exception when converting cutlists (thanks to mabba for reporting the bug).
+- Improvements in german translation. Merged changes from Georg H. (Thanks for initial translation).
+- Some small improvements and bugfixes
+- Added mouse wheel support in main and frames window.
+- Invert auto search setting when holding shift (local) or ctrl (server), invert auto search setting with Alt-key..
+- Improvements in handling of fine positioning trackbar.
+- Added option to decide, if downloaded cutlists should get saved automatically.
+- Improved detection of smart rendering codec errors with VirtualDub.
+- Added feature: Search Cutlists by name.
 
 New in 0.9.13.5 (development)
 - Do not use TopMost style for Check cut movie window.

@@ -169,6 +169,7 @@ TYPE
     PROCEDURE LoadFromStream(CONST Stream: TStream);
     PROCEDURE LoadFromString(CONST data: STRING);
     PROCEDURE SaveToStream(CONST Stream: TStream);
+    PROCEDURE SaveToFile(CONST FileName: STRING);
   END;
 
 PROCEDURE PatchINT3;
@@ -579,6 +580,18 @@ BEGIN
     FreeAndNil(List);
   END;
 END;
+
+PROCEDURE TMemIniFileEx.SaveToFile(CONST FileName: STRING);
+var
+  fs: TFileStream;
+begin
+  fs := TFileStream.Create(FileName, fmCreate, fmShareDenyWrite);
+  TRY
+    SaveToStream(fs);
+  FINALLY
+    FreeAndNil(fs);
+  END;
+end;
 
 FUNCTION FloatToStrInvariant(Value: Extended): STRING;
 BEGIN

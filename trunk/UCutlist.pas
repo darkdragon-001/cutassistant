@@ -64,6 +64,7 @@ TYPE
     FUNCTION CutApplication: TCutApplicationBase;
     PROCEDURE SetFrameDuration(d: double);
     PROCEDURE SetFrameRate(d: double);
+    FUNCTION SaveServerInfos(cutlistfile: TMemIniFileEx): boolean;
   PUBLIC
     AppName, AppVersion: STRING;
     ApplyToFile: STRING;
@@ -121,10 +122,12 @@ TYPE
     FUNCTION SaveAs(Filename: STRING): boolean;
 
     FUNCTION GetChecksum: Cardinal;
+
     FUNCTION LoadFrom(cutlistfile: TMemIniFileEx; noWarnings: boolean): boolean;
     FUNCTION Save(cutlistfile: TMemIniFileEx): boolean; OVERLOAD;
 
     PROPERTY RatingOnServer: double READ FRatingOnServer WRITE FRatingOnServer;
+    FUNCTION AddServerInfos(Filename: STRING): boolean;
   END;
 
 
@@ -998,6 +1001,37 @@ BEGIN
   END;
 END;
 
+FUNCTION TCutlist.SaveServerInfos(cutlistfile: TMemIniFileEx): boolean;
+VAR
+  section                          : STRING;
+BEGIN
+  section := 'Server';
+  cutlistfile.EraseSection(section);
+  IF self.IDOnServer <> '' THEN BEGIN
+    cutlistfile.WriteString(section, 'ID', self.IDOnServer);
+    cutlistfile.WriteFloat(section, 'Rating', self.RatingOnServer);
+    cutlistfile.WriteInteger(section, 'RatingCount', self.RatingCountOnServer);
+    cutlistfile.WriteInteger(section, 'DownloadTime', self.DownloadTime);
+    cutlistfile.WriteString(section, 'Checksum', IntToStr(self.GetChecksum));
+  END;
+  //IF self.RatingSent <> -1 THEN
+  //  cutlistfile.WriteInteger(section, 'RatingSent', self.RatingSent);
+  Result := self.IDOnServer <> '';
+END;
+
+FUNCTION TCutlist.AddServerInfos(Filename: STRING): boolean;
+VAR
+  cutlistfile                      : TMemIniFileEx;
+BEGIN
+  cutlistfile := TMemIniFileEx.Create(Filename);
+  TRY
+    Result := self.SaveServerInfos(cutlistfile);
+    cutlistfile.UpdateFile;
+  FINALLY
+    FreeAndNil(cutlistfile);
+  END;
+END;
+
 FUNCTION TCutlist.Save(cutlistfile: TMemIniFileEx): boolean;
 //true if saved successfully
 VAR
@@ -1047,8 +1081,8 @@ BEGIN
       cutlistfile.WriteString(section, 'Application', AppName);
       cutlistfile.WriteString(section, 'Version', AppVersion);
       iniWriteStrings(cutlistfile, section, 'comment', false, Comments);
-      if ApplyToFile = '' then
-         ApplyToFile := extractfilename(FMovieInfo.current_filename);
+      IF ApplyToFile = '' THEN
+        ApplyToFile := extractfilename(FMovieInfo.current_filename);
       cutlistfile.WriteString(section, 'ApplyToFile', ApplyToFile);
       IF OriginalFileSize < 0 THEN
         cutlistfile.WriteInteger(section, 'OriginalFileSizeBytes', FMovieInfo.current_filesize)
@@ -1092,17 +1126,7 @@ BEGIN
         cutlistfile.WriteString(section, 'CutCommandLine', cutCommand);
       END;
 
-      section := 'Server';
-      cutlistfile.EraseSection(section);
-      IF self.IDOnServer <> '' THEN BEGIN
-        cutlistfile.WriteString(section, 'ID', self.IDOnServer);
-        cutlistfile.WriteFloat(section, 'Rating', self.RatingOnServer);
-        cutlistfile.WriteInteger(section, 'RatingCount', self.RatingCountOnServer);
-        cutlistfile.WriteInteger(section, 'DownloadTime', self.DownloadTime);
-        cutlistfile.WriteString(section, 'Checksum', IntToStr(self.GetChecksum));
-      END;
-      //IF self.RatingSent <> -1 THEN
-      //  cutlistfile.WriteInteger(section, 'RatingSent', self.RatingSent);
+      SaveServerInfos(cutlistfile);
 
       section := 'Info';
       cutlistfile.WriteString(section, 'Author', self.Author);

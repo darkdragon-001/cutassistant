@@ -2758,7 +2758,7 @@ BEGIN
         cutlist.RatingOnServer := StrToFloatDefInv(selectedItem.SubItems[1], -1);
         cutlist.RatingCountOnServer := StrToIntDef(selectedItem.SubItems[2], -1);
         cutlist.DownloadTime := DateTimeToUnix(Now);
-        IF Settings.AutoSaveDownloadedCutlists THEN
+        IF Settings.AutoSaveDownloadedCutlists and (cutlist.SavedToFilename <> '') THEN
           cutlist.AddServerInfos(cutlist.SavedToFilename);
       END;
     END;
@@ -3259,8 +3259,9 @@ BEGIN
             END;
           END;
 
-          cutlistfile.SaveToFile(target_file);
-          cutlist.SavedToFilename := target_file;
+          //cutlistfile.SaveToFile(target_file);
+          //cutlist.SavedToFilename := target_file;
+          cutlist.SaveAs(target_file);
         END;
       END;
 

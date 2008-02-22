@@ -308,6 +308,16 @@ RESOURCESTRING
                                       + 'Please open settings dialog and select a video codec.';
   RsCutAppVDErrorSmartRenderWrongCodec= 'Wrong codec selected in Settings.'#13#10
                                       + 'Please open settings dialog and select an appropriate video codec.';
+
+  { Main }
+  RsMsgServerCommandErrorResponse     = 'Unsupported server response.';
+  RsMsgServerCommandErrorCommand      = 'Unsupported server command "%s".';
+  RsMsgServerCommandErrorProtocol     = 'Unsupported communication protocol %d.';
+  RsMsgServerCommandErrorUnspecified  = 'Unspecified Error.';
+  RsMsgServerCommandErrorMySql        = 'MySql Error: %s.';
+  RsMsgServerCommandErrorArgMissing   = 'Missing argument in command.';
+  RsMsgCutlistRateAlreadyRated        = 'IP did already rated or cutlist uploaded by you.';
+  
 {*)}
 IMPLEMENTATION
 

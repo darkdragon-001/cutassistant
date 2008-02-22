@@ -41,7 +41,8 @@ TYPE
   TCutlistSaveMode = (csmNeverAsk, csmAskBeforeOverwrite, csmAskWhenSavingFirstTime, csmAlwaysAsk);
   TCutlistSearchType = (cstBySize, cstByName);
   TCutlistSearchTypes = SET OF TCutlistSearchType;
-
+  TCutlistServerCommand = (cscRate, cscDelete, cscUpload);
+  
   TCutlistCallBackMethod = PROCEDURE(cutlist: TCutlist) OF OBJECT;
 
   TCutlist = CLASS(TObjectList)
@@ -1030,7 +1031,7 @@ END;
 FUNCTION TCutlist.StoreTo(cutlistfile: TMemIniFileEx): boolean;
 //true if saved successfully
 VAR
-  section, OutputFileName          : STRING;
+  section                          : STRING;
   iCut, writtenCuts                : integer;
   convertedCutlist                 : TCutlist;
   CutApplication                   : TCutApplicationBase;
@@ -1055,24 +1056,6 @@ BEGIN
     CutApplication := FSettings.GetCutApplicationByMovieType(FMovieInfo.MovieType);
     IF assigned(CutApplication) THEN BEGIN
       CutApplication.WriteCutlistInfo(CutlistFile, section);
-
-      //Write Command Line Only for Cut Apps which do not require script files (Asfbin and MP4Box).
-      //For other Apps (VD or Avidemux) this would be useless / problematic because:
-      //- with these apps all commands are in the scripts
-      //- the command would show the full path to the script files  (privacy of user!)
-      //- the script files written while "prepareCutting" had to be deleted afterwards.
-      IF (CutApplication IS TCutApplicationAsfbin)
-        OR (CutApplication IS TCutApplicationMP4Box) THEN BEGIN
-        OutputFileName := FMovieInfo.target_filename;
-        IF OutputFileName = '' THEN OutputFileName := self.FSuggestedMovieName;
-        IF OutputFileName = '' THEN OutputFileName := '<OutputFile>';
-
-        //Fill CommandLine List
-        CutApplication.PrepareCutting(extractfilename(extractFileName(FMovieInfo.current_filename)), OutputFileName, self);
-        CutApplication.CommandLines.Delimiter := '|';
-        CutApplication.CommandLines.QuoteChar := ' ';
-        cutlistfile.WriteString(section, 'CutCommandLine', CutApplication.CommandLines.DelimitedText);
-      END;
     END ELSE BEGIN
       cutlistfile.DeleteKey(section, 'IntendedCutApplication');
       cutlistfile.DeleteKey(section, 'IntendedCutApplicationVersion');

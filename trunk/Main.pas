@@ -495,6 +495,8 @@ TYPE
     PROCEDURE WMCopyData(VAR msg: TWMCopyData); MESSAGE WM_COPYDATA;
     FUNCTION DoHttpGet(CONST url: STRING; CONST handleRedirects: boolean; CONST Error_message: STRING; VAR Response: STRING): boolean;
     FUNCTION DoHttpRequest(data: THttpRequest): boolean;
+    FUNCTION CheckResponse(CONST Response: STRING; CONST Protocol: integer; CONST Command: TCutlistServerCommand): STRING;
+    FUNCTION CheckResponseProto1(CONST Response: STRING; CONST Command: TCutlistServerCommand): STRING;
     PROCEDURE SettingsChanged;
     FUNCTION HandleWorkerException(data: THttpRequest): boolean;
     PROCEDURE InitFramesProperties(CONST AAction: TAction; CONST s: STRING);
@@ -546,12 +548,74 @@ USES madExcept,
   IdResourceStrings,
   IdURI,
   CAResources,
+  TypInfo,
   uFreeLocalizer;
 
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
 
+CONST
+  ServerProtocol                   = 1;
+
 PROCEDURE UpdateStaticSettings; FORWARD;
+
+FUNCTION TFMain.CheckResponse(CONST Response: STRING; CONST Protocol: integer; CONST Command: TCutlistServerCommand): STRING;
+BEGIN
+  CASE protocol OF
+    1:
+      Result := CheckResponseProto1(Response, Command);
+  ELSE
+    Result := Format(CAResources.RsMsgServerCommandErrorProtocol, [Protocol]);
+  END;
+END;
+
+FUNCTION TFMain.CheckResponseProto1(CONST Response: STRING; CONST Command: TCutlistServerCommand): STRING;
+VAR
+  ErrorCode                        : integer;
+  ResponseFields                   : TStringList;
+BEGIN
+  ResponseFields := TStringList.Create;
+  TRY
+    WITH ResponseFields DO BEGIN
+      CaseSensitive := false;
+      Duplicates := dupAccept;
+      Delimiter := #10;
+      NameValueSeparator := '=';
+      DelimitedText := Response;
+      ErrorCode := StrToIntDef(Values['error'], -3);
+    END;
+    IF ErrorCode = -3 THEN
+      Result := CAResources.RsMsgServerCommandErrorResponse
+    ELSE IF ErrorCode = -2 THEN
+      Result := CAResources.RsMsgServerCommandErrorUnspecified
+    ELSE IF ErrorCode = -1 THEN
+      Result := Format(CAResources.RsMsgServerCommandErrorMySql, [ResponseFields.Values['mysql_errno']])
+    ELSE IF ErrorCode = 0 THEN
+      Result := ''
+    ELSE BEGIN
+      CASE Command OF
+        cscDelete: // Delete cutlist from server
+          CASE ErrorCode OF
+            1: Result := CAResources.RsMsgCutlistDeleteEntryNotRemoved;
+            2: Result := CAResources.RsMsgServerCommandErrorArgMissing;
+          ELSE
+            Result := CAResources.RsMsgCutlistDeleteUnexpected;
+          END;
+        cscRate: // Rate cutlist on server
+          CASE ErrorCode OF
+            1: Result := CAResources.RsMsgCutlistRateAlreadyRated;
+            2: Result := CAResources.RsMsgServerCommandErrorArgMissing;
+          ELSE
+            Result := CAResources.RsMsgServerCommandErrorUnspecified
+          END;
+      ELSE
+        Result := Format(CAResources.RsMsgServerCommandErrorCommand, [GetEnumName(TypeInfo(TCutlistServerCommand), Ord(Command))]);
+      END;
+    END;
+  FINALLY
+    FreeAndNil(ResponseFields);
+  END;
+END;
 
 FUNCTION TFMain.FormatMoviePosition(CONST position: double): STRING;
 BEGIN
@@ -2758,7 +2822,7 @@ BEGIN
         cutlist.RatingOnServer := StrToFloatDefInv(selectedItem.SubItems[1], -1);
         cutlist.RatingCountOnServer := StrToIntDef(selectedItem.SubItems[2], -1);
         cutlist.DownloadTime := DateTimeToUnix(Now);
-        IF Settings.AutoSaveDownloadedCutlists and (cutlist.SavedToFilename <> '') THEN
+        IF Settings.AutoSaveDownloadedCutlists AND (cutlist.SavedToFilename <> '') THEN
           cutlist.AddServerInfos(cutlist.SavedToFilename);
       END;
     END;
@@ -2794,19 +2858,20 @@ BEGIN
         + '?rate=' + cutlist.IDOnServer
         + '&rating=' + inttostr(FCutlistRate.SelectedRating)
         + '&userid=' + settings.UserID
+        + '&protocol=' + IntToStr(ServerProtocol)
         + '&version=' + Application_Version;
       Result := DoHttpGet(url, true, Error_message, Response);
 
       IF result THEN BEGIN
-        IF AnsiContainsText(Response, Settings.MsgServerRatingDone) THEN BEGIN
+        Error_Message := CheckResponse(Response, ServerProtocol, cscRate);
+        IF Error_message = '' THEN BEGIN
           cutlist.RatingSent := FCutlistRate.SelectedRating;
           IF NOT batchmode THEN
             showmessage(CAResources.RsMsgSendRatingDone);
-        END ELSE BEGIN
-          IF NOT batchmode THEN
-            ShowMessageFmt(CAResources.RsMsgAnswerFromServer, [LeftStr(response, 255)]);
         END;
       END;
+      IF NOT batchmode AND (Error_message <> '') THEN
+        ShowMessageFmt(CAResources.RsMsgAnswerFromServer, [Error_message]);
     END;
   END;
 END;
@@ -2934,9 +2999,7 @@ FUNCTION TFMain.DeleteCutlistFromServer(CONST cutlist_id: STRING): boolean;
 CONST
   php_name                         = 'delete_cutlist.php';
 VAR
-  url, Response, Error_message, val: STRING;
-  entryRemoved                     : boolean;
-  lines                            : TStringList;
+  url, Response, Error_message     : STRING;
 BEGIN
   result := false;
   IF cutlist_id = '' THEN exit;
@@ -2945,33 +3008,15 @@ BEGIN
   url := settings.url_cutlists_home + php_name + '?'
     + 'cutlistid=' + cutlist_id
     + '&userid=' + settings.UserID
+    + '&protocol=' + IntToStr(ServerProtocol)
     + '&version=' + Application_Version;
 
   Result := DoHttpGet(url, true, Error_message, Response);
 
-  IF Result AND (response <> '') THEN BEGIN
-    lines := TStringList.Create;
-    TRY
-      lines.Delimiter := #10;
-      lines.NameValueSeparator := '=';
-      lines.DelimitedText := Response;
-      val := lines.Values['RemovedEntry'];
-
-      IF val = '' THEN BEGIN
-        Result := false;
-        IF NOT batchmode THEN
-          ShowMessage(CAResources.RsMsgCutlistDeleteUnexpected);
-      END
-      ELSE BEGIN
-        entryRemoved := val = '1';
-        Result := entryRemoved;
-
-        IF NOT batchmode THEN
-          ShowMessage(IfThen(entryRemoved, CAResources.RsMsgCutlistDeleteFileRemoved, CAResources.RsMsgCutlistDeleteFileNotRemoved));
-      END;
-    FINALLY
-      FreeAndNil(lines);
-    END;
+  IF Result THEN BEGIN
+    Error_Message := CheckResponse(Response, ServerProtocol, cscDelete);
+    IF NOT batchmode AND (Error_message <> '') THEN
+      ShowMessage(Error_message);
   END;
 END;
 

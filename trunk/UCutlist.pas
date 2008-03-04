@@ -42,7 +42,7 @@ TYPE
   TCutlistSearchType = (cstBySize, cstByName);
   TCutlistSearchTypes = SET OF TCutlistSearchType;
   TCutlistServerCommand = (cscRate, cscDelete, cscUpload);
-  
+
   TCutlistCallBackMethod = PROCEDURE(cutlist: TCutlist) OF OBJECT;
 
   TCutlist = CLASS(TObjectList)
@@ -1147,6 +1147,7 @@ END;
 PROCEDURE TCutlist.RemoveCutSections(cutlistfile: TMemIniFileEx);
 VAR
   sections                         : TStringList;
+  sectionNumber                    : integer;
   idx                              : integer;
 BEGIN
   IF NOT Assigned(cutlistfile) THEN
@@ -1154,7 +1155,7 @@ BEGIN
   sections := TStringList.Create;
   cutlistfile.ReadSections(sections);
   FOR idx := 0 TO sections.Count - 1 DO BEGIN
-    IF AnsiStartsText('Cut', sections.Strings[idx]) THEN
+    IF AnsiStartsText('Cut', sections.Strings[idx]) AND TryStrToInt(Copy(sections.Strings[idx], 4, MaxInt), sectionNumber) THEN
       cutlistfile.EraseSection(sections.Strings[idx]);
   END;
 END;

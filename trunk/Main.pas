@@ -528,6 +528,7 @@ VAR
   VMRWindowlessControl9            : IVMRWindowlessControl9;
 
 IMPLEMENTATION
+
 USES madExcept,
   madNVBitmap,
   madNVAssistant,

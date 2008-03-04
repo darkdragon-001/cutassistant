@@ -1,4 +1,4 @@
-New in 0.9.13.x (development)
+New in 0.9.13.14 (development)
 - Many bugfixes regarding localization of user interface.
 - Added option: Automatically search for cutlists after opening movie file.
 - Added feature: Search for cutlists in standard cutlist directory.
@@ -12,6 +12,7 @@ New in 0.9.13.x (development)
 - Added option to decide, if downloaded cutlists should get saved automatically.
 - Improved detection of smart rendering codec errors with VirtualDub.
 - Added feature: Search Cutlists by name.
+- Improved communication with cutlist server
 
 New in 0.9.13.5 (development)
 - Do not use TopMost style for Check cut movie window.

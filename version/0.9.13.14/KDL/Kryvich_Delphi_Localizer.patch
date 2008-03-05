@@ -1,0 +1,267 @@
+diff -r -u -b Kryvich_Delphi_Localizer.orig/uFreeLocalizer.pas Kryvich_Delphi_Localizer/uFreeLocalizer.pas
+--- Kryvich_Delphi_Localizer.orig/uFreeLocalizer.pas	2007-09-20 12:50:00.000000000 +0200
++++ Kryvich_Delphi_Localizer/uFreeLocalizer.pas	2007-12-28 00:39:34.000000000 +0100
+@@ -20,7 +20,9 @@
+   TErrorProcessing = (
+     epSilent,  // Just skip errors (default) - use for public releases
+     epMessage, // Show message to a user - use for a beta testing
+-    epException // Raise exception - use while develop and debug
++    epException, // Raise exception - use while develop and debug
++    epDebug,    // Use DebugOutputString
++    epErrors   // Append all messages to a string list
+   );
+ 
+   // Translated form properties
+@@ -50,6 +52,7 @@
+ 
+   TFreeLocalizer = class
+   private
++    fErrors: TStrings;
+     fLanguageFile: string; // Loaded language file
+     ResForms: array of TResForm; // List of all localized forms
+     fAutoTranslate: boolean;
+@@ -76,6 +79,7 @@
+     procedure Error(const Mess: string);
+     // Translate component (form) as component of class CompClassType
+     procedure TranslateAs(Comp: TComponent; const CompClassType: TClass);
++    function GetErrors: string;
+   public
+     LanguageDir: string; // Directory with language files (optional)
+     ErrorProcessing: TErrorProcessing;
+@@ -99,6 +103,8 @@
+     // Do here necessary operations such as calling TranslateScreen (if AutoTranslate disabled)
+     // and updating of controls state
+     property AfterLanguageLoad: TAfterLanguageLoadEvent read fAfterLanguageLoadEvent write fAfterLanguageLoadEvent;
++    property Errors: string read GetErrors;
++    procedure ClearErrors;
+   end;
+ 
+ var
+@@ -159,6 +165,23 @@
+   end else result := System.LoadResString(ResStringRec);
+ end;
+ 
++type
++  EKdlError = class (Exception)
++    constructor Create(AMessage: string);
++  end;
++  EKdlSilentError = class (EKdlError)
++    constructor Create();
++  end;
++
++constructor EKdlError.Create(AMessage: string);
++begin
++  inherited Create(AMessage);
++end;
++constructor EKdlSilentError.Create;
++begin
++  inherited Create('');
++end;
++
+ { TResStringer }
+ 
+ constructor TResStringer.Create;
+@@ -278,6 +301,7 @@
+ 
+ constructor TFreeLocalizer.Create;
+ begin
++  fErrors := TStringList.Create;
+   ResStringer := TResStringer.Create;
+ end;
+ 
+@@ -286,14 +310,27 @@
+   SetAutoTranslate(False);
+   ResStringer.Free;
+   ClearResForms;
++  fErrors.Free;
+   inherited;
+ end;
+ 
++function TFreeLocalizer.GetErrors: string;
++begin
++  Result := fErrors.Text;
++end;
++
++procedure TFreeLocalizer.ClearErrors;
++begin
++  fErrors.Clear;
++end;
++
+ procedure TFreeLocalizer.Error(const Mess: string);
+ begin
+   case ErrorProcessing of
+     epMessage: Application.MessageBox(pChar(Mess), 'K.D.L. Error', MB_ICONERROR+MB_OK+MB_DEFBUTTON1+MB_APPLMODAL);
+-    epException: raise Exception.Create(Mess);
++    epException: raise EKdlError.Create(Mess);
++    epDebug: OutputDebugString(pChar(Mess));
++    epErrors: fErrors.Append(Mess);
+   end;
+ end;
+ 
+@@ -357,7 +394,7 @@
+   if AnsiCP = 0 then
+     AnsiCP := 1250;
+   if AnsiCP = 65001 then
+-    raise Exception.Create('K.D.L. initialization error.'#13#10+
++    raise EKdlError.Create('K.D.L. initialization error.'#13#10+
+       'Please put uFreeLocalizer before UTF8VCL in an uses clause of Application');
+ 
+   if Assigned(fBeforeLanguageLoadEvent) then
+@@ -535,7 +572,7 @@
+         {$else}
+           SetPropValue(Obj, PropInfo, PropValue)
+         {$endif}
+-      else raise Exception.Create('');
++      else raise EKdlSilentError.Create();
+     end;
+   end;
+ 
+@@ -606,17 +643,18 @@
+     end;
+ 
+     // yet untranslated...
+-    raise Exception.Create('');
++    raise EKdlSilentError.Create();
+ 
+   except
+-    on E: Exception do begin
+-      if E.Message <> '' then
+-        s := 'Translation error of property "%s" in component "%s"'#13#10 + E.Message
+-      else
++    on E: EKdlSilentError do begin
+         s := 'Unknown property "%s" found in component "%s".'#13#10 +
+           'Remove it from language file';
+       Error(Format(s, [PropName, RootComp.Name]));
+     end;
++    on E: Exception do begin
++      s := 'Translation error of property "%s" in component "%s"'#13#10 + E.Message;
++      Error(Format(s, [PropName, RootComp.Name]));
++    end;
+   end;
+ end;
+ 
+@@ -704,8 +742,9 @@
+ 
+ Initialization
+   AnsiCP := GetACP;
++{$ifndef D7}
+   SetMultiByteConversionCodePage(CP_THREAD_ACP);
+-
++{$endif}
+   FreeLocalizer := TFreeLocalizer.Create;
+ Finalization
+   FreeLocalizer.Free;
+diff -r -u -b Kryvich_Delphi_Localizer.orig/uLegacyCode.pas Kryvich_Delphi_Localizer/uLegacyCode.pas
+--- Kryvich_Delphi_Localizer.orig/uLegacyCode.pas	2007-09-20 12:50:00.000000000 +0200
++++ Kryvich_Delphi_Localizer/uLegacyCode.pas	2007-12-28 01:14:44.000000000 +0100
+@@ -26,17 +26,20 @@
+ const
+   CP_THREAD_ACP = 3;  // current thread's ANSI code page
+ 
+-procedure My_WStrFromStr(const Source: string; var Dest: WideString;
+-  CodePage: LongWord);
+ function TStringsGetValueFromIndex(Strings: TStrings; Index: Integer): string;
+ {$endif}
+ 
+ {$ifdef D7}
+-// Set a codepage for Wide <--> ANSI convertion operations
+-procedure SetMultiByteConversionCodePage(cp: UINT);
++procedure My_WStrFromStr(const Source: string; var Dest: WideString;
++  CodePage: LongWord);
++procedure My_StrFromWStr(const Source: WideString; var Dest: string;
++  CodePage: LongWord);
+ // Widestring replacement for StringReplace
+ function WideStringReplace(const S, OldPattern, NewPattern: Widestring;
+   Flags: TReplaceFlags): Widestring;
++{$else}
++// Set a codepage for Wide <--> ANSI convertion operations
++procedure SetMultiByteConversionCodePage(cp: UINT);
+ {$endif}
+ 
+ implementation
+@@ -72,7 +75,7 @@
+ end;
+ {$endif}
+ 
+-{$ifdef D6}
++{$ifdef D7}
+ procedure My_WStrFromStr(const Source: string; var Dest: WideString;
+   CodePage: LongWord);
+ var
+@@ -88,6 +91,23 @@
+   MultiByteToWideChar(CodePage, 0, @Source[1], SourLen, @Dest[1], DestLen);
+ end;
+ 
++procedure My_StrFromWStr(const Source: WideString; var Dest: string;
++  CodePage: LongWord);
++var
++  SourLen, DestLen: Integer;
++begin
++  SourLen := length(Source);
++  if SourLen <= 0 then begin
++    Dest := '';
++    Exit;
++  end;
++  DestLen := WideCharToMultiByte(CodePage, 0, @Source[1], SourLen, Nil, 0, nil, nil);
++  SetLength(Dest, DestLen);
++  WideCharToMultiByte(CodePage, 0, @Source[1], SourLen, @Dest[1], DestLen, nil, nil);
++end;
++{$endif}
++
++{$ifdef D6}
+ function TStringsGetValueFromIndex(Strings: TStrings; Index: Integer): string;
+ var
+   s: string;
+@@ -104,23 +124,19 @@
+ end;
+ {$endif}
+ 
+-{$ifdef D7}
+-{$ifdef D6}
+-procedure SetMultiByteConversionCodePage(cp: UINT);
+-begin
+-  // Do nothing...
+-end;
+-{$else}
++{$ifndef D7}
+ // Set a codepage for Wide <--> ANSI convertion operations
+ procedure SetMultiByteConversionCodePage(cp: UINT);
+ var
+   DefUserCP: ^integer;
+ begin
++  //ToDo: Fix for Win9x??
+   DefUserCP := pointer(integer(@ModuleUnloadList) + $2588);
+   DefUserCP^ := cp;
+ end;
+ {$endif}
+ 
++{$ifdef D7}
+ // Widestring replacement for StringReplace
+ function WideStringReplace(const S, OldPattern, NewPattern: Widestring;
+   Flags: TReplaceFlags): Widestring;
+diff -r -u -b Kryvich_Delphi_Localizer.orig/uStringUtils.pas Kryvich_Delphi_Localizer/uStringUtils.pas
+--- Kryvich_Delphi_Localizer.orig/uStringUtils.pas	2007-09-20 12:50:00.000000000 +0200
++++ Kryvich_Delphi_Localizer/uStringUtils.pas	2007-12-28 00:34:18.000000000 +0100
+@@ -72,7 +72,7 @@
+ 
+ procedure AnsiToWideString(const s: AnsiString; var ws: WideString; AnsiCodepage: LongWord);
+ begin
+-{$ifdef D6}
++{$ifdef D7}
+   My_WStrFromStr(s, ws, AnsiCodepage);
+ {$else}
+   SetMultiByteConversionCodePage(AnsiCodepage);
+@@ -83,9 +83,13 @@
+ 
+ procedure WideToAnsiString(const ws: WideString; var s: AnsiString; AnsiCodepage: LongWord);
+ begin
++{$ifdef D7}
++  My_StrFromWStr(ws, s, AnsiCodepage);
++{$else}
+   SetMultiByteConversionCodePage(AnsiCodepage);
+   s := ws;
+   SetMultiByteConversionCodePage(CP_THREAD_ACP);
++{$endif}
+ end;
+ 
+ // Encode string to delphi style string

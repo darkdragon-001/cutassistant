@@ -90,7 +90,7 @@ Neue Version 0.9.12.2:
 		</message>
 		<message>
 			<id>8</id>
-			<date_day>04</date_day>
+			<date_day>05</date_day>
 			<date_month>03</date_month>
 			<date_year>2008</date_year>
 			<text>
@@ -116,7 +116,7 @@ Download: http://sourceforge.net/projects/cutassistant/
 or        http://www.cutlist.de/</version_text>
 	</stable>
 	<beta>
-		<date_day>04</date_day>
+		<date_day>05</date_day>
 		<date_month>03</date_month>
 		<date_year>2008</date_year>
 		<version>0x00000009000D000E</version>

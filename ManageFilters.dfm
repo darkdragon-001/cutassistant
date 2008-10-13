@@ -3,8 +3,8 @@ object FManageFilters: TFManageFilters
   Top = 359
   AutoScroll = False
   Caption = 'Filters'
-  ClientHeight = 221
-  ClientWidth = 666
+  ClientHeight = 359
+  ClientWidth = 800
   Color = clBtnFace
   Constraints.MinHeight = 200
   Constraints.MinWidth = 250
@@ -21,13 +21,13 @@ object FManageFilters: TFManageFilters
   OnDestroy = FormDestroy
   OnShow = FormShow
   DesignSize = (
-    666
-    221)
+    800
+    359)
   PixelsPerInch = 96
   TextHeight = 13
   object lblClickOnFilter: TLabel
     Left = 148
-    Top = 188
+    Top = 326
     Width = 103
     Height = 26
     Anchors = [akLeft, akBottom]
@@ -36,7 +36,7 @@ object FManageFilters: TFManageFilters
   end
   object cmdRemove: TButton
     Left = 4
-    Top = 192
+    Top = 330
     Width = 131
     Height = 25
     Anchors = [akLeft, akBottom]
@@ -47,8 +47,8 @@ object FManageFilters: TFManageFilters
     OnClick = cmdRemoveClick
   end
   object cmdClose: TButton
-    Left = 601
-    Top = 192
+    Left = 735
+    Top = 330
     Width = 61
     Height = 25
     Anchors = [akRight, akBottom]
@@ -62,8 +62,8 @@ object FManageFilters: TFManageFilters
   object lvFilters: TListBox
     Left = 0
     Top = 0
-    Width = 666
-    Height = 179
+    Width = 800
+    Height = 317
     Align = alTop
     Anchors = [akLeft, akTop, akRight, akBottom]
     Font.Charset = DEFAULT_CHARSET
@@ -80,8 +80,8 @@ object FManageFilters: TFManageFilters
     OnDblClick = lvFiltersDblClick
   end
   object cmdCopy: TButton
-    Left = 493
-    Top = 192
+    Left = 627
+    Top = 330
     Width = 102
     Height = 25
     Anchors = [akRight, akBottom]
@@ -90,5 +90,24 @@ object FManageFilters: TFManageFilters
     Default = True
     TabOrder = 3
     OnClick = cmdCopyClick
+  end
+  object chkShowPinInfo: TJvCheckBox
+    Left = 496
+    Top = 334
+    Width = 87
+    Height = 17
+    Anchors = [akRight, akBottom]
+    Caption = 'Show Pin Info'
+    Checked = True
+    State = cbChecked
+    TabOrder = 4
+    OnClick = chkShowPinInfoClick
+    LinkedControls = <>
+    HotTrackFont.Charset = ANSI_CHARSET
+    HotTrackFont.Color = clWindowText
+    HotTrackFont.Height = -11
+    HotTrackFont.Name = 'Microsoft Sans Serif'
+    HotTrackFont.Pitch = fpVariable
+    HotTrackFont.Style = []
   end
 end

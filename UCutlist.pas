@@ -580,7 +580,7 @@ BEGIN
   IF FMovieInfo.current_filename <> '' THEN BEGIN
     result := ChangeFileExt(extractfilename(FMovieInfo.current_filename), cutlist_Extension);
   END ELSE
-    result := 'Cutlist_01.cutlist';
+    result := 'Cutlist_01' + CUTLIST_EXTENSION;
 END;
 
 PROCEDURE TCutlist.FillCutPosArray(VAR CutPosArray: ARRAY OF double);

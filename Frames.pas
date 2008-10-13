@@ -15,6 +15,7 @@ USES
   StdCtrls,
   Controls,
   contnrs,
+  utils,
   main;
 
 TYPE
@@ -31,10 +32,13 @@ TYPE
     FBorderVisible: boolean;
     FBorder: TShape;
     FUpdateLocked: integer;
+    FImageVisible: boolean;
     PROCEDURE setPosition(APosition: Double);
     PROCEDURE setKeyFrame(Value: boolean);
     PROCEDURE setBorderVisible(Value: boolean);
+    PROCEDURE setImageVisible(Value: boolean);
   PUBLIC
+    PROPERTY ImageVisible: boolean READ FImageVisible WRITE SetImageVisible;
     PROPERTY IsKeyFrame: boolean READ FKeyFrame WRITE SetKeyFrame;
     PROPERTY BorderVisible: boolean READ FBorderVisible WRITE SetBorderVisible;
     PROPERTY index: integer READ FIndex;
@@ -44,6 +48,8 @@ TYPE
     PROCEDURE DisableUpdate;
     PROCEDURE EnableUpdate;
     PROCEDURE UpdateFrame;
+    PROCEDURE ResetFrame;
+    PROCEDURE AssignSampleInfo(CONST SampleInfo, KeyFrameSampleInfo: RMediaSample);
     PROCEDURE init(image_height, image_width: INteger);
     PROCEDURE Adjust_position(pos_top, pos_left: Integer);
     PROCEDURE BStartClick(Sender: TObject);
@@ -89,7 +95,8 @@ VAR
 
 IMPLEMENTATION
 
-USES Utils,
+USES
+  StrUtils,
   Math,
   DirectShow9;
 
@@ -103,7 +110,8 @@ VAR
 BEGIN
   FOR iFrame := 0 TO Framelist.Count - 1 DO
     WITH Frame[iFrame] DO BEGIN
-      Image.Visible := false;
+      ImageVisible := false;
+      IsKeyFrame := false;
       Position := 0;
     END;
 END;
@@ -380,6 +388,38 @@ BEGIN
     _pos := FPosition / MovieInfo.frame_duration;
   LIndex.Caption := MovieInfo.FormatPosition(_pos, TIME_FORMAT_FRAME);
   LTime.Caption := MovieInfo.FormatPosition(FPosition);
+  IF IsKeyFrame THEN BEGIN
+    //self.LTime.Font.Style := self.LTime.Font.Style + [ fsBold ];
+    self.LTime.Color := clYellow;
+    //    self.LTime.Transparent := false;
+  END ELSE
+    //self.LTime.ParentFont := true;
+    self.LTime.ParentColor := true;
+  //    self.LTime.Transparent := true;
+  Image.Visible := ImageVisible;
+END;
+
+PROCEDURE TCutFrame.ResetFrame;
+BEGIN
+  position := 0;
+  IsKeyFrame := false;
+  ImageVisible := false;
+  IF FUpdateLocked > 0 THEN
+    exit;
+  UpdateFrame;
+END;
+
+PROCEDURE TCutFrame.AssignSampleInfo(CONST SampleInfo, KeyFrameSampleInfo: RMediaSample);
+BEGIN
+  IF SampleInfo.SampleTime >= 0 THEN BEGIN
+    position := SampleInfo.SampleTime;
+    ImageVisible := SampleInfo.HasBitmap;
+    IF ImageVisible THEN
+      Image.Picture.Bitmap.Assign(SampleInfo.Bitmap);
+  END;
+  IF KeyFrameSampleInfo.SampleTime >= 0 THEN
+    IF Abs(KeyFrameSampleInfo.SampleTime - SampleInfo.SampleTime) < MovieInfo.frame_duration THEN
+      IsKeyFrame := KeyFrameSampleInfo.IsKeyFrame;
 END;
 
 PROCEDURE TCutFrame.setPosition(APosition: Double);
@@ -393,12 +433,9 @@ END;
 PROCEDURE TCutFrame.setKeyFrame(Value: boolean);
 BEGIN
   FKeyFrame := Value;
-  IF Value THEN BEGIN
-    self.LTime.Color := clYellow;
-    //    self.LTime.Transparent := false;
-  END ELSE
-    self.LTime.ParentColor := true;
-  //    self.LTime.Transparent := true;
+  IF FUpdateLocked > 0 THEN
+    exit;
+  UpdateFrame;
 END;
 
 PROCEDURE TCutFrame.ImageDoubleClick(Sender: TObject);
@@ -412,7 +449,14 @@ END;
 PROCEDURE TCutFrame.setBorderVisible(Value: boolean);
 BEGIN
   self.FBorderVisible := Value;
-  self.FBorder.Visible := value;
+END;
+
+PROCEDURE TCutFrame.setImageVisible(Value: boolean);
+BEGIN
+  self.FImageVisible := Value;
+  IF FUpdateLocked > 0 THEN
+    exit;
+  UpdateFrame;
 END;
 
 PROCEDURE TCutFrame.ImageClick(Sender: TObject);
@@ -503,3 +547,4 @@ BEGIN
 END;
 
 END.
+

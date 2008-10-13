@@ -252,6 +252,17 @@ FUNCTION StrToFloatDefInv(CONST s: STRING; CONST d: extended; CONST sep: char = 
 
 PROCEDURE GetInvariantFormatSettings(VAR FormatSettings: TFormatSettings);
 
+TYPE
+  RMediaSample = RECORD
+    Active: Boolean;
+    SampleTime: Double;
+    IsKeyFrame: Boolean;
+    HasBitmap: Boolean;
+    Bitmap: TBitmap;
+  END;
+
+FUNCTION IntExt(CONST d: double; CONST fraction: double): double;
+
 IMPLEMENTATION
 
 {$I jedi.inc}
@@ -275,6 +286,11 @@ CONST ScreenWidthDev               = 1280;
 
 VAR
   invariantFormat                  : TFormatSettings;
+
+FUNCTION IntExt(CONST d: double; CONST fraction: double): double;
+BEGIN
+  Result := Trunc(d / fraction) * fraction;
+END;
 
 PROCEDURE GetInvariantFormatSettings(VAR FormatSettings: TFormatSettings);
 BEGIN
@@ -582,16 +598,16 @@ BEGIN
 END;
 
 PROCEDURE TMemIniFileEx.SaveToFile(CONST FileName: STRING);
-var
-  fs: TFileStream;
-begin
+VAR
+  fs                               : TFileStream;
+BEGIN
   fs := TFileStream.Create(FileName, fmCreate, fmShareDenyWrite);
   TRY
     SaveToStream(fs);
   FINALLY
     FreeAndNil(fs);
   END;
-end;
+END;
 
 FUNCTION FloatToStrInvariant(Value: Extended): STRING;
 BEGIN

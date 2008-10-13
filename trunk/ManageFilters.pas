@@ -17,7 +17,9 @@ USES
   DSPack,
   DSUtil,
   DirectShow9,
-  Utils;
+  Utils,
+  JvExStdCtrls,
+  JvCheckBox;
 
 TYPE
   TFManageFilters = CLASS(TForm)
@@ -26,6 +28,7 @@ TYPE
     lvFilters: TListBox;
     cmdCopy: TButton;
     lblClickOnFilter: TLabel;
+    chkShowPinInfo: TJvCheckBox;
     PROCEDURE cmdCloseClick(Sender: TObject);
     PROCEDURE FormShow(Sender: TObject);
     PROCEDURE lvFiltersClick(Sender: TObject);
@@ -35,8 +38,10 @@ TYPE
     PROCEDURE cmdCopyClick(Sender: TObject);
     PROCEDURE lvFiltersDblClick(Sender: TObject);
     PROCEDURE FormClose(Sender: TObject; VAR Action: TCloseAction);
+    procedure chkShowPinInfoClick(Sender: TObject);
   PRIVATE
     FilterList: TFIlterList;
+    PinList: TPinList;
     { Private declarations }
     PROCEDURE refresh_FilterList(Graph: TFilterGraph);
   PUBLIC
@@ -68,13 +73,21 @@ END;
 
 PROCEDURE TFManageFilters.refresh_FilterList(Graph: TFilterGraph);
 VAR
-  //Filters: IEnumFilters;
-  //BaseFilter: IBaseFilter;
-  //cFetched: ULONG;
-  //FilterInfo: _FilterInfo;
-
-  iFilter                          : Integer;
-  guid                             : TGUID;
+  BaseFilter, cFilter              : IBaseFilter;
+  cPin                             : IPin;
+  iFilter, iPin                    : Integer;
+  pinInfo                          : _PinInfo;
+  FUNCTION FormatBaseFilter(CONST bf: IBaseFilter): STRING;
+  VAR
+    guid                           : TGUID;
+    fi                             : _FilterInfo;
+  BEGIN
+    Result := '';
+    IF NOT Assigned(bf) THEN Exit;
+    bf.GetClassID(guid);
+    bf.QueryFilterInfo(fi);
+    Result := fi.achName + ' (' + GUIDToString(guid) + ')';
+  END;
 BEGIN
   IF NOT graph.Active THEN exit;
   graph.Stop;
@@ -82,29 +95,19 @@ BEGIN
 
   lvFilters.Clear;
   FOR iFilter := 0 TO FilterList.Count - 1 DO BEGIN
-    FilterLIst.Items[iFilter].GetClassID(guid);
-    lvFilters.Items.Add(guidtostring(guid) + '   ' + STRING(FilterList.FilterInfo[iFIlter].achName));
+    BaseFilter := FilterLIst.Items[iFilter];
+    lvFilters.Items.Add('|-' + FormatBaseFilter(BaseFilter));
+    IF chkShowPinInfo.Checked THEN BEGIN
+      PinList.Assign(BaseFilter);
+      FOR iPin := 0 TO PinList.Count - 1 DO BEGIN
+        cFilter := NIL;
+        IF Succeeded(PinList.Items[iPin].ConnectedTo(cPin)) THEN
+          IF Succeeded(cpin.QueryPinInfo(pinInfo)) THEN
+            cFilter := pinInfo.pFilter;
+        lvFilters.Items.Add('|--- ' + PinList.PinInfo[iPin].achName + ' => ' + FormatBaseFilter(cFilter));
+      END;
+    END;
   END;
-
-
-  {try
-    OleCheck((Graph as IFilterGraph).EnumFilters(Filters));
-    while Filters.Next(1, BaseFilter, nil) = S_OK do begin
-      if failed(BaseFilter.QueryFilterInfo(FilterInfo)) then begin
-        lvFilters.Items.Add('*** unknown Filter');
-      end else begin
-        lvFilters.Items.Add(FilterInfo.achName);
-//        if filterinfo.pGraph <> nil then filterinfo.pGraph._Release;
-      end;
-      //BaseFilter._Release;
-    end;
-    //Filters._Release;
-  except
-//    filtergraph.ClearGraph;
-//    filtergraph.active := false;
-    raise;
-  end;}
-
 END;
 
 PROCEDURE TFManageFilters.lvFiltersClick(Sender: TObject);
@@ -149,11 +152,13 @@ END;
 PROCEDURE TFManageFilters.FormCreate(Sender: TObject);
 BEGIN
   FIlterLIst := TFilterLIst.Create;
+  PinList := TPinList.Create;
 END;
 
 PROCEDURE TFManageFilters.FormDestroy(Sender: TObject);
 BEGIN
   FreeAndNIL(FilterList);
+  FreeAndNil(PinList);
 END;
 
 PROCEDURE TFManageFilters.cmdCopyClick(Sender: TObject);
@@ -179,4 +184,10 @@ BEGIN
   ModalResult := mrOk;
 END;
 
+procedure TFManageFilters.chkShowPinInfoClick(Sender: TObject);
+begin
+  self.refresh_FilterList(self.SourceGraph);
+end;
+
 END.
+

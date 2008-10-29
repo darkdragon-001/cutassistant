@@ -68,6 +68,8 @@ TYPE
     PROCEDURE SetFrameRate(d: double);
     FUNCTION SaveServerInfos(cutlistfile: TMemIniFileEx): boolean;
     PROCEDURE RemoveCutSections(cutlistfile: TMemIniFileEx);
+    FUNCTION FindCutLinear(fPos: double): integer;
+    FUNCTION FindCutBinary(fPos: double): integer;
   PUBLIC
     AppName, AppVersion: STRING;
     ApplyToFile: STRING;
@@ -218,6 +220,32 @@ BEGIN
 END;
 
 FUNCTION TCutlist.FindCut(fPos: double): integer;
+BEGIN
+  //Result := FindCutBinary(fPos);
+  Result := FindCutLinear(fPos);
+END;
+
+FUNCTION TCutlist.FindCutLinear(fPos: double): integer;
+VAR
+  iCount                           : Integer;
+  iCut                             : Integer;
+  ACut                             : TCut;
+BEGIN
+  Result := -1;
+  iCount := self.Count;
+  IF iCount < 1 THEN
+    exit;
+  iCut := 0;
+  REPEAT
+    ACut := self.Cut[iCut];
+    IF fPos >= ACut.pos_from THEN
+      IF fPos <= ACut.pos_to THEN
+        Result := iCut;
+    Inc(iCut);
+  UNTIL (iCut >= iCount) OR (Result >= 0);
+END;
+
+FUNCTION TCutlist.FindCutBinary(fPos: double): integer;
 VAR
   iCount                           : Integer;
   iCut                             : Integer;
@@ -228,8 +256,8 @@ BEGIN
   iCount := self.Count;
   IF iCount < 1 THEN
     exit;
-  iCut := 0;
   iStep := iCount DIV 2;
+  iCut := iStep;
   REPEAT
     ACut := self.Cut[iCut];
     IF ACut.pos_from > fPos THEN BEGIN

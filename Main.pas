@@ -2083,6 +2083,15 @@ PROCEDURE TFMain.actReplaceCutExecute(Sender: TObject);
 VAR
   dcut                             : integer;
 BEGIN
+  IF Settings.Additional['AutoReplaceCuts'] = '1' THEN BEGIN
+    dcut := cutlist.FindCut(pos_from);
+    IF dcut >= 0 THEN cutlist.DeleteCut(dcut);
+    dcut := cutlist.FindCut(pos_to);
+    IF dcut >= 0 THEN cutlist.DeleteCut(dcut);
+    cutlist.AddCut(pos_from, pos_to);
+    Exit;
+  END;
+
   IF self.lvCutlist.SelCount = 0 THEN BEGIN
     self.enable_del_buttons(false);
     exit;
@@ -3320,7 +3329,10 @@ VAR
   NewPos                           : double;
 BEGIN
   NewPos := cutlist.NextCutPos(currentPosition + MovieInfo.frame_duration);
-  IF NewPos >= 0 THEN jumpTo(NewPos);
+  IF NewPos >= 0 THEN BEGIN
+    jumpTo(NewPos);
+    lvCutlist.ItemIndex := cutlist.FindCut(NewPos);
+  END;
 END;
 
 PROCEDURE TFMain.actPrevCutExecute(Sender: TObject);
@@ -3328,7 +3340,10 @@ VAR
   NewPos                           : double;
 BEGIN
   NewPos := cutlist.PreviousCutPos(currentPosition - MovieInfo.frame_duration);
-  IF NewPos >= 0 THEN jumpTo(NewPos);
+  IF NewPos >= 0 THEN BEGIN
+    jumpTo(NewPos);
+    lvCutlist.ItemIndex := cutlist.FindCut(NewPos);
+  END;
 END;
 
 PROCEDURE TFMain.cmdFFMouseDown(Sender: TObject; Button: TMouseButton;

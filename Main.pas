@@ -72,7 +72,8 @@ USES
   JvProgressDialog,
   JvAppCommand,
   JvExStdCtrls,
-  JvCheckBox, JvDialogs;
+  JvCheckBox,
+  JvDialogs;
 
 CONST
   //Registry Keys
@@ -1067,7 +1068,8 @@ BEGIN
         END ELSE BEGIN
           SampleGrabber.FilterGraph := FilterGraph;
         END;
-        KeyFrameGrabber.FilterGraph := SampleGrabber.FilterGraph;
+        IF Settings.Additional['ActivateKeyFrameGrabber'] = '1' THEN
+          KeyFrameGrabber.FilterGraph := SampleGrabber.FilterGraph;
 
         FilterGraph.Active := true;
 
@@ -1111,7 +1113,8 @@ BEGIN
         IF SampleGrabber.FilterGraph = NIL THEN BEGIN
           InsertSampleGrabber;
           IF KeyFrameGrabber.FilterGraph = NIL THEN
-            InsertKeyFrameGrabber;
+            IF Settings.Additional['ActivateKeyFrameGrabber'] = '1' THEN
+              InsertKeyFrameGrabber;
           IF NOT filtergraph.Active THEN BEGIN
             IF NOT batchmode THEN
               ShowMessage(CAResources.RsCouldNotInsertSampleGrabber);

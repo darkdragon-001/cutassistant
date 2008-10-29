@@ -1,3 +1,17 @@
+New in 0.9.13.16 (development)
+- Added display of pin information to used filters.
+- Improved multi-thread behaviour of ShowFrames method.
+- Enabled command line parameter -trycutlistdownload.
+- Fixed duplicate search result items when searching local cutlists by size and name.
+- Force extension of search result entries to ".cutlist".
+- Improved copy snapshot method.
+- Fixed message string when rating cutlist.
+- Use additional setting "ActivateKeyFrameGrabber" to activate experimental use of key frame grabber.
+- Use additional setting "AutoReplaceCuts" for automatic replacement of intervening cuts.
+- Added automatic selection of active cut when navigating through cuts.
+- Auto select single search result in BatchMode.
+- Use additional setting "ShowSearchResultInBatch" to enable search result selection in batch mode.
+
 New in 0.9.13.14 (development)
 - Many bugfixes regarding localization of user interface.
 - Added option: Automatically search for cutlists after opening movie file.

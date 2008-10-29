@@ -2965,6 +2965,10 @@ BEGIN
 
   IF AutoOpen AND (numFound = 1) THEN
     selectedItem := FCutlistSearchResults.lvLinklist.Items[0]
+  ELSE IF BatchMode AND (numFound = 1) THEN
+    selectedItem := FCutlistSearchResults.lvLinklist.Items[0]
+  ELSE IF BatchMode AND (Settings.Additional['ShowSearchResultInBatch'] <> '1') THEN
+    selectedItem := FCutlistSearchResults.lvLinklist.Items[0]
   ELSE IF FCutlistSearchResults.ShowModal = mrOK THEN
     selectedItem := FCutlistSearchResults.lvLinklist.Selected
   ELSE

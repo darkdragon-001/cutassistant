@@ -91,9 +91,9 @@ RESOURCESTRING
 
   RsMsgSendRatingNotPossible       = 'Current cutlist was not downloaded. Rating not possible.';
   RsMsgSendRatingDone              = 'Rating done.';
-  RsMsgAnswerFromServer            = 'Rating NOT done!'#13#10
-                                   + #13#10
-                                   + 'Answer from Server:'#13#10
+  RsMsgSendRatingNotDone           = 'Rating NOT done!'#13#10
+                                   + #13#10;
+  RsMsgAnswerFromServer            = 'Answer from Server:'#13#10
                                    + '%s';
 
   RsErrorUploadCutlist             = 'Error uploading cutlist: ';

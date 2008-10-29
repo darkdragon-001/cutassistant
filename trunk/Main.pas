@@ -72,7 +72,7 @@ USES
   JvProgressDialog,
   JvAppCommand,
   JvExStdCtrls,
-  JvCheckBox;
+  JvCheckBox, JvDialogs;
 
 CONST
   //Registry Keys
@@ -83,7 +83,7 @@ CONST
 
 TYPE
 
-  TFMain = CLASS(TForm {, ISampleGrabberCB})
+  TFMain = CLASS(TForm)
     cmdStop: TButton;
     cmdPlayPause: TButton;
     lvCutlist: TListView;
@@ -303,6 +303,8 @@ TYPE
     actSearchCutlistLocal: TAction;
     JvSpeedItem17: TJvSpeedItem;
     SearchCutlistsinDirectory_nl: TMenuItem;
+    KeyFrameGrabber: TSampleGrabber;
+    odMovie: TJvOpenDialog;
     PROCEDURE FormCreate(Sender: TObject);
     PROCEDURE FormCloseQuery(Sender: TObject; VAR CanClose: Boolean);
     PROCEDURE FormClose(Sender: TObject; VAR Action: TCloseAction);
@@ -337,9 +339,6 @@ TYPE
     PROCEDURE tbFinePosChange(Sender: TObject);
     PROCEDURE FilterGraphGraphStepComplete(Sender: TObject);
     PROCEDURE pnlVideoWindowResize(Sender: TObject);
-    PROCEDURE SampleGrabberBuffer(sender: TObject; SampleTime: Double;
-      pBuffer: Pointer; BufferLen: Integer);
-
     PROCEDURE actOpenMovieExecute(Sender: TObject);
     PROCEDURE actOpenCutlistExecute(Sender: TObject);
     PROCEDURE actSaveCutlistExecute(Sender: TObject);
@@ -425,14 +424,20 @@ TYPE
     PROCEDURE actSearchCutlistLocalExecute(Sender: TObject);
     PROCEDURE FormMouseWheel(Sender: TObject; Shift: TShiftState;
       WheelDelta: Integer; MousePos: TPoint; VAR Handled: Boolean);
+    PROCEDURE SampleGrabberSample(sender: TObject; SampleTime: Double;
+      ASample: IMediaSample);
+    PROCEDURE KeyFrameGrabberSample(sender: TObject; SampleTime: Double;
+      ASample: IMediaSample);
   PRIVATE
     { Private declarations }
     UploadDataEntries: TStringList;
     StepComplete: boolean;
-    SampleTarget: TObject; //TCutFrame
+    SampleInfo: RMediaSample;
+    KeyFrameSampleInfo: RMediaSample;
     PROCEDURE ResetForm;
     PROCEDURE EnableMovieControls(value: boolean);
     PROCEDURE InitVideo;
+    PROCEDURE InsertKeyFrameGrabber;
     PROCEDURE InsertSampleGrabber;
     FUNCTION GetSampleGrabberMediaType(VAR MediaType: TAMMediaType): HResult;
     FUNCTION CustomGetSampleGrabberBitmap(Bitmap: TBitmap; Buffer: Pointer; BufferLen: Integer): boolean;
@@ -441,7 +446,7 @@ TYPE
     function  BufferCB(SampleTime: Double; pBuffer: PByte; BufferLen: longint): HResult; stdcall;
     }
     PROCEDURE refresh_lvCutlist(cutlist: TCutlist);
-    FUNCTION WaitForStep(TimeOut: INteger): boolean;
+    FUNCTION WaitForStep(TimeOut: Integer; CONST WaitForSampleInfo: Boolean): boolean;
     PROCEDURE WaitForFilterGraph;
     PROCEDURE HandleParameter(CONST param: STRING);
     FUNCTION CalcTrueRate(Interval: double): double;
@@ -481,7 +486,7 @@ TYPE
     FUNCTION DownloadInfo(settings: TSettings; CONST UseDate, ShowAll: boolean): boolean;
     PROCEDURE LoadCutList;
     //    function search_cutlist: boolean;
-    PROCEDURE SearchCutlists(AutoOpen: boolean; SearchLocal, SearchWeb: boolean; SearchTypes: TCutlistSearchTypes);
+    FUNCTION SearchCutlists(AutoOpen: boolean; SearchLocal, SearchWeb: boolean; SearchTypes: TCutlistSearchTypes): boolean;
     FUNCTION SearchCutlistsByFileSize_Local(SearchType: TCutlistSearchType): integer;
     FUNCTION SearchCutlistsByFileSize_XML(SearchType: TCutlistSearchType): integer;
     //    function DownloadCutlist(cutlist_name: string): boolean;
@@ -749,12 +754,17 @@ BEGIN
   tbVolume.PageSize := tbVolume.Frequency;
   tbVolume.LineSize := round(tbVolume.PageSize / 10);
   tbVolume.Position := filtergraph.Volume;
+
+  KeyFrameSampleInfo.Active := false;
+  SampleInfo.Active := false;
+  SampleInfo.Bitmap := TBitmap.Create;
 END;
 
 PROCEDURE TFMain.FormDestroy(Sender: TObject);
 BEGIN
   Settings.MainFormBounds := self.BoundsRect;
   Settings.MainFormWindowState := self.WindowState;
+  FreeAndNil(SampleInfo.Bitmap);
   FreeAndNIL(UploadDataEntries);
 END;
 
@@ -1057,6 +1067,7 @@ BEGIN
         END ELSE BEGIN
           SampleGrabber.FilterGraph := FilterGraph;
         END;
+        KeyFrameGrabber.FilterGraph := SampleGrabber.FilterGraph;
 
         FilterGraph.Active := true;
 
@@ -1099,6 +1110,8 @@ BEGIN
 
         IF SampleGrabber.FilterGraph = NIL THEN BEGIN
           InsertSampleGrabber;
+          IF KeyFrameGrabber.FilterGraph = NIL THEN
+            InsertKeyFrameGrabber;
           IF NOT filtergraph.Active THEN BEGIN
             IF NOT batchmode THEN
               ShowMessage(CAResources.RsCouldNotInsertSampleGrabber);
@@ -1306,6 +1319,7 @@ BEGIN
       IF FrameStep.CanStep(0, NIL) = S_OK THEN
         MovieInfo.CanStepForward := true;
     END ELSE FrameStep := NIL;
+
     self.EnableMovieControls(true);
   END;
 END;
@@ -1407,23 +1421,104 @@ BEGIN
   refresh_times;
 END;
 
-PROCEDURE TFMain.InsertSampleGrabber;
+FUNCTION GetFileSourceFilter(FilterGraph: TFilterGraph): IBaseFilter;
 VAR
-  Rpin, Spin, TInPin, TOutPin1, TOutPin2, NRInPin, SGInPin, SGOutPin: IPin;
+  FilterList                       : TFilterList;
+  BaseFilter                       : IBaseFilter;
+  idx                              : integer;
+BEGIN
+  Result := NIL;
+  FilterList := TFilterList.Create;
+  TRY
+    FilterList.Assign(FilterGraph AS IFilterGraph);
+    FOR idx := FilterList.Count - 1 DOWNTO 0 DO BEGIN
+      BaseFilter := FilterList.Items[idx];
+      IF Supports(BaseFilter, IFileSourceFilter) THEN BEGIN
+        Result := BaseFilter;
+        Break;
+      END;
+    END;
+  FINALLY
+    FreeAndNil(FilterList);
+  END;
+END;
+
+PROCEDURE TFMain.InsertKeyFrameGrabber;
+VAR
+  KFInPin, KFOutPin, FileSourceOutPin, FileSourceConnectedPin: IPin;
+  FileSourceFilter                 : IBaseFilter;
+  GraphBuilder                     : IGraphBuilder;
+  pins                             : IEnumPins;
+  mt                               : _AMMediaType;
+  pinDir                           : _PinDirection;
+  pinInfo                          : _pinInfo;
 BEGIN
 
   IF NOT FilterGraph.Active THEN exit;
 
-  TeeFilter.FilterGraph := Filtergraph;
-  SampleGrabber.FilterGraph := filtergraph;
-  NullRenderer.FilterGraph := filtergraph;
-
+  GraphBuilder := FilterGraph AS IGraphBuilder;
   TRY
+    KeyFrameGrabber.FilterGraph := FilterGraph;
+    // Insert keyframe samplegrabber directly before video decompressor.
+    IF TeeFilter.FilterGraph <> NIL THEN BEGIN
+      GetPin((TeeFilter AS IBaseFilter), PINDIR_INPUT, 0, FileSourceOutPin);
+      FileSourceOutPin.ConnectedTo(FileSourceConnectedPin);
+      FileSourceConnectedPin.QueryPinInfo(pinInfo);
+      GetPin(pinInfo.pFilter, PINDIR_INPUT, 0, FileSourceConnectedPin);
+      FileSourceConnectedPin.ConnectedTo(FileSourceOutPin);
+    END ELSE BEGIN
+      // Insert keyframe samplegrabber directly after file source.
+      FileSourceFilter := GetFileSourceFilter(FilterGraph);
+      IF Succeeded(FileSourceFilter.EnumPins(pins)) THEN BEGIN
+        REPEAT
+          IF NOT Succeeded(pins.Next(1, FileSourceOutPin, NIL)) THEN BEGIN
+            FileSourceOutPin := NIL;
+            Break;
+          END ELSE IF NOT Succeeded(FileSourceOutPin.QueryDirection(pinDir)) THEN BEGIN
+            FileSourceOutPin := NIL;
+          END ELSE IF pinDir <> PINDIR_OUTPUT THEN BEGIN
+            FileSourceOutPin := NIL;
+          END ELSE IF NOT Succeeded(FileSourceOutPin.ConnectionMediaType(mt)) THEN BEGIN
+            FileSourceOutPin := NIL;
+          END ELSE IF NOT IsEqualGUID(mt.majortype, MEDIATYPE_Video) THEN BEGIN
+            FileSourceOutPin := NIL;
+          END;
+        UNTIL (FileSourceOutPin <> NIL)
+      END;
+      //OleCheck(GetPin(FileSourceFilter, PINDIR_OUTPUT, 1, FileSourceOutPin));
+      OleCheck(FileSourceOutPin.ConnectedTo(FileSourceConnectedPin));
+    END;
+    OleCheck(GetPin((KeyFrameGrabber AS IBaseFilter), PINDIR_INPUT, 0, KFInpin));
+    OleCheck(GetPin((KeyFrameGrabber AS IBaseFilter), PINDIR_OUTPUT, 0, KFOutpin));
+    OleCheck(GraphBuilder.Disconnect(FileSourceOutPin));
+    OleCheck(GraphBuilder.Disconnect(FileSourceConnectedPin));
+    OleCheck(GraphBuilder.Connect(FileSourceOutPin, KFInpin));
+    OleCheck(GraphBuilder.Connect(KFoutpin, FileSourceConnectedPin));
+  EXCEPT
+    filtergraph.ClearGraph;
+    filtergraph.active := false;
+    RAISE;
+  END;
+END;
+
+PROCEDURE TFMain.InsertSampleGrabber;
+VAR
+  Rpin, Spin, TInPin, TOutPin1, TOutPin2, NRInPin, SGInPin, SGOutPin: IPin;
+  GraphBuilder                     : IGraphBuilder;
+BEGIN
+  IF NOT FilterGraph.Active THEN exit;
+
+  GraphBuilder := FilterGraph AS IGraphBuilder;
+  TRY
+    TeeFilter.FilterGraph := Filtergraph;
+    SampleGrabber.FilterGraph := filtergraph;
+    NullRenderer.FilterGraph := filtergraph;
+
     //Disconnect Video Window
     OleCheck(GetPin((VideoWindow AS IBaseFilter), PINDIR_INPUT, 0, Rpin));
     OleCheck(Rpin.ConnectedTo(Spin));
-    OleCheck((FilterGraph AS IGraphBuilder).Disconnect(Rpin));
-    OleCheck((FilterGraph AS IGraphBuilder).Disconnect(Spin));
+    OleCheck(GraphBuilder.Disconnect(Rpin));
+    OleCheck(GraphBuilder.Disconnect(Spin));
 
     //Get Pins
     OleCheck(GetPin((SampleGrabber AS IBaseFilter), PINDIR_INPUT, 0, SGInpin));
@@ -1433,12 +1528,11 @@ BEGIN
     OleCheck(GetPin((TeeFilter AS IBaseFilter), PINDIR_OUTPUT, 0, TOutpin1));
 
     //Establish Connections
-    OleCheck((FilterGraph AS IGraphBuilder).Connect(Spin, Tinpin)); // Decomp. to Tee
-    OleCheck((FilterGraph AS IGraphBuilder).Connect(Toutpin1, Rpin)); //Tee to VideoRenderer
+    OleCheck(GraphBuilder.Connect(Spin, Tinpin)); // Decomp. to Tee
+    OleCheck(GraphBuilder.Connect(Toutpin1, Rpin)); //Tee to VideoRenderer
     OleCheck(GetPin((TeeFilter AS IBaseFilter), PINDIR_OUTPUT, 1, TOutpin2)); //GEt new OutputPin of Tee
-    OleCheck((FilterGraph AS IGraphBuilder).Connect(Toutpin2, SGInpin)); //Tee to SampleGrabber
-    OleCheck((FilterGraph AS IGraphBuilder).Connect(SGoutpin, NRInpin)); //SampleGrabber to Null
-
+    OleCheck(GraphBuilder.Connect(Toutpin2, SGInpin)); //Tee to SampleGrabber
+    OleCheck(GraphBuilder.Connect(SGoutpin, NRInpin)); //SampleGrabber to Null
   EXCEPT
     filtergraph.ClearGraph;
     filtergraph.active := false;
@@ -1446,10 +1540,22 @@ BEGIN
   END;
 END;
 
-FUNCTION TFMain.WaitForStep(TimeOut: INteger): boolean;
+FUNCTION TFMain.WaitForStep(TimeOut: Integer; CONST WaitForSampleInfo: Boolean): boolean;
 VAR
   interval                         : integer;
   startTick, nowTick, lastTick     : Cardinal;
+  FUNCTION SampleInfoReady(CONST SampleInfo: RMediaSample): Boolean;
+  BEGIN
+    Result := NOT WaitForSampleInfo
+      OR NOT SampleInfo.Active
+      OR (SampleInfo.SampleTime >= 0);
+  END;
+  FUNCTION AllStepComplete: Boolean;
+  BEGIN
+    Result := self.StepComplete
+      AND (NOT Assigned(SampleGrabber.FilterGraph) OR SampleInfoReady(SampleInfo))
+      AND (NOT Assigned(KeyFrameGrabber.FilterGraph) OR SampleInfoReady(KeyFrameSampleInfo));
+  END;
 BEGIN
   lastTick := GetTickCount;
   startTick := lastTick;
@@ -1457,16 +1563,16 @@ BEGIN
   IF Settings.AutoMuteOnSeek THEN
     interval := 10
   ELSE
-    interval := Max(10, Trunc(MovieInfo.frame_duration * 1000.0));
+    interval := Max(10, Trunc(MovieInfo.frame_duration * 1000.0) DIV 2);
 
-  WHILE (NOT self.StepComplete) DO BEGIN
+  WHILE NOT AllStepComplete DO BEGIN
     sleep(interval);
     nowTick := GetTickCount;
-    IF (self.StepComplete) OR (Abs(startTick - nowTick) > TimeOut) THEN
+    IF AllStepComplete OR (Abs(startTick - nowTick) > TimeOut) THEN
       break;
-    application.ProcessMessages;
+    Application.ProcessMessages;
   END;
-  result := self.StepComplete;
+  result := AllStepComplete;
 END;
 
 PROCEDURE TFMain.pnlVideoWindowResize(Sender: TObject);
@@ -1488,7 +1594,7 @@ PROCEDURE TFMain.ShowFrames(startframe, endframe: Integer);
 //startframe, endframe relative to current frame
 VAR
   iImage, count                    : integer;
-  pos, temp_pos                    : double;
+  pos, temp_pos, start_pos         : double;
   Target                           : TCutFrame;
 BEGIN
   count := FFrames.Count;
@@ -1501,11 +1607,12 @@ BEGIN
   END;
 
   pos := currentPosition;
-  temp_pos := pos + (startframe - 0) * MovieInfo.frame_duration;
+  temp_pos := IntExt(pos, MovieInfo.frame_duration) + (startframe - 1) * MovieInfo.frame_duration;
   IF (temp_pos > MovieInfo.current_file_duration) THEN
     temp_pos := MovieInfo.current_file_duration;
   IF temp_pos < 0 THEN
     temp_pos := 0;
+  start_pos := IntExt(temp_pos + MovieInfo.frame_duration, MovieInfo.frame_duration);
 
   FFrames.Show;
 
@@ -1515,33 +1622,49 @@ BEGIN
     FilterGraph.Volume := 0;
   FFrames.CanClose := false;
   TRY
-    FOR iImage := 0 TO endframe - startframe DO BEGIN
+    iImage := -1;
+    WHILE iImage < (endframe - startframe) DO BEGIN
+      Inc(iImage);
+      temp_pos := currentPosition;
       Target := FFrames.Frame[iImage];
-      IF (temp_pos >= 0) AND (temp_pos <= MovieInfo.current_file_duration) THEN BEGIN
+      Target.DisableUpdate;
+      TRY
+        Target.ResetFrame;
+        IF (temp_pos >= 0) AND (temp_pos <= MovieInfo.current_file_duration) THEN BEGIN
+          self.StepComplete := false;
+          SampleInfo.Active := Assigned(SampleGrabber.FilterGraph);
+          KeyFrameSampleInfo.Active := Assigned(KeyFrameGrabber.FilterGraph);
+          TRY
+            Target.position := start_pos + iImage * MovieInfo.frame_duration;
+            SampleInfo.SampleTime := -1;
+            KeyFrameSampleInfo.SampleTime := -1;
 
-        self.StepComplete := false;
-        Target.DisableUpdate;
-        TRY
-          SampleTarget := Target; //Set SampleTarget to trigger sampleGrabber.onbuffer method;
-          IF Assigned(Framestep) THEN BEGIN
-            IF NOT Succeeded(FrameStep.Step(1, NIL)) THEN
-              break;
-            IF NOT WaitForStep(5000) THEN
-              break;
-          END ELSE BEGIN
-            temp_pos := temp_pos + MovieInfo.frame_duration;
-            JumpTo(temp_pos);
-            WaitForFiltergraph;
+            IF Assigned(Framestep) THEN BEGIN
+              IF NOT Succeeded(FrameStep.Step(1, NIL)) THEN
+                continue;
+              IF NOT WaitForStep(1000, True) THEN
+                continue;
+              temp_pos := currentPosition;
+              IF Abs(Target.position - temp_pos) >= MovieInfo.frame_duration THEN BEGIN
+                // filtergraph is not at desired position after frame step
+                // => fix position and start over
+                JumpTo(Target.position - MovieInfo.frame_duration / 2);
+                Dec(iImage);
+                Continue;
+              END;
+            END ELSE BEGIN
+              temp_pos := temp_pos + MovieInfo.frame_duration;
+              JumpTo(temp_pos);
+              WaitForFiltergraph;
+            END;
+            Target.AssignSampleInfo(SampleInfo, KeyFrameSampleInfo);
+          FINALLY
+            SampleInfo.Active := false;
+            KeyFrameSampleInfo.Active := false;
           END;
-
-          temp_pos := currentPosition;
-          Target.image.visible := true;
-        FINALLY
-          Target.EnableUpdate;
         END;
-      END ELSE BEGIN
-        Target.image.visible := false;
-        Target.position := 0;
+      FINALLY
+        Target.EnableUpdate;
       END;
     END;
   FINALLY
@@ -1583,16 +1706,28 @@ BEGIN
   TRY
     FOR iImage := 0 TO numberOfFrames - 1 DO BEGIN
       Target := FFrames.Frame[iImage];
-      temp_pos := startframe + (iImage * distance);
-      IF (temp_pos >= 0) AND (temp_pos <= MovieInfo.current_file_duration) THEN BEGIN
-        SampleTarget := Target; //set sampleTarget to trigger samplegrabber.onbuffer method
-        JumpTo(temp_pos);
-        WaitForFiltergraph;
+      TRY
+        Target.ResetFrame;
+        temp_pos := startframe + (iImage * distance);
+        IF (temp_pos >= 0) AND (temp_pos <= MovieInfo.current_file_duration) THEN BEGIN
+          SampleInfo.Active := Assigned(SampleGrabber.FilterGraph);
+          KeyFrameSampleInfo.Active := Assigned(KeyFrameGrabber.FilterGraph);
+          TRY
+            Target.position := temp_pos;
+            SampleInfo.SampleTime := -1;
+            KeyFrameSampleInfo.SampleTime := -1;
 
-        Target.image.visible := true;
-      END ELSE BEGIN
-        Target.image.visible := false;
-        Target.position := 0;
+            JumpTo(temp_pos);
+            WaitForFiltergraph;
+
+            Target.AssignSampleInfo(SampleInfo, KeyFrameSampleInfo);
+          FINALLY
+            SampleInfo.Active := false;
+            KeyFrameSampleInfo.Active := false;
+          END;
+        END;
+      FINALLY
+        Target.EnableUpdate;
       END;
     END;
   FINALLY
@@ -1768,12 +1903,12 @@ VAR
   iString                          : INteger;
   Pstring, filename_movie, filename_cutlist, filename_upload_cutlist: STRING;
   upload_cutlist, found_movie, found_cutlist, get_empty_cutlist: boolean;
-  //try_cutlist_download: boolean;
+  try_cutlist_download             : boolean;
 BEGIN
   found_movie := false;
   found_cutlist := false;
   upload_cutlist := false;
-  //try_cutlist_download := false;
+  try_cutlist_download := false;
   Batchmode := false;
   TryCutting := false;
   get_empty_cutlist := false;
@@ -1801,10 +1936,10 @@ BEGIN
     IF AnsiStartsStr('-trycutting', ansilowercase(PString)) THEN BEGIN
       TryCutting := true;
     END;
-    {    if AnsiStartsStr('-trycutlistdownload', ansilowercase(PString)) and (not found_cutlist) then begin
-          found_cutlist := true;
-          try_cutlist_download := true;
-        end; }
+    IF AnsiStartsStr('-trycutlistdownload', ansilowercase(PString)) AND (NOT found_cutlist) THEN BEGIN
+      found_cutlist := true;
+      try_cutlist_download := true;
+    END;
     IF AnsiStartsStr('-cutlist:', ansilowercase(PString)) AND (NOT found_cutlist) THEN BEGIN
       filename_cutlist := AnsiMidStr(PString, 10, length(Pstring) - 9);
       IF fileexists(filename_cutlist) THEN found_cutlist := true;
@@ -1845,14 +1980,14 @@ BEGIN
 
   IF found_cutlist THEN BEGIN
     IF MovieInfo.MovieLoaded THEN BEGIN
-      {if try_cutlist_download then begin
-        if not self.search_cutlist then begin
-          if IsMyOwnCommandLine then ExitCode := 2;
+      IF try_cutlist_download AND NOT Settings.AutoSearchCutlists THEN BEGIN
+        IF NOT SearchCutlists(true, Settings.SearchLocalCutlists, Settings.SearchServerCutlists, [cstBySize]) THEN BEGIN
+          IF IsMyOwnCommandLine THEN ExitCode := 2;
           exit;
-        end;
-      end else begin }
-      cutlist.LoadFromFile(filename_cutlist);
-      {end;}
+        END;
+      END ELSE BEGIN
+        cutlist.LoadFromFile(filename_cutlist);
+      END;
     END ELSE BEGIN
       IF NOT batchmode THEN
         showmessage(CAResources.RsCannotLoadCutlist);
@@ -1876,17 +2011,16 @@ END;
 
 PROCEDURE TFMain.actOpenMovieExecute(Sender: TObject);
 VAR
-  OpenDialog                       : TOpenDialog;
   ExtList, ExtListAllSupported     : STRING;
   PROCEDURE AppendFilterString(CONST description: STRING; CONST extensions: STRING); OVERLOAD;
   VAR
     filter                         : STRING;
   BEGIN
     filter := MakeFilterString(description, extensions);
-    IF OpenDialog.Filter <> '' THEN
-      OpenDialog.Filter := OpenDialog.Filter + '|' + filter
+    IF odMovie.Filter <> '' THEN
+      odMovie.Filter := odMovie.Filter + '|' + filter
     ELSE
-      OpenDialog.Filter := filter
+      odMovie.Filter := filter
   END;
   PROCEDURE AppendFilterString(CONST description: STRING; CONST ExtArray: ARRAY OF STRING); OVERLOAD;
   BEGIN
@@ -1901,31 +2035,25 @@ BEGIN
   //if not AskForUserRating(cutlist) then exit;
   //if not cutlist.clear_after_confirm then exit;
 
-  OpenDialog := TOpenDialog.Create(self);
-  TRY
-    OpenDialog.Options := OpenDialog.Options + [ofPathMustExist, ofFileMustExist];
-    ExtListAllSupported := '';
-    OpenDialog.Filter := '';
+  ExtListAllSupported := '';
+  odMovie.Filter := '';
 
-    // Make Filter List
-    AppendFilterString(CAResources.RsFilterDescriptionWmv, WMV_EXTENSIONS);
-    AppendFilterString(CAResources.RsFilterDescriptionAvi, AVI_EXTENSIONS);
-    AppendFilterString(CAResources.RsFilterDescriptionMp4, MP4_EXTENSIONS);
-    AppendFilterString(CAResources.RsFilterDescriptionAll, '*.*');
-    OpenDialog.Filter := MakeFilterString(CAResources.RsFilterDescriptionAllSupported, ExtListAllSupported) +
-      '|' + OpenDialog.Filter;
+  // Make Filter List
+  AppendFilterString(CAResources.RsFilterDescriptionWmv, WMV_EXTENSIONS);
+  AppendFilterString(CAResources.RsFilterDescriptionAvi, AVI_EXTENSIONS);
+  AppendFilterString(CAResources.RsFilterDescriptionMp4, MP4_EXTENSIONS);
+  AppendFilterString(CAResources.RsFilterDescriptionAll, '*.*');
+  odMovie.Filter := MakeFilterString(CAResources.RsFilterDescriptionAllSupported, ExtListAllSupported) +
+    '|' + odMovie.Filter;
 
-    OpenDialog.InitialDir := settings.CurrentMovieDir;
-    IF OpenDialog.Execute THEN BEGIN
-      settings.CurrentMovieDir := ExtractFilePath(openDialog.FileName);
-      IF OpenFile(opendialog.FileName) THEN BEGIN
-        IF MovieInfo.MovieLoaded AND (Settings.AutoSearchCutlists XOR AltDown) THEN BEGIN
-          SearchCutlists(true, ShiftDown XOR Settings.SearchLocalCutlists, CtrlDown XOR Settings.SearchServerCutlists, [cstBySize]);
-        END;
+  odMovie.InitialDir := settings.CurrentMovieDir;
+  IF odMovie.Execute THEN BEGIN
+    settings.CurrentMovieDir := ExtractFilePath(odMovie.FileName);
+    IF OpenFile(odMovie.FileName) THEN BEGIN
+      IF MovieInfo.MovieLoaded AND (Settings.AutoSearchCutlists XOR AltDown) THEN BEGIN
+        SearchCutlists(true, ShiftDown XOR Settings.SearchLocalCutlists, CtrlDown XOR Settings.SearchServerCutlists, [cstBySize]);
       END;
     END;
-  FINALLY
-    FreeAndNil(OpenDialog);
   END;
 END;
 
@@ -2407,6 +2535,7 @@ BEGIN
     filtergraph.Active := false;
     filtergraph.ClearGraph;
     SampleGrabber.FilterGraph := NIL;
+    KeyFrameGrabber.FilterGraph := NIL;
     TeeFilter.FilterGraph := NIL;
     NullRenderer.FilterGraph := NIL;
     //    AviDecompressor.FilterGraph := nil;
@@ -2615,6 +2744,8 @@ VAR
   sr                               : TSearchRec;
   ACutlist                         : TCutlist;
   lvLinks                          : TListView;
+  dupItem                          : TListItem;
+  idx                              : integer;
 BEGIN
   Result := 0;
   Error_message := CAResources.RsErrorUnknown;
@@ -2642,7 +2773,7 @@ BEGIN
   lvLinks := FCutlistSearchResults.lvLinklist;
   fileBase := ChangeFileExt(ExtractFileName(MovieInfo.current_filename), '');
 
-  IF FindFirst(PathCombine(searchDir, '*.cutlist'), faArchive, sr) = 0 THEN BEGIN
+  IF FindFirst(PathCombine(searchDir, '*' + CUTLIST_EXTENSION), faArchive, sr) = 0 THEN BEGIN
     REPEAT
       ACutlist := TCutlist.create(Settings, MovieInfo);
       TRY
@@ -2656,8 +2787,22 @@ BEGIN
             IF NOT AnsiStartsText(fileBase, sr.Name) THEN
               Continue;
         END;
-        IF (ACutlist.IDOnServer <> '') AND Assigned(lvLinks.FindCaption(0, ACutlist.IDOnServer, false, true, false)) THEN
+        idx := 0;
+        WHILE idx < lvLinks.Items.Count DO BEGIN
+          dupItem := lvLinks.Items.Item[idx];
+          IF NOT Assigned(dupItem) THEN BEGIN
+          END ELSE IF (ACutlist.IDOnServer <> '') AND (dupItem.Caption = ACutlist.IDOnServer) THEN BEGIN
+            Break
+          END ELSE IF (dupItem.SubItems.IndexOf(CAResources.RsLocalCutlist) > -1)
+            AND (dupItem.SubItems.IndexOf(ExtractFileName(ACutlist.SavedToFilename)) > -1)
+            AND (dupItem.SubItems.IndexOf(ExtractFileDir(ACutlist.SavedToFilename)) > -1) THEN BEGIN
+            Break;
+          END;
+          Inc(idx);
+        END;
+        IF idx < lvLinks.Items.Count THEN
           continue;
+
         WITH lvLinks.Items.Add DO BEGIN
           Caption := ACutlist.IDOnServer;
           SubItems.Add(ExtractFileName(ACutlist.SavedToFilename));
@@ -2687,6 +2832,7 @@ VAR
   WebResult                        : boolean;
   url, Error_message               : STRING;
   Response                         : STRING;
+  cutFilename                      : STRING;
   Node, CutNode                    : TJCLSimpleXMLElems;
   idx                              : integer;
   lvLinks                          : TListView;
@@ -2730,7 +2876,10 @@ BEGIN
             continue;
           WITH lvLinks.Items.Add DO BEGIN
             Caption := CutNode.ItemNamed['id'].Value;
-            SubItems.Add(CutNode.ItemNamed['name'].Value);
+            cutFilename := CutNode.ItemNamed['name'].Value;
+            IF NOT AnsiEndsText(CUTLIST_EXTENSION, cutFilename) THEN
+              cutFilename := cutFilename + CUTLIST_EXTENSION;
+            SubItems.Add(cutFilename);
             SubItems.Add(CutNode.ItemNamed['rating'].Value);
             SubItems.Add(CutNode.ItemNamed['ratingcount'].Value);
             SubItems.Add(CutNode.ItemNamed['ratingbyauthor'].Value);
@@ -2773,7 +2922,7 @@ BEGIN
   SearchCutlists(false, true, ShiftDown, SearchTypes);
 END;
 
-PROCEDURE TFMain.SearchCutlists(AutoOpen: boolean; SearchLocal, SearchWeb: boolean; SearchTypes: TCutlistSearchTypes);
+FUNCTION TFMain.SearchCutlists(AutoOpen: boolean; SearchLocal, SearchWeb: boolean; SearchTypes: TCutlistSearchTypes): boolean;
 VAR
   numFound                         : integer;
   WebResult                        : boolean;
@@ -2783,6 +2932,7 @@ VAR
 BEGIN
   FCutlistSearchResults.lvLinklist.Clear;
   numFound := 0;
+  Result := false;
 
   FOR SearchType := Low(SearchType) TO High(SearchType) DO BEGIN
     IF NOT (SearchType IN SearchTypes) THEN
@@ -2829,6 +2979,7 @@ BEGIN
     END;
     self.actSendRating.Enabled := Cutlist.IDOnServer <> '';
   END;
+  Result := true;
 END;
 
 FUNCTION TFMain.SendRating(Cutlist: TCutlist): boolean;
@@ -2872,7 +3023,7 @@ BEGIN
         END;
       END;
       IF NOT batchmode AND (Error_message <> '') THEN
-        ShowMessageFmt(CAResources.RsMsgAnswerFromServer, [Error_message]);
+        ShowMessageFmt(CAResources.RsMsgSendRatingNotDone + CAResources.RsMsgAnswerFromServer, [Error_message]);
     END;
   END;
 END;
@@ -2882,21 +3033,33 @@ BEGIN
   self.SendRating(cutlist);
 END;
 
-PROCEDURE TFMain.SampleGrabberBuffer(sender: TObject; SampleTime: Double;
-  pBuffer: Pointer; BufferLen: Integer);
+PROCEDURE TFMain.SampleGrabberSample(sender: TObject; SampleTime: Double;
+  ASample: IMediaSample);
 VAR
-  Target                           : TCutFrame;
-  //TargetBitmap: TBitmap;
+  pBuffer                          : PByte;
+  BufferLen                        : Integer;
 BEGIN
-  IF SampleTarget = NIL THEN exit;
-  Target := (SampleTarget AS TCutFrame);
-  TRY
-    //SampleGrabber.GetBitmap(Target.Image.Picture.Bitmap, pBuffer, BufferLen);
-    self.CustomGetSampleGrabberBitmap(Target.Image.Picture.Bitmap, pBuffer, BufferLen);
-    Target.position := SampleTime;
-  FINALLY
-    SampleTarget := NIL;
+  IF NOT SampleInfo.Active THEN
+    Exit;
+  SampleInfo.SampleTime := SampleTime;
+  SampleInfo.IsKeyFrame := ASample.IsSyncPoint() = S_OK;
+  BufferLen := asample.GetActualDataLength();
+  SampleInfo.HasBitmap := Succeeded(asample.GetPointer(pBuffer));
+  IF SampleInfo.HasBitmap THEN BEGIN
+    self.CustomGetSampleGrabberBitmap(SampleInfo.Bitmap, pBuffer, BufferLen);
   END;
+END;
+
+PROCEDURE TFMain.KeyFrameGrabberSample(sender: TObject; SampleTime: Double;
+  ASample: IMediaSample);
+VAR
+  IsKeyFrame                       : Boolean;
+BEGIN
+  IF NOT KeyFrameSampleInfo.Active THEN
+    Exit;
+  IsKeyFrame := ASample.IsSyncPoint() = S_OK;
+  KeyFrameSampleInfo.SampleTime := SampleTime;
+  KeyFrameSampleInfo.IsKeyFrame := IsKeyFrame;
 END;
 
 PROCEDURE TFMain.lvCutlistDblClick(Sender: TObject);
@@ -3476,28 +3639,25 @@ BEGIN
 END;
 
 PROCEDURE TFMain.actSnapshotCopyExecute(Sender: TObject);
-VAR
-  tempBitmap                       : TBitmap;
-  tempCutFrame                     : TCutFrame;
 BEGIN
-  IF mnuVideo.PopupComponent = VideoWindow THEN BEGIN
-    IF NOT assigned(seeking) THEN exit;
-    //tempBitmap := TBitmap.Create;
-    tempCutFrame := TCutFrame.create(NIL);
-    TRY
-      sampleTarget := tempCutFrame;
-      tempBitmap := tempCutFrame.Image.Picture.Bitmap;
-      //      sampleTarget := tempBitmap;
-      jumpto(currentPosition);
-      WaitForFiltergraph;
-      ClipBoard.Assign(tempBitmap);
-    FINALLY
-      //FreeAndNIL(tempBitmap);
-      FreeAndNIL(tempCutFrame);
-    END;
-  END;
   IF mnuVideo.PopupComponent IS TImage THEN BEGIN
     clipboard.Assign((mnuVideo.PopupComponent AS TImage).Picture.Bitmap);
+  END
+  ELSE IF mnuVideo.PopupComponent = VideoWindow THEN BEGIN
+    IF NOT assigned(seeking) THEN
+      exit;
+    SampleInfo.Active := true;
+    SampleInfo.SampleTime := -1;
+    TRY
+      jumpto(currentPosition);
+      WaitForFiltergraph;
+      IF SampleInfo.SampleTime >= 0 THEN BEGIN
+        IF SampleInfo.HasBitmap THEN
+          Clipboard.Assign(SampleInfo.Bitmap);
+      END;
+    FINALLY
+      SampleInfo.Active := false;
+    END;
   END;
 END;
 
@@ -3544,51 +3704,47 @@ CONST
 
 VAR
   tempBitmap                       : TBitmap;
-  tempCutFrame                     : TCutFrame;
+  position                         : double;
   posString,
     fileName                       : STRING;
   FileType                         : Integer;
 BEGIN
   IF filtergraph.State = gsPlaying THEN GraphPause;
 
-  IF mnuVideo.PopupComponent = VideoWindow THEN BEGIN
-    IF NOT assigned(seeking) THEN exit;
+  position := -1;
+  tempBitmap := NIL;
 
-    //tempBitmap := TBitmap.Create;
-    tempCutFrame := TCutFrame.create(NIL);
+  IF mnuVideo.PopupComponent IS TImage THEN BEGIN
+    position := (mnuVideo.PopupComponent.Owner AS TCutFrame).position;
+    tempBitmap := (mnuVideo.PopupComponent AS TImage).Picture.Bitmap;
+  END
+  ELSE IF mnuVideo.PopupComponent = VideoWindow THEN BEGIN
+    IF NOT assigned(seeking) THEN
+      exit;
+
+    SampleInfo.Active := true;
+    SampleInfo.SampleTime := -1;
     TRY
-      //sampleTarget := tempBitmap;
-      sampleTarget := tempCutFrame;
-      tempBitmap := tempCutFrame.Image.Picture.Bitmap;
       jumpto(currentPosition);
       WaitForFiltergraph;
-
-      posString := movieInfo.FormatPosition(tempCutFrame.position);
-      posString := ansireplacetext(posString, ':', '''');
-      fileName := extractfilename(MovieInfo.current_filename);
-      fileName := changeFileExt(fileName, '_' + cleanFileName(posString));
-
-      IF NOT AskForFileName(FileName, FileType) THEN exit;
-
-      IF FileType = 1 THEN BEGIN
-        TempBitmap.SaveToFile(FileName);
-      END ELSE BEGIN
-        SaveBitmapAsJPEG(TempBitmap, FileName);
+      IF SampleInfo.SampleTime >= 0 THEN BEGIN
+        position := SampleInfo.SampleTime;
+        IF SampleInfo.HasBitmap THEN
+          tempBitmap := SampleInfo.Bitmap;
       END;
     FINALLY
-      //FreeAndNIL(tempBitmap);
-      FreeAndNIL(tempCutFrame);
+      SampleInfo.Active := false;
     END;
   END;
 
-  IF mnuVideo.PopupComponent IS TImage THEN BEGIN
-    posString := MovieInfo.FormatPosition((mnuVideo.PopupComponent.Owner AS TCutFrame).position);
+  IF Assigned(tempBitmap) THEN BEGIN
+    posString := movieInfo.FormatPosition(position);
     posString := ansireplacetext(posString, ':', '''');
     fileName := extractfilename(MovieInfo.current_filename);
     fileName := changeFileExt(fileName, '_' + cleanFileName(posString));
+
     IF NOT AskForFileName(FileName, FileType) THEN exit;
 
-    TempBitmap := (mnuVideo.PopupComponent AS TImage).Picture.Bitmap;
     IF FileType = 1 THEN BEGIN
       TempBitmap.SaveToFile(FileName);
     END ELSE BEGIN

@@ -1598,10 +1598,10 @@ object FMain: TFMain
     Top = 140
   end
   object SampleGrabber: TSampleGrabber
-    OnBuffer = SampleGrabberBuffer
+    OnSample = SampleGrabberSample
     FilterGraph = FilterGraph
     MediaType.data = {
-      7669647300001000800000AA00389B717DEB36E44F52CE119F530020AF0BA770
+      7669647300001000800000AA00389B717EEB36E44F52CE119F530020AF0BA770
       00000000FFFFFFFF01000000809F580556C3CE11BF0100AA0055595A00000000
       0000000000000000}
     Left = 208
@@ -3155,5 +3155,23 @@ object FMain: TFMain
     OnAppCommand = AppCommandAppCommand
     Left = 48
     Top = 252
+  end
+  object KeyFrameGrabber: TSampleGrabber
+    OnSample = KeyFrameGrabberSample
+    MediaType.data = {
+      0000000000000000000000000000000088EB36E44F52CE119F530020AF0BA770
+      000000000000000001000000D617640F18C3D011A43F00A0C922319600000000
+      0000000000000000}
+    Left = 296
+    Top = 308
+  end
+  object odMovie: TJvOpenDialog
+    Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]
+    ActiveStyle = asReport
+    Height = 0
+    UseUserSize = True
+    Width = 0
+    Left = 128
+    Top = 248
   end
 end

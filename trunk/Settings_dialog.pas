@@ -219,10 +219,13 @@ TYPE
     _NewSettingsCreated: boolean;
     FCodecList: TCodecList;
     FLanguageList: TStringList;
+    FAdditional: TStringList;
     FUNCTION GetLanguageIndex: integer;
     FUNCTION GetLanguageByIndex(index: integer): STRING;
     FUNCTION GetLangDesc(CONST langFile: TFileName): STRING;
     FUNCTION GetLanguageFile: STRING;
+    FUNCTION GetAdditional(CONST name: STRING): STRING;
+    PROCEDURE SetAdditional(CONST name: STRING; CONST value: STRING);
     FUNCTION GetLanguageList: TStrings;
     FUNCTION GetFilter(Index: Integer): TFilCatNode;
     PROPERTY CodecList: TCodecList READ FCodecList;
@@ -290,6 +293,9 @@ TYPE
 
     // UI Language
     Language: STRING;
+
+    // Additional settings
+    PROPERTY Additional[CONST name: STRING]: STRING READ GetAdditional WRITE SetAdditional;
 
     PROCEDURE UpdateLanguageList;
     PROPERTY LanguageList: TStrings READ GetLanguageList;
@@ -479,6 +485,16 @@ BEGIN
   Result := FLanguageList;
 END;
 
+FUNCTION TSettings.GetAdditional(CONST name: STRING): STRING;
+BEGIN
+  Result := FAdditional.Values[name];
+END;
+
+PROCEDURE TSettings.SetAdditional(CONST name: STRING; CONST value: STRING);
+BEGIN
+  FAdditional.Values[name] := value;
+END;
+
 FUNCTION TSettings.GetLanguageIndex: integer;
 VAR
   idx                              : integer;
@@ -544,6 +560,7 @@ BEGIN
   CutAppSettingsHQAvi.PreferredSourceFilter := GUID_NULL;
   CutAppSettingsMP4.PreferredSourceFilter := GUID_NULL;
   CutAppSettingsOther.PreferredSourceFilter := GUID_NULL;
+  FAdditional := TStringList.Create;
 END;
 
 FUNCTION TSettings.GetFilter(Index: Integer): TFilCatNode;
@@ -563,6 +580,7 @@ END;
 
 DESTRUCTOR TSettings.destroy;
 BEGIN
+  FreeAndNil(FAdditional);
   FreeAndNil(FLanguageList);
   FreeAndNil(FCodecList);
   FreeAndNIL(FilterBlackList);
@@ -952,6 +970,8 @@ BEGIN
       TCutApplicationBase(CutApplicationList[iCutApplication]).LoadSettings(ini);
     END;
 
+    section := 'Additional';
+    ini.ReadSectionValues(section, self.FAdditional);
   FINALLY
     FreeAndNil(ini);
   END;
@@ -973,6 +993,7 @@ VAR
   ini                              : TCustomIniFile;
   FileName                         : STRING;
   section                          : STRING;
+  idx                              : integer;
   iCutApplication                  : integer;
   iFilter                          : integer;
 BEGIN
@@ -1074,6 +1095,11 @@ BEGIN
     FOR iCutApplication := 0 TO CutApplicationList.Count - 1 DO BEGIN
       (CutApplicationList[iCutApplication] AS TCutApplicationBase).SaveSettings(ini);
     END;
+
+    section := 'Additional';
+    WITH self.FAdditional DO
+      FOR idx := 0 TO Count - 1 DO
+        ini.WriteString(section, Names[idx], ValueFromIndex[idx]);
 
   FINALLY
     FreeAndNil(ini);

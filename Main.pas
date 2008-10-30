@@ -508,6 +508,7 @@ TYPE
     PROCEDURE InitFramesProperties(CONST AAction: TAction; CONST s: STRING);
     FUNCTION FormatMoviePosition(CONST position: double): STRING; OVERLOAD;
     FUNCTION FormatMoviePosition(CONST frame: longint; CONST duration: double): STRING; OVERLOAD;
+    PROCEDURE UpdateCutControls(APreviousPos, ANewPos: double);
   END;
 
 VAR
@@ -3330,23 +3331,45 @@ END;
 
 PROCEDURE TFMain.actNextCutExecute(Sender: TObject);
 VAR
-  NewPos                           : double;
+  CurPos, NewPos                   : double;
 BEGIN
-  NewPos := cutlist.NextCutPos(currentPosition + MovieInfo.frame_duration);
+  CurPos := CurrentPosition;
+  NewPos := cutlist.NextCutPos(CurPos + MovieInfo.frame_duration);
   IF NewPos >= 0 THEN BEGIN
     jumpTo(NewPos);
-    lvCutlist.ItemIndex := cutlist.FindCut(NewPos);
+    UpdateCutControls(CurPos, NewPos);
   END;
 END;
 
 PROCEDURE TFMain.actPrevCutExecute(Sender: TObject);
 VAR
-  NewPos                           : double;
+  CurPos, NewPos                   : double;
 BEGIN
-  NewPos := cutlist.PreviousCutPos(currentPosition - MovieInfo.frame_duration);
+  CurPos := CurrentPosition;
+  NewPos := cutlist.PreviousCutPos(CurPos - MovieInfo.frame_duration);
   IF NewPos >= 0 THEN BEGIN
     jumpTo(NewPos);
-    lvCutlist.ItemIndex := cutlist.FindCut(NewPos);
+    UpdateCutControls(CurPos, NewPos);
+  END;
+END;
+
+PROCEDURE TFMain.UpdateCutControls(APreviousPos, ANewPos: double);
+VAR
+  APrevCutIndex, ACutIndex         : integer;
+  APrevCut                         : TCut;
+BEGIN
+  APrevCutIndex := cutlist.FindCut(APreviousPos);
+  ACutIndex := cutlist.FindCut(ANewPos);
+  IF ACutIndex >= 0 THEN BEGIN
+    lvCutlist.ItemIndex := ACutIndex;
+    IF (self.edtFrom.Text = '') AND (self.edtTo.Text = '') THEN
+      self.actEditCut.Execute
+    ELSE IF APrevCutIndex >= 0 THEN BEGIN
+      APrevCut := cutlist.Cut[APrevCutIndex];
+      IF (self.edtFrom.Text = MovieInfo.FormatPosition(APrevCut.pos_from)) AND
+        (self.edtTo.Text = MovieInfo.FormatPosition(APrevCut.pos_to)) THEN
+        self.actEditCut.Execute;
+    END;
   END;
 END;
 

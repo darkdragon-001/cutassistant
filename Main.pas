@@ -4052,11 +4052,25 @@ BEGIN
 END;
 
 PROCEDURE TFMain.FormShow(Sender: TObject);
+VAR
+  message_string                   : STRING;
 BEGIN
+  IF settings.NewSettingsCreated THEN
+    actEditSettings.Execute
+  ELSE IF NOT BatchMode THEN BEGIN
+    // Verify settings
+    IF settings.url_info_file <> DEFAULT_UPDATE_XML THEN BEGIN
+      IF settings.Additional['UseCustomInfoXml'] <> '1' THEN BEGIN
+        message_string := Format(CAResources.RsUseCustomInfoXml, [Settings.url_info_file, DEFAULT_UPDATE_XML]);
+        IF Application.MessageBox(PChar(message_string), NIL, MB_YESNO + MB_ICONQUESTION) <> IDYES THEN
+          settings.Additional['UseCustomInfoXml'] := '1'
+        ELSE
+          settings.url_info_file := DEFAULT_UPDATE_XML;
+      END;
+    END;
+  END;
   IF settings.CheckInfos THEN
     self.DownloadInfo(settings, true, false);
-  IF settings.NewSettingsCreated THEN
-    actEditSettings.Execute;
 END;
 
 FUNCTION TFMain.DoHttpGet(CONST url: STRING; CONST handleRedirects: boolean; CONST Error_message: STRING; VAR Response: STRING): boolean;

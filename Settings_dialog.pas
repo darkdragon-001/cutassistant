@@ -42,6 +42,7 @@ CONST
   smGivenDir                       = $01;
   smAutoSaveBeforeCutting          = $40; //Only Cutlist
   smAlwaysAsk                      = $80;
+  DEFAULT_UPDATE_XML               = 'http://cutassistant.sourceforge.net/cut_assistant_info.xml';
 
 TYPE
 
@@ -921,9 +922,9 @@ BEGIN
     AutoSaveDownloadedCutlists := ini.ReadBool(section, 'AutoSaveDownloadedCutlists', true);
 
     section := 'URLs';
-    self.url_cutlists_home := ini.ReadString(section, 'CutlistServerHome', 'http://www.cutlist.de/');
-    self.url_cutlists_upload := ini.ReadString(section, 'CutlistServerUpload', 'http://www.cutlist.de/index.php?upload=2');
-    self.url_info_file := ini.ReadString(section, 'ApplicationInfoFile', 'http://cutlist.de/assistant/download/cut_assistant_info.xml');
+    self.url_cutlists_home := ini.ReadString(section, 'CutlistServerHome', 'http://www.cutlist.at/');
+    self.url_cutlists_upload := ini.ReadString(section, 'CutlistServerUpload', 'http://www.cutlist.at/index.php?upload=2');
+    self.url_info_file := ini.ReadString(section, 'ApplicationInfoFile', DEFAULT_UPDATE_XML);
     self.url_help := ini.ReadString(section, 'ApplicationHelp', 'http://wiki.onlinetvrecorder.com/index.php/Cut_Assistant');
 
     section := 'Connection';

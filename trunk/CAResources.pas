@@ -317,7 +317,12 @@ RESOURCESTRING
   RsMsgServerCommandErrorMySql        = 'MySql Error: %s.';
   RsMsgServerCommandErrorArgMissing   = 'Missing argument in command.';
   RsMsgCutlistRateAlreadyRated        = 'IP did already rated or cutlist uploaded by you.';
-  
+  RsUseCustomInfoXml                  = 'You are using the following custom url for update info:'#13#10
+                                      + '    %s'#13#10
+                                      + 'The new RECOMMENDED standard location is on the cutassistant project server'#13#10
+                                      + '    %s'#13#10
+                                      + #13#10
+                                      + 'Do you want to use the standard url instead of the custom location?';
 {*)}
 IMPLEMENTATION
 

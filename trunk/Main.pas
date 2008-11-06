@@ -306,6 +306,7 @@ TYPE
     SearchCutlistsinDirectory_nl: TMenuItem;
     KeyFrameGrabber: TSampleGrabber;
     odMovie: TJvOpenDialog;
+    cbCutPreview: TJvCheckBox;
     PROCEDURE FormCreate(Sender: TObject);
     PROCEDURE FormCloseQuery(Sender: TObject; VAR CanClose: Boolean);
     PROCEDURE FormClose(Sender: TObject; VAR Action: TCloseAction);
@@ -463,6 +464,7 @@ TYPE
     PROCEDURE enable_del_buttons(value: boolean);
     FUNCTION CurrentPosition: double;
     PROCEDURE JumpTo(NewPosition: double);
+    PROCEDURE JumpToEx(NewPosition: double; NewStop: double);
     PROCEDURE SetStartPosition(Position: double);
     PROCEDURE SetStopPosition(Position: double);
 
@@ -760,12 +762,15 @@ BEGIN
   KeyFrameSampleInfo.Active := false;
   SampleInfo.Active := false;
   SampleInfo.Bitmap := TBitmap.Create;
+
+  cbCutPreview.Checked := Settings.CutPreview;
 END;
 
 PROCEDURE TFMain.FormDestroy(Sender: TObject);
 BEGIN
   Settings.MainFormBounds := self.BoundsRect;
   Settings.MainFormWindowState := self.WindowState;
+  Settings.CutPreview := cbCutPreview.Checked;
   FreeAndNil(SampleInfo.Bitmap);
   FreeAndNIL(UploadDataEntries);
 END;
@@ -1329,23 +1334,32 @@ BEGIN
 END;
 
 PROCEDURE TFMain.JumpTo(NewPosition: double);
+BEGIN
+  IF NewPosition < 0 THEN
+    NewPosition := 0;
+  JumpToEx(NewPosition, -1);
+END;
+
+PROCEDURE TFMain.JumpToEx(NewPosition: double; NewStop: double);
 VAR
-  _pos                             : int64;
+  _pos, _stop                      : int64;
   event                            : Integer;
 BEGIN
   IF NOT MovieInfo.MovieLoaded THEN
     exit;
-  IF NewPosition < 0 THEN
-    NewPosition := 0;
   IF NewPosition > MovieInfo.current_file_duration THEN
     NewPosition := MovieInfo.current_file_duration;
 
-  IF isEqualGUID(MovieInfo.TimeFormat, TIME_FORMAT_MEDIA_TIME) THEN
-    _pos := round(NewPosition * 10000000)
-  ELSE
+  IF isEqualGUID(MovieInfo.TimeFormat, TIME_FORMAT_MEDIA_TIME) THEN BEGIN
+    _pos := round(NewPosition * 10000000);
+    _stop := round(NewStop * 10000000);
+  END ELSE BEGIN
     _pos := round(NewPosition);
-  seeking.SetPositions(_pos, AM_SEEKING_AbsolutePositioning,
-    _pos, AM_SEEKING_NoPositioning);
+    _stop := round(NewStop);
+  END;
+  seeking.SetPositions(
+    _pos, IfThen(_pos >= 0, AM_SEEKING_AbsolutePositioning, AM_SEEKING_NoPositioning),
+    _stop, IfThen(_stop >= 0, AM_SEEKING_AbsolutePositioning, AM_SEEKING_NoPositioning));
   //filtergraph.State
   MediaEvent.WaitForCompletion(500, event);
   TBFilePos.TriggerTimer;
@@ -2085,9 +2099,9 @@ VAR
   dcut                             : integer;
 BEGIN
   IF Settings.Additional['AutoReplaceCuts'] = '1' THEN BEGIN
-    dcut := cutlist.FindCut(pos_from);
+    dcut := cutlist.FindCutIndex(pos_from);
     IF dcut >= 0 THEN cutlist.DeleteCut(dcut);
-    dcut := cutlist.FindCut(pos_to);
+    dcut := cutlist.FindCutIndex(pos_to);
     IF dcut >= 0 THEN cutlist.DeleteCut(dcut);
     cutlist.AddCut(pos_from, pos_to);
     Exit;
@@ -3284,9 +3298,26 @@ BEGIN
 END;
 
 FUNCTION TFMain.GraphPlay: boolean;
+VAR
+  ACurrent                         : double;
+  ACut                             : TCut;
 BEGIN
-  IF FilterGraph.State = gsPlaying THEN Result := true
-  ELSE Result := FilterGraph.Play;
+  IF FilterGraph.State = gsPlaying THEN
+    Result := true
+  ELSE BEGIN
+    IF cbCutPreview.Checked THEN BEGIN
+      ACurrent := CurrentPosition;
+      ACut := Cutlist.FindCut(ACurrent);
+      IF NOT Assigned(ACut) THEN
+        ACut := Cutlist.FindCut(Cutlist.NextCutPos(ACurrent))
+      ELSE IF ACut.pos_to <= ACurrent THEN
+        ACut := Cutlist.FindCut(Cutlist.NextCutPos(ACurrent + MovieInfo.frame_duration));
+      IF Assigned(ACut) THEN BEGIN
+        JumpToEx(IfThen(ACurrent < ACut.pos_from, ACut.pos_from, ACurrent), ACut.pos_to);
+      END;
+    END;
+    Result := FilterGraph.Play
+  END;
   IF result THEN BEGIN
     self.cmdFF.Enabled := true;
     TBFilePos.TriggerTimer;
@@ -3358,8 +3389,8 @@ VAR
   APrevCutIndex, ACutIndex         : integer;
   APrevCut                         : TCut;
 BEGIN
-  APrevCutIndex := cutlist.FindCut(APreviousPos);
-  ACutIndex := cutlist.FindCut(ANewPos);
+  APrevCutIndex := cutlist.FindCutIndex(APreviousPos);
+  ACutIndex := cutlist.FindCutIndex(ANewPos);
   IF ACutIndex >= 0 THEN BEGIN
     lvCutlist.ItemIndex := ACutIndex;
     IF (self.edtFrom.Text = '') AND (self.edtTo.Text = '') THEN
@@ -4290,8 +4321,10 @@ END;
 PROCEDURE TFMain.FilterGraphGraphComplete(sender: TObject; Result: HRESULT;
   Renderer: IBaseFilter);
 BEGIN
-  // implement cut preview ...
-  //ShowMessage('Complete');
+  IF cbCutPreview.Checked THEN BEGIN
+    GraphPause;
+    GraphPlay;
+  END;
 END;
 
 PROCEDURE AppendToFile(CONST fileName: STRING; CONST text: STRING);

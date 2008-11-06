@@ -291,6 +291,7 @@ TYPE
     InfoLastChecked: TDate;
     InfoShowMessages, InfoShowStable, InfoShowBeta: boolean;
     ExceptionLogging: boolean;
+    CutPreview: boolean;
 
     // UI Language
     Language: STRING;
@@ -950,6 +951,7 @@ BEGIN
     self.SearchLocalCutlists := ini.ReadBool(section, 'SearchLocalCutlists', false);
     self.SearchServerCutlists := ini.ReadBool(section, 'SearchServerCutlists', true);
     self.SearchCutlistsByName := ini.ReadBool(section, 'SearchCutlistsByName', false);
+    self.CutPreview := ini.ReadBool(section, 'CutPreview', false);
 
     section := 'Warnings';
     self.WarnOnWrongCutApp := ini.ReadBool(section, 'WarnOnWrongCutApp', true);
@@ -1077,6 +1079,7 @@ BEGIN
     ini.WriteBool(section, 'SearchLocalCutlists', self.SearchLocalCutlists);
     ini.WriteBool(section, 'SearchServerCutlists', self.SearchServerCutlists);
     ini.WriteBool(section, 'SearchCutlistsByName', self.SearchCutlistsByName);
+    ini.WriteBool(section, 'CutPreview', self.CutPreview);
 
     section := 'Warnings';
     ini.WriteBool(section, 'WarnOnWrongCutApp', WarnOnWrongCutApp);

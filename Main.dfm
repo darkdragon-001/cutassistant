@@ -1581,6 +1581,22 @@ object FMain: TFMain
     HotTrackFont.Pitch = fpVariable
     HotTrackFont.Style = []
   end
+  object cbCutPreview: TJvCheckBox
+    Left = 371
+    Top = 152
+    Width = 77
+    Height = 17
+    Anchors = [akRight, akBottom]
+    Caption = 'Cut pre&view'
+    TabOrder = 35
+    LinkedControls = <>
+    HotTrackFont.Charset = ANSI_CHARSET
+    HotTrackFont.Color = clWindowText
+    HotTrackFont.Height = -11
+    HotTrackFont.Name = 'Microsoft Sans Serif'
+    HotTrackFont.Pitch = fpVariable
+    HotTrackFont.Style = []
+  end
   object odCutlist: TOpenDialog
     Filter = 'Cut Lists|*.cutlist|All FIles|*.*'
     Options = [ofHideReadOnly, ofPathMustExist, ofFileMustExist, ofEnableSizing]

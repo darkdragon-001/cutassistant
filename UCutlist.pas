@@ -98,7 +98,8 @@ TYPE
     PROPERTY RefreshCallBack: TCutlistCallBackMethod READ FRefreshCallBack WRITE SetRefreshCallBack;
     PROCEDURE RefreshGUI;
     PROPERTY Cut[iCut: Integer]: TCut READ GetCut; DEFAULT;
-    FUNCTION FindCut(fPos: double): integer;
+    FUNCTION FindCutIndex(fPos: double): integer;
+    FUNCTION FindCut(fPos: double): TCut;
     FUNCTION AddCut(pos_from, pos_to: double): boolean;
     FUNCTION ReplaceCut(pos_from, pos_to: double; CutToReplace: integer): boolean;
     FUNCTION SplitCut(pos_from, pos_to: double): boolean;
@@ -219,10 +220,20 @@ BEGIN
   ELSE FFrameDuration := 0;
 END;
 
-FUNCTION TCutlist.FindCut(fPos: double): integer;
+FUNCTION TCutlist.FindCutIndex(fPos: double): integer;
 BEGIN
   //Result := FindCutBinary(fPos);
   Result := FindCutLinear(fPos);
+END;
+
+FUNCTION TCutlist.FindCut(fPos: double): TCut;
+VAR
+  idx                              : integer;
+BEGIN
+  Result := NIL;
+  idx := FindCutIndex(fPos);
+  IF idx >= 0 THEN
+    Result := self.Cut[idx];
 END;
 
 FUNCTION TCutlist.FindCutLinear(fPos: double): integer;
@@ -324,8 +335,8 @@ BEGIN
   IF (pos_from > FMovieInfo.current_file_duration) OR (pos_to < 0) THEN
     exit;
 
-  LeftIndex := FindCut(pos_from);
-  RightIndex := FindCut(pos_to);
+  LeftIndex := FindCutIndex(pos_from);
+  RightIndex := FindCutIndex(pos_to);
   IF LeftIndex = RightIndex THEN BEGIN
     IF LeftIndex < 0 THEN BEGIN
       Result := self.AddCut(pos_from, pos_to);

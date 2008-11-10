@@ -2466,7 +2466,7 @@ object FMain: TFMain
     Request.ContentType = 'text/html'
     Request.Accept = 'text/html, */*'
     Request.BasicAuthentication = False
-    Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
+    Request.UserAgent = 'CutAssistant $$ (Indy Library)'
     HTTPOptions = [hoForceEncodeParams]
     ConnectTimeout = 15000
     Left = 208

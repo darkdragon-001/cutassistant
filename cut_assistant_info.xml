@@ -101,6 +101,20 @@ Neue Version 0.9.13.14 (Entwicklungs-Zweig):
 - Einige kleinere Verbesserungen und Behebung von Fehlern.
 </text>
 		</message>
+		<message>
+			<id>9</id>
+			<date_day>30</date_day>
+			<date_month>10</date_month>
+			<date_year>2008</date_year>
+			<text>
+Neue Version 0.9.13.16 (Entwicklungs-Zweig):
+- Anzeige von Key-Frames im Frames-Fenster (experimentell)
+- Download von Cutlisten im Batch-Modus
+- Usability-Verbesserung: Automatische Übernahme der Cut-Positionen beim
+  Navigieren zwischen Cutgrenzen
+- Einige kleinere Verbesserungen und Behebung von Fehlern.
+</text>
+		</message>
 	</messages>
 	<stable>
 		<date_day>20</date_day>
@@ -113,22 +127,22 @@ Letzte stabile Version: 0.9.12.2
 Last stable version 0.9.12.2
 
 Download: http://sourceforge.net/projects/cutassistant/
-or        http://www.cutlist.de/</version_text>
+</version_text>
 	</stable>
 	<beta>
-		<date_day>05</date_day>
-		<date_month>03</date_month>
+		<date_day>30</date_day>
+		<date_month>10</date_month>
 		<date_year>2008</date_year>
-		<version>0x00000009000D000E</version>
+		<version>0x00000009000D0010</version>
 		<version_text>
-Letzte Entwicklungs-Version: 0.9.13.14
+Letzte Entwicklungs-Version: 0.9.13.16
 
 Änderungen gegenüber der vorherigen Version:
-- Viele Verbesserungen in der Übersetzung.
-- Neue Features: Mausrad-Unterstützung, Automatische Suche nach cutlisten,
-  Lokale Suche von Cutlisten, Suche von Cutlisten per Name.
+- Anzeige von Key-Frames im Frames-Fenster (experimentell)
+- Download von Cutlisten im Batch-Modus
+- Usability-Verbesserung: Automatische Übernahme der Cut-Positionen beim
+  Navigieren zwischen Cutgrenzen
 - Einige kleinere Verbesserungen und Behebung von Fehlern.
-- Verbesserte Server-Kommunikation.
 </version_text>
 	</beta>
 </infos>

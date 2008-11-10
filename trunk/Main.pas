@@ -2249,6 +2249,11 @@ PROCEDURE TFMain.SettingsChanged;
 BEGIN
   UpdateStaticSettings;
   WITH self.WebRequest_nl DO BEGIN
+    Request.UserAgent := 'CutAssistant ' + Utils.Application_version + ' (Indy Library)';
+    WITH Request.CustomHeaders DO BEGIN
+      Values['X-CA-Version'] := 'CutAssistant ' + Utils.Application_version;
+      Values['X-CA-Protocol'] := '1';
+    END;
     ConnectTimeout := 1000 * Settings.NetTimeout;
     ReadTimeout := 1000 * Settings.NetTimeout;
     WITH ProxyParams DO BEGIN
@@ -2887,7 +2892,7 @@ BEGIN
     exit;
   END;
 
-  url := url + '&version=' + Application_Version;
+  url := url + '&' + Utils.GetVersionRequestParams;
   WebResult := DoHttpGet(url, false, error_message, Response);
 
   IF WebResult AND (Length(response) > 5) THEN BEGIN
@@ -3042,7 +3047,7 @@ BEGIN
         + '&rating=' + inttostr(FCutlistRate.SelectedRating)
         + '&userid=' + settings.UserID
         + '&protocol=' + IntToStr(ServerProtocol)
-        + '&version=' + Application_Version;
+        + '&' + Utils.GetVersionRequestParams;
       Result := DoHttpGet(url, true, Error_message, Response);
 
       IF result THEN BEGIN
@@ -3120,7 +3125,8 @@ BEGIN
         AddFormField('confirm', 'true');
         AddFormField('type', 'blank');
         AddFormField('userid', settings.UserID);
-        AddFormField('version', application_version);
+        AddFormField('app', 'CutAssistant');
+        AddFormField('version', Application_version);
         AddFile('userfile[]', filename, 'multipart/form-data');
       END;
       Result := DoHttpRequest(Request);
@@ -3204,7 +3210,7 @@ BEGIN
     + 'cutlistid=' + cutlist_id
     + '&userid=' + settings.UserID
     + '&protocol=' + IntToStr(ServerProtocol)
-    + '&version=' + Application_Version;
+    + '&' + Utils.GetVersionRequestParams;
 
   Result := DoHttpGet(url, true, Error_message, Response);
 
@@ -3504,7 +3510,8 @@ BEGIN
   END;
 
   Error_message := CAResources.RsErrorUnknown;
-  url := settings.url_cutlists_home + php_name + command + cleanurl(cutlist_id);
+  url := settings.url_cutlists_home + php_name + command + cleanurl(cutlist_id)
+    + '&' + Utils.GetVersionRequestParams;
 
   IF NOT DoHttpGet(url, false, error_message, Response) THEN BEGIN
     IF NOT batchmode THEN BEGIN
@@ -3669,7 +3676,7 @@ BEGIN
     lastChecked := 0;
 
   Error_message := CAResources.RsErrorUnknown;
-  url := settings.url_info_file;
+  url := settings.url_info_file + '?' + Utils.GetVersionRequestParams;
 
   Error_message := CAResources.RsErrorDownloadInfo;
   Result := DoHttpGet(url, false, Error_message, ResponseText);

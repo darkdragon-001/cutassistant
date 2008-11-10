@@ -263,6 +263,8 @@ TYPE
 
 FUNCTION IntExt(CONST d: double; CONST fraction: double): double;
 
+function GetVersionRequestParams: string;
+
 IMPLEMENTATION
 
 {$I jedi.inc}
@@ -278,6 +280,7 @@ USES
   Types,
   DirectShow9,
   Math,
+  IdUri,
   CAResources;
 
 
@@ -286,6 +289,12 @@ CONST ScreenWidthDev               = 1280;
 
 VAR
   invariantFormat                  : TFormatSettings;
+
+function GetVersionRequestParams: string;
+begin
+  Result := 'app=CutAssistant'
+          + '&version=' + TIdURI.ParamsEncode(Application_Version);
+end;
 
 FUNCTION IntExt(CONST d: double; CONST fraction: double): double;
 BEGIN

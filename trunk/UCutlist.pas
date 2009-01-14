@@ -1026,8 +1026,12 @@ END;
 FUNCTION TCutlist.SaveAs(Filename: STRING): boolean;
 VAR
   message_string                   : STRING;
+  AdjustFileInfo                   : boolean;
+  DoRefresh                        : boolean;
 BEGIN
   Result := false;
+  AdjustFileInfo := false;
+  DoRefresh := false;
   IF (NOT self.RatingByAuthorPresent) THEN BEGIN
     IF NOT self.EditInfo THEN exit;
   END;
@@ -1036,26 +1040,44 @@ BEGIN
     IF self.Author = '' THEN BEGIN
       self.Author := Fsettings.UserName;
       self.IDOnServer := '';
-      RefreshGUI;
+      DoRefresh := true;
     END ELSE BEGIN
       IF self.Author <> Fsettings.UserName THEN BEGIN
         message_string := Format(CAResources.RsMsgCutlistReplaceAuthor, [self.Author]);
         IF (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONINFORMATION) = IDYES) THEN BEGIN
           self.Author := Fsettings.UserName;
           self.IDOnServer := '';
-          RefreshGUI;
+          DoRefresh := true;
+        END;
+      END;
+      IF (NOT AnsiSameText(self.ApplyToFile, extractfilename(FMovieInfo.current_filename)))
+        OR (self.OriginalFileSize <> FMovieInfo.current_filesize) THEN BEGIN
+        message_string := Format(CAResources.RsMsgCutlistReplaceFileInfo, [self.ApplyToFile, self.OriginalFileSize]);
+        IF (application.messagebox(PChar(message_string), NIL, MB_YESNO + MB_ICONINFORMATION) = IDYES) THEN BEGIN
+          AdjustFileInfo := true;
+          DoRefresh := true;
         END;
       END;
     END;
   END;
 
-  IF ApplyToFile = '' THEN
+  IF AdjustFileInfo OR (ApplyToFile = '') THEN BEGIN
     ApplyToFile := extractfilename(FMovieInfo.current_filename);
-  IF OriginalFileSize < 0 THEN
-    OriginalFileSize := FMovieInfo.current_filesize;
-  IF (FrameRate = 0) OR (FrameDuration = 0) THEN
-    FrameDuration := FMovieInfo.frame_duration;
+    DoRefresh := true;
+  END;
 
+  IF AdjustFileInfo OR (OriginalFileSize < 0) THEN BEGIN
+    OriginalFileSize := FMovieInfo.current_filesize;
+    DoRefresh := true;
+  END;
+  IF AdjustFileInfo OR (FrameRate = 0) OR (FrameDuration = 0) THEN BEGIN
+    FrameDuration := FMovieInfo.frame_duration;
+    DoRefresh := true;
+  END;
+
+  IF DoRefresh THEN
+    RefreshGUI;
+  
   //IF FHasChanged OR (FCutlistFile.GetDataString() = '') THEN BEGIN
   Result := self.StoreTo(FCutlistFile);
   //END ELSE

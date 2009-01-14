@@ -323,6 +323,9 @@ RESOURCESTRING
                                       + '    %s'#13#10
                                       + #13#10
                                       + 'Do you want to use the standard url instead of the custom location?';
+  RsMsgCutlistReplaceFileInfo         = 'Do you want to adjust the file information of this cutlist'#13#10
+                                      + '"%s (%d)"'#13#10
+                                      + 'by current file information?';
 {*)}
 IMPLEMENTATION
 

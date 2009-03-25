@@ -423,24 +423,24 @@ object FMain: TFMain
     Top = 182
     Width = 72
     Height = 20
+    Action = actSetCutStart
     Anchors = [akRight, akBottom]
-    Caption = 'Set Current'
+    Caption = 'Set current'
     ParentShowHint = False
     ShowHint = True
     TabOrder = 9
-    OnClick = cmdSetFromClick
   end
   object cmdSetTo: TButton
     Left = 556
     Top = 208
     Width = 72
     Height = 20
+    Action = actSetCutEnd
     Anchors = [akRight, akBottom]
-    Caption = 'Set Current'
+    Caption = 'Set current'
     ParentShowHint = False
     ShowHint = True
     TabOrder = 13
-    OnClick = cmdSetToClick
   end
   object cmdFromStart: TButton
     Left = 633
@@ -471,24 +471,24 @@ object FMain: TFMain
     Top = 182
     Width = 72
     Height = 20
+    Action = actJumpCutStart
     Anchors = [akRight, akBottom]
     Caption = 'Jump to'
     ParentShowHint = False
     ShowHint = True
     TabOrder = 11
-    OnClick = cmdJumpFromClick
   end
   object cmdJumpTo: TButton
     Left = 710
     Top = 208
     Width = 72
     Height = 20
+    Action = actJumpCutEnd
     Anchors = [akRight, akBottom]
     Caption = 'Jump to'
     ParentShowHint = False
     ShowHint = True
     TabOrder = 15
-    OnClick = cmdJumpToClick
   end
   object cmdReplaceCut: TButton
     Left = 671
@@ -2931,6 +2931,46 @@ object FMain: TFMain
       Hint = 'Pause'
       OnExecute = actPauseExecute
     end
+    object actSetCutStart: TAction
+      Category = 'Edit'
+      Caption = 'Set start of cut'
+      Enabled = False
+      ShortCut = 8230
+      OnExecute = actSetCutStartExecute
+    end
+    object actSetCutEnd: TAction
+      Category = 'Edit'
+      Caption = 'Set end of cut'
+      Enabled = False
+      ShortCut = 8232
+      OnExecute = actSetCutEndExecute
+    end
+    object actJumpCutStart: TAction
+      Category = 'Edit'
+      Caption = 'Jump to start of cut'
+      Enabled = False
+      ShortCut = 16422
+      OnExecute = actJumpCutStartExecute
+    end
+    object actJumpCutEnd: TAction
+      Category = 'Edit'
+      Caption = 'Jump to end of cut'
+      Enabled = False
+      ShortCut = 16424
+      OnExecute = actJumpCutEndExecute
+    end
+    object actSelectNextCut: TAction
+      Category = 'Edit'
+      Caption = 'Select next cut'
+      ShortCut = 32808
+      OnExecute = actSelectNextCutExecute
+    end
+    object actSelectPrevCut: TAction
+      Category = 'Edit'
+      Caption = 'Select previous cut'
+      ShortCut = 32806
+      OnExecute = actSelectPrevCutExecute
+    end
   end
   object mnuMain: TMainMenu
     Images = ImageList
@@ -3065,6 +3105,21 @@ object FMain: TFMain
       end
       object miDeleteselectedcut_nl: TMenuItem
         Action = actDeleteCut
+      end
+      object miN17_nl: TMenuItem
+        Caption = '-'
+      end
+      object miSetstartofcut_nl: TMenuItem
+        Action = actSetCutStart
+      end
+      object miSetendofcut_nl: TMenuItem
+        Action = actSetCutEnd
+      end
+      object miJumptostartofcut_nl: TMenuItem
+        Action = actJumpCutStart
+      end
+      object miJumptoendofcut_nl: TMenuItem
+        Action = actJumpCutEnd
       end
     end
     object miFrames: TMenuItem

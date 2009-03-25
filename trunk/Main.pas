@@ -307,17 +307,24 @@ TYPE
     KeyFrameGrabber: TSampleGrabber;
     odMovie: TJvOpenDialog;
     cbCutPreview: TJvCheckBox;
+    actSetCutStart: TAction;
+    actSetCutEnd: TAction;
+    actJumpCutStart: TAction;
+    actJumpCutEnd: TAction;
+    actSelectNextCut: TAction;
+    actSelectPrevCut: TAction;
+    miN17_nl: TMenuItem;
+    miSetendofcut_nl: TMenuItem;
+    miSetstartofcut_nl: TMenuItem;
+    miJumptostartofcut_nl: TMenuItem;
+    miJumptoendofcut_nl: TMenuItem;
     PROCEDURE FormCreate(Sender: TObject);
     PROCEDURE FormCloseQuery(Sender: TObject; VAR CanClose: Boolean);
     PROCEDURE FormClose(Sender: TObject; VAR Action: TCloseAction);
     PROCEDURE FormKeyDown(Sender: TObject; VAR Key: Word;
       Shift: TShiftState);
-    PROCEDURE cmdSetFromClick(Sender: TObject);
-    PROCEDURE cmdSetToClick(Sender: TObject);
     PROCEDURE cmdFromStartClick(Sender: TObject);
     PROCEDURE cmdToEndClick(Sender: TObject);
-    PROCEDURE cmdJumpFromClick(Sender: TObject);
-    PROCEDURE cmdJumpToClick(Sender: TObject);
     PROCEDURE actStepForwardExecute(Sender: TObject);
     PROCEDURE actStepBackwardExecute(Sender: TObject);
 
@@ -430,6 +437,12 @@ TYPE
       ASample: IMediaSample);
     PROCEDURE KeyFrameGrabberSample(sender: TObject; SampleTime: Double;
       ASample: IMediaSample);
+    PROCEDURE actSetCutStartExecute(Sender: TObject);
+    PROCEDURE actSetCutEndExecute(Sender: TObject);
+    PROCEDURE actJumpCutStartExecute(Sender: TObject);
+    PROCEDURE actJumpCutEndExecute(Sender: TObject);
+    PROCEDURE actSelectNextCutExecute(Sender: TObject);
+    PROCEDURE actSelectPrevCutExecute(Sender: TObject);
   PRIVATE
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -666,16 +679,6 @@ BEGIN
   AAction.Hint := AnsiReplaceText(AAction.Hint, '$$', s);
 END;
 
-PROCEDURE TFMain.cmdSetFromClick(Sender: TObject);
-BEGIN
-  SetStartPosition(CurrentPosition);
-END;
-
-PROCEDURE TFMain.cmdSetToClick(Sender: TObject);
-BEGIN
-  SetStopPosition(CurrentPosition);
-END;
-
 PROCEDURE TFMain.refresh_times;
 BEGIN
   self.edtFrom.Text := MovieInfo.FormatPosition(pos_from);
@@ -785,16 +788,6 @@ PROCEDURE TFMain.cmdToEndClick(Sender: TObject);
 BEGIN
   pos_to := MovieInfo.current_file_duration;
   refresh_times;
-END;
-
-PROCEDURE TFMain.cmdJumpFromClick(Sender: TObject);
-BEGIN
-  JumpTo(pos_from);
-END;
-
-PROCEDURE TFMain.cmdJumpToClick(Sender: TObject);
-BEGIN
-  JumpTo(pos_to);
 END;
 
 PROCEDURE TFMain.lvCutlistSelectItem(Sender: TObject; Item: TListItem;
@@ -1136,6 +1129,7 @@ BEGIN
         GraphPause;
 
         self.pnlVideoWindowResize(self);
+
       END;
 
       self.Caption := Application_Friendly_Name + ' ' + extractfilename(MovieInfo.current_filename);
@@ -1371,7 +1365,8 @@ VAR
 BEGIN
   {  result := MovieInfo.current_position_seconds;}
   result := 0;
-  //if not assigned(seeking) then exit;
+  IF NOT assigned(seeking) THEN
+    exit;
   IF succeeded(seeking.GetCurrentPosition(_pos)) THEN BEGIN
     IF isEqualGUID(MovieInfo.TimeFormat, TIME_FORMAT_MEDIA_TIME) THEN
       result := _pos / 10000000
@@ -2578,6 +2573,9 @@ BEGIN
   IF Assigned(FFrames) THEN BEGIN
     FFrames.HideFrames;
   END;
+
+  tbFilePos.Position := 0;
+  tbFilePos.TriggerTimer;
 
   ResetForm;
 END;
@@ -3906,6 +3904,7 @@ BEGIN
   self.tbFilePos.PageSize := self.tbFinePos.Position;
 
   self.lblDuration_nl.Caption := FormatMoviePosition(0);
+  self.lblPos_nl.Caption := FormatMoviePosition(0);
   self.UpdateMovieInfoControls;
 END;
 
@@ -3930,10 +3929,10 @@ BEGIN
   END ELSE BEGIN
     self.actStepForward.Enabled := false;
   END;
-  self.cmdJumpFrom.Enabled := value;
-  self.cmdJumpTo.Enabled := value;
-  self.cmdSetFrom.Enabled := value;
-  self.cmdSetTo.Enabled := value;
+  self.actJumpCutStart.Enabled := value;
+  self.actJumpCutEnd.Enabled := value;
+  self.actSetCutStart.Enabled := value;
+  self.actSetCutEnd.Enabled := value;
   self.cmdFromStart.Enabled := value;
   self.cmdToEnd.Enabled := value;
   //self.BPlayPause.Enabled := APlayPause.Enabled;
@@ -4387,6 +4386,40 @@ BEGIN
   END;
 
   DebugFile := IfThen(ExceptionLogging, ChangeFileExt(Application.ExeName, '.debug.log'), '');
+END;
+
+PROCEDURE TFMain.actSetCutStartExecute(Sender: TObject);
+BEGIN
+  SetStartPosition(CurrentPosition);
+END;
+
+PROCEDURE TFMain.actSetCutEndExecute(Sender: TObject);
+BEGIN
+  SetStopPosition(CurrentPosition);
+END;
+
+PROCEDURE TFMain.actJumpCutStartExecute(Sender: TObject);
+BEGIN
+  JumpTo(pos_from);
+END;
+
+PROCEDURE TFMain.actJumpCutEndExecute(Sender: TObject);
+BEGIN
+  JumpTo(pos_to);
+END;
+
+PROCEDURE TFMain.actSelectNextCutExecute(Sender: TObject);
+BEGIN
+  WITH lvCutlist DO
+    IF ItemIndex < Items.Count - 1 THEN
+      ItemIndex := ItemIndex + 1;
+END;
+
+PROCEDURE TFMain.actSelectPrevCutExecute(Sender: TObject);
+BEGIN
+  WITH lvCutlist DO
+    IF ItemIndex > 0 THEN
+      ItemIndex := ItemIndex - 1;
 END;
 
 INITIALIZATION

@@ -318,6 +318,8 @@ TYPE
     miSetstartofcut_nl: TMenuItem;
     miJumptostartofcut_nl: TMenuItem;
     miJumptoendofcut_nl: TMenuItem;
+    actShiftCut: TAction;
+    shiftCut1: TMenuItem;
     PROCEDURE FormCreate(Sender: TObject);
     PROCEDURE FormCloseQuery(Sender: TObject; VAR CanClose: Boolean);
     PROCEDURE FormClose(Sender: TObject; VAR Action: TCloseAction);
@@ -443,6 +445,7 @@ TYPE
     PROCEDURE actJumpCutEndExecute(Sender: TObject);
     PROCEDURE actSelectNextCutExecute(Sender: TObject);
     PROCEDURE actSelectPrevCutExecute(Sender: TObject);
+    PROCEDURE actShiftCutExecute(Sender: TObject);
   PRIVATE
     { Private declarations }
     UploadDataEntries: TStringList;
@@ -572,7 +575,10 @@ USES madExcept,
   IdURI,
   CAResources,
   TypInfo,
-  uFreeLocalizer;
+  uFreeLocalizer,
+  JvParameterList,
+  JvParameterListParameter,
+  JvParameterListTools;
 
 {$R *.dfm}
 {$WARN SYMBOL_PLATFORM OFF}
@@ -801,6 +807,7 @@ BEGIN
   self.actDeleteCut.enabled := value;
   self.actEditCut.Enabled := value;
   self.actReplaceCut.Enabled := value;
+  self.actShiftCut.Enabled := value;
 END;
 
 
@@ -4420,6 +4427,36 @@ BEGIN
   WITH lvCutlist DO
     IF ItemIndex > 0 THEN
       ItemIndex := ItemIndex - 1;
+END;
+
+PROCEDURE TFMain.actShiftCutExecute(Sender: TObject);
+VAR
+  AParams                          : TJvParameterList;
+  AShiftTime                       : TJvDoubleEditParameter;
+  ACut                             : TCut;
+  AShift                           : double;
+BEGIN
+  AParams := TJvParameterList.Create(self);
+  TRY
+    AShiftTime := TJvDoubleEditParameter.Create(AParams);
+    AShiftTime.SearchName := 'Shift';
+    AShiftTime.Caption := 'shift time';
+    AShiftTime.AsDouble := StrToFloatDefInv(Settings.Additional['CutShiftTime'], Settings.SmallSkipTime);
+    AShiftTime.Required := true;
+    AParams.AddParameter(AShiftTime);
+    AParams.ArrangeSettings.AutoArrange := true;
+
+    IF AParams.ShowParameterDialog THEN BEGIN
+      AShift := AShiftTime.AsDouble;
+      Settings.Additional['CutShiftTime'] := FloatToStrInvariant(AShift);
+      ACut := Cutlist.Cut[lvCutlist.ItemIndex];
+      Cutlist.ReplaceCut(ACut.pos_from + AShift,
+        ACut.pos_to + AShift,
+        lvCutlist.ItemIndex);
+    END;
+  FINALLY
+    AParams.Free;
+  END;
 END;
 
 INITIALIZATION

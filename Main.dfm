@@ -2971,6 +2971,11 @@ object FMain: TFMain
       ShortCut = 32806
       OnExecute = actSelectPrevCutExecute
     end
+    object actShiftCut: TAction
+      Category = 'Edit'
+      Caption = 'Shift Cut ...'
+      OnExecute = actShiftCutExecute
+    end
   end
   object mnuMain: TMainMenu
     Images = ImageList
@@ -3105,6 +3110,9 @@ object FMain: TFMain
       end
       object miDeleteselectedcut_nl: TMenuItem
         Action = actDeleteCut
+      end
+      object shiftCut1: TMenuItem
+        Action = actShiftCut
       end
       object miN17_nl: TMenuItem
         Caption = '-'

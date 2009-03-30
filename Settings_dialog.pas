@@ -726,10 +726,12 @@ BEGIN
       AutoSaveDownloadedCutlists := FSettings.cbAutoSaveDownloadedCutlists.Checked;
       DefaultCutMode := Fsettings.rgCutMode.ItemIndex;
 
-      self.url_cutlists_home := Fsettings.edtURL_Cutlist_Home_nl.Text;
-      self.url_info_file := Fsettings.edtURL_Info_File_nl.Text;
-      self.url_cutlists_upload := Fsettings.edtURL_Cutlist_Upload_nl.Text;
-      self.url_help := Fsettings.edtURL_Help_nl.Text;
+      self.url_cutlists_home := Trim(Fsettings.edtURL_Cutlist_Home_nl.Text);
+      IF NOT AnsiEndsText('/', self.url_cutlists_home) THEN
+        self.url_cutlists_home := self.url_cutlists_home + '/';
+      self.url_info_file := Trim(Fsettings.edtURL_Info_File_nl.Text);
+      self.url_cutlists_upload := Trim(Fsettings.edtURL_Cutlist_Upload_nl.Text);
+      self.url_help := Trim(Fsettings.edtURL_Help_nl.Text);
 
       self.proxyServerName := FSettings.edtProxyServerName_nl.Text;
       self.proxyPort := strToIntDef(FSettings.edtProxyPort_nl.Text, self.proxyPort);

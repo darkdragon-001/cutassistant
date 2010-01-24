@@ -1,0 +1,32 @@
+Index: src/DSPack/DSPack.pas
+===================================================================
+RCS file: /cvsroot/dspack/DSPACK/src/DSPack/DSPack.pas,v
+retrieving revision 1.18
+diff -r1.18 DSPack.pas
+173a174
+>   TOnSample = procedure(sender: TObject; SampleTime: Double; ASample: IMediaSample) of object;
+1060a1063
+>     FOnSample: TOnSample;
+1108a1112,1113
+>     { Receive the Sample from the Sample Grabber Filter. }
+>     property OnSample: TOnSample read FOnSample write FOnSample;
+3219c3236,3237
+<            SampleGrabber.SetCallback(Self ,1);
+---
+>            //SampleGrabber.SetCallback(Self ,1);
+>            SampleGrabber.SetCallback(Self ,0);
+3229c3247,3248
+<           SampleGrabber.SetCallback(nil ,1);
+---
+>           //SampleGrabber.SetCallback(nil ,1);
+>           SampleGrabber.SetCallback(nil ,0);
+3470a3490,3498
+>     if assigned(FOnSample) then
+>     begin
+>       FCriticalSection.Enter;
+>       try
+>         FOnSample(self, SampleTime, pSample);
+>       finally
+>         FCriticalSection.Leave;
+>       end;
+>     end;

@@ -1,5 +1,7 @@
     Cut_assistant V0.9.13 (development)
 
+    Project website: https://sourceforge.net/projects/cutassistant/
+
     _________________________________________________________________________
 
     This is a graphical user interface (GUI) for the command line utility asfbin.exe
